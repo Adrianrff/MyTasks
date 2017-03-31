@@ -14,10 +14,13 @@ import java.util.List;
 
 public class Contract {
 
+    //-------------------------VIEW OPS----------------------//
     public interface View{
 
         void showToast(String msg);
+
         Context getAppContext();
+
         void showProgress(boolean b);
 
         Context getContext();
@@ -25,6 +28,7 @@ public class Contract {
         void requestAuthorization(Exception e);
     }
 
+    //-------------------------MODEL OPS----------------------//
     public interface Model{
 
         void updateLists(List<TaskList> lists);

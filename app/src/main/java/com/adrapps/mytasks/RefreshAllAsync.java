@@ -1,7 +1,6 @@
 package com.adrapps.mytasks;
 
 import android.os.AsyncTask;
-
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -13,7 +12,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,14 +65,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
             sb.append(tasks.get(i).getTitle());
             sb.append("\n");
         }
-
         mPresenter.showToast(sb.toString());
-//        if (output == null || output.size() == 0) {
-//            mPresenter.showToast("No results returned.");
-//        } else {
-//            output.add(0, "Data retrieved using the Google Tasks API:");
-//            mPresenter.showToast(TextUtils.join("\n", output));
-//        }
     }
 
     @Override

@@ -48,12 +48,6 @@ public class SignInActivity extends Activity
 
     ProgressDialog mProgress;
 
-    static final int REQUEST_ACCOUNT_PICKER = 1000;
-    public static final int REQUEST_AUTHORIZATION = 1001;
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {TasksScopes.TASKS};
 
     /**
      * Create the main activity.
@@ -68,7 +62,7 @@ public class SignInActivity extends Activity
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.sign_in_activity);
         mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
+                getApplicationContext(), Arrays.asList(Constants.SCOPES))
                 .setBackOff(new ExponentialBackOff());
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -99,25 +93,25 @@ public class SignInActivity extends Activity
         }
     }
 
-    @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
+    @AfterPermissionGranted(Constants.REQUEST_PERMISSION_GET_ACCOUNTS)
     private void chooseAccount() {
         if (EasyPermissions.hasPermissions(
                 this, Manifest.permission.GET_ACCOUNTS)) {
             String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                    .getString(PREF_ACCOUNT_NAME, null);
+                    .getString(Constants.PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
                 signIn();
             } else {
                 startActivityForResult(
                         mCredential.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+                        Constants.REQUEST_ACCOUNT_PICKER);
             }
         } else {
             EasyPermissions.requestPermissions(
                     this,
                     "This app needs to access your Google account (via Contacts).",
-                    REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Constants.REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
         }
 
@@ -129,7 +123,7 @@ public class SignInActivity extends Activity
             int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_GOOGLE_PLAY_SERVICES:
+            case Constants.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
                     Toast.makeText(this, "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.",
@@ -137,7 +131,7 @@ public class SignInActivity extends Activity
                 }
 
                 break;
-            case REQUEST_ACCOUNT_PICKER:
+            case Constants.REQUEST_ACCOUNT_PICKER:
                 if (resultCode == RESULT_OK && data != null &&
                         data.getExtras() != null) {
                     String accountName =
@@ -146,14 +140,14 @@ public class SignInActivity extends Activity
                         SharedPreferences settings =
                                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(Constants.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
                         signIn();
                     }
                 }
                 break;
-            case REQUEST_AUTHORIZATION:
+            case Constants.REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
                     signIn();
                 }
@@ -211,7 +205,7 @@ public class SignInActivity extends Activity
         Dialog dialog = apiAvailability.getErrorDialog(
                 SignInActivity.this,
                 connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES);
+                Constants.REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
 
