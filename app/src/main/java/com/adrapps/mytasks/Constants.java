@@ -2,12 +2,7 @@ package com.adrapps.mytasks;
 
 import com.google.api.services.tasks.TasksScopes;
 
-/**
- * Created by Adrian Flores on 28/3/2017.
- */
-
 public class Constants {
-
 
     public static final int REQUEST_ACCOUNT_PICKER = 1000;
     public static final int REQUEST_AUTHORIZATION = 1001;
