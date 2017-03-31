@@ -5,34 +5,26 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import com.google.api.services.tasks.model.TaskList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Created by Adrian Flores on 28/3/2017.
- */
-
 public class ListsDatabase extends SQLiteOpenHelper {
 
     //---------DATABASE AND TABLE NAMES----------//
-    public static final String DATABASE_NAME = "ListsDataBase.db";
-    public static final String TABLE_NAME = "ListsTable";
+    private static final String DATABASE_NAME = "ListsDataBase.db";
+    private static final String TABLE_NAME = "ListsTable";
 
     //----------TABLE COLUMNS--------------//
-    public static final String COL_INT_ID = "Int_Id";
-    public static final String COL_ID = "Id";
-    public static final String COL_TITLE = "Title";
-    public static final String COL_UPDATED = "Updated";
-    public static final String COL_SELFLINK = "Selflink";
-
-
+    private static final String COL_INT_ID = "Int_Id";
+    private static final String COL_ID = "Id";
+    private static final String COL_TITLE = "Title";
+    private static final String COL_UPDATED = "Updated";
+    private static final String COL_SELFLINK = "Selflink";
 
     //---------ALL COLUMNS ARRAY----------//
-    public static final String[] ALL_COLUMNS = {
+    private static final String[] ALL_COLUMNS = {
             COL_INT_ID,
             COL_ID,
             COL_TITLE,
@@ -40,7 +32,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
             COL_SELFLINK};
 
     //-----------CREATE TABLE STATEMENT--------//
-    public static final String CREATE_TABLE =
+    private static final String CREATE_TABLE =
             "create table " + TABLE_NAME + " ( " +
                     COL_INT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COL_ID + " text," +

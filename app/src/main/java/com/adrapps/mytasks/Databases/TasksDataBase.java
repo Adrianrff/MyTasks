@@ -16,27 +16,27 @@ import java.util.TimeZone;
 public class TasksDataBase extends SQLiteOpenHelper {
 
     //---------DATABASE AND TABLE NAMES----------//
-    public static final String DATABASE_NAME = "TasksDataBase.db";
-    public static final String TABLE_NAME = "TasksTable";
+    private static final String DATABASE_NAME = "TasksDataBase.db";
+    private static final String TABLE_NAME = "TasksTable";
 
-    //----------TABLE COLUMNS--------------//
-    public static final String COL_INT_ID = "Int_Id";
-    public static final String COL_ID = "Id";
-    public static final String COL_LIST = "List";
-    public static final String COL_TITLE = "Title";
-    public static final String COL_UPDATED = "Updated";
-    public static final String COL_SELFLINK = "Selflink";
-    public static final String COL_PARENT = "Parent";
-    public static final String COL_POSITION = "Position";
-    public static final String COL_NOTES = "Notes";
-    public static final String COL_STATUS = "Status";
-    public static final String COL_DUE = "Due";
-    public static final String COL_COMPLETED = "Completed";
-    public static final String COL_DELETED = "Deleted";
-    public static final String COL_HIDDEN = "Hidden";
+    //----------TABLE COLUMNS---------------//
+    private static final String COL_INT_ID = "Int_Id";
+    private static final String COL_ID = "Id";
+    private static final String COL_LIST = "List";
+    private static final String COL_TITLE = "Title";
+    private static final String COL_UPDATED = "Updated";
+    private static final String COL_SELFLINK = "Selflink";
+    private static final String COL_PARENT = "Parent";
+    private static final String COL_POSITION = "Position";
+    private static final String COL_NOTES = "Notes";
+    private static final String COL_STATUS = "Status";
+    private static final String COL_DUE = "Due";
+    private static final String COL_COMPLETED = "Completed";
+    private static final String COL_DELETED = "Deleted";
+    private static final String COL_HIDDEN = "Hidden";
 
     //---------ALL COLUMNS ARRAY----------//
-    public static final String[] ALL_COLUMNS = {
+    private static final String[] ALL_COLUMNS = {
             COL_INT_ID,
             COL_ID,
             COL_LIST,
@@ -53,7 +53,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             COL_HIDDEN};
 
     //-----------CREATE TABLE STATEMENT--------//
-    public static final String CREATE_TABLE =
+    private static final String CREATE_TABLE =
             "create table " + TABLE_NAME + " ( " +
                     COL_INT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COL_ID + " text," +
