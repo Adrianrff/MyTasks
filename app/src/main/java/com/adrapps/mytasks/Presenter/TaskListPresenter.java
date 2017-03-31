@@ -1,23 +1,22 @@
 package com.adrapps.mytasks.Presenter;
 
 
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.view.MenuItem;
+import android.view.View;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.LocalTask;
 import com.adrapps.mytasks.Models.DatabaseModel;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
-
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-/**
- * Created by Adrian Flores on 28/3/2017.
- */
-
-public class TaskListPresenter {
+public class TaskListPresenter implements View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
     private WeakReference<Contract.View> mView;
-    // Model reference
     private Contract.Model mModel;
 
 //------------------CONSTRUCTOR-------------------////
@@ -70,5 +69,15 @@ public class TaskListPresenter {
 
     public void requestApiPermission(Exception mLastError) {
         getView().requestAuthorization(mLastError);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 }
