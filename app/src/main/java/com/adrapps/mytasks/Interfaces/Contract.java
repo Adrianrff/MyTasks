@@ -26,6 +26,7 @@ public class Contract {
         Context getContext();
 
         void requestAuthorization(Exception e);
+
     }
 
     //-------------------------MODEL OPS----------------------//

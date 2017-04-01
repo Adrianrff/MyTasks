@@ -20,7 +20,7 @@ import java.util.List;
 
 class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewHolder> {
 
-    List<LocalTask> tasks;
+    private List<LocalTask> tasks;
 
     TaskListAdapter (Context context, List<LocalTask> tasks) {
         this.tasks = tasks;
@@ -37,8 +37,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
-//        holder.taskName.setText(tasks.get(position).getName());
-//        holder.dueDate.setText(tasks.get(position).getDueDate());
+        holder.taskName.setText(tasks.get(position).getTitle());
+        holder.dueDate.setText(String.valueOf(tasks.get(position).getDue()));
 
     }
 
@@ -57,6 +57,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             super(v);
             taskName = (TextView) v.findViewById(R.id.textViewName);
             dueDate = (TextView) v.findViewById(R.id.textViewDate);
+            notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
+            taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
 
         }
     }

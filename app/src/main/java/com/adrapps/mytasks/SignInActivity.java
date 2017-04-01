@@ -144,9 +144,9 @@ public class SignInActivity extends Activity
                     String accountName =
                             data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        SharedPreferences settings =
+                        SharedPreferences prefs =
                                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        SharedPreferences.Editor editor = settings.edit();
+                        SharedPreferences.Editor editor = prefs.edit();
                         editor.putString(Constants.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
@@ -156,7 +156,7 @@ public class SignInActivity extends Activity
                 break;
             case Constants.REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
-                    signIn();
+                    showToast("Sign in succesful");
                 }
                 break;
         }
