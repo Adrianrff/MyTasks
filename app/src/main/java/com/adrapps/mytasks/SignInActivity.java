@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -18,11 +19,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.adrapps.mytasks.Presenter.TaskListPresenter;
+import com.adrapps.mytasks.Views.TaskListActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -90,6 +94,9 @@ public class SignInActivity extends Activity
             chooseAccount();
         } else if (!isDeviceOnline()) {
             Toast.makeText(this, "No network connection available.", Toast.LENGTH_LONG).show();
+        } else{
+            FirstAPICall firstCall = new FirstAPICall(this,mCredential);
+            firstCall.execute();
         }
     }
 
@@ -214,5 +221,74 @@ public class SignInActivity extends Activity
     }
 
 
+    private class FirstAPICall extends AsyncTask<Void, Void, Void> {
 
+        private com.google.api.services.tasks.Tasks mService = null;
+        private Exception mLastError = null;
+        Context context;
+
+        private FirstAPICall(Context context, GoogleAccountCredential credential) {
+            this.context = context;
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            mService = new com.google.api.services.tasks.Tasks.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName("Google Tasks API Android Quickstart")
+                    .build();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                firstCall();
+            } catch (Exception e) {
+                mLastError = e;
+                cancel(true);
+                return null;
+            }
+            return null;
+        }
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Intent i = new Intent(context, TaskListActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+        @Override
+        protected void onCancelled(Void aVoid) {
+            if (mLastError != null) {
+                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+                    Toast.makeText(context,"Google Play Services is not available",Toast.LENGTH_LONG).show();
+                } else if (mLastError instanceof UserRecoverableAuthIOException) {
+                    startActivityForResult(
+                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
+                            Constants.REQUEST_AUTHORIZATION);
+
+                } else {
+                    Toast.makeText(context,"The following error occurred:\n"
+                            + mLastError.getMessage(),Toast.LENGTH_LONG).show();
+                    mLastError.printStackTrace();
+                }
+            } else {
+                Toast.makeText(context,"Request cancelled",Toast.LENGTH_LONG).show();
+            }
+        }
+
+
+        private void firstCall() throws IOException {
+            mService.tasklists().list()
+                    .execute();
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.adrapps.mytasks.Views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -38,6 +39,7 @@ public class TaskListActivity extends AppCompatActivity
     ProgressBar progressBar;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
+    String accountName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +47,13 @@ public class TaskListActivity extends AppCompatActivity
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(Constants.SCOPES))
                 .setBackOff(new ExponentialBackOff());
-        String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(Constants.PREF_ACCOUNT_NAME, "no name");
+        accountName = getStringSharedPreference(Constants.PREF_ACCOUNT_NAME);
+        if (!accountName.equals("No value")){
+            mCredential.setSelectedAccountName(accountName);
+        } else {
+            showToast("Account name not set");
+        }
 
-        mCredential.setSelectedAccountName(accountName);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -162,6 +168,21 @@ public class TaskListActivity extends AppCompatActivity
         return GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(Constants.SCOPES))
                 .setBackOff(new ExponentialBackOff());
+
+    }
+
+    private String getStringSharedPreference(String key){
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        return prefs.getString(key,"No value");
+    }
+
+    private void saveStringSharedPreference(String key, String value){
+        SharedPreferences.Editor editor = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext()).edit();
+        editor.putString(key, value);
+        editor.apply();
+
 
     }
 
