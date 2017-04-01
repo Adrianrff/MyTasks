@@ -39,5 +39,9 @@ public class Contract {
         void addTasksInBatchesFromList(List<Task> tasks, String listId);
 
         List<LocalTask> getTasksFromList(String listId);
+
+        List<String> getListsTitles();
+
+        List<String> getListsIds();
     }
 }

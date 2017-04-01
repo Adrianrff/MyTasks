@@ -12,6 +12,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.adrapps.mytasks.Constants;
 import com.adrapps.mytasks.Interfaces.Contract;
+import com.adrapps.mytasks.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.RefreshAllAsync;
@@ -31,17 +33,18 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 import java.util.Arrays;
+import java.util.List;
 
 public class TaskListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, Contract.View {
 
-    Toolbar toolbar;
     RecyclerView recyclerView;
     TaskListAdapter adapter;
     ProgressBar progressBar;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
     String accountName;
+    List<LocalTask> tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,24 +58,26 @@ public class TaskListActivity extends AppCompatActivity
         } else {
             showToast("Account name not set");
         }
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        adapter = new TaskListAdapter(this,mPresenter.getTasksFromLlist("@defaul"));
+        tasks = mPresenter.getTasksFromLlist(mPresenter.getListsIds().get(0));
+        adapter = new TaskListAdapter(this,tasks);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(mPresenter);
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         toggle.syncState();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }

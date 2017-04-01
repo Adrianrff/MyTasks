@@ -81,4 +81,11 @@ public class TaskListPresenter implements View.OnClickListener,
 
     }
 
+    public List<String> getListsTitles() {
+        return mModel.getListsTitles();
+    }
+
+    public List<String> getListsIds() {
+        return mModel.getListsIds();
+    }
 }

@@ -30,7 +30,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     @Override
     public TaskListAdapter.TaskListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemLayoutView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, null);
+                .inflate(R.layout.list_item, parent, false);
         TaskListViewHolder holder = new TaskListViewHolder(itemLayoutView);
         return holder;
     }

@@ -29,11 +29,11 @@ public class LocalTask {
         this.notes = task.getNotes();
         this.status = task.getStatus();
         this.taskList = listId;
-        this.updated = task.getUpdated().getValue() + offset;
-        this.due = task.getDue().getValue() + offset;
-        this.completed = task.getCompleted().getValue() + offset;
-        this.deleted = task.getDeleted();
-        this.hidden = task.getHidden();
+        this.updated = (task.getUpdated() == null) ? 0:task.getUpdated().getValue() + offset;
+        this.due = (task.getDue() == null) ? 0:task.getDue().getValue() + offset;
+        this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue() + offset;
+        this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
+        this.hidden = (task.getHidden() == null) ? false:task.getHidden();
     }
 
     public LocalTask(String taskId, String title, String selfLink, String parent,

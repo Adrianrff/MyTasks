@@ -95,12 +95,11 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
     public List<LocalTask> getTasksFromLlist(String listId){
         List<LocalTask> tasks = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_NAME;
         String selection = COL_LIST + " = ? ";
         String[] selectionArgs = {listId};
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,null,null,null);
-        if (cursor.moveToFirst()){
+        if (cursor.getCount() != 0 && cursor.moveToFirst()){
             do{
                 LocalTask task = new LocalTask();
                 task.setTaskId(cursor.getString(cursor.getColumnIndex(COL_ID)));

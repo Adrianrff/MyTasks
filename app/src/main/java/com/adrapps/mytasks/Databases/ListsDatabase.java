@@ -62,7 +62,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         List<String> listsTitles = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(query,ALL_COLUMNS,null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,ALL_COLUMNS,null,null,null,null,null);
         if (cursor.moveToFirst()){
             do{
                 listsTitles.add(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
@@ -75,9 +75,8 @@ public class ListsDatabase extends SQLiteOpenHelper {
 
     public List<String> getListsIds(){
         List<String> listsTitles = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(query,ALL_COLUMNS,null,null,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,ALL_COLUMNS,null,null,null,null,null);
         if (cursor.moveToFirst()){
             do{
                 listsTitles.add(cursor.getString(cursor.getColumnIndex(COL_ID)));

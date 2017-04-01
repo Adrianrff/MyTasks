@@ -43,4 +43,14 @@ public class DatabaseModel implements Contract.Model {
     public List<LocalTask> getTasksFromList(String listId) {
         return tasksDb.getTasksFromLlist(listId);
     }
+
+    @Override
+    public List<String> getListsTitles() {
+        return listsDb.getListsTitles();
+    }
+
+    @Override
+    public List<String> getListsIds() {
+        return listsDb.getListsIds();
+    }
 }

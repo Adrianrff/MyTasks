@@ -96,25 +96,21 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
         TaskLists result = mService.tasklists().list()
                 .execute();
                 lists = result.getItems();
-
-
         for (int i = 0; i< lists.size(); i++){
             listIds.add(lists.get(i).getId());
         }
-
-
-
-
         if (!lists.isEmpty()) {
             mPresenter.updateLists(lists);
         }
-        List<Task> tasks = new ArrayList<>();
+        List<Task> tasks;
+        List<LocalTask> localTasks = new ArrayList<>();
         for (int i = 0; i < (!lists.isEmpty() ? lists.size() : 0); i++){
-            tasks.addAll(mService.tasks().list(lists.get(i).getId()).execute().getItems());
-            mPresenter.addTasksInBatchesFromList(tasks,lists.get(i).getId());
-            tasks.clear();
+            tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
+            for (int j = 0; j < tasks.size(); j++){
+                LocalTask task = new LocalTask(tasks.get(j),listIds.get(i));
+                localTasks.add(task);
+            }
         }
+        mPresenter.updateTasks(localTasks);
     }
-
-
 }
