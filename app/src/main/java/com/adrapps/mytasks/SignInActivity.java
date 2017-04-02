@@ -111,6 +111,7 @@ public class SignInActivity extends Activity
                 mCredential.setSelectedAccountName(accountName);
                 signIn();
             } else {
+
                 startActivityForResult(
                         mCredential.newChooseAccountIntent(),
                         Constants.REQUEST_ACCOUNT_PICKER);
