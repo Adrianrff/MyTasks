@@ -20,8 +20,9 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
-    TaskListPresenter mPresenter;
-    List<String> listIds = new ArrayList<>();
+    private TaskListPresenter mPresenter;
+    private List<String> listIds = new ArrayList<>();
+    private List<LocalTask> localTasks = new ArrayList<>();
 
     public RefreshAllAsync(TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.mPresenter = presenter;
@@ -58,14 +59,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-        List<LocalTask> tasks;
-        tasks = mPresenter.getTasksFromLlist(listIds.get(0));
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i<tasks.size();i++){
-            sb.append(tasks.get(i).getTitle());
-            sb.append("\n");
-        }
-        mPresenter.showToast(sb.toString());
+        mPresenter.updateAdapterItems(localTasks);
     }
 
     @Override
@@ -103,7 +97,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
             mPresenter.updateLists(lists);
         }
         List<Task> tasks;
-        List<LocalTask> localTasks = new ArrayList<>();
+
         for (int i = 0; i < (!lists.isEmpty() ? lists.size() : 0); i++){
             tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
             for (int j = 0; j < tasks.size(); j++){
@@ -112,5 +106,6 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
             }
         }
         mPresenter.updateTasks(localTasks);
+
     }
 }

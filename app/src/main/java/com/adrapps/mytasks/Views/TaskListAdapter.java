@@ -9,14 +9,11 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.LocalTask;
 import com.adrapps.mytasks.R;
 
 import java.util.List;
-
-/**
- * Created by Adrian Flores on 27/3/2017.
- */
 
 class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewHolder> {
 
@@ -31,21 +28,31 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     public TaskListAdapter.TaskListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemLayoutView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false);
-        TaskListViewHolder holder = new TaskListViewHolder(itemLayoutView);
-        return holder;
+        return new TaskListViewHolder(itemLayoutView);
     }
 
     @Override
     public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
         holder.taskName.setText(tasks.get(position).getTitle());
-        holder.dueDate.setText(String.valueOf(tasks.get(position).getDue()));
-
+        if (tasks.get(position).getDue() == 0){
+            holder.dueDate.setText(R.string.no_due_date);
+        } else {
+            holder.dueDate.setText(DateHelper.timeInMillsToString(tasks.get(position).getDue()));
+        }
     }
 
     @Override
     public int getItemCount() {
         return tasks.size();
     }
+
+    public void updateItems(List<LocalTask> localTasks) {
+        this.tasks.clear();
+        this.tasks = localTasks;
+        notifyDataSetChanged();
+    }
+
+
 
     class TaskListViewHolder extends RecyclerView.ViewHolder {
 

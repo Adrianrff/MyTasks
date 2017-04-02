@@ -12,4 +12,14 @@ public class DateHelper {
         calendar.setTimeInMillis(date.getValue() + offset);
         return calendar.getTimeInMillis();
     }
+
+    public static String timeInMillsToString (long timeInMills){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMills);
+        return String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) +
+                "/" +
+                String.valueOf(calendar.get(Calendar.MONTH) + 1) +
+                "/" +
+                String.valueOf(calendar.get(Calendar.YEAR));
+    }
 }

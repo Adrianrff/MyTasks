@@ -8,7 +8,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "com.adrapps.mytasks"
-        minSdkVersion 19
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -39,6 +39,7 @@ dependencies {
     compile('com.google.apis:google-api-services-tasks:v1-rev46-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
+    compile 'com.dmitrymalkovich.android:progress-fab:1.6'
 //    compile 'com.google.api-client:google-api-client:1.22.0'
 //    compile 'com.google.api-client:google-api-client-android:1.22.0'
 

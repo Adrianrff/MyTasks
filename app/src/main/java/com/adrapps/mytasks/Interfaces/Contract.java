@@ -8,10 +8,6 @@ import com.google.api.services.tasks.model.TaskList;
 
 import java.util.List;
 
-/**
- * Created by Adrian Flores on 28/3/2017.
- */
-
 public class Contract {
 
     //-------------------------VIEW OPS----------------------//
@@ -27,6 +23,7 @@ public class Contract {
 
         void requestAuthorization(Exception e);
 
+        void updateAdapterItems(List<LocalTask> localTasks);
     }
 
     //-------------------------MODEL OPS----------------------//

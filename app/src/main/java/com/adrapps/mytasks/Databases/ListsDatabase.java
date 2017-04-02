@@ -60,7 +60,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
 
     public List<String> getListsTitles(){
         List<String> listsTitles = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME,ALL_COLUMNS,null,null,null,null,null);
         if (cursor.moveToFirst()){

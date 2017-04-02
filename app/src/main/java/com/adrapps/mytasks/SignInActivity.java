@@ -46,10 +46,7 @@ public class SignInActivity extends Activity
 
     GoogleAccountCredential mCredential;
     private SignInButton signInButton;
-    private Exception mLastError = null;
-
     private com.google.api.services.tasks.Tasks mService = null;
-
     ProgressDialog mProgress;
 
 
@@ -72,7 +69,7 @@ public class SignInActivity extends Activity
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.tasks.Tasks.Builder(
                 transport, jsonFactory, mCredential)
-                .setApplicationName("Google Tasks API Android Quickstart")
+                .setApplicationName(getString(R.string.app_name))
                 .build();
         signInButton = (SignInButton) findViewById(R.id.signIn);
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -82,7 +79,7 @@ public class SignInActivity extends Activity
             }
         });
         mProgress = new ProgressDialog(this);
-        mProgress.setMessage("Calling Google Tasks API ...");
+        mProgress.setMessage(getString(R.string.request_api_authorization));
 
 
     }
@@ -107,6 +104,10 @@ public class SignInActivity extends Activity
             String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                     .getString(Constants.PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
+                SharedPreferences.Editor editor = PreferenceManager.
+                        getDefaultSharedPreferences(getApplicationContext()).edit();
+                editor.putString(Constants.PREF_ACCOUNT_NAME,Constants.NO_ACCOUNT_NAME);
+                editor.apply();
                 mCredential.setSelectedAccountName(accountName);
                 signIn();
             } else {
@@ -156,7 +157,14 @@ public class SignInActivity extends Activity
                 break;
             case Constants.REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
-                    showToast("Sign in succesful");
+                    SharedPreferences prefs =
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean(Constants.IS_FIRST_TIME, false);
+                    editor.apply();
+                    Intent i = new Intent(this, TaskListActivity.class);
+                    startActivity(i);
+                    finish();
                 }
                 break;
         }
@@ -256,13 +264,22 @@ public class SignInActivity extends Activity
 
         @Override
         protected void onPreExecute() {
+            mProgress.show();
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            mProgress.hide();
+            SharedPreferences prefs =
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean(Constants.IS_FIRST_TIME, false);
+            editor.apply();
             Intent i = new Intent(context, TaskListActivity.class);
+            i.putExtra(Constants.IS_FIRST_INIT,true);
             startActivity(i);
             finish();
+
         }
 
         @Override
@@ -274,7 +291,6 @@ public class SignInActivity extends Activity
                     startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             Constants.REQUEST_AUTHORIZATION);
-
                 } else {
                     Toast.makeText(context,"The following error occurred:\n"
                             + mLastError.getMessage(),Toast.LENGTH_LONG).show();

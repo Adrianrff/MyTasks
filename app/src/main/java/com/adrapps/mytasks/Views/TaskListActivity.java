@@ -3,11 +3,12 @@ package com.adrapps.mytasks.Views;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,8 +21,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
+
 import com.adrapps.mytasks.Constants;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.LocalTask;
@@ -32,54 +33,87 @@ import com.adrapps.mytasks.SignInActivity;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
+
 import java.util.Arrays;
 import java.util.List;
 
 public class TaskListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, Contract.View {
 
+    Toolbar toolbar;
+    DrawerLayout drawer;
     RecyclerView recyclerView;
+    NavigationView navigationView;
+    FloatingActionButton fab;
     TaskListAdapter adapter;
     ProgressBar progressBar;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
     String accountName;
-    List<LocalTask> tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getBooleanSharedPreference(Constants.IS_FIRST_TIME)) {
+            Intent i = new Intent(this, SignInActivity.class);
+            startActivity(i);
+        }
+        if (getIntent().hasExtra(Constants.IS_FIRST_INIT)){
+            refresh();
+            initRecyclerView(mPresenter.getTasksFromLlist(mPresenter.getListsIds().get(0)));
+        }
+        setContentView(R.layout.activity_main);
         mPresenter = new TaskListPresenter(this);
+        setCredentials();
+        findAndSetupViews();
+        initRecyclerView(mPresenter.getTasksFromLlist(getStringSharedPreference(Constants.CURRENT_LIST)));
+    }
+
+    private void findAndSetupViews() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        setSupportActionBar(toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+        progressBar.getIndeterminateDrawable()
+                .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+        fab.setOnClickListener(mPresenter);
+
+    }
+
+    private void initRecyclerView(List<LocalTask> tasks) {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new TaskListAdapter(this, tasks);
+        recyclerView.setAdapter(adapter);
+
+
+    }
+
+    private void setCredentials() {
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(Constants.SCOPES))
                 .setBackOff(new ExponentialBackOff());
         accountName = getStringSharedPreference(Constants.PREF_ACCOUNT_NAME);
-        if (!accountName.equals("No value")){
+        if (!accountName.equals("No value")) {
             mCredential.setSelectedAccountName(accountName);
         } else {
             showToast("Account name not set");
         }
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        tasks = mPresenter.getTasksFromLlist(mPresenter.getListsIds().get(0));
-        adapter = new TaskListAdapter(this,tasks);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(mPresenter);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void refresh() {
+        RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
+        refresh.execute();
     }
 
     @Override
@@ -110,12 +144,11 @@ public class TaskListActivity extends AppCompatActivity
                 break;
 
             case R.id.refresh:
-                RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
-                refresh.execute();
-                break;
+                refresh();
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -172,6 +205,11 @@ public class TaskListActivity extends AppCompatActivity
                 Constants.REQUEST_AUTHORIZATION);
     }
 
+    @Override
+    public void updateAdapterItems(List<LocalTask> localTasks) {
+        adapter.updateItems(localTasks);
+    }
+
 
     public GoogleAccountCredential getCredential() {
         return GoogleAccountCredential.usingOAuth2(
@@ -180,13 +218,19 @@ public class TaskListActivity extends AppCompatActivity
 
     }
 
-    private String getStringSharedPreference(String key){
+    private String getStringSharedPreference(String key) {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
-        return prefs.getString(key,"No value");
+        return prefs.getString(key, "No value");
     }
 
-    private void saveStringSharedPreference(String key, String value){
+    private boolean getBooleanSharedPreference(String key) {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        return prefs.getBoolean(key, true);
+    }
+
+    private void saveStringSharedPreference(String key, String value) {
         SharedPreferences.Editor editor = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext()).edit();
         editor.putString(key, value);

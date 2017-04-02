@@ -126,7 +126,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
     private long addTask(LocalTask localTask) {
         SQLiteDatabase db = this.getWritableDatabase();
-        int offSet = TimeZone.getDefault().getRawOffset();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID,localTask.getTaskId());
         cv.put(COL_LIST,localTask.getTaskList());

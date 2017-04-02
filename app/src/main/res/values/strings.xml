@@ -6,4 +6,6 @@
 
     <string name="action_settings">Settings</string>
     <string name="refresh">refresh</string>
+    <string name="no_due_date">No due date</string>
+    <string name="request_api_authorization">Requesting API authorization</string>
 </resources>

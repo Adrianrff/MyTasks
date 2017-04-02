@@ -88,4 +88,8 @@ public class TaskListPresenter implements View.OnClickListener,
     public List<String> getListsIds() {
         return mModel.getListsIds();
     }
+
+    public void updateAdapterItems(List<LocalTask> localTasks) {
+        getView().updateAdapterItems(localTasks);
+    }
 }
