@@ -1,8 +1,10 @@
 package com.adrapps.mytasks.Interfaces;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
-import com.adrapps.mytasks.LocalTask;
+import com.adrapps.mytasks.Domain.LocalTask;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
@@ -12,6 +14,10 @@ public class Contract {
 
     //-------------------------VIEW OPS----------------------//
     public interface View{
+
+        void setTaskListsTitles(List<String> titles);
+
+        void setListsIds(List<String> listIds);
 
         void showToast(String msg);
 
@@ -24,7 +30,20 @@ public class Contract {
         void requestAuthorization(Exception e);
 
         void updateAdapterItems(List<LocalTask> localTasks);
+
+        String getStringSharedPreference(String key);
+
+        boolean getBooleanSharedPreference(String key);
+
+        void saveStringSharedPreference(String key, String value);
+
+        void setToolbarTitle(String title);
+
+        void setUpViews();
+
+        void initRecyclerView(List<LocalTask> tasks);
     }
+
 
     //-------------------------MODEL OPS----------------------//
     public interface Model{

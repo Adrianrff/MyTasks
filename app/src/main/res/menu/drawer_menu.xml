@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:checkableBehavior="single"
+        android:id="@+id/lists_titles">
+        <item
+            android:id="@+id/lists_titles_menu"
+            android:title="Lists"
+            android:checkable="true"
+            >
+            <menu>
+
+            </menu>
+        </item>
+    </group>
+
+    <group>
+        <item android:id="@+id/Settings"
+            android:title="Settings" />
+    </group>
+</menu>

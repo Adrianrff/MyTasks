@@ -1,6 +1,9 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
+
+import com.adrapps.mytasks.Domain.Constants;
+import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -12,19 +15,22 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
+public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
     private List<String> listIds = new ArrayList<>();
     private List<LocalTask> localTasks = new ArrayList<>();
+    private List<TaskList> lists = new ArrayList<>();
+    private List<String> listTitles = new ArrayList<>();
 
-    public RefreshAllAsync(TaskListPresenter presenter, GoogleAccountCredential credential) {
+    public FirstRefreshAsync(TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.mPresenter = presenter;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -36,8 +42,9 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
+
         try {
-            refreshAll();
+            firstRefresh();
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
@@ -59,7 +66,13 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-        mPresenter.updateAdapterItems(localTasks);
+        mPresenter.saveStringSharedPreference(Constants.CURRENT_LIST_TITLE,lists.get(0).getTitle());
+        mPresenter.setTaskListTitles(listTitles);
+        mPresenter.setListsIds(listIds);
+        mPresenter.setUpViews();
+        mPresenter.initRecyclerView(mPresenter.getTasksFromList(lists.get(0).getId()));
+
+
     }
 
     @Override
@@ -69,7 +82,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
                 mPresenter.showToast("Google Play Services is not available");
             } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                mPresenter.showToast("The API has no authorization");
+//                mPresenter.showToast("The API has no authorization");
                 mPresenter.requestApiPermission(mLastError);
 
             } else {
@@ -85,13 +98,14 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     }
 
 
-    private void refreshAll() throws IOException {
-        List<TaskList> lists;
+    private void firstRefresh() throws IOException {
+
         TaskLists result = mService.tasklists().list()
                 .execute();
                 lists = result.getItems();
         for (int i = 0; i< lists.size(); i++){
             listIds.add(lists.get(i).getId());
+            listTitles.add(lists.get(i).getTitle());
         }
         if (!lists.isEmpty()) {
             mPresenter.updateLists(lists);

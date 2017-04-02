@@ -1,4 +1,4 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.Domain;
 
 import com.google.api.services.tasks.model.Task;
 

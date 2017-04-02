@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.adrapps.mytasks.Helpers.DateHelper;
-import com.adrapps.mytasks.LocalTask;
+import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.R;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.APICalls;
 
 import android.Manifest;
 import android.accounts.AccountManager;
@@ -19,7 +19,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.Presenter.TaskListPresenter;
+import com.adrapps.mytasks.Domain.Constants;
+import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.Views.TaskListActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -32,7 +33,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.tasks.TasksScopes;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -80,8 +80,6 @@ public class SignInActivity extends Activity
         });
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(getString(R.string.request_api_authorization));
-
-
     }
 
     private void signIn() {
@@ -123,8 +121,6 @@ public class SignInActivity extends Activity
                     Constants.REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
         }
-
-
     }
 
     @Override
@@ -229,6 +225,18 @@ public class SignInActivity extends Activity
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
+    private void goToTaskListActivity() {
+        Intent i = new Intent(this, TaskListActivity.class);
+        i.putExtra(Constants.IS_FIRST_INIT,true);
+        startActivity(i);
+        finish();
+    }
+
+    @Override
+    protected void onPause() {
+        mProgress.dismiss();
+        super.onPause();
+    }
 
     private class FirstAPICall extends AsyncTask<Void, Void, Void> {
 
@@ -270,16 +278,13 @@ public class SignInActivity extends Activity
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            mProgress.hide();
+            mProgress.dismiss();
             SharedPreferences prefs =
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(Constants.IS_FIRST_TIME, false);
             editor.apply();
-            Intent i = new Intent(context, TaskListActivity.class);
-            i.putExtra(Constants.IS_FIRST_INIT,true);
-            startActivity(i);
-            finish();
+            goToTaskListActivity();
 
         }
 
@@ -308,4 +313,5 @@ public class SignInActivity extends Activity
                     .execute();
         }
     }
+
 }

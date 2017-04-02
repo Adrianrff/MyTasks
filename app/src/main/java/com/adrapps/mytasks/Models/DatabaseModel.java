@@ -5,7 +5,7 @@ import android.content.Context;
 import com.adrapps.mytasks.Databases.ListsDatabase;
 import com.adrapps.mytasks.Databases.TasksDataBase;
 import com.adrapps.mytasks.Interfaces.Contract;
-import com.adrapps.mytasks.LocalTask;
+import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;

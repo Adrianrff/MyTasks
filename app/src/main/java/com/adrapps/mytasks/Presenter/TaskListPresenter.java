@@ -1,20 +1,14 @@
 package com.adrapps.mytasks.Presenter;
 
-
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.view.MenuItem;
-import android.view.View;
 import com.adrapps.mytasks.Interfaces.Contract;
-import com.adrapps.mytasks.LocalTask;
+import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Models.DatabaseModel;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class TaskListPresenter implements View.OnClickListener,
-        NavigationView.OnNavigationItemSelectedListener {
+public class TaskListPresenter  {
 
     private WeakReference<Contract.View> mView;
     private Contract.Model mModel;
@@ -38,7 +32,7 @@ public class TaskListPresenter implements View.OnClickListener,
 
     //-------------METHODS------------------///
 
-    public List<LocalTask> getTasksFromLlist(String listId){
+    public List<LocalTask> getTasksFromList(String listId){
         return mModel.getTasksFromList(listId);
     }
 
@@ -71,16 +65,6 @@ public class TaskListPresenter implements View.OnClickListener,
         getView().requestAuthorization(mLastError);
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return false;
-    }
-
-    @Override
-    public void onClick(View v) {
-
-    }
-
     public List<String> getListsTitles() {
         return mModel.getListsTitles();
     }
@@ -92,4 +76,33 @@ public class TaskListPresenter implements View.OnClickListener,
     public void updateAdapterItems(List<LocalTask> localTasks) {
         getView().updateAdapterItems(localTasks);
     }
+
+    public void saveStringSharedPreference(String currentListTitle, String title) {
+        getView().saveStringSharedPreference(currentListTitle,title);
+    }
+
+    public String getStringSharedPreference(String key){
+        return getView().getStringSharedPreference(key);
+    }
+
+    public void setToolbarTitle(String title){
+        getView().setToolbarTitle(title);
+    }
+
+    public void initRecyclerView(List<LocalTask> tasks) {
+        getView().initRecyclerView(tasks);
+    }
+
+    public void setUpViews(){
+        getView().setUpViews();
+    }
+
+    public void setTaskListTitles(List<String> titles){
+        getView().setTaskListsTitles(titles);
+    }
+
+    public void setListsIds(List<String> listIds){
+        getView().setListsIds(listIds);
+    }
+
 }

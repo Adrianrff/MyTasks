@@ -26,7 +26,7 @@
         </activity>
 
         <activity
-            android:name=".SignInActivity"
+            android:name=".APICalls.SignInActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
 
