@@ -7,9 +7,9 @@
     tools:context="com.adrapps.mytasks.Views.TaskListActivity">
 
     <android.support.design.widget.AppBarLayout
-        android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:orientation="vertical"
         android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -29,15 +29,16 @@
                 android:paddingStart="8dp"
                 android:visibility="gone" />
 
-
         </android.support.v7.widget.Toolbar>
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/new_task_layout"
             android:layout_width="match_parent"
-            android:visibility="visible"
             android:layout_height="164dp"
-            android:padding="16dp">
+            android:paddingBottom="16dp"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/title_icon"
@@ -77,9 +78,9 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="28dp"
                 android:src="@drawable/ic_notifications_none_black_24dp"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toLeftOf="@+id/date_icon"
-                app:layout_constraintTop_toBottomOf="@+id/date_icon"
-                app:layout_constraintHorizontal_bias="0.0" />
+                app:layout_constraintTop_toBottomOf="@+id/date_icon" />
 
             <EditText
                 android:id="@+id/title_edit_text"
@@ -109,17 +110,16 @@
 
             <android.support.v7.widget.AppCompatSpinner
                 android:id="@+id/notification_spinner"
-                android:layout_width="318dp"
-                android:layout_height="25dp"
-                android:layout_marginLeft="6dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
                 android:layout_marginStart="6dp"
+                android:entries="@array/notification_options"
                 app:layout_constraintBottom_toBottomOf="@+id/notification_icon"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintLeft_toLeftOf="@+id/date_edit_text"
+                app:layout_constraintLeft_toRightOf="@+id/notification_icon"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/notification_icon"
-                tools:listitem="dfdfd,dfdfs" />
+                app:layout_constraintTop_toTopOf="@+id/notification_icon" />
 
 
         </android.support.constraint.ConstraintLayout>
