@@ -3,6 +3,7 @@ package com.adrapps.mytasks.Presenter;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Models.DatabaseModel;
+import com.adrapps.mytasks.R;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.lang.ref.WeakReference;
@@ -105,4 +106,27 @@ public class TaskListPresenter  {
         getView().setListsIds(listIds);
     }
 
+    public void onClick(int id) {
+        switch (id){
+            case R.id.fab:
+                expandNewTaskLayout();
+                break;
+        }
+    }
+
+    public void updateCurrentView() {
+        getView().updateCurrentView();
+    }
+
+    public String getListTitleFromId(String listId){
+        return mModel.getListTitleFromId(listId);
+    }
+
+    public void expandNewTaskLayout(){
+        getView().expandNewTaskLayout();
+    }
+
+    public void collapseNewTaskLayout(){
+        getView().collapseNewTaskLayout();
+    }
 }

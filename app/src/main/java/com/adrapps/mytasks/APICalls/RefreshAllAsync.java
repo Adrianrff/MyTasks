@@ -63,7 +63,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-//        mPresenter.updateAdapterItems(localTasks);
+        mPresenter.updateCurrentView();
     }
 
     @Override

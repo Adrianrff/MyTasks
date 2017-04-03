@@ -53,4 +53,9 @@ public class DatabaseModel implements Contract.Model {
     public List<String> getListsIds() {
         return listsDb.getListsIds();
     }
+
+    @Override
+    public String getListTitleFromId(String listId) {
+        return listsDb.getListTitleFromId(listId);
+    }
 }

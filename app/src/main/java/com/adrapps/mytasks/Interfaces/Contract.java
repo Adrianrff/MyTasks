@@ -19,6 +19,8 @@ public class Contract {
 
         void setListsIds(List<String> listIds);
 
+        void collapseNewTaskLayout();
+
         void showToast(String msg);
 
         Context getAppContext();
@@ -42,6 +44,10 @@ public class Contract {
         void setUpViews();
 
         void initRecyclerView(List<LocalTask> tasks);
+
+        void updateCurrentView();
+
+        void expandNewTaskLayout();
     }
 
 
@@ -59,5 +65,7 @@ public class Contract {
         List<String> getListsTitles();
 
         List<String> getListsIds();
+
+        String getListTitleFromId(String listId);
     }
 }

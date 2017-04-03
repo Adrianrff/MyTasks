@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
@@ -13,6 +16,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,9 +25,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
@@ -35,7 +39,6 @@ import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,23 +54,27 @@ public class TaskListActivity extends AppCompatActivity
     FloatingActionButton fab;
     TaskListAdapter adapter;
     ProgressBar progressBar;
+    EditText taskTitle,taskDueDate;
+    AppCompatSpinner notificationSpinner;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
     List<String> taskListsTitles = new ArrayList<>();
     List<String> taskListsIds = new ArrayList<>();
     String accountName;
+    private ConstraintLayout newTaskLayout;
+    private AppCompatSpinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigation_drawer_content);
-        findViews();
         if (getBooleanSharedPreference(Constants.IS_FIRST_TIME)) {
             Intent i = new Intent(this, SignInActivity.class);
             startActivity(i);
             finish();
             return;
         }
+        setContentView(R.layout.navigation_drawer_content);
+        findViews();
         mPresenter = new TaskListPresenter(this);
         setCredentials();
         if (getIntent().hasExtra(Constants.IS_FIRST_INIT)) {
@@ -77,13 +84,12 @@ public class TaskListActivity extends AppCompatActivity
         }
         taskListsTitles = mPresenter.getListsTitles();
         taskListsIds = mPresenter.getListsIds();
-        showToast(getStringSharedPreference(Constants.CURRENT_LIST_TITLE + " " + Constants.CURRENT_LIST_ID));
+        setUpViews();
         initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Constants.CURRENT_LIST_ID)));
     }
 
     @Override
     protected void onResume() {
-        setUpViews();
         super.onResume();
     }
 
@@ -93,7 +99,11 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void findViews() {
+        taskTitle = (EditText) findViewById(R.id.title_edit_text);
+        taskDueDate = (EditText) findViewById(R.id.date_edit_text);
+        notificationSpinner = (AppCompatSpinner) findViewById(R.id.notification_spinner);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        newTaskLayout = (ConstraintLayout) findViewById(R.id.new_task_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -103,6 +113,8 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void setUpViews() {
+        taskListsTitles = mPresenter.getListsTitles();
+        taskListsIds = mPresenter.getListsIds();
         toolbar.setTitle(getStringSharedPreference(Constants.CURRENT_LIST_TITLE));
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -112,9 +124,14 @@ public class TaskListActivity extends AppCompatActivity
         progressBar.getIndeterminateDrawable()
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
         fab.setOnClickListener(this);
+        setNavDrawerMenu();
+    }
+
+    public void setNavDrawerMenu(){
         Menu menu = navigationView.getMenu();
         MenuItem item = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = item.getSubMenu();
+        listsMenu.clear();
         for (int i = 0; i < taskListsTitles.size(); i++) {
             listsMenu.add(0, i, i, taskListsTitles.get(i)).setIcon(R.drawable.ic_list).
                     setOnMenuItemClickListener(this);
@@ -130,6 +147,23 @@ public class TaskListActivity extends AppCompatActivity
         recyclerView.setLayoutManager(layoutManager);
         adapter = new TaskListAdapter(this, tasks);
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void updateCurrentView() {
+        taskListsIds = mPresenter.getListsIds();
+        taskListsTitles = mPresenter.getListsTitles();
+        saveStringSharedPreference(Constants.CURRENT_LIST_TITLE,
+                mPresenter.getListTitleFromId(getStringSharedPreference(Constants.CURRENT_LIST_ID)));
+        toolbar.setTitle(getStringSharedPreference(Constants.CURRENT_LIST_TITLE));
+        setNavDrawerMenu();
+        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Constants.CURRENT_LIST_ID)));
+
+    }
+
+    @Override
+    public void expandNewTaskLayout() {
+        newTaskLayout.setVisibility(View.VISIBLE);
     }
 
     private void setCredentials() {
@@ -166,9 +200,15 @@ public class TaskListActivity extends AppCompatActivity
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (newTaskLayout.getVisibility() == View.VISIBLE){
+            collapseNewTaskLayout();
         } else {
             super.onBackPressed();
         }
+    }
+    @Override
+    public void collapseNewTaskLayout() {
+        newTaskLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -201,17 +241,17 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
+        mPresenter.onClick(v.getId());
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         saveStringSharedPreference(Constants.CURRENT_LIST_ID, taskListsIds.get(item.getItemId()));
-        adapter.updateItems(mPresenter.getTasksFromList(taskListsTitles.get(item.getItemId())));
+        saveStringSharedPreference(Constants.CURRENT_LIST_TITLE, taskListsTitles.get(item.getItemId()));
+        adapter.updateItems(mPresenter.getTasksFromList(taskListsIds.get(item.getItemId())));
         toolbar.setTitle(item.getTitle());
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
+        return false;
     }
 
     @Override
@@ -273,12 +313,11 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void saveStringSharedPreference(String key, String value) {
-        SharedPreferences.Editor editor = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext()).edit();
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
         editor.putString(key, value);
         editor.apply();
-
-
     }
 
     @Override

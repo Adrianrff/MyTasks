@@ -7,6 +7,7 @@
     tools:context="com.adrapps.mytasks.Views.TaskListActivity">
 
     <android.support.design.widget.AppBarLayout
+        android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -24,14 +25,106 @@
                 android:id="@+id/progressBar"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:visibility="gone"
-                android:paddingStart="8dp"/>
+                android:paddingLeft="8dp"
+                android:paddingStart="8dp"
+                android:visibility="gone" />
+
 
         </android.support.v7.widget.Toolbar>
 
-    </android.support.design.widget.AppBarLayout>
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/new_task_layout"
+            android:layout_width="match_parent"
+            android:visibility="visible"
+            android:layout_height="164dp"
+            android:padding="16dp">
 
-    <include layout="@layout/content_main" />
+            <ImageView
+                android:id="@+id/title_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="0dp"
+                android:src="@drawable/ic_label"
+                app:layout_constraintBottom_toBottomOf="@+id/title_edit_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/title_edit_text"
+                tools:layout_editor_absoluteX="16dp" />
+
+            <ImageView
+                android:id="@+id/date_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/ic_date"
+                app:layout_constraintBottom_toBottomOf="@+id/date_edit_text"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/date_edit_text"
+                app:layout_constraintVertical_bias="0.333" />
+
+            <ImageView
+                android:id="@+id/notification_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="28dp"
+                android:src="@drawable/ic_notifications_none_black_24dp"
+                app:layout_constraintLeft_toLeftOf="@+id/date_icon"
+                app:layout_constraintTop_toBottomOf="@+id/date_icon"
+                app:layout_constraintHorizontal_bias="0.0" />
+
+            <EditText
+                android:id="@+id/title_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:hint="@string/task_title_hint"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                app:layout_constraintLeft_toRightOf="@+id/title_icon"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toEndOf="@id/title_icon"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/date_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="12dp"
+                android:hint="@string/task_due_date"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toRightOf="@+id/date_icon"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toEndOf="@id/date_icon"
+                app:layout_constraintTop_toBottomOf="@+id/title_edit_text" />
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/notification_spinner"
+                android:layout_width="318dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                app:layout_constraintBottom_toBottomOf="@+id/notification_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="@+id/date_edit_text"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/notification_icon"
+                tools:listitem="dfdfd,dfdfs" />
+
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -39,6 +132,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        android:src="@drawable/ic_add_black_24dp" />
+
+    <include layout="@layout/content_main" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -113,4 +113,20 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         db.close();
     }
+
+    public String getListTitleFromId (String listId){
+        String listTitle = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {listId};
+        Cursor cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,null,null,null);
+        if (cursor.moveToFirst()){
+            do{
+                listTitle = cursor.getString(cursor.getColumnIndex(COL_TITLE));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return listTitle;
+    }
 }
