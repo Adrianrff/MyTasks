@@ -3,6 +3,8 @@ package com.adrapps.mytasks.Interfaces;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.CoordinatorLayout;
 
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.google.api.services.tasks.model.Task;
@@ -15,9 +17,14 @@ public class Contract {
     //-------------------------VIEW OPS----------------------//
     public interface View{
 
+
+        void expandNewTaskLayout();
+
         void setTaskListsTitles(List<String> titles);
 
         void setListsIds(List<String> listIds);
+
+        void showNewTaskDialog();
 
         void collapseNewTaskLayout();
 
@@ -41,13 +48,12 @@ public class Contract {
 
         void setToolbarTitle(String title);
 
-        void setUpViews();
+        void setUpViewsAndData();
 
         void initRecyclerView(List<LocalTask> tasks);
 
         void updateCurrentView();
 
-        void expandNewTaskLayout();
     }
 
 

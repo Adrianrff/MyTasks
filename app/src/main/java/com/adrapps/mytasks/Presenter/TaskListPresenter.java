@@ -95,7 +95,7 @@ public class TaskListPresenter  {
     }
 
     public void setUpViews(){
-        getView().setUpViews();
+        getView().setUpViewsAndData();
     }
 
     public void setTaskListTitles(List<String> titles){
@@ -123,6 +123,7 @@ public class TaskListPresenter  {
     }
 
     public void expandNewTaskLayout(){
+
         getView().expandNewTaskLayout();
     }
 

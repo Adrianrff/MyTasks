@@ -19,7 +19,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.Domain.Constants;
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.Views.TaskListActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -63,7 +63,7 @@ public class SignInActivity extends Activity
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.sign_in_activity);
         mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(Constants.SCOPES))
+                getApplicationContext(), Arrays.asList(Co.SCOPES))
                 .setBackOff(new ExponentialBackOff());
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -95,16 +95,16 @@ public class SignInActivity extends Activity
         }
     }
 
-    @AfterPermissionGranted(Constants.REQUEST_PERMISSION_GET_ACCOUNTS)
+    @AfterPermissionGranted(Co.REQUEST_PERMISSION_GET_ACCOUNTS)
     private void chooseAccount() {
         if (EasyPermissions.hasPermissions(
                 this, Manifest.permission.GET_ACCOUNTS)) {
             String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                    .getString(Constants.PREF_ACCOUNT_NAME, null);
+                    .getString(Co.PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 SharedPreferences.Editor editor = PreferenceManager.
                         getDefaultSharedPreferences(getApplicationContext()).edit();
-                editor.putString(Constants.PREF_ACCOUNT_NAME,Constants.NO_ACCOUNT_NAME);
+                editor.putString(Co.PREF_ACCOUNT_NAME, Co.NO_ACCOUNT_NAME);
                 editor.apply();
                 mCredential.setSelectedAccountName(accountName);
                 signIn();
@@ -112,13 +112,13 @@ public class SignInActivity extends Activity
 
                 startActivityForResult(
                         mCredential.newChooseAccountIntent(),
-                        Constants.REQUEST_ACCOUNT_PICKER);
+                        Co.REQUEST_ACCOUNT_PICKER);
             }
         } else {
             EasyPermissions.requestPermissions(
                     this,
                     "This app needs to access your Google account (via Contacts).",
-                    Constants.REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
         }
     }
@@ -128,7 +128,7 @@ public class SignInActivity extends Activity
             int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case Constants.REQUEST_GOOGLE_PLAY_SERVICES:
+            case Co.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
                     Toast.makeText(this, "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.",
@@ -136,7 +136,7 @@ public class SignInActivity extends Activity
                 }
 
                 break;
-            case Constants.REQUEST_ACCOUNT_PICKER:
+            case Co.REQUEST_ACCOUNT_PICKER:
                 if (resultCode == RESULT_OK && data != null &&
                         data.getExtras() != null) {
                     String accountName =
@@ -145,19 +145,19 @@ public class SignInActivity extends Activity
                         SharedPreferences prefs =
                                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                         SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString(Constants.PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(Co.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
                         signIn();
                     }
                 }
                 break;
-            case Constants.REQUEST_AUTHORIZATION:
+            case Co.REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
                     SharedPreferences prefs =
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean(Constants.IS_FIRST_TIME, false);
+                    editor.putBoolean(Co.IS_FIRST_TIME, false);
                     editor.apply();
                     Intent i = new Intent(this, TaskListActivity.class);
                     startActivity(i);
@@ -217,7 +217,7 @@ public class SignInActivity extends Activity
         Dialog dialog = apiAvailability.getErrorDialog(
                 SignInActivity.this,
                 connectionStatusCode,
-                Constants.REQUEST_GOOGLE_PLAY_SERVICES);
+                Co.REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
 
@@ -227,7 +227,7 @@ public class SignInActivity extends Activity
 
     private void goToTaskListActivity() {
         Intent i = new Intent(this, TaskListActivity.class);
-        i.putExtra(Constants.IS_FIRST_INIT,true);
+        i.putExtra(Co.IS_FIRST_INIT,true);
         startActivity(i);
         finish();
     }
@@ -282,7 +282,7 @@ public class SignInActivity extends Activity
             SharedPreferences prefs =
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean(Constants.IS_FIRST_TIME, false);
+            editor.putBoolean(Co.IS_FIRST_TIME, false);
             editor.apply();
             goToTaskListActivity();
 
@@ -296,7 +296,7 @@ public class SignInActivity extends Activity
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            Constants.REQUEST_AUTHORIZATION);
+                            Co.REQUEST_AUTHORIZATION);
                 } else {
                     Toast.makeText(context,"The following error occurred:\n"
                             + mLastError.getMessage(),Toast.LENGTH_LONG).show();

@@ -2,7 +2,7 @@ package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
 
-import com.adrapps.mytasks.Domain.Constants;
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -66,7 +66,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-        mPresenter.saveStringSharedPreference(Constants.CURRENT_LIST_TITLE,lists.get(0).getTitle());
+        mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE,lists.get(0).getTitle());
         mPresenter.setTaskListTitles(listTitles);
         mPresenter.setListsIds(listIds);
         mPresenter.setUpViews();

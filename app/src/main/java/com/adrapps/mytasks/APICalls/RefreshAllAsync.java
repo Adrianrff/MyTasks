@@ -2,7 +2,6 @@ package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
 
-import com.adrapps.mytasks.Domain.Constants;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.google.api.client.extensions.android.http.AndroidHttp;

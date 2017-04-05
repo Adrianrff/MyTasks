@@ -1,5 +1,7 @@
 package com.adrapps.mytasks.Views;
 
+import android.animation.ValueAnimator;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -15,23 +18,29 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
-import com.adrapps.mytasks.Domain.Constants;
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -67,7 +76,7 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getBooleanSharedPreference(Constants.IS_FIRST_TIME)) {
+        if (getBooleanSharedPreference(Co.IS_FIRST_TIME)) {
             Intent i = new Intent(this, SignInActivity.class);
             startActivity(i);
             finish();
@@ -77,15 +86,15 @@ public class TaskListActivity extends AppCompatActivity
         findViews();
         mPresenter = new TaskListPresenter(this);
         setCredentials();
-        if (getIntent().hasExtra(Constants.IS_FIRST_INIT)) {
+        if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
             refreshFirstTime();
             return;
 
         }
         taskListsTitles = mPresenter.getListsTitles();
         taskListsIds = mPresenter.getListsIds();
-        setUpViews();
-        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Constants.CURRENT_LIST_ID)));
+        setUpViewsAndData();
+        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
     }
 
     @Override
@@ -112,10 +121,10 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     @Override
-    public void setUpViews() {
+    public void setUpViewsAndData() {
         taskListsTitles = mPresenter.getListsTitles();
         taskListsIds = mPresenter.getListsIds();
-        toolbar.setTitle(getStringSharedPreference(Constants.CURRENT_LIST_TITLE));
+        toolbar.setTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -153,23 +162,28 @@ public class TaskListActivity extends AppCompatActivity
     public void updateCurrentView() {
         taskListsIds = mPresenter.getListsIds();
         taskListsTitles = mPresenter.getListsTitles();
-        saveStringSharedPreference(Constants.CURRENT_LIST_TITLE,
-                mPresenter.getListTitleFromId(getStringSharedPreference(Constants.CURRENT_LIST_ID)));
-        toolbar.setTitle(getStringSharedPreference(Constants.CURRENT_LIST_TITLE));
+        saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
+                mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+        toolbar.setTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
         setNavDrawerMenu();
-        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Constants.CURRENT_LIST_ID)));
+        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
 
     }
 
     @Override
     public void expandNewTaskLayout() {
-        newTaskLayout.setVisibility(View.VISIBLE);
+        showNewTaskDialog();
+//        newTaskLayout.setVisibility(View.VISIBLE);
+//        AppBarLayout.LayoutParams params = new AppBarLayout.LayoutParams(
+//                AppBarLayout.LayoutParams.MATCH_PARENT,
+//                AppBarLayout.LayoutParams.WRAP_CONTENT);
+//        newTaskLayout.setLayoutParams(params);
     }
 
     private void setCredentials() {
         mCredential = getCredential();
-        accountName = getStringSharedPreference(Constants.PREF_ACCOUNT_NAME);
-        if (!accountName.equals(Constants.NO_ACCOUNT_NAME)) {
+        accountName = getStringSharedPreference(Co.PREF_ACCOUNT_NAME);
+        if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
             mCredential.setSelectedAccountName(accountName);
         }
     }
@@ -204,6 +218,33 @@ public class TaskListActivity extends AppCompatActivity
             collapseNewTaskLayout();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void showNewTaskDialog(){
+
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.new_task_dialog);
+        dialog.setCancelable(true);dialog.show();
+
+        dialog.getWindow().setGravity(Gravity.TOP);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        View v = getLayoutInflater().inflate(R.layout.new_task_dialog,null);
+//        EditText newTaskTitle = (EditText) v.findViewById(R.id.newTaskTitleInput);
+//        builder.setView(v);
+//        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showKeyboard(View view) {
+        if (view.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
     }
     @Override
@@ -246,8 +287,8 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        saveStringSharedPreference(Constants.CURRENT_LIST_ID, taskListsIds.get(item.getItemId()));
-        saveStringSharedPreference(Constants.CURRENT_LIST_TITLE, taskListsTitles.get(item.getItemId()));
+        saveStringSharedPreference(Co.CURRENT_LIST_ID, taskListsIds.get(item.getItemId()));
+        saveStringSharedPreference(Co.CURRENT_LIST_TITLE, taskListsTitles.get(item.getItemId()));
         adapter.updateItems(mPresenter.getTasksFromList(taskListsIds.get(item.getItemId())));
         toolbar.setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
@@ -281,7 +322,7 @@ public class TaskListActivity extends AppCompatActivity
     public void requestAuthorization(Exception e) {
         startActivityForResult(
                 ((UserRecoverableAuthIOException) e).getIntent(),
-                Constants.REQUEST_AUTHORIZATION);
+                Co.REQUEST_AUTHORIZATION);
     }
 
     @Override
@@ -292,7 +333,7 @@ public class TaskListActivity extends AppCompatActivity
 
     public GoogleAccountCredential getCredential() {
         return GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(Constants.SCOPES))
+                getApplicationContext(), Arrays.asList(Co.SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
     }
