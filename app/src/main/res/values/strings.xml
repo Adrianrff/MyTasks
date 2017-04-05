@@ -10,6 +10,7 @@
     <string name="request_api_authorization">Requesting API authorization</string>
     <string name="task_title_hint">Task title</string>
     <string name="task_due_date">task due date</string>
+    <string name="label_add_button">AGREGAR</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

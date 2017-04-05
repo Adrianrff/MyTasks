@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#812f3d</color>
     <color name="colorAccent">#963848</color>
     <color name="white">#FFFFFF</color>
+    <color name="selected_comment_background">@android:color/darker_gray</color>
+    <color name="comment_background">@android:color/white</color>
 </resources>

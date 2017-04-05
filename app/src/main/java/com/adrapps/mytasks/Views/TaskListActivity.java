@@ -224,20 +224,34 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     public void showNewTaskDialog(){
 
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.new_task_dialog);
-        dialog.setCancelable(true);dialog.show();
+//        final Dialog dialog = new Dialog(this);
+//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        dialog.setContentView(R.layout.new_task_dialog);
+//        dialog.setCancelable(true);dialog.show();
+//
+//        dialog.getWindow().setGravity(Gravity.TOP);
+//        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        dialog.getWindow().setGravity(Gravity.TOP);
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        View v = getLayoutInflater().inflate(R.layout.new_task_dialog,null);
-//        EditText newTaskTitle = (EditText) v.findViewById(R.id.newTaskTitleInput);
-//        builder.setView(v);
-//        AlertDialog dialog = builder.create();
-        dialog.show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View v = getLayoutInflater().inflate(R.layout.new_task_dialog,null);
+        EditText newTaskTitle = (EditText) v.findViewById(R.id.newTaskTitleInput);
+        builder.setView(v);
+        AlertDialog dialog = builder.create();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setGravity(Gravity.TOP);
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(window.getAttributes());
+//This makes the dialog take up the full width
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            dialog.show();
+            window.setAttributes(lp);
+        }
+//        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+
     }
 
     public void showKeyboard(View view) {
