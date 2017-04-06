@@ -1,7 +1,10 @@
 package com.adrapps.mytasks.Helpers;
 
 import com.google.api.client.util.DateTime;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class DateHelper {
@@ -13,7 +16,7 @@ public class DateHelper {
         return calendar.getTimeInMillis();
     }
 
-    public static String timeInMillsToString (long timeInMills){
+    public static String timeInMillsToStringSimpleFormat(long timeInMills){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         return String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) +
@@ -22,4 +25,14 @@ public class DateHelper {
                 "/" +
                 String.valueOf(calendar.get(Calendar.YEAR));
     }
+
+    public static String timeInMillsToString(long timeInMills){
+        SimpleDateFormat format = new SimpleDateFormat("EEEE, d MMM ''yy", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMills);
+        return format.format(calendar.getTime());
+
+    }
+
+
 }

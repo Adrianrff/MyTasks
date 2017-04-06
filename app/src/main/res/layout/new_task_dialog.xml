@@ -62,10 +62,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:entries="@array/notification_options"
-            android:hint="Pick date" />
+            android:hint="@string/pick_date" />
 
         <Space
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 

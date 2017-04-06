@@ -1,7 +1,5 @@
 package com.adrapps.mytasks.Views;
 
-import android.animation.ValueAnimator;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,8 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
@@ -30,31 +26,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
+import com.adrapps.mytasks.Interfaces.RecyclerItemClickListener;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class TaskListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        Contract.View, MenuItem.OnMenuItemClickListener, View.OnClickListener {
+        Contract.View, MenuItem.OnMenuItemClickListener, View.OnClickListener, RecyclerItemClickListener {
 
     Toolbar toolbar;
     DrawerLayout drawer;
@@ -63,7 +61,7 @@ public class TaskListActivity extends AppCompatActivity
     FloatingActionButton fab;
     TaskListAdapter adapter;
     ProgressBar progressBar;
-    EditText taskTitle,taskDueDate;
+    EditText taskTitle, taskDueDate;
     AppCompatSpinner notificationSpinner;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
@@ -136,7 +134,7 @@ public class TaskListActivity extends AppCompatActivity
         setNavDrawerMenu();
     }
 
-    public void setNavDrawerMenu(){
+    public void setNavDrawerMenu() {
         Menu menu = navigationView.getMenu();
         MenuItem item = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = item.getSubMenu();
@@ -197,13 +195,14 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     @Override
-    public void setListsIds(List<String> listIds){
+    public void setListsIds(List<String> listIds) {
         if (!listIds.isEmpty())
             for (int i = 0; i < listIds.size(); i++) {
                 taskListsIds.add(listIds.get(i));
             }
 
     }
+
     private void refresh() {
         RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
         refresh.execute();
@@ -214,7 +213,7 @@ public class TaskListActivity extends AppCompatActivity
 
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (newTaskLayout.getVisibility() == View.VISIBLE){
+        } else if (newTaskLayout.getVisibility() == View.VISIBLE) {
             collapseNewTaskLayout();
         } else {
             super.onBackPressed();
@@ -222,7 +221,7 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     @Override
-    public void showNewTaskDialog(){
+    public void showNewTaskDialog() {
 
 //        final Dialog dialog = new Dialog(this);
 //        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -233,7 +232,7 @@ public class TaskListActivity extends AppCompatActivity
 //        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View v = getLayoutInflater().inflate(R.layout.new_task_dialog,null);
+        View v = getLayoutInflater().inflate(R.layout.new_task_dialog, null);
         EditText newTaskTitle = (EditText) v.findViewById(R.id.newTaskTitleInput);
         builder.setView(v);
         AlertDialog dialog = builder.create();
@@ -261,6 +260,7 @@ public class TaskListActivity extends AppCompatActivity
             imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
     }
+
     @Override
     public void collapseNewTaskLayout() {
         newTaskLayout.setVisibility(View.GONE);
@@ -300,10 +300,16 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     @Override
+    public void onItemCilck() {
+
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         saveStringSharedPreference(Co.CURRENT_LIST_ID, taskListsIds.get(item.getItemId()));
         saveStringSharedPreference(Co.CURRENT_LIST_TITLE, taskListsTitles.get(item.getItemId()));
         adapter.updateItems(mPresenter.getTasksFromList(taskListsIds.get(item.getItemId())));
+        showToast(String.valueOf(item.getGroupId()));
         toolbar.setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
         return false;

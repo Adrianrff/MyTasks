@@ -6,7 +6,7 @@
         android:id="@+id/lists_titles">
         <item
             android:id="@+id/lists_titles_menu"
-            android:title="Lists"
+            android:title="@string/lists_menu_title"
             android:checkable="true"
             >
             <menu>
@@ -17,6 +17,6 @@
 
     <group>
         <item android:id="@+id/Settings"
-            android:title="Settings" />
+            android:title="@string/action_settings" />
     </group>
 </menu>
