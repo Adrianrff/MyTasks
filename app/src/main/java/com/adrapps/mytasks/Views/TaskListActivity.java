@@ -74,6 +74,7 @@ public class TaskListActivity extends AppCompatActivity
     private AppCompatSpinner spinner;
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getBooleanSharedPreference(Co.IS_FIRST_TIME)) {
