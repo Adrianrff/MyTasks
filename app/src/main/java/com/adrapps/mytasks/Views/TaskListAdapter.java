@@ -85,6 +85,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     public int getItemCount() {
 //        Log.d("taskssize",String.valueOf(tasks.size()));
         return tasks.size();
+
     }
 
     public void updateItems(List<LocalTask> localTasks) {
@@ -92,6 +93,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         this.tasks = localTasks;
         notifyDataSetChanged();
     }
+
+
+
 
     @Override
     public void onClick(View v) {
@@ -112,7 +116,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         TaskListViewHolder(View v) {
             super(v);
-
+            detail = (RelativeLayout) v.findViewById(R.id.task_detail_layout);
             notes = (TextView) v.findViewById(R.id.notes_content);
             dueDate = (TextView) v.findViewById(R.id.textViewDate);
             taskName = (TextView) v.findViewById(R.id.textViewName);
@@ -120,10 +124,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
             Log.d("position",String.valueOf(getAdapterPosition()));
         }
-
-
     }
-
 }
 
 

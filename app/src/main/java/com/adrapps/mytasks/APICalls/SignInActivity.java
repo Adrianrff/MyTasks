@@ -33,8 +33,11 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.tasks.model.TaskList;
+import com.google.api.services.tasks.model.TaskLists;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,6 +49,7 @@ public class SignInActivity extends Activity
 
     GoogleAccountCredential mCredential;
     private SignInButton signInButton;
+
     private com.google.api.services.tasks.Tasks mService = null;
     ProgressDialog mProgress;
 
@@ -89,8 +93,8 @@ public class SignInActivity extends Activity
             chooseAccount();
         } else if (!isDeviceOnline()) {
             Toast.makeText(this, "No network connection available.", Toast.LENGTH_LONG).show();
-        } else{
-            FirstAPICall firstCall = new FirstAPICall(this,mCredential);
+        } else {
+            FirstAPICall firstCall = new FirstAPICall(this, mCredential);
             firstCall.execute();
         }
     }
@@ -227,7 +231,7 @@ public class SignInActivity extends Activity
 
     private void goToTaskListActivity() {
         Intent i = new Intent(this, TaskListActivity.class);
-        i.putExtra(Co.IS_FIRST_INIT,true);
+        i.putExtra(Co.IS_FIRST_INIT, true);
         startActivity(i);
         finish();
     }
@@ -238,7 +242,7 @@ public class SignInActivity extends Activity
         super.onPause();
     }
 
-    private class FirstAPICall extends AsyncTask<Void, Void, Void> {
+    private class FirstAPICall extends AsyncTask<Void, Void, List<String>> {
 
         private com.google.api.services.tasks.Tasks mService = null;
         private Exception mLastError = null;
@@ -255,16 +259,18 @@ public class SignInActivity extends Activity
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected List<String> doInBackground(Void... params) {
+            List<String> listInfo = new ArrayList<>();
             try {
-                firstCall();
+                listInfo = firstCall();
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
                 return null;
             }
-            return null;
+            return listInfo;
         }
+
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
@@ -277,40 +283,47 @@ public class SignInActivity extends Activity
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(List<String> strings) {
             mProgress.dismiss();
             SharedPreferences prefs =
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(Co.IS_FIRST_TIME, false);
+            editor.putString(Co.CURRENT_LIST_TITLE, strings.get(1));
+            editor.putString(Co.CURRENT_LIST_ID, strings.get(0));
             editor.apply();
             goToTaskListActivity();
-
         }
 
         @Override
-        protected void onCancelled(Void aVoid) {
+        protected void onCancelled(List<String> strings) {
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    Toast.makeText(context,"Google Play Services is not available",Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Google Play Services is not available", Toast.LENGTH_LONG).show();
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             Co.REQUEST_AUTHORIZATION);
                 } else {
-                    Toast.makeText(context,"The following error occurred:\n"
-                            + mLastError.getMessage(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "The following error occurred:\n"
+                            + mLastError.getMessage(), Toast.LENGTH_LONG).show();
                     mLastError.printStackTrace();
                 }
             } else {
-                Toast.makeText(context,"Request cancelled",Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Request cancelled", Toast.LENGTH_LONG).show();
             }
         }
 
 
-        private void firstCall() throws IOException {
-            mService.tasklists().list()
+        private List<String> firstCall() throws IOException {
+            List<TaskList> lists;
+            List<String> defaultListInfo = new ArrayList<>();
+            TaskLists result = mService.tasklists().list()
                     .execute();
+            lists = result.getItems();
+            defaultListInfo.add(lists.get(0).getId());
+            defaultListInfo.add(lists.get(0).getTitle());
+            return defaultListInfo;
         }
     }
 

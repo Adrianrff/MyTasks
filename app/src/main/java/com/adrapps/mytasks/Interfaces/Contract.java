@@ -48,12 +48,17 @@ public class Contract {
 
         void setToolbarTitle(String title);
 
-        void setUpViewsAndData();
+        void setUpViews();
 
         void initRecyclerView(List<LocalTask> tasks);
 
+        void setUpData();
+
         void updateCurrentView();
 
+        void showProgressDialog();
+
+        void dismissProgressDialog();
     }
 
 

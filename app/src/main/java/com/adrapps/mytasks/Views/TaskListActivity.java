@@ -1,5 +1,6 @@
 package com.adrapps.mytasks.Views;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -60,6 +61,7 @@ public class TaskListActivity extends AppCompatActivity
     NavigationView navigationView;
     FloatingActionButton fab;
     TaskListAdapter adapter;
+    ProgressDialog mProgress;
     ProgressBar progressBar;
     EditText taskTitle, taskDueDate;
     AppCompatSpinner notificationSpinner;
@@ -84,14 +86,13 @@ public class TaskListActivity extends AppCompatActivity
         findViews();
         mPresenter = new TaskListPresenter(this);
         setCredentials();
+        setUpViews();
         if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
             refreshFirstTime();
             return;
 
         }
-        taskListsTitles = mPresenter.getListsTitles();
-        taskListsIds = mPresenter.getListsIds();
-        setUpViewsAndData();
+        setUpData();
         initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
     }
 
@@ -119,9 +120,21 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     @Override
-    public void setUpViewsAndData() {
-        taskListsTitles = mPresenter.getListsTitles();
-        taskListsIds = mPresenter.getListsIds();
+    public void initRecyclerView(List<LocalTask> tasks) {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new TaskListAdapter(this, tasks);
+        recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void setUpViews() {
+        mProgress = new ProgressDialog(this);
+        mProgress.setMessage(getString(R.string.first_sync_progress_dialog));
+
         toolbar.setTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -132,6 +145,12 @@ public class TaskListActivity extends AppCompatActivity
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
         fab.setOnClickListener(this);
         setNavDrawerMenu();
+    }
+
+    @Override
+    public void setUpData(){
+        taskListsTitles = mPresenter.getListsTitles();
+        taskListsIds = mPresenter.getListsIds();
     }
 
     public void setNavDrawerMenu() {
@@ -145,16 +164,6 @@ public class TaskListActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void initRecyclerView(List<LocalTask> tasks) {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new TaskListAdapter(this, tasks);
-        recyclerView.setAdapter(adapter);
-    }
 
     @Override
     public void updateCurrentView() {
@@ -166,6 +175,16 @@ public class TaskListActivity extends AppCompatActivity
         setNavDrawerMenu();
         adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
 
+    }
+
+    @Override
+    public void dismissProgressDialog() {
+        mProgress.dismiss();
+    }
+
+    @Override
+    public void showProgressDialog() {
+        mProgress.show();
     }
 
     @Override

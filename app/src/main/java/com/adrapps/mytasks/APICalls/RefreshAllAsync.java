@@ -32,7 +32,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.tasks.Tasks.Builder(
                 transport, jsonFactory, credential)
-                .setApplicationName("Google Tasks API Android Quickstart")
+                .setApplicationName("My Tasks")
                 .build();
     }
 
@@ -67,6 +67,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onCancelled(Void aVoid) {
+        mPresenter.dismissProgressDialog();
         mPresenter.showProgress(false);
         if (mLastError != null) {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {

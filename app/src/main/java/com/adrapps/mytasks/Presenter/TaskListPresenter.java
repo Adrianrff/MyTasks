@@ -57,6 +57,16 @@ public class TaskListPresenter  {
 
     }
 
+   public void showProgressDialog(){
+        getView().showProgressDialog();
+   }
+
+   public void dismissProgressDialog(){
+       getView().dismissProgressDialog();
+   }
+
+
+
     public void addTasksInBatchesFromList(List<Task> tasks, String listId) {
         mModel.addTasksInBatchesFromList(tasks,listId);
 
@@ -95,7 +105,7 @@ public class TaskListPresenter  {
     }
 
     public void setUpViews(){
-        getView().setUpViewsAndData();
+        getView().setUpViews();
     }
 
     public void setTaskListTitles(List<String> titles){

@@ -2,7 +2,6 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/full_margin">
@@ -16,7 +15,7 @@
 
     <TextView
         android:id="@+id/textViewName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/half_margin"
         android:layout_marginStart="@dimen/half_margin"
@@ -25,17 +24,21 @@
         android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@+id/taskCheckbox"
         app:layout_constraintStart_toEndOf="@id/taskCheckbox"
-
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/taskCheckbox"
+        app:layout_constraintRight_toLeftOf="@+id/guideline"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/taskCheckbox"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/textViewDate"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="24/01/2017"
         app:layout_constraintStart_toStartOf="@id/textViewName"
         app:layout_constraintTop_toBottomOf="@+id/textViewName"
-        tools:layout_editor_absoluteX="51dp" />
+        app:layout_constraintLeft_toLeftOf="@+id/textViewName" />
 
     <ImageView
         android:id="@+id/notificationImage"
@@ -52,11 +55,18 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textViewName" />
 
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="48dp" />
+
     <RelativeLayout
         android:id="@+id/task_detail_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/full_margin"
+        android:layout_marginTop="16dp"
         android:visibility="visible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -64,19 +74,23 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewDate">
 
         <View
+            android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="@dimen/half_margin"
+            android:layout_marginTop="@dimen/full_margin"
+            android:layout_marginBottom="@dimen/full_margin"
+            android:alpha="0.8"
+            android:layout_below="@+id/notes_content"
             android:background="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/notes_title"
+            android:layout_marginStart="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/full_margin"
             android:text="@string/note_label"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginLeft="8dp" />
 
         <TextView
             android:id="@+id/notes_content"
@@ -86,14 +100,14 @@
             android:layout_alignBottom="@+id/notes_title"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
             android:layout_toEndOf="@+id/notes_title"
             android:layout_toRightOf="@+id/notes_title"
             android:text="dkjbfksdbfk" />
 
-
     </RelativeLayout>
+
 
 </android.support.constraint.ConstraintLayout>
 

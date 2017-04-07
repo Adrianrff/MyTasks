@@ -60,11 +60,13 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
+        mPresenter.showProgressDialog();
         mPresenter.showProgress(true);
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
+        mPresenter.dismissProgressDialog();
         mPresenter.showProgress(false);
         mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE,lists.get(0).getTitle());
         mPresenter.setTaskListTitles(listTitles);
@@ -77,6 +79,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onCancelled(Void aVoid) {
+        mPresenter.dismissProgressDialog();
         mPresenter.showProgress(false);
         if (mLastError != null) {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
