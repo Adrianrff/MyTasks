@@ -145,13 +145,14 @@ public class TaskListActivity extends AppCompatActivity
         progressBar.getIndeterminateDrawable()
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
         fab.setOnClickListener(this);
-        setNavDrawerMenu();
+
     }
 
     @Override
     public void setUpData(){
         taskListsTitles = mPresenter.getListsTitles();
         taskListsIds = mPresenter.getListsIds();
+        setNavDrawerMenu();
     }
 
     public void setNavDrawerMenu() {
