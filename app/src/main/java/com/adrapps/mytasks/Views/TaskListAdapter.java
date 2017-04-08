@@ -88,7 +88,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     }
 
-    public void updateItems(List<LocalTask> localTasks) {
+    void updateItems(List<LocalTask> localTasks) {
         this.tasks.clear();
         this.tasks = localTasks;
         notifyDataSetChanged();
