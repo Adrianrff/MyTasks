@@ -38,18 +38,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 //    }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-
-        mRecyclerView = recyclerView;
-    }
-    @Override
     public TaskListAdapter.TaskListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.d("onCreate","run");
         View itemLayoutView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false);
         return new TaskListViewHolder(itemLayoutView);
-
     }
 
     @Override
@@ -64,26 +57,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         }
         holder.notes.setText(tasks.get(position).getNotes() == null ?
                 context.getResources().getString(R.string.no_notes) : cTask.getNotes());
-
-        final boolean isExpanded = position==mExpandedPosition;
-        holder.detail.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
-        holder.itemView.setActivated(isExpanded);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("onBindPosition",String.valueOf(holder.getAdapterPosition()));
-                mExpandedPosition = isExpanded ? -1:holder.getAdapterPosition();
-                TransitionManager.beginDelayedTransition(mRecyclerView);
-                notifyDataSetChanged();
-            }
-        });
-
     }
-
 
     @Override
     public int getItemCount() {
-//        Log.d("taskssize",String.valueOf(tasks.size()));
         return tasks.size();
 
     }
@@ -94,12 +71,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         notifyDataSetChanged();
     }
 
-
-
-
     @Override
     public void onClick(View v) {
-
     }
 
     @Override
