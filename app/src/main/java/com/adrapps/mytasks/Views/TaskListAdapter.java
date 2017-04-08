@@ -62,7 +62,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     @Override
     public int getItemCount() {
         return tasks.size();
-
     }
 
     void updateItems(List<LocalTask> localTasks) {
