@@ -15,7 +15,7 @@
     <string name="lists_menu_title">Lists</string>
     <string name="pick_date">Pick date</string>
     <string name="no_notes">No notes</string>
-    <string name="first_sync_progress_dialog">Sincronizando</string>
+    <string name="first_sync_progress_dialog">Fetching data</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

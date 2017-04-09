@@ -85,21 +85,10 @@ public class MainActivity extends AppCompatActivity
         setUpData();
     }
 
-    private void setUpData() {
-        listTitles =mPresenter.getListsTitles();
-        listIds = mPresenter.getListsIds();
-        setNavDrawerMenu(listTitles);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 
-    private void refreshFirstTime() {
-        FirstRefreshAsync firstRefresh = new FirstRefreshAsync(mPresenter, mCredential);
-        firstRefresh.execute();
-    }
+
+    //-------------------------VIEWS AND DATA------------------------///
 
     private void findViews() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -107,6 +96,22 @@ public class MainActivity extends AppCompatActivity
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+    }
+
+    private void setUpData() {
+        listTitles =mPresenter.getListsTitles();
+        listIds = mPresenter.getListsIds();
+        setNavDrawerMenu(listTitles);
+    }
+
+    private void refreshFirstTime() {
+        FirstRefreshAsync firstRefresh = new FirstRefreshAsync(mPresenter, mCredential);
+        firstRefresh.execute();
+    }
+
+    private void refresh() {
+        RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
+        refresh.execute();
     }
 
     @Override
@@ -122,7 +127,24 @@ public class MainActivity extends AppCompatActivity
         progressBar.getIndeterminateDrawable()
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
         fab.setOnClickListener(this);
+    }
 
+    @Override
+    public void showProgressDialog() {
+        mProgress.show();
+    }
+
+    @Override
+    public void dismissProgressDialog() {
+        mProgress.dismiss();
+    }
+
+    @Override
+    public void showCircularProgress(boolean b) {
+        if (b)
+            progressBar.setVisibility(View.VISIBLE);
+        else
+            progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -140,14 +162,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setAdapterOps(Contract.AdapterOps aOps) {
-        this.adapterOps = aOps;
+    public void setToolbarTitle(String title) {
+        toolbar.setTitle(title);
     }
 
-    @Override
-    public void showProgressDialog() {
-        mProgress.show();
-    }
+
+
+    ///-----------------------------API---------------------------////
 
     private void setCredentials() {
         mCredential = getCredential();
@@ -157,9 +178,27 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void refresh() {
-        RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
-        refresh.execute();
+    @Override
+    public void requestAuthorization(Exception e) {
+        startActivityForResult(
+                ((UserRecoverableAuthIOException) e).getIntent(),
+                Co.REQUEST_AUTHORIZATION);
+    }
+
+    public GoogleAccountCredential getCredential() {
+        return GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(Co.SCOPES))
+                .setBackOff(new ExponentialBackOff());
+    }
+
+
+
+
+    ///-------------------------CLICK HANDLES------------------------///
+
+    @Override
+    public void onClick(View v) {
+        mPresenter.onClick(v.getId());
     }
 
     @Override
@@ -175,13 +214,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
     }
 
     @Override
@@ -205,9 +237,31 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+
+
+
+    //-------------------------ACTIVITY METHODS---------------------------//
+
     @Override
-    public void onClick(View v) {
-        mPresenter.onClick(v.getId());
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+
+
+
+    ///----------------------------OTHER--------------------------//
+
+    @Override
+    public void setAdapterOps(Contract.AdapterOps aOps) {
+        this.adapterOps = aOps;
     }
 
     @Override
@@ -221,35 +275,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showProgress(boolean b) {
-        if (b)
-            progressBar.setVisibility(View.VISIBLE);
-        else
-            progressBar.setVisibility(View.GONE);
-    }
-
-    @Override
     public Context getContext() {
         return this;
-    }
-
-    @Override
-    public void requestAuthorization(Exception e) {
-        startActivityForResult(
-                ((UserRecoverableAuthIOException) e).getIntent(),
-                Co.REQUEST_AUTHORIZATION);
-    }
-
-    public GoogleAccountCredential getCredential() {
-        return GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(Co.SCOPES))
-                .setBackOff(new ExponentialBackOff());
     }
 
     @Override
     public String getStringSharedPreference(String key) {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
+
+        if (key.equals(Co.CURRENT_LIST_ID)) {
+            if (prefs.getString(key,Co.NO_VALUE).equals(Co.NO_VALUE)){
+                return "@default";
+            }
+        }
+        if (key.equals(Co.CURRENT_LIST_TITLE)) {
+            if (prefs.getString(key,Co.NO_VALUE).equals(Co.NO_VALUE)){
+                return listTitles.get(0);
+            }
+        }
+
         return prefs.getString(key, Co.NO_VALUE);
     }
 
@@ -268,16 +313,5 @@ public class MainActivity extends AppCompatActivity
         editor.putString(key, value);
         editor.apply();
     }
-
-    @Override
-    public void setToolbarTitle(String title) {
-        toolbar.setTitle(title);
-    }
-
-    @Override
-    public void dismissProgressDialog() {
-        mProgress.dismiss();
-    }
-
 
 }

@@ -134,7 +134,7 @@ public class TaskListPresenter {
     }
 
     public void showProgress(boolean b) {
-        getView().showProgress(b);
+        getView().showCircularProgress(b);
     }
 
 }

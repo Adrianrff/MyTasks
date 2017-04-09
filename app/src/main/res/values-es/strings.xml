@@ -23,4 +23,5 @@
         <item>En la noche</item>
         <item>Personalizada…</item>
     </string-array>
+    <string name="first_sync_progress_dialog">Sincronizando datos</string>
 </resources>

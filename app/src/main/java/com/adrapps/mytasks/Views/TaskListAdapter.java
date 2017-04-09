@@ -92,10 +92,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onClick(View v) {
-            showToast(mPresenter.getStringSharedPreference(Co.CURRENT_LIST_ID));
-
             LocalTask cTask = tasks.get(getAdapterPosition());
-
             Bundle arguments = new Bundle();
             arguments.putString(Co.DETAIL_TASK_TITLE, cTask.getTitle());
             if (cTask.getDue() != 0)
@@ -107,7 +104,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, fragment).addToBackStack(null)
                     .commit();
-
         }
     }
 

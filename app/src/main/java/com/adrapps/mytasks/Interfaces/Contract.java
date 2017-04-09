@@ -22,7 +22,7 @@ public class Contract {
 
         Context getAppContext();
 
-        void showProgress(boolean b);
+        void showCircularProgress(boolean b);
 
         Context getContext();
 
@@ -72,10 +72,6 @@ public class Contract {
 
         void updateCurrentView();
 
-        void setListsTitles(List<String> titles);
-
-        void setListsIds(List<String> listIds);
-
         void updateAdapterItems(List<LocalTask> localTasks);
 
         void initRecyclerView(List<LocalTask> tasks);
@@ -84,6 +80,8 @@ public class Contract {
 
         List<String> getListTitles();
 
+        void setListsIds(List<String> listIds);
 
+        void setListsTitles(List<String> titles);
     }
 }

@@ -24,7 +24,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     RecyclerView recyclerView;
     TaskListAdapter adapter;
     TaskListPresenter mPresenter;
-    private List<String> listIds = new ArrayList<>();
+    private List<String> taskListsIds = new ArrayList<>();
     private List<String> listTitles = new ArrayList<>();
     Contract.MainActivityViewOps mainOps;
 
@@ -41,7 +41,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     }
 
     private void fetchData() {
-        listIds = mPresenter.getListsIds();
+        taskListsIds = mPresenter.getListsIds();
         listTitles = mPresenter.getListsTitles();
     }
 
@@ -72,10 +72,22 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
         recyclerView.setAdapter(adapter);
     }
 
+    @Override
+    public void updateCurrentView() {
+        taskListsIds = mPresenter.getListsIds();
+        listTitles = mPresenter.getListsTitles();
+        saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
+                mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+        mPresenter.setToolbarTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE).
+                equals(Co.NO_VALUE) ? listTitles.get(0):getStringSharedPreference(Co.CURRENT_LIST_TITLE));
+        mPresenter.setNavDrawerMenu(listTitles);
+        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+    }
+
 
     @Override
     public List<String> getListIds() {
-        return listIds;
+        return taskListsIds;
     }
 
     @Override
@@ -87,7 +99,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     public void setListsIds(List<String> listIds) {
         if (!listIds.isEmpty())
             for (int i = 0; i < listIds.size(); i++) {
-                this.listIds.add(listIds.get(i));
+                taskListsIds.add(listIds.get(i));
             }
     }
 
@@ -125,15 +137,5 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
         mPresenter.setToolbarTitle(title);
     }
 
-    @Override
-    public void updateCurrentView() {
-        listIds = mPresenter.getListsIds();
-        listTitles = mPresenter.getListsTitles();
-        saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
-                mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
-        mPresenter.setToolbarTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
-        mPresenter.setNavDrawerMenu(listTitles);
-        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
-    }
 
 }
