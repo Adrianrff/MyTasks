@@ -104,6 +104,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, fragment).addToBackStack(null)
                     .commit();
+            mPresenter.navIconToBack(true);
         }
     }
 

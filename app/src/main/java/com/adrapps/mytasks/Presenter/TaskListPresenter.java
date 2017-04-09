@@ -118,7 +118,13 @@ public class TaskListPresenter {
     }
 
     public void onClick(int id) {
-
+        switch (id){
+            case android.R.id.home:
+                getView().showToast(String.valueOf(android.R.id.home));
+                getView().pressBack();
+                break;
+        }
+        getView().showToast(String.valueOf(id));
     }
 
     public void setNavDrawerMenu(List<String> listTitles) {
@@ -135,6 +141,10 @@ public class TaskListPresenter {
 
     public void showProgress(boolean b) {
         getView().showCircularProgress(b);
+    }
+
+    public void navIconToBack(boolean b){
+        getView().navIconToBack(b);
     }
 
 }

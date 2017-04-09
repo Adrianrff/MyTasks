@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
     String accountName;
+    ActionBarDrawerToggle toggle;
     List<String> listIds = new ArrayList<>();
     List<String> listTitles = new ArrayList<>();
     Contract.AdapterOps adapterOps;
@@ -120,8 +122,9 @@ public class MainActivity extends AppCompatActivity
         mProgress.setMessage(getString(R.string.first_sync_progress_dialog));
         toolbar.setTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
         setSupportActionBar(toolbar);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle.setToolbarNavigationClickListener(this);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
         progressBar.getIndeterminateDrawable()
@@ -158,6 +161,24 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < taskListsTitles.size(); i++) {
             listsMenu.add(0, i, i, taskListsTitles.get(i)).setIcon(R.drawable.ic_list).
                     setOnMenuItemClickListener(this);
+        }
+    }
+
+    @Override
+    public void navIconToBack(boolean b) {
+        if (b) {
+            toggle.setDrawerIndicatorEnabled(false);
+//            ActionBar actionBar = getSupportActionBar();
+            toggle.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+//            if (actionBar != null) {
+//                actionBar.setDisplayHomeAsUpEnabled(true);
+////                actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+//                actionBar.setDisplayShowHomeEnabled(true);
+//            }
+            toggle.syncState();
+        } else {
+            toggle.setDrawerIndicatorEnabled(true);
+            toggle.syncState();
         }
     }
 
@@ -216,6 +237,12 @@ public class MainActivity extends AppCompatActivity
         super.onBackPressed();
     }
 
+
+    @Override
+    public void pressBack() {
+        onBackPressed();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -228,6 +255,12 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.refresh:
                 refresh();
+                break;
+
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }

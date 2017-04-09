@@ -46,6 +46,9 @@ public class Contract {
 
         void setAdapterOps(AdapterOps aOps);
 
+        void navIconToBack(boolean b);
+
+        void pressBack();
     }
 
 

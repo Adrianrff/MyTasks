@@ -84,6 +84,11 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
         adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPresenter.navIconToBack(false);
+    }
 
     @Override
     public List<String> getListIds() {
