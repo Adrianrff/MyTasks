@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -66,19 +67,16 @@ public class MainActivity extends AppCompatActivity
             finish();
             return;
         }
-
         setContentView(R.layout.main_activity);
+        if (savedInstanceState == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            TaskListFragment taskListFragment = new TaskListFragment();
+            this.adapterOps = taskListFragment;
+            ft.replace(R.id.fragmentContainer, taskListFragment);
+            ft.commit();
+        }
         mPresenter = new TaskListPresenter(this,adapterOps);
-//        if (savedInstanceState == null) {
-//            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//            TaskListFragment taskListFragment = new TaskListFragment();
-//            this.adapterOps = taskListFragment;
-//            ft.replace(R.id.fragment, taskListFragment);
-//            ft.addToBackStack(null);
-//            ft.commit();
-//        }
         findViews();
-
         setCredentials();
         setUpViews();
         if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
@@ -88,7 +86,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setUpData() {
-        listTitles = mPresenter.getListsTitles();
+        listTitles =mPresenter.getListsTitles();
         listIds = mPresenter.getListsIds();
         setNavDrawerMenu(listTitles);
     }
@@ -129,6 +127,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setNavDrawerMenu(List<String> taskListsTitles) {
+        listTitles =mPresenter.getListsTitles();
+        listIds = mPresenter.getListsIds();
         Menu menu = navigationView.getMenu();
         MenuItem item = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = item.getSubMenu();
@@ -164,9 +164,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        saveStringSharedPreference(Co.CURRENT_LIST_ID, adapterOps.getListIds().get(item.getItemId()));
-        saveStringSharedPreference(Co.CURRENT_LIST_TITLE, adapterOps.getListTitles().get(item.getItemId()));
-        adapterOps.updateAdapterItems(mPresenter.getTasksFromList(adapterOps.getListIds().get(item.getItemId())));
+        saveStringSharedPreference(Co.CURRENT_LIST_ID, listIds.get(item.getItemId()));
+        saveStringSharedPreference(Co.CURRENT_LIST_TITLE, listTitles.get(item.getItemId()));
+        adapterOps.updateAdapterItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
         toolbar.setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
         return false;

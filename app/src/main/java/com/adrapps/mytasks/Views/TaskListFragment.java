@@ -24,7 +24,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     RecyclerView recyclerView;
     TaskListAdapter adapter;
     TaskListPresenter mPresenter;
-    private List<String> taskListsIds = new ArrayList<>();
+    private List<String> listIds = new ArrayList<>();
     private List<String> listTitles = new ArrayList<>();
     Contract.MainActivityViewOps mainOps;
 
@@ -36,7 +36,13 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
         super.onCreate(savedInstanceState);
         this.mainOps = (Contract.MainActivityViewOps) getActivity();
         mPresenter = new TaskListPresenter(mainOps, this);
-        mPresenter.setAdapterOps(this);
+//        mPresenter.setAdapterOps(this);
+        fetchData();
+    }
+
+    private void fetchData() {
+        listIds = mPresenter.getListsIds();
+        listTitles = mPresenter.getListsTitles();
     }
 
     @Override
@@ -66,9 +72,10 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
         recyclerView.setAdapter(adapter);
     }
 
+
     @Override
     public List<String> getListIds() {
-        return taskListsIds;
+        return listIds;
     }
 
     @Override
@@ -80,7 +87,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     public void setListsIds(List<String> listIds) {
         if (!listIds.isEmpty())
             for (int i = 0; i < listIds.size(); i++) {
-                taskListsIds.add(listIds.get(i));
+                this.listIds.add(listIds.get(i));
             }
     }
 
@@ -120,7 +127,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
 
     @Override
     public void updateCurrentView() {
-        taskListsIds = mPresenter.getListsIds();
+        listIds = mPresenter.getListsIds();
         listTitles = mPresenter.getListsTitles();
         saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
                 mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));

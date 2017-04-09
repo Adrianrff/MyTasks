@@ -56,8 +56,6 @@ public class Contract {
 
         void updateTasks(List<LocalTask> tasks);
 
-        void addTasksInBatchesFromList(List<Task> tasks, String listId);
-
         List<LocalTask> getTasksFromList(String listId);
 
         List<String> getListsTitles();

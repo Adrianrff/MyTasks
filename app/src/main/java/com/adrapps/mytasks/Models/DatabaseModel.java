@@ -35,11 +35,6 @@ public class DatabaseModel implements Contract.Model {
     }
 
     @Override
-    public void addTasksInBatchesFromList(List<Task> tasks, String listId) {
-        tasksDb.addTasksInBatchesFromList(tasks, listId);
-    }
-
-    @Override
     public List<LocalTask> getTasksFromList(String listId) {
         return tasksDb.getTasksFromLlist(listId);
     }

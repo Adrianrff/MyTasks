@@ -1,6 +1,8 @@
 package com.adrapps.mytasks.Views;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -92,19 +94,19 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         public void onClick(View v) {
             showToast(mPresenter.getStringSharedPreference(Co.CURRENT_LIST_ID));
 
-//            LocalTask cTask = tasks.get(getAdapterPosition());
-//
-//            Bundle arguments = new Bundle();
-//            arguments.putString(Co.DETAIL_TASK_TITLE, cTask.getTitle());
-//            if (cTask.getDue() != 0)
-//                arguments.putString(Co.DETAIL_TASK_DUE,
-//                        DateHelper.timeInMillsToString(cTask.getDue()));
-//            arguments.putString(Co.DETAIL_TASK_NOTE, cTask.getNotes());
-//            TaskDetailFragment fragment = new TaskDetailFragment();
-//            fragment.setArguments(arguments);
-//            ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.fragment, fragment)
-//                    .commit();
+            LocalTask cTask = tasks.get(getAdapterPosition());
+
+            Bundle arguments = new Bundle();
+            arguments.putString(Co.DETAIL_TASK_TITLE, cTask.getTitle());
+            if (cTask.getDue() != 0)
+                arguments.putString(Co.DETAIL_TASK_DUE,
+                        DateHelper.timeInMillsToString(cTask.getDue()));
+            arguments.putString(Co.DETAIL_TASK_NOTE, cTask.getNotes());
+            TaskDetailFragment fragment = new TaskDetailFragment();
+            fragment.setArguments(arguments);
+            ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment).addToBackStack(null)
+                    .commit();
 
         }
     }

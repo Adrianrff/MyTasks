@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.R;
 
 /**
@@ -16,9 +17,7 @@ import com.adrapps.mytasks.R;
 
 public class TaskDetailFragment extends Fragment {
 
-    public static final String TASK_TITLE = "item_id";
-    public static final String TASK_DUE = "task due date";
-    public static String TASK_NOTES = "task notes";
+
     String taskTitle;
     String taskDueDate;
     String taskNotes;
@@ -27,11 +26,11 @@ public class TaskDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(TASK_TITLE)) {
+        if (getArguments().containsKey(Co.DETAIL_TASK_TITLE)) {
             Activity activity = this.getActivity();
-            taskTitle = getArguments().getString(TASK_TITLE);
-            taskDueDate = getArguments().getString(TASK_DUE);
-            taskNotes = getArguments().getString(TASK_NOTES);
+            taskTitle = getArguments().getString(Co.DETAIL_TASK_TITLE);
+            taskDueDate = getArguments().getString(Co.DETAIL_TASK_DUE);
+            taskNotes = getArguments().getString(Co.DETAIL_TASK_NOTE);
         }
     }
 
