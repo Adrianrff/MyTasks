@@ -10,14 +10,13 @@ import java.util.List;
 
 public class TaskListPresenter {
 
-    private WeakReference<Contract.AdapterOps> aView;
+
     private WeakReference<Contract.MainActivityViewOps> mView;
     private Contract.Model mModel;
 
 //------------------CONSTRUCTOR-------------------////
 
-    public TaskListPresenter(Contract.MainActivityViewOps mView, Contract.AdapterOps aView) {
-        this.aView = new WeakReference<>(aView);
+    public TaskListPresenter(Contract.MainActivityViewOps mView) {
         this.mView = new WeakReference<>(mView);
         getDatabaseModel();
     }
@@ -31,13 +30,6 @@ public class TaskListPresenter {
             return mView.get();
         else
             throw new NullPointerException("MainActivityViewOps is unavailable");
-    }
-
-    private Contract.AdapterOps getaView() throws NullPointerException {
-        if (aView != null)
-            return aView.get();
-        else
-            throw new NullPointerException("AdapterOps is unavailable");
     }
 
     //-------------METHODS------------------///
@@ -77,11 +69,11 @@ public class TaskListPresenter {
     }
 
     public void setTaskListTitles(List<String> titles) {
-        getaView().setListsTitles(titles);
+        getView().setListsTitles(titles);
     }
 
     public void setListsIds(List<String> listIds) {
-        getaView().setListsIds(listIds);
+        getView().setListsIds(listIds);
     }
 
     public void saveStringSharedPreference(String currentListTitle, String title) {
@@ -101,7 +93,7 @@ public class TaskListPresenter {
     }
 
     public void initRecyclerView(List<LocalTask> tasks) {
-        getaView().initRecyclerView(tasks);
+        getView().initRecyclerView(tasks);
     }
 
     public void setUpViews() {
@@ -110,7 +102,7 @@ public class TaskListPresenter {
 
 
     public void updateCurrentView() {
-        getaView().updateCurrentView();
+        getView().updateCurrentView();
     }
 
     public String getListTitleFromId(String listId) {

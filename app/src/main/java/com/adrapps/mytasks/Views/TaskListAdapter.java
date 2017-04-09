@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.Views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
@@ -93,18 +94,16 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         @Override
         public void onClick(View v) {
             LocalTask cTask = tasks.get(getAdapterPosition());
-            Bundle arguments = new Bundle();
-            arguments.putString(Co.DETAIL_TASK_TITLE, cTask.getTitle());
-            if (cTask.getDue() != 0)
-                arguments.putString(Co.DETAIL_TASK_DUE,
+            Intent i = new Intent(context,TaskDetailActivity.class);
+            i.putExtra(Co.DETAIL_TASK_TITLE,cTask.getTitle());
+            if (cTask.getDue() != 0) {
+                i.putExtra(Co.DETAIL_TASK_DUE,
                         DateHelper.timeInMillsToString(cTask.getDue()));
-            arguments.putString(Co.DETAIL_TASK_NOTE, cTask.getNotes());
-            TaskDetailFragment fragment = new TaskDetailFragment();
-            fragment.setArguments(arguments);
-            ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainer, fragment).addToBackStack(null)
-                    .commit();
-            mPresenter.navIconToBack(true);
+            } else {
+                i.putExtra(Co.DETAIL_TASK_DUE,R.string.no_due_date);
+            }
+            i.putExtra(Co.DETAIL_TASK_NOTE,cTask.getNotes() != null ? R.string.no_notes:cTask.getNotes());
+            context.startActivity(i);
         }
     }
 

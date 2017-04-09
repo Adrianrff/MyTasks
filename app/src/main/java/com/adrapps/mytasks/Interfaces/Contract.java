@@ -49,6 +49,14 @@ public class Contract {
         void navIconToBack(boolean b);
 
         void pressBack();
+
+        void updateCurrentView();
+
+        void initRecyclerView(List<LocalTask> tasks);
+
+        void setListsIds(List<String> listIds);
+
+        void setListsTitles(List<String> titles);
     }
 
 

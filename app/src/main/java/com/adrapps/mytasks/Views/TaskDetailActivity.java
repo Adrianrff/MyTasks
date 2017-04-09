@@ -21,7 +21,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.task_detail_fragment);
+        setContentView(R.layout.task_detail);
         taskTitle = (TextView) findViewById(R.id.task_title_content);
         taskDue = (TextView) findViewById(R.id.task_due_content);
         taskNotes = (TextView) findViewById(R.id.task_notes_content);

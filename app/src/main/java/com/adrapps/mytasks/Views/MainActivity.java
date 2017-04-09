@@ -10,13 +10,14 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.Domain.Co;
+import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
     String accountName;
+    RecyclerView recyclerView;
+    TaskListAdapter adapter;
     ActionBarDrawerToggle toggle;
     List<String> listIds = new ArrayList<>();
     List<String> listTitles = new ArrayList<>();
@@ -70,21 +74,15 @@ public class MainActivity extends AppCompatActivity
             return;
         }
         setContentView(R.layout.main_activity);
-        if (savedInstanceState == null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            TaskListFragment taskListFragment = new TaskListFragment();
-            this.adapterOps = taskListFragment;
-            ft.replace(R.id.fragmentContainer, taskListFragment);
-            ft.commit();
-        }
-        mPresenter = new TaskListPresenter(this,adapterOps);
+        mPresenter = new TaskListPresenter(this);
         findViews();
-        setCredentials();
         setUpViews();
+        setCredentials();
         if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
             refreshFirstTime();
         }
         setUpData();
+        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
     }
 
 
@@ -97,6 +95,7 @@ public class MainActivity extends AppCompatActivity
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
@@ -130,6 +129,40 @@ public class MainActivity extends AppCompatActivity
         progressBar.getIndeterminateDrawable()
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
         fab.setOnClickListener(this);
+    }
+
+
+    @Override
+    public void updateCurrentView() {
+        listIds = mPresenter.getListsIds();
+        listTitles = mPresenter.getListsTitles();
+        saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
+                mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+        mPresenter.setToolbarTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE).
+                equals(Co.NO_VALUE) ? listTitles.get(0):getStringSharedPreference(Co.CURRENT_LIST_TITLE));
+        mPresenter.setNavDrawerMenu(listTitles);
+        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+    }
+
+    @Override
+    public void initRecyclerView(List<LocalTask> tasks) {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new TaskListAdapter(getContext(), tasks, mPresenter);
+        recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void setListsIds(List<String> listIds) {
+        this.listIds.addAll(mPresenter.getListsIds());
+    }
+
+    @Override
+    public void setListsTitles(List<String> titles) {
+        this.listTitles.addAll(mPresenter.getListsTitles());
     }
 
     @Override
@@ -226,7 +259,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         saveStringSharedPreference(Co.CURRENT_LIST_ID, listIds.get(item.getItemId()));
         saveStringSharedPreference(Co.CURRENT_LIST_TITLE, listTitles.get(item.getItemId()));
-        adapterOps.updateAdapterItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
+        adapter.updateItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
         toolbar.setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
         return false;
@@ -242,6 +275,7 @@ public class MainActivity extends AppCompatActivity
     public void pressBack() {
         onBackPressed();
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
