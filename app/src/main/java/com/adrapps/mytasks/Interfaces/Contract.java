@@ -15,14 +15,12 @@ import java.util.List;
 public class Contract {
 
     //-------------------------VIEW OPS----------------------//
-    public interface View{
+    public interface MainActivityViewOps {
 
 
         void expandNewTaskLayout();
 
-        void setTaskListsTitles(List<String> titles);
 
-        void setListsIds(List<String> listIds);
 
         void showNewTaskDialog();
 
@@ -38,7 +36,6 @@ public class Contract {
 
         void requestAuthorization(Exception e);
 
-        void updateAdapterItems(List<LocalTask> localTasks);
 
         String getStringSharedPreference(String key);
 
@@ -54,11 +51,13 @@ public class Contract {
 
         void setUpData();
 
-        void updateCurrentView();
+        void setNavDrawerMenu();
 
         void showProgressDialog();
 
         void dismissProgressDialog();
+
+        void setAdapterOps(AdapterOps aOps);
     }
 
 
@@ -78,5 +77,21 @@ public class Contract {
         List<String> getListsIds();
 
         String getListTitleFromId(String listId);
+
+    }
+
+    //------------------FRAGMENT OPS---------------------//
+
+    public interface AdapterOps {
+
+        void updateCurrentView();
+
+        void setTaskListsTitles(List<String> titles);
+
+        void setListsIds(List<String> listIds);
+
+        void updateAdapterItems(List<LocalTask> localTasks);
+
+
     }
 }

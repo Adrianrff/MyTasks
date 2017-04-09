@@ -1,17 +1,8 @@
 package com.adrapps.mytasks.Presenter;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-
-import com.adrapps.mytasks.Domain.Co;
-import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Models.DatabaseModel;
-import com.adrapps.mytasks.R;
-import com.adrapps.mytasks.Views.TaskDetailActivity;
-import com.adrapps.mytasks.Views.TaskDetailFragment;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.lang.ref.WeakReference;
@@ -19,12 +10,19 @@ import java.util.List;
 
 public class TaskListPresenter {
 
-    private WeakReference<Contract.View> mView;
+    private WeakReference<Contract.AdapterOps> aView;
+    private WeakReference<Contract.MainActivityViewOps> mView;
     private Contract.Model mModel;
 
 //------------------CONSTRUCTOR-------------------////
-    public TaskListPresenter(Contract.View view) {
+    public TaskListPresenter(Contract.MainActivityViewOps view) {
         mView = new WeakReference<>(view);
+        getDatabaseModel();
+    }
+
+    public TaskListPresenter(Contract.MainActivityViewOps mView, Contract.AdapterOps aView) {
+        this.aView = new WeakReference<>(aView);
+        this.mView = new WeakReference<>(mView);
         getDatabaseModel();
     }
 
@@ -32,11 +30,18 @@ public class TaskListPresenter {
         mModel = new DatabaseModel(this, getView().getContext());
     }
 
-    private Contract.View getView() throws NullPointerException{
+    private Contract.MainActivityViewOps getView() throws NullPointerException{
         if ( mView != null )
             return mView.get();
         else
-            throw new NullPointerException("View is unavailable");
+            throw new NullPointerException("MainActivityViewOps is unavailable");
+    }
+
+    private Contract.AdapterOps getaView() throws NullPointerException{
+        if ( aView != null )
+            return aView.get();
+        else
+            throw new NullPointerException("AdapterOps is unavailable");
     }
 
     //-------------METHODS------------------///
@@ -92,16 +97,16 @@ public class TaskListPresenter {
         return mModel.getListsIds();
     }
 
-    public void updateAdapterItems(List<LocalTask> localTasks) {
-        getView().updateAdapterItems(localTasks);
-    }
-
     public void saveStringSharedPreference(String currentListTitle, String title) {
         getView().saveStringSharedPreference(currentListTitle,title);
     }
 
     public String getStringSharedPreference(String key){
         return getView().getStringSharedPreference(key);
+    }
+
+    public boolean getBooleanSharedPreference(String key){
+        return getView().getBooleanSharedPreference(key);
     }
 
     public void setToolbarTitle(String title){
@@ -117,15 +122,15 @@ public class TaskListPresenter {
     }
 
     public void setTaskListTitles(List<String> titles){
-        getView().setTaskListsTitles(titles);
+        getaView().setTaskListsTitles(titles);
     }
 
     public void setListsIds(List<String> listIds){
-        getView().setListsIds(listIds);
+        getaView().setListsIds(listIds);
     }
 
     public void updateCurrentView() {
-        getView().updateCurrentView();
+        getaView().updateCurrentView();
     }
 
     public String getListTitleFromId(String listId){
@@ -143,5 +148,13 @@ public class TaskListPresenter {
 
     public void onClick(int id) {
 
+    }
+
+    public void setNavDrawerMenu() {
+        getView().setNavDrawerMenu();
+    }
+
+    public void setAdapterOps(Contract.AdapterOps aOps){
+        getView().setAdapterOps(aOps);
     }
 }

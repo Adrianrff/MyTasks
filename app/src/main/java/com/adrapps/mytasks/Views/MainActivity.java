@@ -8,65 +8,56 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
-import com.adrapps.mytasks.Interfaces.RecyclerItemClickListener;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TaskListActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        Contract.View, MenuItem.OnMenuItemClickListener, View.OnClickListener, RecyclerItemClickListener {
+        Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
+        View.OnClickListener, Contract.AdapterOps {
 
     Toolbar toolbar;
     DrawerLayout drawer;
-    RecyclerView recyclerView;
     NavigationView navigationView;
     FloatingActionButton fab;
     TaskListAdapter adapter;
     ProgressDialog mProgress;
     ProgressBar progressBar;
-    EditText taskTitle, taskDueDate;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
     List<String> taskListsTitles = new ArrayList<>();
     List<String> taskListsIds = new ArrayList<>();
     String accountName;
-    private ConstraintLayout newTaskLayout;
+    Contract.AdapterOps adapterOps;
     private boolean mTwoPane;
 
     @Override
@@ -79,17 +70,17 @@ public class TaskListActivity extends AppCompatActivity
             finish();
             return;
         }
-
         setContentView(R.layout.main_activity);
-        if (findViewById(R.id.task_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-        }
+//        if (savedInstanceState == null) {
+//            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//            TaskListFragment taskListFragment = new TaskListFragment();
+//            this.adapterOps = taskListFragment;
+//            ft.repl Zace(R.id.fragment, taskListFragment);
+//            ft.addToBackStack(null);
+//            ft.commit();
+//        }
         findViews();
-        mPresenter = new TaskListPresenter(this);
+        mPresenter = new TaskListPresenter(this,adapterOps);
         setCredentials();
         setUpViews();
         if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
@@ -98,7 +89,7 @@ public class TaskListActivity extends AppCompatActivity
 
         }
         setUpData();
-        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+//        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
     }
 
     @Override
@@ -115,20 +106,19 @@ public class TaskListActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
     @Override
     public void initRecyclerView(List<LocalTask> tasks) {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new TaskListAdapter(this, tasks, mTwoPane);
-        recyclerView.setAdapter(adapter);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+//                layoutManager.getOrientation());
+//        recyclerView.addItemDecoration(dividerItemDecoration);
+//        recyclerView.setLayoutManager(layoutManager);
+//        adapter = new TaskListAdapter(this, tasks, mTwoPane);
+//        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -149,12 +139,13 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     @Override
-    public void setUpData(){
+    public void setUpData() {
         taskListsTitles = mPresenter.getListsTitles();
         taskListsIds = mPresenter.getListsIds();
         setNavDrawerMenu();
     }
 
+    @Override
     public void setNavDrawerMenu() {
         Menu menu = navigationView.getMenu();
         MenuItem item = menu.findItem(R.id.lists_titles_menu);
@@ -167,21 +158,15 @@ public class TaskListActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void updateCurrentView() {
-        taskListsIds = mPresenter.getListsIds();
-        taskListsTitles = mPresenter.getListsTitles();
-        saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
-                mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
-        toolbar.setTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
-        setNavDrawerMenu();
-        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
-
-    }
 
     @Override
     public void dismissProgressDialog() {
         mProgress.dismiss();
+    }
+
+    @Override
+    public void setAdapterOps(Contract.AdapterOps aOps) {
+        this.adapterOps = aOps;
     }
 
     @Override
@@ -192,11 +177,6 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     public void expandNewTaskLayout() {
         showNewTaskDialog();
-//        newTaskLayout.setVisibility(View.VISIBLE);
-//        AppBarLayout.LayoutParams params = new AppBarLayout.LayoutParams(
-//                AppBarLayout.LayoutParams.MATCH_PARENT,
-//                AppBarLayout.LayoutParams.WRAP_CONTENT);
-//        newTaskLayout.setLayoutParams(params);
     }
 
     private void setCredentials() {
@@ -205,6 +185,11 @@ public class TaskListActivity extends AppCompatActivity
         if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
             mCredential.setSelectedAccountName(accountName);
         }
+    }
+
+    @Override
+    public void updateCurrentView() {
+
     }
 
     @Override
@@ -231,14 +216,7 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else if (newTaskLayout.getVisibility() == View.VISIBLE) {
-            collapseNewTaskLayout();
-        } else {
-            super.onBackPressed();
-        }
+        super.onBackPressed();
     }
 
     @Override
@@ -285,16 +263,10 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemCilck() {
-
-    }
-
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         saveStringSharedPreference(Co.CURRENT_LIST_ID, taskListsIds.get(item.getItemId()));
         saveStringSharedPreference(Co.CURRENT_LIST_TITLE, taskListsTitles.get(item.getItemId()));
-        adapter.updateItems(mPresenter.getTasksFromList(taskListsIds.get(item.getItemId())));
-        showToast(String.valueOf(item.getGroupId()));
+        adapterOps.updateAdapterItems(mPresenter.getTasksFromList(taskListsIds.get(item.getItemId())));
         toolbar.setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
         return false;
@@ -332,7 +304,7 @@ public class TaskListActivity extends AppCompatActivity
 
     @Override
     public void updateAdapterItems(List<LocalTask> localTasks) {
-        adapter.updateItems(localTasks);
+        adapterOps.updateAdapterItems(localTasks);
     }
 
 

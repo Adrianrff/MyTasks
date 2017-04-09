@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.R;
-import com.adrapps.mytasks.Views.TaskListActivity;
+import com.adrapps.mytasks.Views.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
@@ -163,7 +163,7 @@ public class SignInActivity extends Activity
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putBoolean(Co.IS_FIRST_TIME, false);
                     editor.apply();
-                    Intent i = new Intent(this, TaskListActivity.class);
+                    Intent i = new Intent(this, MainActivity.class);
                     startActivity(i);
                     finish();
                 }
@@ -230,7 +230,7 @@ public class SignInActivity extends Activity
     }
 
     private void goToTaskListActivity() {
-        Intent i = new Intent(this, TaskListActivity.class);
+        Intent i = new Intent(this, MainActivity.class);
         i.putExtra(Co.IS_FIRST_INIT, true);
         startActivity(i);
         finish();

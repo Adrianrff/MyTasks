@@ -8,6 +8,8 @@
     android:layout_height="match_parent"
     android:divider="@color/colorPrimary"
     android:scrollbars="vertical"
-    tools:listitem="@layout/list_item">
+    app:layoutManager="LinearLayoutManager"
+    tools:listitem="@layout/list_item"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
 </android.support.v7.widget.RecyclerView>
