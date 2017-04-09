@@ -17,7 +17,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,7 +32,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
@@ -46,7 +44,6 @@ import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,14 +61,13 @@ public class TaskListActivity extends AppCompatActivity
     ProgressDialog mProgress;
     ProgressBar progressBar;
     EditText taskTitle, taskDueDate;
-    AppCompatSpinner notificationSpinner;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
     List<String> taskListsTitles = new ArrayList<>();
     List<String> taskListsIds = new ArrayList<>();
     String accountName;
     private ConstraintLayout newTaskLayout;
-    private AppCompatSpinner spinner;
+    private boolean mTwoPane;
 
     @Override
 
@@ -83,7 +79,15 @@ public class TaskListActivity extends AppCompatActivity
             finish();
             return;
         }
-        setContentView(R.layout.navigation_drawer_content);
+
+        setContentView(R.layout.main_activity);
+        if (findViewById(R.id.task_detail_container) != null) {
+            // The detail container view will be present only in the
+            // large-screen layouts (res/values-w900dp).
+            // If this view is present, then the
+            // activity should be in two-pane mode.
+            mTwoPane = true;
+        }
         findViews();
         mPresenter = new TaskListPresenter(this);
         setCredentials();
@@ -108,11 +112,7 @@ public class TaskListActivity extends AppCompatActivity
     }
 
     private void findViews() {
-        taskTitle = (EditText) findViewById(R.id.title_edit_text);
-        taskDueDate = (EditText) findViewById(R.id.date_edit_text);
-        notificationSpinner = (AppCompatSpinner) findViewById(R.id.notification_spinner);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        newTaskLayout = (ConstraintLayout) findViewById(R.id.new_task_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -127,7 +127,7 @@ public class TaskListActivity extends AppCompatActivity
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new TaskListAdapter(this, tasks);
+        adapter = new TaskListAdapter(this, tasks, mTwoPane);
         recyclerView.setAdapter(adapter);
     }
 
@@ -244,47 +244,11 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     public void showNewTaskDialog() {
 
-//        final Dialog dialog = new Dialog(this);
-//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        dialog.setContentView(R.layout.new_task_dialog);
-//        dialog.setCancelable(true);dialog.show();
-//
-//        dialog.getWindow().setGravity(Gravity.TOP);
-//        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View v = getLayoutInflater().inflate(R.layout.new_task_dialog, null);
-        EditText newTaskTitle = (EditText) v.findViewById(R.id.newTaskTitleInput);
-        builder.setView(v);
-        AlertDialog dialog = builder.create();
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setGravity(Gravity.TOP);
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-            lp.copyFrom(window.getAttributes());
-//This makes the dialog take up the full width
-            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-            dialog.show();
-            window.setAttributes(lp);
-        }
-//        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-
-    }
-
-    public void showKeyboard(View view) {
-        if (view.requestFocus()) {
-            InputMethodManager imm = (InputMethodManager)
-                    getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-        }
     }
 
     @Override
     public void collapseNewTaskLayout() {
-        newTaskLayout.setVisibility(View.GONE);
+
     }
 
     @Override

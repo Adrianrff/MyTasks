@@ -64,53 +64,6 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="48dp" />
 
-    <RelativeLayout
-        android:id="@+id/task_detail_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:visibility="visible"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewDate">
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="@dimen/full_margin"
-            android:layout_marginBottom="@dimen/full_margin"
-            android:alpha="0.8"
-            android:layout_below="@+id/notes_content"
-            android:background="@android:color/darker_gray" />
-
-        <TextView
-            android:id="@+id/notes_title"
-            android:layout_marginStart="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/note_label"
-            android:textStyle="bold"
-            android:layout_marginLeft="8dp" />
-
-        <TextView
-            android:id="@+id/notes_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/notes_title"
-            android:layout_alignBottom="@+id/notes_title"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginLeft="@dimen/full_margin"
-            android:layout_marginStart="@dimen/full_margin"
-            android:layout_toEndOf="@+id/notes_title"
-            android:layout_toRightOf="@+id/notes_title"
-            android:text="dkjbfksdbfk" />
-
-    </RelativeLayout>
-
-
 </android.support.constraint.ConstraintLayout>
 
 

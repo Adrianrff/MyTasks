@@ -1,15 +1,23 @@
 package com.adrapps.mytasks.Presenter;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+
+import com.adrapps.mytasks.Domain.Co;
+import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Models.DatabaseModel;
 import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.Views.TaskDetailActivity;
+import com.adrapps.mytasks.Views.TaskDetailFragment;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class TaskListPresenter  {
+public class TaskListPresenter {
 
     private WeakReference<Contract.View> mView;
     private Contract.Model mModel;
@@ -116,14 +124,6 @@ public class TaskListPresenter  {
         getView().setListsIds(listIds);
     }
 
-    public void onClick(int id) {
-        switch (id){
-            case R.id.fab:
-                expandNewTaskLayout();
-                break;
-        }
-    }
-
     public void updateCurrentView() {
         getView().updateCurrentView();
     }
@@ -139,5 +139,9 @@ public class TaskListPresenter  {
 
     public void collapseNewTaskLayout(){
         getView().collapseNewTaskLayout();
+    }
+
+    public void onClick(int id) {
+
     }
 }
