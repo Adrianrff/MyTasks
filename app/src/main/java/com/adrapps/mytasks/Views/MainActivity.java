@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity
     private void setUpData() {
         listTitles = mPresenter.getListsTitles();
         listIds = mPresenter.getListsIds();
+        setNavDrawerMenu(listTitles);
     }
 
     @Override

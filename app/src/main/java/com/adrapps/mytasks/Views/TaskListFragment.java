@@ -6,11 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
@@ -27,7 +25,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     TaskListAdapter adapter;
     TaskListPresenter mPresenter;
     private List<String> taskListsIds = new ArrayList<>();
-    private List<String> taskListsTitles = new ArrayList<>();
+    private List<String> listTitles = new ArrayList<>();
     Contract.MainActivityViewOps mainOps;
 
     public TaskListFragment() {
@@ -75,7 +73,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
 
     @Override
     public List<String> getListTitles() {
-        return taskListsTitles;
+        return listTitles;
     }
 
     @Override
@@ -90,7 +88,7 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     public void setListsTitles(List<String> titles) {
         if (!titles.isEmpty())
             for (int i = 0; i < titles.size(); i++) {
-                taskListsTitles.add(titles.get(i));
+                listTitles.add(titles.get(i));
             }
     }
 
@@ -123,11 +121,11 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     @Override
     public void updateCurrentView() {
         taskListsIds = mPresenter.getListsIds();
-        taskListsTitles = mPresenter.getListsTitles();
+        listTitles = mPresenter.getListsTitles();
         saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
                 mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
         mPresenter.setToolbarTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
-        mPresenter.setNavDrawerMenu(taskListsTitles);
+        mPresenter.setNavDrawerMenu(listTitles);
         adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
     }
 
