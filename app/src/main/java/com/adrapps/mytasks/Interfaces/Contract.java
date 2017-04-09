@@ -18,14 +18,6 @@ public class Contract {
     public interface MainActivityViewOps {
 
 
-        void expandNewTaskLayout();
-
-
-
-        void showNewTaskDialog();
-
-        void collapseNewTaskLayout();
-
         void showToast(String msg);
 
         Context getAppContext();
@@ -35,7 +27,6 @@ public class Contract {
         Context getContext();
 
         void requestAuthorization(Exception e);
-
 
         String getStringSharedPreference(String key);
 
@@ -47,8 +38,6 @@ public class Contract {
 
         void setUpViews();
 
-        void initRecyclerView(List<LocalTask> tasks);
-
         void setUpData();
 
         void setNavDrawerMenu();
@@ -58,6 +47,7 @@ public class Contract {
         void dismissProgressDialog();
 
         void setAdapterOps(AdapterOps aOps);
+
     }
 
 
@@ -86,11 +76,13 @@ public class Contract {
 
         void updateCurrentView();
 
-        void setTaskListsTitles(List<String> titles);
+        void setListsTitles(List<String> titles);
 
         void setListsIds(List<String> listIds);
 
         void updateAdapterItems(List<LocalTask> localTasks);
+
+        void initRecyclerView(List<LocalTask> tasks);
 
 
     }

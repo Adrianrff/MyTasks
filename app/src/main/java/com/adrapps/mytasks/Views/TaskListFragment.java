@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
@@ -41,16 +43,14 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d("onCreateView","run");
         return inflater.inflate(R.layout.task_list_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Log.d("onViewCreated","run");
         super.onViewCreated(view, savedInstanceState);
         findViews(view);
-        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference("@default")));
+        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
     }
 
     private void findViews(View view) {
@@ -67,13 +67,12 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
         recyclerView.setAdapter(adapter);
     }
 
-    public void setNavDrawerMenu() {
-        mPresenter.setNavDrawerMenu();
-    }
-
     @Override
     public void setListsIds(List<String> listIds) {
-        taskListsIds = mPresenter.getListsIds();
+        if (!listIds.isEmpty())
+            for (int i = 0; i < listIds.size(); i++) {
+                taskListsIds.add(listIds.get(i));
+            }
     }
 
     @Override
@@ -82,9 +81,11 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     }
 
     public String getStringSharedPreference(String key) {
-        if (key.equals(Co.CURRENT_LIST_ID))
-            return "@default";
-        else
+        if (key.equals(Co.CURRENT_LIST_ID)) {
+            if (mPresenter.getStringSharedPreference(key).equals(Co.NO_VALUE)){
+                return "@default";
+            }
+        }
             return mPresenter.getStringSharedPreference(key);
     }
 
@@ -112,8 +113,11 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     }
 
     @Override
-    public void setTaskListsTitles(List<String> titles) {
-
+    public void setListsTitles(List<String> titles) {
+        if (!titles.isEmpty())
+            for (int i = 0; i < titles.size(); i++) {
+                taskListsTitles.add(titles.get(i));
+            }
     }
 
     public void showProgressDialog() {

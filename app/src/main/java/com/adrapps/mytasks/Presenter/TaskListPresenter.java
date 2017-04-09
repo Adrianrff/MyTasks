@@ -15,10 +15,6 @@ public class TaskListPresenter {
     private Contract.Model mModel;
 
 //------------------CONSTRUCTOR-------------------////
-    public TaskListPresenter(Contract.MainActivityViewOps view) {
-        mView = new WeakReference<>(view);
-        getDatabaseModel();
-    }
 
     public TaskListPresenter(Contract.MainActivityViewOps mView, Contract.AdapterOps aView) {
         this.aView = new WeakReference<>(aView);
@@ -114,7 +110,7 @@ public class TaskListPresenter {
     }
 
     public void initRecyclerView(List<LocalTask> tasks) {
-        getView().initRecyclerView(tasks);
+        getaView().initRecyclerView(tasks);
     }
 
     public void setUpViews(){
@@ -122,7 +118,7 @@ public class TaskListPresenter {
     }
 
     public void setTaskListTitles(List<String> titles){
-        getaView().setTaskListsTitles(titles);
+        getaView().setListsTitles(titles);
     }
 
     public void setListsIds(List<String> listIds){
@@ -135,15 +131,6 @@ public class TaskListPresenter {
 
     public String getListTitleFromId(String listId){
         return mModel.getListTitleFromId(listId);
-    }
-
-    public void expandNewTaskLayout(){
-
-        getView().expandNewTaskLayout();
-    }
-
-    public void collapseNewTaskLayout(){
-        getView().collapseNewTaskLayout();
     }
 
     public void onClick(int id) {

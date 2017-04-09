@@ -19,4 +19,5 @@ public class Co {
     public static String DETAIL_TASK_TITLE = "task name";
     public static String DETAIL_TASK_NOTE = "task note";
     public static String DETAIL_TASK_DUE = "task due date";
+    public static String NO_VALUE = "no value";
 }

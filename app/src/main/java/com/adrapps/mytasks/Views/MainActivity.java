@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -28,7 +27,6 @@ import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.Domain.Co;
-import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
@@ -43,13 +41,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
-        View.OnClickListener, Contract.AdapterOps {
+        View.OnClickListener {
 
     Toolbar toolbar;
     DrawerLayout drawer;
     NavigationView navigationView;
     FloatingActionButton fab;
-    TaskListAdapter adapter;
     ProgressDialog mProgress;
     ProgressBar progressBar;
     TaskListPresenter mPresenter;
@@ -70,17 +67,19 @@ public class MainActivity extends AppCompatActivity
             finish();
             return;
         }
+
         setContentView(R.layout.main_activity);
+        mPresenter = new TaskListPresenter(this,adapterOps);
 //        if (savedInstanceState == null) {
 //            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 //            TaskListFragment taskListFragment = new TaskListFragment();
 //            this.adapterOps = taskListFragment;
-//            ft.repl Zace(R.id.fragment, taskListFragment);
+//            ft.replace(R.id.fragment, taskListFragment);
 //            ft.addToBackStack(null);
 //            ft.commit();
 //        }
         findViews();
-        mPresenter = new TaskListPresenter(this,adapterOps);
+
         setCredentials();
         setUpViews();
         if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
@@ -108,17 +107,6 @@ public class MainActivity extends AppCompatActivity
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-    }
-
-    @Override
-    public void initRecyclerView(List<LocalTask> tasks) {
-//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-//                layoutManager.getOrientation());
-//        recyclerView.addItemDecoration(dividerItemDecoration);
-//        recyclerView.setLayoutManager(layoutManager);
-//        adapter = new TaskListAdapter(this, tasks, mTwoPane);
-//        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -174,11 +162,6 @@ public class MainActivity extends AppCompatActivity
         mProgress.show();
     }
 
-    @Override
-    public void expandNewTaskLayout() {
-        showNewTaskDialog();
-    }
-
     private void setCredentials() {
         mCredential = getCredential();
         accountName = getStringSharedPreference(Co.PREF_ACCOUNT_NAME);
@@ -187,27 +170,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void updateCurrentView() {
 
-    }
-
-    @Override
-    public void setTaskListsTitles(List<String> titles) {
-        if (!titles.isEmpty())
-            for (int i = 0; i < titles.size(); i++) {
-                taskListsTitles.add(titles.get(i));
-            }
-    }
-
-    @Override
-    public void setListsIds(List<String> listIds) {
-        if (!listIds.isEmpty())
-            for (int i = 0; i < listIds.size(); i++) {
-                taskListsIds.add(listIds.get(i));
-            }
-
-    }
 
     private void refresh() {
         RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
@@ -217,16 +180,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    @Override
-    public void showNewTaskDialog() {
-
-    }
-
-    @Override
-    public void collapseNewTaskLayout() {
-
     }
 
     @Override
@@ -302,12 +255,6 @@ public class MainActivity extends AppCompatActivity
                 Co.REQUEST_AUTHORIZATION);
     }
 
-    @Override
-    public void updateAdapterItems(List<LocalTask> localTasks) {
-        adapterOps.updateAdapterItems(localTasks);
-    }
-
-
     public GoogleAccountCredential getCredential() {
         return GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(Co.SCOPES))
@@ -319,7 +266,7 @@ public class MainActivity extends AppCompatActivity
     public String getStringSharedPreference(String key) {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
-        return prefs.getString(key, "No value");
+        return prefs.getString(key, Co.NO_VALUE);
     }
 
     @Override
