@@ -9,13 +9,14 @@
     <string name="no_due_date">No due date</string>
     <string name="request_api_authorization">Requesting API authorization</string>
     <string name="task_title_hint">Task title</string>
-    <string name="task_due_date">task due date</string>
+    <string name="task_due_date">Task due date</string>
     <string name="label_add_button">Add</string>
     <string name="note_label">Notes:</string>
     <string name="lists_menu_title">Lists</string>
     <string name="pick_date">Pick date</string>
     <string name="no_notes">No notes</string>
     <string name="first_sync_progress_dialog">Fetching data</string>
+    <string name="notifications_settings_title">Notifications</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

@@ -17,6 +17,11 @@
     </group>
 
     <group>
+        <item android:id="@+id/Notifications"
+            android:title="@string/notifications_settings_title" />
+    </group>
+
+    <group>
         <item android:id="@+id/Settings"
             android:title="@string/action_settings" />
     </group>

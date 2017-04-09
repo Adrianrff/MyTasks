@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity
         }
         setNavDrawerMenu(listTitles);
         adapter.updateItems(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
+
     }
 
     @Override
@@ -201,6 +202,7 @@ public class MainActivity extends AppCompatActivity
             listsMenu.add(0, i, i, taskListsTitles.get(i)).setIcon(R.drawable.ic_list).
                     setOnMenuItemClickListener(this);
         }
+        listsMenu.getItem(listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE))).setChecked(true);
     }
 
     @Override
