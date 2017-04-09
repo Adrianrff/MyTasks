@@ -28,13 +28,15 @@ public class Contract {
 
         void requestAuthorization(Exception e);
 
-        String getStringSharedPreference(String key);
+        String getStringShP(String key);
 
         boolean getBooleanSharedPreference(String key);
 
-        void saveStringSharedPreference(String key, String value);
+        void saveStringShP(String key, String value);
 
         void setToolbarTitle(String title);
+
+        void setUpData();
 
         void setUpViews();
 

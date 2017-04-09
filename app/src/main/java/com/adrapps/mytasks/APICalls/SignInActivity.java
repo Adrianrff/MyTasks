@@ -55,7 +55,7 @@ public class SignInActivity extends Activity
 
 
     /**
-     * Create the main activity.
+     * Create the task_list_menu activity.
      *
      * @param savedInstanceState previously saved instance data.
      */
@@ -260,7 +260,7 @@ public class SignInActivity extends Activity
 
         @Override
         protected List<String> doInBackground(Void... params) {
-            List<String> listInfo = new ArrayList<>();
+            List<String> listInfo;
             try {
                 listInfo = firstCall();
             } catch (Exception e) {

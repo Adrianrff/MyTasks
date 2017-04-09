@@ -77,11 +77,11 @@ public class TaskListPresenter {
     }
 
     public void saveStringSharedPreference(String currentListTitle, String title) {
-        getView().saveStringSharedPreference(currentListTitle, title);
+        getView().saveStringShP(currentListTitle, title);
     }
 
     public String getStringSharedPreference(String key) {
-        return getView().getStringSharedPreference(key);
+        return getView().getStringShP(key);
     }
 
     public boolean getBooleanSharedPreference(String key) {
@@ -100,6 +100,9 @@ public class TaskListPresenter {
         getView().setUpViews();
     }
 
+    public void  setUpData(){
+        getView().setUpData();
+    }
 
     public void updateCurrentView() {
         getView().updateCurrentView();

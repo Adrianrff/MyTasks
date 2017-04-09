@@ -59,8 +59,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
 
     @Override
-    protected void onPreExecute() {
-        mPresenter.showProgressDialog();
+    protected void onPreExecute() {mPresenter.showProgressDialog();
         mPresenter.showProgress(true);
     }
 
@@ -72,6 +71,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
         mPresenter.showProgress(false);
         mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE,lists.get(0).getTitle());
         mPresenter.setUpViews();
+        mPresenter.setUpData();
         mPresenter.initRecyclerView(mPresenter.getTasksFromList(lists.get(0).getId()));
         mPresenter.updateCurrentView();
 

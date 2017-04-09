@@ -80,12 +80,11 @@ public class MainActivity extends AppCompatActivity
         setCredentials();
         if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
             refreshFirstTime();
+            return;
         }
         setUpData();
-        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+        initRecyclerView(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
     }
-
-
 
 
     //-------------------------VIEWS AND DATA------------------------///
@@ -99,8 +98,9 @@ public class MainActivity extends AppCompatActivity
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
-    private void setUpData() {
-        listTitles =mPresenter.getListsTitles();
+    @Override
+    public void setUpData() {
+        listTitles = mPresenter.getListsTitles();
         listIds = mPresenter.getListsIds();
         setNavDrawerMenu(listTitles);
     }
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity
     public void setUpViews() {
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(getString(R.string.first_sync_progress_dialog));
-        toolbar.setTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
+        toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
         setSupportActionBar(toolbar);
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -131,17 +131,25 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(this);
     }
 
-
     @Override
     public void updateCurrentView() {
         listIds = mPresenter.getListsIds();
         listTitles = mPresenter.getListsTitles();
-        saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
-                mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
-        mPresenter.setToolbarTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE).
-                equals(Co.NO_VALUE) ? listTitles.get(0):getStringSharedPreference(Co.CURRENT_LIST_TITLE));
-        mPresenter.setNavDrawerMenu(listTitles);
-        adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+        boolean listStillExists = listIds.contains(getStringShP(Co.CURRENT_LIST_ID));
+        if (listStillExists) {
+            String currentListTitle = mPresenter.getListTitleFromId(
+                    getStringShP(Co.CURRENT_LIST_ID));
+            saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
+            mPresenter.setToolbarTitle(currentListTitle);
+        } else {
+            String currentListTitle = listTitles.get(0);
+            String currentListId = listIds.get(0);
+            saveStringShP(Co.CURRENT_LIST_ID, currentListId);
+            saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
+            toolbar.setTitle(currentListTitle);
+        }
+        setNavDrawerMenu(listTitles);
+        adapter.updateItems(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
     }
 
     @Override
@@ -185,8 +193,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setNavDrawerMenu(List<String> taskListsTitles) {
-        listTitles =mPresenter.getListsTitles();
-        listIds = mPresenter.getListsIds();
         Menu menu = navigationView.getMenu();
         MenuItem item = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = item.getSubMenu();
@@ -221,12 +227,11 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     ///-----------------------------API---------------------------////
 
     private void setCredentials() {
         mCredential = getCredential();
-        accountName = getStringSharedPreference(Co.PREF_ACCOUNT_NAME);
+        accountName = getStringShP(Co.PREF_ACCOUNT_NAME);
         if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
             mCredential.setSelectedAccountName(accountName);
         }
@@ -246,8 +251,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
     ///-------------------------CLICK HANDLES------------------------///
 
     @Override
@@ -257,8 +260,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        saveStringSharedPreference(Co.CURRENT_LIST_ID, listIds.get(item.getItemId()));
-        saveStringSharedPreference(Co.CURRENT_LIST_TITLE, listTitles.get(item.getItemId()));
+        saveStringShP(Co.CURRENT_LIST_ID, listIds.get(item.getItemId()));
+        saveStringShP(Co.CURRENT_LIST_TITLE, listTitles.get(item.getItemId()));
+        Menu menu = navigationView.getMenu();
+        MenuItem menuItem = menu.findItem(R.id.lists_titles_menu);
+        SubMenu listsMenu = menuItem.getSubMenu();
+        for (int i = 0; i < listsMenu.size(); i++) {
+            listsMenu.getItem(i).setChecked(false);
+        }
+        item.setChecked(true);
         adapter.updateItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
         toolbar.setTitle(item.getTitle());
         drawer.closeDrawer(GravityCompat.START);
@@ -270,12 +280,10 @@ public class MainActivity extends AppCompatActivity
         super.onBackPressed();
     }
 
-
     @Override
     public void pressBack() {
         onBackPressed();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -305,8 +313,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
     //-------------------------ACTIVITY METHODS---------------------------//
 
     @Override
@@ -317,11 +323,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.task_list_menu, menu);
         return true;
     }
-
-
 
 
     ///----------------------------OTHER--------------------------//
@@ -347,17 +351,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public String getStringSharedPreference(String key) {
+    public String getStringShP(String key) {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
         if (key.equals(Co.CURRENT_LIST_ID)) {
-            if (prefs.getString(key,Co.NO_VALUE).equals(Co.NO_VALUE)){
+            if (prefs.getString(key, Co.NO_VALUE).equals(Co.NO_VALUE)) {
                 return "@default";
             }
         }
         if (key.equals(Co.CURRENT_LIST_TITLE)) {
-            if (prefs.getString(key,Co.NO_VALUE).equals(Co.NO_VALUE)){
+            if (prefs.getString(key, Co.NO_VALUE).equals(Co.NO_VALUE)) {
                 return listTitles.get(0);
             }
         }
@@ -373,7 +377,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void saveStringSharedPreference(String key, String value) {
+    public void saveStringShP(String key, String value) {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = prefs.edit();

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/comment_background"
@@ -19,10 +18,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/taskCheckbox"
-        android:layout_marginBottom="2dp"
-        android:layout_marginEnd="@dimen/double_margin"
+        android:layout_marginBottom="1dp"
+        android:layout_marginEnd="40dp"
         android:layout_marginLeft="@dimen/half_margin"
-        android:layout_marginRight="@dimen/double_margin"
+        android:layout_marginRight="40dp"
         android:layout_marginStart="@dimen/half_margin"
         android:layout_toEndOf="@id/taskCheckbox"
         android:layout_toRightOf="@id/taskCheckbox"
@@ -39,8 +38,8 @@
         android:layout_alignLeft="@id/textViewName"
         android:layout_alignStart="@id/textViewName"
         android:layout_below="@id/textViewName"
-        android:layout_marginEnd="@dimen/double_margin"
-        android:layout_marginRight="@dimen/double_margin"
+        android:layout_marginEnd="40dp"
+        android:layout_marginRight="40dp"
         android:ellipsize="end"
         android:text="24/01/2017"
         android:textSize="12sp" />
@@ -56,7 +55,8 @@
         android:layout_marginBottom="@dimen/half_margin"
         android:layout_marginTop="@dimen/half_margin"
         android:src="@drawable/notification"
-        android:tint="@color/colorPrimaryDark" />
+        android:tint="@color/colorPrimaryDark"
+        android:contentDescription="Notification image" />
 
 
 </RelativeLayout>

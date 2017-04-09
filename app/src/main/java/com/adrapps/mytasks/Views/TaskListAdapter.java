@@ -26,7 +26,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     private Context context;
     private List<LocalTask> tasks;
-    TaskListPresenter mPresenter;
+    private TaskListPresenter mPresenter;
 
     TaskListAdapter(Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
         this.mPresenter = presenter;
@@ -69,7 +69,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     }
 
 
-    public class TaskListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class TaskListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView taskName, dueDate;
         ImageView notificationImage;
@@ -81,7 +81,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             super(v);
             this.context = context;
             this.mPresenter = presenter;
-
             v.setOnClickListener(this);
             dueDate = (TextView) v.findViewById(R.id.textViewDate);
             taskName = (TextView) v.findViewById(R.id.textViewName);
