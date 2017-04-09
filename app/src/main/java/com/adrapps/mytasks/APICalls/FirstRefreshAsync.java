@@ -66,13 +66,14 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
+        mPresenter.setTaskListTitles(listTitles);
+        mPresenter.setListsIds(listIds);
         mPresenter.dismissProgressDialog();
         mPresenter.showProgress(false);
         mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE,lists.get(0).getTitle());
-        mPresenter.setTaskListTitles(listTitles);
-        mPresenter.setListsIds(listIds);
         mPresenter.setUpViews();
         mPresenter.initRecyclerView(mPresenter.getTasksFromList(lists.get(0).getId()));
+        mPresenter.updateCurrentView();
 
 
     }

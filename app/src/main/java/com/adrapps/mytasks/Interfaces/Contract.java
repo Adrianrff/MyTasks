@@ -38,11 +38,9 @@ public class Contract {
 
         void setUpViews();
 
-        void setUpData();
-
-        void setNavDrawerMenu();
-
         void showProgressDialog();
+
+        void setNavDrawerMenu(List<String> taskListsTitles);
 
         void dismissProgressDialog();
 
@@ -83,6 +81,10 @@ public class Contract {
         void updateAdapterItems(List<LocalTask> localTasks);
 
         void initRecyclerView(List<LocalTask> tasks);
+
+        List<String> getListIds();
+
+        List<String> getListTitles();
 
 
     }

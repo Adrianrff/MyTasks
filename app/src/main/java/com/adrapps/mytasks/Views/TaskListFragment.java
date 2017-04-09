@@ -18,6 +18,7 @@ import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TaskListFragment extends Fragment implements Contract.AdapterOps {
@@ -25,8 +26,8 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     RecyclerView recyclerView;
     TaskListAdapter adapter;
     TaskListPresenter mPresenter;
-    private List<String> taskListsIds;
-    private List<String> taskListsTitles;
+    private List<String> taskListsIds = new ArrayList<>();
+    private List<String> taskListsTitles = new ArrayList<>();
     Contract.MainActivityViewOps mainOps;
 
     public TaskListFragment() {
@@ -68,10 +69,28 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
     }
 
     @Override
+    public List<String> getListIds() {
+        return taskListsIds;
+    }
+
+    @Override
+    public List<String> getListTitles() {
+        return taskListsTitles;
+    }
+
+    @Override
     public void setListsIds(List<String> listIds) {
         if (!listIds.isEmpty())
             for (int i = 0; i < listIds.size(); i++) {
                 taskListsIds.add(listIds.get(i));
+            }
+    }
+
+    @Override
+    public void setListsTitles(List<String> titles) {
+        if (!titles.isEmpty())
+            for (int i = 0; i < titles.size(); i++) {
+                taskListsTitles.add(titles.get(i));
             }
     }
 
@@ -108,24 +127,8 @@ public class TaskListFragment extends Fragment implements Contract.AdapterOps {
         saveStringSharedPreference(Co.CURRENT_LIST_TITLE,
                 mPresenter.getListTitleFromId(getStringSharedPreference(Co.CURRENT_LIST_ID)));
         mPresenter.setToolbarTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
-        mPresenter.setNavDrawerMenu();
+        mPresenter.setNavDrawerMenu(taskListsTitles);
         adapter.updateItems(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
-    }
-
-    @Override
-    public void setListsTitles(List<String> titles) {
-        if (!titles.isEmpty())
-            for (int i = 0; i < titles.size(); i++) {
-                taskListsTitles.add(titles.get(i));
-            }
-    }
-
-    public void showProgressDialog() {
-        mPresenter.showProgressDialog();
-    }
-
-    public void dismissProgressDialog() {
-        mPresenter.dismissProgressDialog();
     }
 
 }

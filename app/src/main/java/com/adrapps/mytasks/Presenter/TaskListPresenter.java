@@ -1,10 +1,10 @@
 package com.adrapps.mytasks.Presenter;
 
-import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Domain.LocalTask;
+import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Models.DatabaseModel;
-import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -22,19 +22,19 @@ public class TaskListPresenter {
         getDatabaseModel();
     }
 
-    private void getDatabaseModel(){
+    private void getDatabaseModel() {
         mModel = new DatabaseModel(this, getView().getContext());
     }
 
-    private Contract.MainActivityViewOps getView() throws NullPointerException{
-        if ( mView != null )
+    private Contract.MainActivityViewOps getView() throws NullPointerException {
+        if (mView != null)
             return mView.get();
         else
             throw new NullPointerException("MainActivityViewOps is unavailable");
     }
 
-    private Contract.AdapterOps getaView() throws NullPointerException{
-        if ( aView != null )
+    private Contract.AdapterOps getaView() throws NullPointerException {
+        if (aView != null)
             return aView.get();
         else
             throw new NullPointerException("AdapterOps is unavailable");
@@ -42,17 +42,14 @@ public class TaskListPresenter {
 
     //-------------METHODS------------------///
 
-    public List<LocalTask> getTasksFromList(String listId){
+    public List<LocalTask> getTasksFromList(String listId) {
         return mModel.getTasksFromList(listId);
     }
 
-    public void showToast(String msg){
+    public void showToast(String msg) {
         getView().showToast(msg);
     }
 
-    public void showProgress(boolean b){
-        getView().showProgress(b);
-    }
 
     public void updateLists(List<TaskList> lists) {
         mModel.updateLists(lists);
@@ -62,23 +59,9 @@ public class TaskListPresenter {
         mModel.updateTasks(tasks);
     }
 
-    public void addTask(Task task, TaskList taskList) {
 
-    }
-
-   public void showProgressDialog(){
-        getView().showProgressDialog();
-   }
-
-   public void dismissProgressDialog(){
-       getView().dismissProgressDialog();
-   }
-
-
-
-    public void addTasksInBatchesFromList(List<Task> tasks, String listId) {
-        mModel.addTasksInBatchesFromList(tasks,listId);
-
+    public void dismissProgressDialog() {
+        getView().dismissProgressDialog();
     }
 
     public void requestApiPermission(Exception mLastError) {
@@ -93,19 +76,27 @@ public class TaskListPresenter {
         return mModel.getListsIds();
     }
 
-    public void saveStringSharedPreference(String currentListTitle, String title) {
-        getView().saveStringSharedPreference(currentListTitle,title);
+    public void setTaskListTitles(List<String> titles) {
+        getaView().setListsTitles(titles);
     }
 
-    public String getStringSharedPreference(String key){
+    public void setListsIds(List<String> listIds) {
+        getaView().setListsIds(listIds);
+    }
+
+    public void saveStringSharedPreference(String currentListTitle, String title) {
+        getView().saveStringSharedPreference(currentListTitle, title);
+    }
+
+    public String getStringSharedPreference(String key) {
         return getView().getStringSharedPreference(key);
     }
 
-    public boolean getBooleanSharedPreference(String key){
+    public boolean getBooleanSharedPreference(String key) {
         return getView().getBooleanSharedPreference(key);
     }
 
-    public void setToolbarTitle(String title){
+    public void setToolbarTitle(String title) {
         getView().setToolbarTitle(title);
     }
 
@@ -113,23 +104,16 @@ public class TaskListPresenter {
         getaView().initRecyclerView(tasks);
     }
 
-    public void setUpViews(){
+    public void setUpViews() {
         getView().setUpViews();
     }
 
-    public void setTaskListTitles(List<String> titles){
-        getaView().setListsTitles(titles);
-    }
-
-    public void setListsIds(List<String> listIds){
-        getaView().setListsIds(listIds);
-    }
 
     public void updateCurrentView() {
         getaView().updateCurrentView();
     }
 
-    public String getListTitleFromId(String listId){
+    public String getListTitleFromId(String listId) {
         return mModel.getListTitleFromId(listId);
     }
 
@@ -137,11 +121,20 @@ public class TaskListPresenter {
 
     }
 
-    public void setNavDrawerMenu() {
-        getView().setNavDrawerMenu();
+    public void setNavDrawerMenu(List<String> listTitles) {
+        getView().setNavDrawerMenu(listTitles);
     }
 
-    public void setAdapterOps(Contract.AdapterOps aOps){
+    public void setAdapterOps(Contract.AdapterOps aOps) {
         getView().setAdapterOps(aOps);
     }
+
+    public void showProgressDialog() {
+        getView().showProgressDialog();
+    }
+
+    public void showProgress(boolean b) {
+        getView().showProgress(b);
+    }
+
 }

@@ -51,14 +51,13 @@ public class MainActivity extends AppCompatActivity
     ProgressBar progressBar;
     TaskListPresenter mPresenter;
     GoogleAccountCredential mCredential;
-    List<String> taskListsTitles = new ArrayList<>();
-    List<String> taskListsIds = new ArrayList<>();
     String accountName;
+    List<String> listIds = new ArrayList<>();
+    List<String> listTitles = new ArrayList<>();
     Contract.AdapterOps adapterOps;
     private boolean mTwoPane;
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getBooleanSharedPreference(Co.IS_FIRST_TIME)) {
@@ -84,11 +83,13 @@ public class MainActivity extends AppCompatActivity
         setUpViews();
         if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
             refreshFirstTime();
-            return;
-
         }
         setUpData();
-//        initRecyclerView(mPresenter.getTasksFromList(getStringSharedPreference(Co.CURRENT_LIST_ID)));
+    }
+
+    private void setUpData() {
+        listTitles = mPresenter.getListsTitles();
+        listIds = mPresenter.getListsIds();
     }
 
     @Override
@@ -113,7 +114,6 @@ public class MainActivity extends AppCompatActivity
     public void setUpViews() {
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(getString(R.string.first_sync_progress_dialog));
-
         toolbar.setTitle(getStringSharedPreference(Co.CURRENT_LIST_TITLE));
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -127,14 +127,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setUpData() {
-        taskListsTitles = mPresenter.getListsTitles();
-        taskListsIds = mPresenter.getListsIds();
-        setNavDrawerMenu();
-    }
-
-    @Override
-    public void setNavDrawerMenu() {
+    public void setNavDrawerMenu(List<String> taskListsTitles) {
         Menu menu = navigationView.getMenu();
         MenuItem item = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = item.getSubMenu();
@@ -143,13 +136,6 @@ public class MainActivity extends AppCompatActivity
             listsMenu.add(0, i, i, taskListsTitles.get(i)).setIcon(R.drawable.ic_list).
                     setOnMenuItemClickListener(this);
         }
-    }
-
-
-
-    @Override
-    public void dismissProgressDialog() {
-        mProgress.dismiss();
     }
 
     @Override
@@ -170,11 +156,19 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-
     private void refresh() {
         RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
         refresh.execute();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        saveStringSharedPreference(Co.CURRENT_LIST_ID, adapterOps.getListIds().get(item.getItemId()));
+        saveStringSharedPreference(Co.CURRENT_LIST_TITLE, adapterOps.getListTitles().get(item.getItemId()));
+        adapterOps.updateAdapterItems(mPresenter.getTasksFromList(adapterOps.getListIds().get(item.getItemId())));
+        toolbar.setTitle(item.getTitle());
+        drawer.closeDrawer(GravityCompat.START);
+        return false;
     }
 
     @Override
@@ -216,16 +210,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        saveStringSharedPreference(Co.CURRENT_LIST_ID, taskListsIds.get(item.getItemId()));
-        saveStringSharedPreference(Co.CURRENT_LIST_TITLE, taskListsTitles.get(item.getItemId()));
-        adapterOps.updateAdapterItems(mPresenter.getTasksFromList(taskListsIds.get(item.getItemId())));
-        toolbar.setTitle(item.getTitle());
-        drawer.closeDrawer(GravityCompat.START);
-        return false;
-    }
-
-    @Override
     public void showToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
@@ -259,7 +243,6 @@ public class MainActivity extends AppCompatActivity
         return GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(Co.SCOPES))
                 .setBackOff(new ExponentialBackOff());
-
     }
 
     @Override
@@ -288,6 +271,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void setToolbarTitle(String title) {
         toolbar.setTitle(title);
+    }
+
+    @Override
+    public void dismissProgressDialog() {
+        mProgress.dismiss();
     }
 
 
