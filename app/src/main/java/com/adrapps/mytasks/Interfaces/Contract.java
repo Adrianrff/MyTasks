@@ -59,6 +59,8 @@ public class Contract {
         void setListsIds(List<String> listIds);
 
         void setListsTitles(List<String> titles);
+
+        void showSnackBar(String message, int position);
     }
 
 

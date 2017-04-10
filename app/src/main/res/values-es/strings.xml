@@ -18,6 +18,9 @@
     <string name="no_notes">No hay notas</string>
     <string name="first_sync_progress_dialog">Sincronizando datos</string>
     <string name="notifications_settings_title">Notificaciones</string>
+    <string name="undo">DESHACER</string>
+    <string name="task_deleted">Tarea eliminada</string>
+    <string name="task_restored">Tarea restaurada</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>

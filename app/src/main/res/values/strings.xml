@@ -17,6 +17,9 @@
     <string name="no_notes">No notes</string>
     <string name="first_sync_progress_dialog">Fetching data</string>
     <string name="notifications_settings_title">Notifications</string>
+    <string name="undo">UNDO</string>
+    <string name="task_deleted">Task deleted</string>
+    <string name="task_restored">Task restored</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

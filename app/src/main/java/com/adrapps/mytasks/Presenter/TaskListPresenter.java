@@ -142,4 +142,7 @@ public class TaskListPresenter {
         getView().navIconToBack(b);
     }
 
+    public void showUndoSnackBar(String message, int position) {
+        getView().showSnackBar(message, position);
+    }
 }

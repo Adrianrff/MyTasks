@@ -8,8 +8,10 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -19,6 +21,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -31,6 +34,7 @@ import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
+import com.adrapps.mytasks.Helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity
     RecyclerView recyclerView;
     TaskListAdapter adapter;
     ActionBarDrawerToggle toggle;
+    CoordinatorLayout coordinatorLayout;
     List<String> listIds = new ArrayList<>();
     List<String> listTitles = new ArrayList<>();
     Contract.AdapterOps adapterOps;
@@ -93,6 +98,7 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -162,6 +168,10 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setLayoutManager(layoutManager);
         adapter = new TaskListAdapter(getContext(), tasks, mPresenter);
         recyclerView.setAdapter(adapter);
+        ItemTouchHelper.Callback callback =
+                new SimpleItemTouchHelperCallback(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(recyclerView);
     }
 
     @Override
@@ -173,6 +183,7 @@ public class MainActivity extends AppCompatActivity
     public void setListsTitles(List<String> titles) {
         this.listTitles.addAll(mPresenter.getListsTitles());
     }
+
 
     @Override
     public void showProgressDialog() {
@@ -228,6 +239,18 @@ public class MainActivity extends AppCompatActivity
         toolbar.setTitle(title);
     }
 
+    @Override
+    public void showSnackBar(String message, final int position) {
+        Snackbar snackbar =  Snackbar.make(coordinatorLayout,message,Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        adapter.restoreDeletedItem(position);
+                    }
+                });
+        snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.colorLightPrimary));
+        snackbar.show();
+    }
 
     ///-----------------------------API---------------------------////
 
@@ -258,6 +281,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         mPresenter.onClick(v.getId());
+        showToast(v.toString());
     }
 
     @Override
