@@ -1,10 +1,19 @@
 package com.adrapps.mytasks.Helpers;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.DisplayMetrics;
+import android.view.View;
 
 import com.adrapps.mytasks.Interfaces.ItemTouchHelperAdapter;
 import com.adrapps.mytasks.Interfaces.ItemTouchHelperViewHolder;
+import com.adrapps.mytasks.R;
 
 /**
  * Created by Adrian Flores on 9/4/2017.
@@ -13,9 +22,11 @@ import com.adrapps.mytasks.Interfaces.ItemTouchHelperViewHolder;
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     private final ItemTouchHelperAdapter mAdapter;
+    Context context;
 
-    public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
+    public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter, Context context) {
         mAdapter = adapter;
+        this.context = context;
     }
 
     @Override
@@ -31,7 +42,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        int swipeFlags = ItemTouchHelper.START;
+        int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
         return makeMovementFlags(dragFlags, swipeFlags);
     }
 
@@ -73,6 +84,13 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
                     (ItemTouchHelperViewHolder) viewHolder;
             itemViewHolder.onItemClear();
         }
+    }
+
+    @Override
+    public void onChildDraw(Canvas c, RecyclerView recyclerView,
+                            RecyclerView.ViewHolder viewHolder,
+                            float dX, float dY, int actionState,
+                            boolean isCurrentlyActive) {
     }
 
 }

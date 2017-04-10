@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity
         adapter = new TaskListAdapter(getContext(), tasks, mPresenter);
         recyclerView.setAdapter(adapter);
         ItemTouchHelper.Callback callback =
-                new SimpleItemTouchHelperCallback(adapter);
+                new SimpleItemTouchHelperCallback(adapter, this);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
     }
