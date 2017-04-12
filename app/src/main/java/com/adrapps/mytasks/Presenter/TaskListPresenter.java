@@ -174,4 +174,8 @@ public class TaskListPresenter {
     public void updateTaskStatus(String taskId, String listId, String newStatus) {
         mModel.updateTask(taskId, listId, newStatus);
     }
+
+    public void showSwipeRefreshProgress(boolean b){
+        getView().showSwipeRefreshProgress(b);
+    }
 }

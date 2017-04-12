@@ -66,6 +66,8 @@ public class Contract {
         void showUndoSnackBar(String message, int position, LocalTask task);
 
         GoogleAccountCredential getCredential();
+
+        void showSwipeRefreshProgress(boolean b);
     }
 
 

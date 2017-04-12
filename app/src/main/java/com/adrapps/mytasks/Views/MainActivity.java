@@ -16,6 +16,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -50,7 +51,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
-        View.OnClickListener {
+        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     Toolbar toolbar;
     DrawerLayout drawer;
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity
     List<String> listIds = new ArrayList<>();
     List<String> listTitles = new ArrayList<>();
     Contract.AdapterOps adapterOps;
+    SwipeRefreshLayout swipeRefresh;
     private boolean mTwoPane;
 
     @Override
@@ -103,6 +105,46 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
+    }
+
+    @Override
+    public void setUpViews() {
+        mProgress = new ProgressDialog(this);
+        mProgress.setMessage(getString(R.string.first_sync_progress_dialog));
+        toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
+        setSupportActionBar(toolbar);
+        toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle.setToolbarNavigationClickListener(this);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
+        progressBar.getIndeterminateDrawable()
+                .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
+        fab.setOnClickListener(this);
+        swipeRefresh.setOnRefreshListener(this);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            {
+                if (dy > 0 ||dy<0 && fab.isShown())
+                {
+                    fab.hide();
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState)
+            {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE)
+                {
+                    fab.show();
+                }
+
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
     }
 
     @Override
@@ -122,21 +164,6 @@ public class MainActivity extends AppCompatActivity
         refresh.execute();
     }
 
-    @Override
-    public void setUpViews() {
-        mProgress = new ProgressDialog(this);
-        mProgress.setMessage(getString(R.string.first_sync_progress_dialog));
-        toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
-        setSupportActionBar(toolbar);
-        toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        toggle.setToolbarNavigationClickListener(this);
-        toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
-        progressBar.getIndeterminateDrawable()
-                .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
-        fab.setOnClickListener(this);
-    }
 
     @Override
     public void updateCurrentView() {
@@ -430,6 +457,16 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(key, value);
         editor.apply();
+    }
+
+    @Override
+    public void onRefresh() {
+        refresh();
+    }
+
+    @Override
+    public void showSwipeRefreshProgress(boolean b){
+        swipeRefresh.setRefreshing(b);
     }
 
 }

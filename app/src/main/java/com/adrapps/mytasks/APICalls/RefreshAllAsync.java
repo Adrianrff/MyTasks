@@ -62,6 +62,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
+        mPresenter.showSwipeRefreshProgress(false);
         mPresenter.updateCurrentView();
     }
 
