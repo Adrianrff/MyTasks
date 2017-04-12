@@ -38,6 +38,7 @@ import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -83,7 +84,8 @@ public class MainActivity extends AppCompatActivity
     List<String> listTitles = new ArrayList<>();
     SwipeRefreshLayout swipeRefresh;
     AlertDialog newTaskDialog;
-    TextView dateTextView,notifSpinner;
+    TextView dateTextView;
+    Spinner notifSpinner;
     TextInputEditText newTaskEditText;
     TextInputLayout newTaskInputLayout;
     Switch notSwitch;
@@ -343,7 +345,7 @@ public class MainActivity extends AppCompatActivity
                             notifSpinner.setVisibility(View.GONE);
                     }
                 });
-                notifSpinner = (TextView) dialogView.findViewById(R.id.notifSpinner);
+                notifSpinner = (Spinner) dialogView.findViewById(R.id.notifSpinner);
                 dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
                 dateTextView.setOnClickListener(this);
                 newTaskDialog = dialogBuilder.create();
