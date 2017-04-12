@@ -2,6 +2,7 @@ package com.adrapps.mytasks.Views;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -18,16 +19,19 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -131,6 +135,7 @@ public class MainActivity extends AppCompatActivity
                 if (dy > 0 ||dy<0 && fab.isShown())
                 {
                     fab.hide();
+                    swipeRefresh.setEnabled(false);
                 }
             }
 
@@ -140,6 +145,7 @@ public class MainActivity extends AppCompatActivity
                 if (newState == RecyclerView.SCROLL_STATE_IDLE)
                 {
                     fab.show();
+                    swipeRefresh.setEnabled(true);
                 }
 
                 super.onScrollStateChanged(recyclerView, newState);
@@ -328,8 +334,24 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-        mPresenter.onClick(v.getId());
-        showToast(v.toString());
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+// ...Irrelevant code for customizing the buttons and title
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+//        EditText editText = (EditText) dialogView.findViewById(R.id.label_field);
+//        editText.setText("test label");
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.setTitle(getString(R.string.new_task_dialog_title));
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "ADD", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showToast("sdgfsdf");
+            }
+        });
+        alertDialog.show();
+//        mPresenter.onClick(v.getId());
     }
 
     @Override

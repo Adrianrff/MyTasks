@@ -118,12 +118,10 @@ public class TaskListPresenter {
 
     public void onClick(int id) {
         switch (id){
-            case android.R.id.home:
+            case R.id.fab:
                 getView().showToast(String.valueOf(android.R.id.home));
-                getView().pressBack();
                 break;
         }
-        getView().showToast(String.valueOf(id));
     }
 
     public void setNavDrawerMenu(List<String> listTitles) {
