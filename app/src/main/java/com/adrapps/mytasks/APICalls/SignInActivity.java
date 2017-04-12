@@ -92,7 +92,7 @@ public class SignInActivity extends Activity
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!isDeviceOnline()) {
-            Toast.makeText(this, "No network connection available.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
         } else {
             FirstAPICall firstCall = new FirstAPICall(this, mCredential);
             firstCall.execute();

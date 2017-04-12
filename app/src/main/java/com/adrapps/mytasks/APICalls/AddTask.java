@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -64,7 +65,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-        mPresenter.updateCurrentView();
+        mPresenter.refresh();
     }
 
     @Override
@@ -94,7 +95,8 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     private void addTask(LocalTask lTask) throws IOException {
         Task task = LocalTask.localTaskToApiTask(lTask);
         mService.tasks().insert(listId,task).execute();
-        mPresenter.addTaskToLocalDataBase(task,listId);
+        Log.d("due", String.valueOf(lTask.getDue()));
+//        mPresenter.addTaskToLocalDataBase(task,listId);
 
     }
 }

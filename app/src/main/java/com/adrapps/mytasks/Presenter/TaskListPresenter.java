@@ -124,6 +124,10 @@ public class TaskListPresenter {
         }
     }
 
+    public void refresh(){
+        getView().refresh();
+    }
+
     public void setNavDrawerMenu(List<String> listTitles) {
         getView().setNavDrawerMenu(listTitles);
     }
@@ -165,8 +169,13 @@ public class TaskListPresenter {
     }
 
     public void addTaskToApi(LocalTask task, String listId){
-        AddTask add = new AddTask(this,getView().getCredential(),listId);
-        add.execute(task);
+        if (getView().isDeviceOnline()) {
+            AddTask add = new AddTask(this, getView().getCredential(), listId);
+            add.execute(task);
+        }
+        else
+            showToast(getString(R.string.no_internet_toast));
+
     }
 
     public void updateTaskStatus(String taskId, String listId, String newStatus) {
@@ -175,5 +184,9 @@ public class TaskListPresenter {
 
     public void showSwipeRefreshProgress(boolean b){
         getView().showSwipeRefreshProgress(b);
+    }
+
+    public boolean isDeviceOnline() {
+        return getView().isDeviceOnline();
     }
 }

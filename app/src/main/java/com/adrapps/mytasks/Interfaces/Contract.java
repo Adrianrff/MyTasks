@@ -19,6 +19,8 @@ public class Contract {
     public interface MainActivityViewOps {
 
 
+        boolean isDeviceOnline();
+
         void showToast(String msg);
 
         void showCircularProgress(boolean b);
@@ -46,6 +48,8 @@ public class Contract {
         void setNavDrawerMenu(List<String> taskListsTitles);
 
         void dismissProgressDialog();
+
+        void refresh();
 
         void updateCurrentView();
 

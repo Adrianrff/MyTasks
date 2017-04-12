@@ -61,6 +61,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue()));
         }
         holder.taskCheckbox.setOnCheckedChangeListener(null);
+        if (cTask.getStatus() == null) {
+            cTask.setStatus(Co.TASK_NEEDS_ACTION);
+        }
         if (cTask.getStatus().equals(Co.TASK_COMPLETED)) {
             holder.taskCheckbox.setChecked(true);
             holder.taskName.setPaintFlags(holder.taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -83,6 +86,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         this.tasks.clear();
         this.tasks = localTasks;
         notifyDataSetChanged();
+    }
+
+    public void addItem(LocalTask task, int position) {
+        tasks.add(0, task);
+        notifyItemInserted(position);
     }
 
     public void showToast(String message) {
@@ -145,8 +153,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
             taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
             taskCheckbox.setOnCheckedChangeListener(this);
-            oldColors =  taskName.getTextColors();
-
+            oldColors = taskName.getTextColors();
         }
 
         @Override
@@ -167,23 +174,34 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
             LocalTask cTask = tasks.get(getAdapterPosition());
             Log.d("Task", cTask.getStatus());
-            if (isChecked){
-                taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                taskName.setTextColor(Color.GRAY);
-                mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(),Co.TASK_COMPLETED);
+            if (isChecked) {
+                if (mPresenter.isDeviceOnline()) {
+                    taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    taskName.setTextColor(Color.GRAY);
+                    mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(), Co.TASK_COMPLETED);
+                } else {
+                    buttonView.setChecked(false);
+                    showToast(mPresenter.getString(R.string.no_internet_toast));
+                }
+
             } else {
-                taskName.setTextColor(oldColors);
-                taskName.setPaintFlags(0);
-                mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(),Co.TASK_NEEDS_ACTION);
+                if (mPresenter.isDeviceOnline()) {
+                    taskName.setTextColor(oldColors);
+                    taskName.setPaintFlags(0);
+                    mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
+                } else {
+                    buttonView.setChecked(true);
+                    showToast(mPresenter.getString(R.string.no_internet_toast));
+                }
             }
         }
 
         @Override
         public void onItemSelected() {
             itemView.setBackgroundColor(Color.LTGRAY);
-
         }
 
         @Override

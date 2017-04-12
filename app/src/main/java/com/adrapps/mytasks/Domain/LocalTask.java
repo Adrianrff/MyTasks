@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.Domain;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.google.api.client.util.DateTime;
@@ -15,7 +16,14 @@ import java.util.TimeZone;
 public class LocalTask {
 
 
-    private String taskId,title,selfLink,parent,position,notes,status,taskList;
+    private String taskId;
+    private String title;
+    private String selfLink;
+    private String parent;
+    private String position;
+    private String notes;
+    private String status;
+    private String taskList;
     private int intId;
     private long updated,due,completed;
     private boolean deleted,hidden;
@@ -24,29 +32,24 @@ public class LocalTask {
     public LocalTask() {
     }
 
+    public LocalTask (String taskTitle,String taskNotes, long dueDate){
+        title = taskTitle;
+        notes = taskNotes;
+        this.due = dueDate;
+    }
+
     public static Task localTaskToApiTask (LocalTask lTask){
         Task task = new Task();
-//        task.setId(lTask.getTaskId());
         task.setTitle(lTask.title);
         if (lTask.getNotes() != null) {
             task.setNotes(lTask.getNotes());
         }
-        task.setSelfLink(lTask.getSelfLink());
-        if (lTask.getParent() != null) {
-            task.setParent(lTask.getParent());
-        }
-        if (lTask.getCompleted() != 0) {
-            task.setCompleted(DateHelper.millisecondsToDateTime(lTask.getCompleted()));
-        }
         if (lTask.getDue() != 0) {
+            Log.d("due","not zero");
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
         }
+        Log.d("due",String.valueOf(lTask.getDue()));
 
-        task.setStatus(lTask.getStatus());
-        task.setUpdated(DateHelper.millisecondsToDateTime(lTask.getUpdated()));
-        task.setPosition(lTask.getPosition());
-        task.setDeleted(lTask.isDeleted());
-        task.setHidden((lTask.isHidden()));
         return task;
     }
 

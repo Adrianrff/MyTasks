@@ -2,6 +2,7 @@ package com.adrapps.mytasks.Models;
 
 import android.content.Context;
 
+import com.adrapps.mytasks.APICalls.AddTask;
 import com.adrapps.mytasks.APICalls.RemoveTask;
 import com.adrapps.mytasks.APICalls.UpdateStatus;
 import com.adrapps.mytasks.Databases.ListsDatabase;
@@ -9,6 +10,7 @@ import com.adrapps.mytasks.Databases.TasksDataBase;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
+import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -69,16 +71,24 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void deleteTaskFromApi(String taskId, String listId) {
-        GoogleAccountCredential credential = mPresenter.getCredential();
-        RemoveTask remove = new RemoveTask(mPresenter,credential,listId);
-        remove.execute(taskId);
+        if (mPresenter.isDeviceOnline()) {
+            GoogleAccountCredential credential = mPresenter.getCredential();
+            RemoveTask remove = new RemoveTask(mPresenter, credential, listId);
+            remove.execute(taskId);
+        } else
+            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
     }
 
     @Override
     public void updateTask(String taskId, String listId, String newStatus) {
-        tasksDb.updateTaskStatus(taskId,newStatus);
-        GoogleAccountCredential credential = mPresenter.getCredential();
-        UpdateStatus update = new UpdateStatus(mPresenter, credential);
-        update.execute(taskId,listId,newStatus);
+        if (mPresenter.isDeviceOnline()) {
+            tasksDb.updateTaskStatus(taskId,newStatus);
+            GoogleAccountCredential credential = mPresenter.getCredential();
+            UpdateStatus update = new UpdateStatus(mPresenter, credential);
+            update.execute(taskId,listId,newStatus);
+        }
+        else
+            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
+
     }
 }

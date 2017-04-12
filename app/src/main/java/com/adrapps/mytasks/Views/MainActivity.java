@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -29,11 +31,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -43,6 +47,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.adrapps.mytasks.APICalls.AddTask;
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
@@ -65,7 +70,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
-        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, DatePickerDialog.OnDateSetListener {
+        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener,
+        DatePickerDialog.OnDateSetListener, AdapterView.OnItemSelectedListener {
 
     Toolbar toolbar;
     DrawerLayout drawer;
@@ -86,9 +92,12 @@ public class MainActivity extends AppCompatActivity
     AlertDialog newTaskDialog;
     TextView dateTextView;
     Spinner notifSpinner;
-    TextInputEditText newTaskEditText;
+    TextInputEditText newTaskTitle;
     TextInputLayout newTaskInputLayout;
+    EditText notesEditText;
     Switch notSwitch;
+    boolean isFirstTime = true;
+    long selectedDateInMills;
     private boolean mTwoPane;
 
     @Override
@@ -171,13 +180,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void refreshFirstTime() {
-        FirstRefreshAsync firstRefresh = new FirstRefreshAsync(mPresenter, mCredential);
-        firstRefresh.execute();
+        if (isDeviceOnline()) {
+            FirstRefreshAsync firstRefresh = new FirstRefreshAsync(mPresenter, mCredential);
+            firstRefresh.execute();
+        }
+        else {
+            showToast(getString(R.string.no_internet_toast));
+            showSwipeRefreshProgress(false);
+        }
+
     }
 
-    private void refresh() {
-        RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
-        refresh.execute();
+    @Override
+    public void refresh() {
+        if (isDeviceOnline()) {
+            RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
+            refresh.execute();
+        }
+        else{
+            showToast(getString(R.string.no_internet_toast));
+            showSwipeRefreshProgress(false);
+        }
+
     }
 
     @Override
@@ -321,6 +345,14 @@ public class MainActivity extends AppCompatActivity
         return mCredential;
     }
 
+    @Override
+    public boolean isDeviceOnline() {
+        ConnectivityManager connMgr =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
+
 
     ///-------------------------CLICK HANDLES------------------------///
 
@@ -332,9 +364,9 @@ public class MainActivity extends AppCompatActivity
                 LayoutInflater inflater = this.getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
                 dialogBuilder.setView(dialogView);
-
-                newTaskEditText = (TextInputEditText) dialogView.findViewById(R.id.etTaskTitle);
+                newTaskTitle = (TextInputEditText) dialogView.findViewById(R.id.etTaskTitle);
                 newTaskInputLayout = (TextInputLayout) dialogView.findViewById(R.id.newTaskInputLayout);
+                notesEditText = (EditText) dialogView.findViewById(R.id.notesEditText);
                 notSwitch = (Switch) dialogView.findViewById(R.id.notificationSwitch);
                 notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -346,32 +378,53 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
                 notifSpinner = (Spinner) dialogView.findViewById(R.id.notifSpinner);
+                notifSpinner.setOnItemSelectedListener(this);
                 dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
                 dateTextView.setOnClickListener(this);
                 newTaskDialog = dialogBuilder.create();
                 newTaskDialog.setCancelable(true);
+                newTaskDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        selectedDateInMills = 0
+                        ;
+                    }
+                });
                 newTaskDialog.setTitle(getString(R.string.new_task_dialog_title));
-                newTaskDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.label_add_button), new DialogInterface.OnClickListener() {
+                newTaskDialog.setButton(AlertDialog.BUTTON_POSITIVE,
+                        getString(R.string.label_add_button),
+                        new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
                 });
                 newTaskDialog.show();
-                newTaskDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                newTaskDialog.getButton(AlertDialog.BUTTON_POSITIVE).
+                        setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (newTaskEditText.getText().toString().matches("")){
+                        if (newTaskTitle.getText().toString().matches("")) {
                             newTaskInputLayout.setError(getString(R.string.empty_title_error));
                             return;
                         }
+                        Log.d("dueDate",String.valueOf(selectedDateInMills));
+                        LocalTask task = new LocalTask(newTaskTitle.getText().toString(),
+                                notesEditText.getText().toString(),selectedDateInMills);
+                        AddTask add = new AddTask(mPresenter,
+                                getCredential(),getStringShP(Co.CURRENT_LIST_ID));
+                        if (isDeviceOnline())
+                            add.execute(task);
+                        else
+                            showToast(getString(R.string.no_internet_toast));
                         newTaskDialog.dismiss();
+//                        adapter.addItem(task,0);
                     }
                 });
                 break;
             case R.id.datePickerTextView:
                 Calendar c = Calendar.getInstance();
-                DatePickerDialog datePicker = new DatePickerDialog(this,this,
+                DatePickerDialog datePicker = new DatePickerDialog(this, this,
                         c.get(Calendar.YEAR),
                         c.get(Calendar.MONTH) + 1,
                         c.get(Calendar.DAY_OF_MONTH));
@@ -386,12 +439,36 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         Calendar c = Calendar.getInstance();
-        c.set(year,month,dayOfMonth);
-        long timeInMills = c.getTimeInMillis();
-        dateTextView.setText(DateHelper.timeInMillsToString(timeInMills));
+        c.set(year, month, dayOfMonth);
+        selectedDateInMills = c.getTimeInMillis();
+        dateTextView.setText(DateHelper.timeInMillsToString(selectedDateInMills));
+    }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch (position) {
+            case 0:
+                showToast("0");
+                break;
+            case 1:
+                showToast("1");
+                break;
+            case 2:
+                showToast("2");
+                break;
+            case 3:
+                showToast("3");
+                break;
+            case 4:
+                showToast("4");
+                break;
 
+        }
+    }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        isFirstTime = true;
     }
 
     @Override

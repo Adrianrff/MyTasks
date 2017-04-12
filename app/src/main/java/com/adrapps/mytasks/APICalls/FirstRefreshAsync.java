@@ -43,6 +43,8 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
 
+        long startTime = System.currentTimeMillis();
+
         try {
             firstRefresh();
         } catch (Exception e) {

@@ -29,6 +29,8 @@
     <string name="empty_title_error">El título no puede estar vacío</string>
     <string name="notification_select">Notificación</string>
     <string name="notification_spinner_hint">Seleccione cuando notificar</string>
+    <string name="task_notes_hints">Notas</string>
+    <string name="no_internet_toast">No hay connexión a internet</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>
