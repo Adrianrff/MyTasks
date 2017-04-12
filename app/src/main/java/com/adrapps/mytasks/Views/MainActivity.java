@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -240,8 +241,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showSnackBar(String message, final int position) {
-        Snackbar snackbar =  Snackbar.make(coordinatorLayout,message,Snackbar.LENGTH_INDEFINITE);
+    public void showUndoSnackBar(String message, final int position, final LocalTask task) {
+        Snackbar snackbar =  Snackbar.make(coordinatorLayout,message,Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -249,13 +250,27 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
         snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.colorLightPrimary));
+        snackbar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+            @Override
+            public void onDismissed(Snackbar transientBottomBar, int event) {
+                super.onDismissed(transientBottomBar, event);
+                if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT ||
+                        event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
+                        event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE)  {
+                    mPresenter.deleteTaskFromApi(task.getTaskId(), task.getTaskList());
+                }
+            }
+        });
         snackbar.show();
     }
 
     ///-----------------------------API---------------------------////
 
-    private void setCredentials() {
-        mCredential = getCredential();
+    @Override
+    public void setCredentials() {
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(Co.SCOPES))
+                .setBackOff(new ExponentialBackOff());
         accountName = getStringShP(Co.PREF_ACCOUNT_NAME);
         if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
             mCredential.setSelectedAccountName(accountName);
@@ -269,10 +284,16 @@ public class MainActivity extends AppCompatActivity
                 Co.REQUEST_AUTHORIZATION);
     }
 
+    @Override
     public GoogleAccountCredential getCredential() {
-        return GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(Co.SCOPES))
-                .setBackOff(new ExponentialBackOff());
+//        mCredential = GoogleAccountCredential.usingOAuth2(
+//                getApplicationContext(), Arrays.asList(Co.SCOPES))
+//                .setBackOff(new ExponentialBackOff());
+//        accountName = getStringShP(Co.PREF_ACCOUNT_NAME);
+//        if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
+//            mCredential.setSelectedAccountName(accountName);
+//        }
+        return mCredential;
     }
 
 

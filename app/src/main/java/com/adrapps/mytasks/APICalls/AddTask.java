@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
+import com.adrapps.mytasks.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -12,22 +13,23 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
-import com.google.api.services.tasks.model.TaskList;
-import com.google.api.services.tasks.model.TaskLists;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
+import java.io.IOException;
+
+/**
+ * Created by Adrian Flores on 10/4/2017.
+ */
+
+public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
-    private List<String> listIds = new ArrayList<>();
-    private List<LocalTask> localTasks = new ArrayList<>();
+    private String listId;
 
-    public RefreshAllAsync(TaskListPresenter presenter, GoogleAccountCredential credential) {
+    public AddTask(TaskListPresenter presenter, GoogleAccountCredential credential, String listId) {
         this.mPresenter = presenter;
+        this.listId = listId;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.tasks.Tasks.Builder(
@@ -37,10 +39,10 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Void doInBackground(LocalTask... params) {
 
         try {
-            refreshAll();
+            addTask(params[0]);
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
@@ -71,7 +73,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
         mPresenter.showProgress(false);
         if (mLastError != null) {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                mPresenter.showToast("Google Play Services is not available");
+                mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
             } else if (mLastError instanceof UserRecoverableAuthIOException) {
 //                mPresenter.showToast("The API has no authorization");
                 mPresenter.requestApiPermission(mLastError);
@@ -83,32 +85,16 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
             }
         } else {
 
-            mPresenter.showToast("Request cancelled.");
+            mPresenter.showToast(mPresenter.getString(R.string.request_canceled));
 
         }
     }
 
 
-    private void refreshAll() throws IOException {
-        List<TaskList> lists;
-        TaskLists result = mService.tasklists().list()
-                .execute();
-                lists = result.getItems();
-        for (int i = 0; i< lists.size(); i++){
-            listIds.add(lists.get(i).getId());
-        }
-        if (!lists.isEmpty()) {
-            mPresenter.updateLists(lists);
-        }
-        List<Task> tasks;
-        for (int i = 0; i < (!lists.isEmpty() ? lists.size() : 0); i++){
-            tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
-            for (int j = 0; j < tasks.size(); j++){
-                LocalTask task = new LocalTask(tasks.get(j),listIds.get(i));
-                localTasks.add(task);
-            }
-        }
-        mPresenter.updateTasks(localTasks);
+    private void addTask(LocalTask lTask) throws IOException {
+        Task task = LocalTask.localTaskToApiTask(lTask);
+        mService.tasks().insert(listId,task).execute();
+        mPresenter.addTaskToLocalDataBase(task,listId);
 
     }
 }

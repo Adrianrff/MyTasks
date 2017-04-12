@@ -2,14 +2,16 @@ package com.adrapps.mytasks.Views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +39,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         this.mPresenter = presenter;
         this.context = context;
         this.tasks = tasks;
+        setHasStableIds(true);
     }
 
     @Override
@@ -48,8 +51,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     }
 
     @Override
-    public void onBindViewHolder(final TaskListAdapter.TaskListViewHolder holder, int position) {
-        Log.d("onBind", "run");
+    public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
+        Log.d("onBind", String.valueOf(position));
         LocalTask cTask = tasks.get(position);
         holder.taskName.setText(cTask.getTitle());
         if (cTask.getDue() == 0) {
@@ -57,6 +60,18 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         } else {
             holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue()));
         }
+        holder.taskCheckbox.setOnCheckedChangeListener(null);
+        if (cTask.getStatus().equals(Co.TASK_COMPLETED)) {
+            holder.taskCheckbox.setChecked(true);
+            holder.taskName.setPaintFlags(holder.taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.taskName.setTextColor(Color.GRAY);
+        } else {
+            holder.taskName.setTextColor(holder.oldColors);
+            holder.taskName.setPaintFlags(0);
+            holder.taskCheckbox.setChecked(false);
+        }
+        holder.taskCheckbox.setOnCheckedChangeListener(holder);
+
     }
 
     @Override
@@ -91,32 +106,34 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public void onItemSwiped(int position, int direction) {
-//        if (direction == ItemTouchHelper.LEFT) {
-            removedTask = tasks.get(position);
-            tasks.remove(position);
-            notifyItemRemoved(position);
-//        } else {
-
-//        }
-
-        mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted),position);
+        removedTask = tasks.remove(position);
+        notifyItemRemoved(position);
+//        mPresenter.deleteTaskFromApi(removedTask.getTaskId(),
+//                removedTask.getTaskList());
+        mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
     }
 
     void restoreDeletedItem(int position) {
-        tasks.add(position,removedTask);
+        tasks.add(position, removedTask);
+//        mPresenter.addTaskToApi(removedTask,removedTask.getTaskList());
         notifyItemInserted(position);
         showToast(context.getString(R.string.task_restored));
     }
 
+    @Override
+    public long getItemId(int position) {
+        return tasks.get(position).getIntId();
+    }
 
     class TaskListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
-            ItemTouchHelperViewHolder {
+            ItemTouchHelperViewHolder, CompoundButton.OnCheckedChangeListener {
 
         TextView taskName, dueDate;
         ImageView notificationImage;
         CheckBox taskCheckbox;
         Context context;
         TaskListPresenter mPresenter;
+        ColorStateList oldColors;
 
         TaskListViewHolder(View v, Context context, TaskListPresenter presenter) {
             super(v);
@@ -127,7 +144,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             taskName = (TextView) v.findViewById(R.id.textViewName);
             notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
             taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
-            Log.d("position", String.valueOf(getAdapterPosition()));
+            taskCheckbox.setOnCheckedChangeListener(this);
+            oldColors =  taskName.getTextColors();
 
         }
 
@@ -143,7 +161,23 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                 i.putExtra(Co.DETAIL_TASK_DUE, R.string.no_due_date);
             }
             i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes() != null ? R.string.no_notes : cTask.getNotes());
+            i.putExtra("updated", cTask.getUpdated());
             context.startActivity(i);
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            LocalTask cTask = tasks.get(getAdapterPosition());
+            Log.d("Task", cTask.getStatus());
+            if (isChecked){
+                taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                taskName.setTextColor(Color.GRAY);
+                mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(),Co.TASK_COMPLETED);
+            } else {
+                taskName.setTextColor(oldColors);
+                taskName.setPaintFlags(0);
+                mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(),Co.TASK_NEEDS_ACTION);
+            }
         }
 
         @Override
@@ -156,6 +190,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         public void onItemClear() {
             itemView.setBackgroundColor(Color.WHITE);
         }
+
     }
 
 }

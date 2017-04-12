@@ -57,4 +57,22 @@
         android:layout_toEndOf="@id/task_notes_label"
         android:layout_toRightOf="@id/task_notes_label"
         android:text="TextView" />
+
+    <TextView
+        android:id="@+id/task_updated_label"
+        android:layout_below="@id/task_notes_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/half_margin"
+        android:layout_marginRight="@dimen/half_margin"
+        android:text="Task title:" />
+
+    <TextView
+        android:id="@+id/task_updated_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/task_updated_label"
+        android:layout_toEndOf="@id/task_notes_label"
+        android:layout_toRightOf="@id/task_notes_label"
+        android:text="TextView" />
 </RelativeLayout>

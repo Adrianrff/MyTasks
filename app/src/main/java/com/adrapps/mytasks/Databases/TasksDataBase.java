@@ -124,7 +124,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return tasks;
     }
 
-    private long addTask(LocalTask localTask) {
+    private long addTaskToLocalDatabase(LocalTask localTask) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID,localTask.getTaskId());
@@ -144,23 +144,23 @@ public class TasksDataBase extends SQLiteOpenHelper {
         db.close();
         return insertedRow;
     }
-    public long addTask(Task task, String listId){
+    public long addTaskToLocalDatabase(Task task, String listId){
         SQLiteDatabase db = this.getWritableDatabase();
         int offSet = TimeZone.getDefault().getRawOffset();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID,task.getId());
         cv.put(COL_LIST,listId);
         cv.put(COL_TITLE,task.getTitle());
-        cv.put(COL_UPDATED,task.getUpdated().getValue() + offSet);
+        cv.put(COL_UPDATED,task.getUpdated() == null ? 0 : task.getUpdated().getValue() + offSet);
         cv.put(COL_SELFLINK,task.getSelfLink());
         cv.put(COL_PARENT,task.getParent());
         cv.put(COL_POSITION,task.getPosition());
         cv.put(COL_NOTES,task.getNotes());
         cv.put(COL_STATUS,task.getStatus());
-        cv.put(COL_DUE,task.getDue().getValue() + offSet);
-        cv.put(COL_COMPLETED,task.getCompleted().getValue() + offSet);
-        cv.put(COL_DELETED,(task.getDeleted()) ? 1:0);
-        cv.put(COL_HIDDEN,(task.getHidden()) ? 1:0);
+        cv.put(COL_DUE,task.getDue() == null ? 0 : task.getDue().getValue() + offSet);
+        cv.put(COL_COMPLETED,task.getCompleted() == null ? 0 : task.getCompleted().getValue() + offSet);
+        cv.put(COL_DELETED,task.getDeleted() == null ? 0 : task.getDeleted() ? 1 : 0);
+        cv.put(COL_HIDDEN,task.getHidden() == null ? 0 : task.getHidden() ? 1 : 0);
         long insertedRow = db.insert(TABLE_NAME,null,cv);
         db.close();
         return insertedRow;
@@ -213,4 +213,23 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
 
+    public int deleteTask(String taskId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {taskId};
+        int deletedRow = db.delete(TABLE_NAME,selection,selectionArgs);
+        db.close();
+        return deletedRow;
+    }
+
+    public int updateTaskStatus(String taskId, String newStatus){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {taskId};
+        ContentValues cv = new ContentValues();
+        cv.put(COL_STATUS,newStatus);
+        int updatedRow = db.update(TABLE_NAME,cv,selection,selectionArgs);
+        db.close();
+        return updatedRow;
+    }
 }

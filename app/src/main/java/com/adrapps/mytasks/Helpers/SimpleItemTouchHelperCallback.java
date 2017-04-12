@@ -86,11 +86,5 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         }
     }
 
-    @Override
-    public void onChildDraw(Canvas c, RecyclerView recyclerView,
-                            RecyclerView.ViewHolder viewHolder,
-                            float dX, float dY, int actionState,
-                            boolean isCurrentlyActive) {
-    }
 
 }

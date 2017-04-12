@@ -1,8 +1,12 @@
 package com.adrapps.mytasks.Presenter;
 
+import com.adrapps.mytasks.APICalls.AddTask;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
-import com.adrapps.mytasks.Models.DatabaseModel;
+import com.adrapps.mytasks.Models.DataModel;
+import com.adrapps.mytasks.R;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
 import java.lang.ref.WeakReference;
@@ -22,7 +26,7 @@ public class TaskListPresenter {
     }
 
     private void getDatabaseModel() {
-        mModel = new DatabaseModel(this, getView().getContext());
+        mModel = new DataModel(this, getView().getContext());
     }
 
     private Contract.MainActivityViewOps getView() throws NullPointerException {
@@ -126,10 +130,6 @@ public class TaskListPresenter {
         getView().setNavDrawerMenu(listTitles);
     }
 
-    public void setAdapterOps(Contract.AdapterOps aOps) {
-        getView().setAdapterOps(aOps);
-    }
-
     public void showProgressDialog() {
         getView().showProgressDialog();
     }
@@ -138,11 +138,40 @@ public class TaskListPresenter {
         getView().showCircularProgress(b);
     }
 
-    public void navIconToBack(boolean b){
-        getView().navIconToBack(b);
+    public void showUndoSnackBar(String message, int position, LocalTask removedTask) {
+        getView().showUndoSnackBar(message, position, removedTask);
     }
 
-    public void showUndoSnackBar(String message, int position) {
-        getView().showSnackBar(message, position);
+    public void addTaskToLocalDataBase(Task task, String listId){
+        mModel.addTaskToLocalDatabase(task,listId);
+    }
+
+    public String getString(int stringId) {
+        return getView().getContext().getString(stringId);
+    }
+
+    public void deleteTask(String taskId) {
+        int rowDeleted =  mModel.deleteTask(taskId);
+        if (rowDeleted < 0) {
+           showToast(getView().getContext().getString(R.string.task_not_found));
+        }
+    }
+
+    public void deleteTaskFromApi(String taskId, String listId) {
+        mModel.deleteTaskFromApi(taskId,listId);
+    }
+
+    public GoogleAccountCredential getCredential() {
+        getView().setCredentials();
+        return getView().getCredential();
+    }
+
+    public void addTaskToApi(LocalTask task, String listId){
+        AddTask add = new AddTask(this,getView().getCredential(),listId);
+        add.execute(task);
+    }
+
+    public void updateTaskStatus(String taskId, String listId, String newStatus) {
+        mModel.updateTask(taskId, listId, newStatus);
     }
 }

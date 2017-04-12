@@ -1,5 +1,9 @@
 package com.adrapps.mytasks.Domain;
 
+import android.support.annotation.NonNull;
+
+import com.adrapps.mytasks.Helpers.DateHelper;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 
 import java.util.TimeZone;
@@ -11,13 +15,39 @@ import java.util.TimeZone;
 public class LocalTask {
 
 
-    private String taskId,title,selfLink,parent,position,notes,status, taskList;
+    private String taskId,title,selfLink,parent,position,notes,status,taskList;
     private int intId;
     private long updated,due,completed;
     private boolean deleted,hidden;
     private int offset = TimeZone.getDefault().getRawOffset();
 
     public LocalTask() {
+    }
+
+    public static Task localTaskToApiTask (LocalTask lTask){
+        Task task = new Task();
+//        task.setId(lTask.getTaskId());
+        task.setTitle(lTask.title);
+        if (lTask.getNotes() != null) {
+            task.setNotes(lTask.getNotes());
+        }
+        task.setSelfLink(lTask.getSelfLink());
+        if (lTask.getParent() != null) {
+            task.setParent(lTask.getParent());
+        }
+        if (lTask.getCompleted() != 0) {
+            task.setCompleted(DateHelper.millisecondsToDateTime(lTask.getCompleted()));
+        }
+        if (lTask.getDue() != 0) {
+            task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
+        }
+
+        task.setStatus(lTask.getStatus());
+        task.setUpdated(DateHelper.millisecondsToDateTime(lTask.getUpdated()));
+        task.setPosition(lTask.getPosition());
+        task.setDeleted(lTask.isDeleted());
+        task.setHidden((lTask.isHidden()));
+        return task;
     }
 
     public LocalTask(Task task, String listId) {
@@ -174,4 +204,5 @@ public class LocalTask {
     public boolean isHidden() {
         return hidden;
     }
+
 }

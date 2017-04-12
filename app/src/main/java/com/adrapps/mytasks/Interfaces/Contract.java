@@ -7,6 +7,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.CoordinatorLayout;
 
 import com.adrapps.mytasks.Domain.LocalTask;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
@@ -25,6 +26,8 @@ public class Contract {
         void showCircularProgress(boolean b);
 
         Context getContext();
+
+        void setCredentials();
 
         void requestAuthorization(Exception e);
 
@@ -60,7 +63,9 @@ public class Contract {
 
         void setListsTitles(List<String> titles);
 
-        void showSnackBar(String message, int position);
+        void showUndoSnackBar(String message, int position, LocalTask task);
+
+        GoogleAccountCredential getCredential();
     }
 
 
@@ -79,6 +84,13 @@ public class Contract {
 
         String getListTitleFromId(String listId);
 
+        void addTaskToLocalDatabase(Task task, String listId);
+
+        int deleteTask(String taskId);
+
+        void deleteTaskFromApi(String taskId, String listId);
+
+        void updateTask(String taskId, String listId, String newStatus);
     }
 
     //------------------FRAGMENT OPS---------------------//

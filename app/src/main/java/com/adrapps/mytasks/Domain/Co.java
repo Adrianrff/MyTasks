@@ -16,8 +16,10 @@ public class Co {
     public static final String IS_FIRST_INIT = "first init";
     public static final String CURRENT_LIST_TITLE = "current list title";
     public static final String FIRST_REFRESH = "first refresh";
-    public static String DETAIL_TASK_TITLE = "task name";
-    public static String DETAIL_TASK_NOTE = "task note";
-    public static String DETAIL_TASK_DUE = "task due date";
-    public static String NO_VALUE = "no value";
+    public static final String DETAIL_TASK_TITLE = "task name";
+    public static final String DETAIL_TASK_NOTE = "task note";
+    public static final String DETAIL_TASK_DUE = "task due date";
+    public static final String NO_VALUE = "no value";
+    public static final String TASK_COMPLETED = "completed";
+    public static final String TASK_NEEDS_ACTION = "needsAction";
 }

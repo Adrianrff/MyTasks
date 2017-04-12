@@ -26,6 +26,11 @@ public class DateHelper {
                 String.valueOf(calendar.get(Calendar.YEAR));
     }
 
+    public static DateTime millisecondsToDateTime (long timeInMills){
+        return new DateTime(timeInMills - TimeZone.getDefault().getRawOffset());
+
+    }
+
     public static String timeInMillsToString(long timeInMills){
         SimpleDateFormat format = new SimpleDateFormat("EEEE, d MMM ''yy", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
