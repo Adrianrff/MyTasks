@@ -1,32 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/newTaskDialog"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/newTaskDialog"
+    android:animateLayoutChanges="true"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/etTaskTitle"
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/newTaskInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="8dp"
-        android:ems="10"
         android:hint="@string/task_title_hint"
-        android:inputType="textPersonName"
-        android:textSize="16dp" />
+        app:errorEnabled="true">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/etTaskTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:textSize="16sp" />
+
+    </android.support.design.widget.TextInputLayout>
+
 
     <TextView
-        style="@style/Base.Widget.AppCompat.Spinner"
         android:id="@+id/datePickerTextView"
+        style="@style/Base.Widget.AppCompat.Spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etTaskTitle"
-        android:layout_marginStart="@dimen/quarter_margin"
+        android:layout_below="@id/newTaskInputLayout"
         android:layout_marginLeft="@dimen/quarter_margin"
+        android:layout_marginStart="@dimen/quarter_margin"
         android:hint="@string/task_due_date_hint"
-        android:textSize="16sp"
- />
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/notificationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/datePickerTextView"
+        android:layout_alignStart="@id/datePickerTextView"
+        android:layout_below="@id/datePickerTextView"
+        android:layout_marginTop="@dimen/full_margin"
+        android:hint="@string/notification_select"
+        android:textSize="16sp" />
+
+    <Switch
+        android:id="@+id/notificationSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/notificationLabel"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/datePickerTextView"
+        android:layout_toEndOf="@id/notificationLabel"
+        android:layout_toRightOf="@id/notificationLabel" />
+
+    <TextView
+        android:id="@+id/notifSpinner"
+        style="@style/Base.Widget.AppCompat.Spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/notificationLabel"
+        android:layout_alignStart="@id/notificationLabel"
+        android:layout_below="@+id/notificationLabel"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:hint="@string/notification_spinner_hint"
+        android:textSize="16sp" />
+
 </RelativeLayout>

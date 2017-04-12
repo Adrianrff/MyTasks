@@ -15,6 +15,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -32,9 +34,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,6 +82,11 @@ public class MainActivity extends AppCompatActivity
     List<String> listIds = new ArrayList<>();
     List<String> listTitles = new ArrayList<>();
     SwipeRefreshLayout swipeRefresh;
+    AlertDialog newTaskDialog;
+    TextView dateTextView,notifSpinner;
+    TextInputEditText newTaskEditText;
+    TextInputLayout newTaskInputLayout;
+    Switch notSwitch;
     private boolean mTwoPane;
 
     @Override
@@ -322,18 +331,41 @@ public class MainActivity extends AppCompatActivity
                 View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
                 dialogBuilder.setView(dialogView);
 
-                EditText editText = (EditText) dialogView.findViewById(R.id.etTaskTitle);
-                TextView dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
-                dateTextView.setOnClickListener(this);
-                AlertDialog alertDialog = dialogBuilder.create();
-                alertDialog.setTitle(getString(R.string.new_task_dialog_title));
-                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.label_add_button), new DialogInterface.OnClickListener() {
+                newTaskEditText = (TextInputEditText) dialogView.findViewById(R.id.etTaskTitle);
+                newTaskInputLayout = (TextInputLayout) dialogView.findViewById(R.id.newTaskInputLayout);
+                notSwitch = (Switch) dialogView.findViewById(R.id.notificationSwitch);
+                notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        showToast("sdgfsdf");
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (notSwitch.isChecked())
+                            notifSpinner.setVisibility(View.VISIBLE);
+                        else
+                            notifSpinner.setVisibility(View.GONE);
                     }
                 });
-                alertDialog.show();
+                notifSpinner = (TextView) dialogView.findViewById(R.id.notifSpinner);
+                dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
+                dateTextView.setOnClickListener(this);
+                newTaskDialog = dialogBuilder.create();
+                newTaskDialog.setCancelable(true);
+                newTaskDialog.setTitle(getString(R.string.new_task_dialog_title));
+                newTaskDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.label_add_button), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                newTaskDialog.show();
+                newTaskDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (newTaskEditText.getText().toString().matches("")){
+                            newTaskInputLayout.setError(getString(R.string.empty_title_error));
+                            return;
+                        }
+                        newTaskDialog.dismiss();
+                    }
+                });
                 break;
             case R.id.datePickerTextView:
                 Calendar c = Calendar.getInstance();
@@ -341,7 +373,10 @@ public class MainActivity extends AppCompatActivity
                         c.get(Calendar.YEAR),
                         c.get(Calendar.MONTH) + 1,
                         c.get(Calendar.DAY_OF_MONTH));
+                newTaskInputLayout.setError(null);
                 datePicker.show();
+                break;
+            case R.id.notificationSwitch:
 
         }
     }
@@ -351,7 +386,9 @@ public class MainActivity extends AppCompatActivity
         Calendar c = Calendar.getInstance();
         c.set(year,month,dayOfMonth);
         long timeInMills = c.getTimeInMillis();
-        showToast(DateHelper.timeInMillsToString(timeInMills));
+        dateTextView.setText(DateHelper.timeInMillsToString(timeInMills));
+
+
 
     }
 

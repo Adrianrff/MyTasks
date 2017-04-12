@@ -25,6 +25,9 @@
     <string name="task_not_found">Task not found</string>
     <string name="task_due_date_hint">Select due date</string>
     <string name="new_task_dialog_title">New task</string>
+    <string name="empty_title_error">The title can not be empty</string>
+    <string name="notification_select">Notification</string>
+    <string name="notification_spinner_hint">Select notification time</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>
