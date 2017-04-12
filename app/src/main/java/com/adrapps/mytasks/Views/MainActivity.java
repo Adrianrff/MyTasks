@@ -1,5 +1,6 @@
 package com.adrapps.mytasks.Views;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,8 +32,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
@@ -40,6 +43,7 @@ import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
+import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.Helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -50,12 +54,13 @@ import com.google.api.client.util.ExponentialBackOff;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
-        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, DatePickerDialog.OnDateSetListener {
 
     Toolbar toolbar;
     DrawerLayout drawer;
@@ -72,7 +77,6 @@ public class MainActivity extends AppCompatActivity
     CoordinatorLayout coordinatorLayout;
     List<String> listIds = new ArrayList<>();
     List<String> listTitles = new ArrayList<>();
-    Contract.AdapterOps adapterOps;
     SwipeRefreshLayout swipeRefresh;
     private boolean mTwoPane;
 
@@ -127,23 +131,18 @@ public class MainActivity extends AppCompatActivity
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
         fab.setOnClickListener(this);
         swipeRefresh.setOnRefreshListener(this);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
-        {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
-                if (dy > 0 ||dy<0 && fab.isShown())
-                {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0 || dy < 0 && fab.isShown()) {
                     fab.hide();
                     swipeRefresh.setEnabled(false);
                 }
             }
 
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState)
-            {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE)
-                {
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     fab.show();
                     swipeRefresh.setEnabled(true);
                 }
@@ -169,7 +168,6 @@ public class MainActivity extends AppCompatActivity
         RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
         refresh.execute();
     }
-
 
     @Override
     public void updateCurrentView() {
@@ -210,14 +208,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setListsIds(List<String> listIds) {
+        listIds.clear();
         this.listIds.addAll(mPresenter.getListsIds());
     }
 
     @Override
     public void setListsTitles(List<String> titles) {
+        listTitles.clear();
         this.listTitles.addAll(mPresenter.getListsTitles());
     }
-
 
     @Override
     public void showProgressDialog() {
@@ -251,37 +250,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void navIconToBack(boolean b) {
-        if (b) {
-            toggle.setDrawerIndicatorEnabled(false);
-//            ActionBar actionBar = getSupportActionBar();
-            toggle.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
-//            if (actionBar != null) {
-//                actionBar.setDisplayHomeAsUpEnabled(true);
-////                actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
-//                actionBar.setDisplayShowHomeEnabled(true);
-//            }
-            toggle.syncState();
-        } else {
-            toggle.setDrawerIndicatorEnabled(true);
-            toggle.syncState();
-        }
-    }
-
-    @Override
     public void setToolbarTitle(String title) {
         toolbar.setTitle(title);
     }
 
     @Override
     public void showUndoSnackBar(String message, final int position, final LocalTask task) {
-        Snackbar snackbar =  Snackbar.make(coordinatorLayout,message,Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        adapter.restoreDeletedItem(position);
-                    }
-                });
+            @Override
+            public void onClick(View v) {
+                adapter.restoreDeletedItem(position);
+            }
+        });
         snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.colorLightPrimary));
         snackbar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
             @Override
@@ -289,7 +270,7 @@ public class MainActivity extends AppCompatActivity
                 super.onDismissed(transientBottomBar, event);
                 if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT ||
                         event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
-                        event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE)  {
+                        event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE) {
                     mPresenter.deleteTaskFromApi(task.getTaskId(), task.getTaskList());
                 }
             }
@@ -334,24 +315,44 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-// ...Irrelevant code for customizing the buttons and title
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
-        dialogBuilder.setView(dialogView);
+        switch (v.getId()) {
+            case R.id.fab:
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+                LayoutInflater inflater = this.getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
+                dialogBuilder.setView(dialogView);
 
-//        EditText editText = (EditText) dialogView.findViewById(R.id.label_field);
-//        editText.setText("test label");
-        AlertDialog alertDialog = dialogBuilder.create();
-        alertDialog.setTitle(getString(R.string.new_task_dialog_title));
-        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "ADD", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                showToast("sdgfsdf");
-            }
-        });
-        alertDialog.show();
-//        mPresenter.onClick(v.getId());
+                EditText editText = (EditText) dialogView.findViewById(R.id.etTaskTitle);
+                TextView dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
+                dateTextView.setOnClickListener(this);
+                AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.setTitle(getString(R.string.new_task_dialog_title));
+                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.label_add_button), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showToast("sdgfsdf");
+                    }
+                });
+                alertDialog.show();
+                break;
+            case R.id.datePickerTextView:
+                Calendar c = Calendar.getInstance();
+                DatePickerDialog datePicker = new DatePickerDialog(this,this,
+                        c.get(Calendar.YEAR),
+                        c.get(Calendar.MONTH) + 1,
+                        c.get(Calendar.DAY_OF_MONTH));
+                datePicker.show();
+
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        Calendar c = Calendar.getInstance();
+        c.set(year,month,dayOfMonth);
+        long timeInMills = c.getTimeInMillis();
+        showToast(DateHelper.timeInMillsToString(timeInMills));
+
     }
 
     @Override
@@ -374,11 +375,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    @Override
-    public void pressBack() {
-        onBackPressed();
     }
 
     @Override
@@ -426,19 +422,10 @@ public class MainActivity extends AppCompatActivity
 
     ///----------------------------OTHER--------------------------//
 
-    @Override
-    public void setAdapterOps(Contract.AdapterOps aOps) {
-        this.adapterOps = aOps;
-    }
 
     @Override
     public void showToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public Context getAppContext() {
-        return getApplicationContext();
     }
 
     @Override
@@ -487,7 +474,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showSwipeRefreshProgress(boolean b){
+    public void showSwipeRefreshProgress(boolean b) {
         swipeRefresh.setRefreshing(b);
     }
 

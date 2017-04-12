@@ -21,8 +21,6 @@ public class Contract {
 
         void showToast(String msg);
 
-        Context getAppContext();
-
         void showCircularProgress(boolean b);
 
         Context getContext();
@@ -48,12 +46,6 @@ public class Contract {
         void setNavDrawerMenu(List<String> taskListsTitles);
 
         void dismissProgressDialog();
-
-        void setAdapterOps(AdapterOps aOps);
-
-        void navIconToBack(boolean b);
-
-        void pressBack();
 
         void updateCurrentView();
 

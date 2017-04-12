@@ -23,9 +23,9 @@
     <string name="task_restored">Tarea restaurada</string>
     <string name="request_canceled">Petición cancelada</string>
     <string name="g_services_not_available">Servicios de Google Play no está disponible</string>
-    <string name="task_not_found">Task not found</string>
-    <string name="task_due_date_hint">Select due date</string>
-    <string name="new_task_dialog_title">New task</string>
+    <string name="task_not_found">No se encontró la tarea</string>
+    <string name="task_due_date_hint">Seleccione la fecha</string>
+    <string name="new_task_dialog_title">Nueva Tarea</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>

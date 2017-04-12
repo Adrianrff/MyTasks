@@ -32,12 +32,11 @@ public class DateHelper {
     }
 
     public static String timeInMillsToString(long timeInMills){
-        SimpleDateFormat format = new SimpleDateFormat("EEEE, d MMM ''yy", Locale.getDefault());
+        SimpleDateFormat format = new SimpleDateFormat("EEEE, d MMM yyy", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         return format.format(calendar.getTime());
 
     }
-
 
 }
