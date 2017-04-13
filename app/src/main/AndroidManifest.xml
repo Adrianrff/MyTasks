@@ -35,7 +35,8 @@
         <activity
             android:name=".Views.TaskDetailActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.DarkActionBar">
+            android:parentActivityName=".Views.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
 

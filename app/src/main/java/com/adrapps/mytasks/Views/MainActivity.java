@@ -1,5 +1,6 @@
 package com.adrapps.mytasks.Views;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,7 +18,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -32,11 +32,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -48,6 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adrapps.mytasks.APICalls.AddTask;
+import com.adrapps.mytasks.APICalls.EditTask;
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
@@ -92,7 +97,7 @@ public class MainActivity extends AppCompatActivity
     AlertDialog newTaskDialog;
     TextView dateTextView;
     Spinner notifSpinner;
-    TextInputEditText newTaskTitle;
+    EditText newTaskTitle;
     TextInputLayout newTaskInputLayout;
     EditText notesEditText;
     Switch notSwitch;
@@ -140,7 +145,6 @@ public class MainActivity extends AppCompatActivity
     public void setUpViews() {
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(getString(R.string.first_sync_progress_dialog));
-        toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
         setSupportActionBar(toolbar);
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -291,6 +295,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void showUndoSnackBar(String message, final int position, final LocalTask task) {
+
         Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, new View.OnClickListener() {
             @Override
@@ -364,9 +369,7 @@ public class MainActivity extends AppCompatActivity
                 LayoutInflater inflater = this.getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
                 dialogBuilder.setView(dialogView);
-                newTaskTitle = (TextInputEditText) dialogView.findViewById(R.id.etTaskTitle);
-                newTaskInputLayout = (TextInputLayout) dialogView.findViewById(R.id.newTaskInputLayout);
-                notesEditText = (EditText) dialogView.findViewById(R.id.notesEditText);
+                newTaskTitle = (EditText) dialogView.findViewById(R.id.etTaskTitle);
                 notSwitch = (Switch) dialogView.findViewById(R.id.notificationSwitch);
                 notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -382,12 +385,27 @@ public class MainActivity extends AppCompatActivity
                 dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
                 dateTextView.setOnClickListener(this);
                 newTaskDialog = dialogBuilder.create();
+                Window window = newTaskDialog.getWindow();
+                WindowManager.LayoutParams wlp = window != null ? window.getAttributes() : null;
+
+                wlp.gravity = Gravity.TOP;
+                wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                if (window != null) {
+                    window.setAttributes(wlp);
+                }
                 newTaskDialog.setCancelable(true);
                 newTaskDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                         selectedDateInMills = 0
                         ;
+                    }
+                });
+                newTaskDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(newTaskTitle, InputMethodManager.SHOW_IMPLICIT);
                     }
                 });
                 newTaskDialog.setTitle(getString(R.string.new_task_dialog_title));
@@ -405,12 +423,11 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(View v) {
                         if (newTaskTitle.getText().toString().matches("")) {
-                            newTaskInputLayout.setError(getString(R.string.empty_title_error));
+                            showToast(getString(R.string.empty_title_error));
                             return;
                         }
                         Log.d("dueDate",String.valueOf(selectedDateInMills));
-                        LocalTask task = new LocalTask(newTaskTitle.getText().toString(),
-                                notesEditText.getText().toString(),selectedDateInMills);
+                        LocalTask task = new LocalTask(newTaskTitle.getText().toString(),selectedDateInMills);
                         AddTask add = new AddTask(mPresenter,
                                 getCredential(),getStringShP(Co.CURRENT_LIST_ID));
                         if (isDeviceOnline())
@@ -418,7 +435,7 @@ public class MainActivity extends AppCompatActivity
                         else
                             showToast(getString(R.string.no_internet_toast));
                         newTaskDialog.dismiss();
-//                        adapter.addItem(task,0);
+
                     }
                 });
                 break;
@@ -428,7 +445,6 @@ public class MainActivity extends AppCompatActivity
                         c.get(Calendar.YEAR),
                         c.get(Calendar.MONTH) + 1,
                         c.get(Calendar.DAY_OF_MONTH));
-                newTaskInputLayout.setError(null);
                 datePicker.show();
                 break;
             case R.id.notificationSwitch:
@@ -484,6 +500,7 @@ public class MainActivity extends AppCompatActivity
             }
             item.setChecked(true);
             adapter.updateItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
+
             toolbar.setTitle(item.getTitle());
             drawer.closeDrawer(GravityCompat.START);
             return false;
@@ -526,6 +543,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
     }
 
     @Override
@@ -535,6 +553,31 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void navigateToEditTask(Intent intent){
+       startActivityForResult(intent,Co.TASK_DATA_REQUEST_CODE);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        super.onActivityResult(requestCode, resultCode, resultIntent);
+        if (requestCode == Co.TASK_DATA_REQUEST_CODE){
+            if (resultCode == Activity.RESULT_OK){
+                LocalTask task = new LocalTask(resultIntent.getStringExtra(Co.TASK_EDITED_TITLE),
+                        resultIntent.getLongExtra(Co.TASK_EDITED_DUE, 0),
+                        resultIntent.getStringExtra(Co.TASK_EDITED_NOTE));
+                task.setTaskId(resultIntent.getStringExtra(Co.DETAIL_TASK_ID));
+                EditTask edit = new EditTask(mPresenter, getCredential(), getStringShP(Co.CURRENT_LIST_ID));
+                edit.execute(task);
+                refresh();
+            }
+
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+    }
 
     ///----------------------------OTHER--------------------------//
 

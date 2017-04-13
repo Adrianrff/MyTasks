@@ -32,10 +32,15 @@ public class LocalTask {
     public LocalTask() {
     }
 
-    public LocalTask (String taskTitle,String taskNotes, long dueDate){
+    public LocalTask (String taskTitle, long dueDate){
         title = taskTitle;
-        notes = taskNotes;
         this.due = dueDate;
+    }
+
+    public LocalTask (String taskTitle, long dueDate, String notes){
+        title = taskTitle;
+        this.due = dueDate;
+        this.notes = notes;
     }
 
     public static Task localTaskToApiTask (LocalTask lTask){

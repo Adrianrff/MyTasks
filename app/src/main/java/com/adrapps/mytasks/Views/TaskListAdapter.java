@@ -164,9 +164,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             } else {
                 i.putExtra(Co.DETAIL_TASK_DUE, R.string.no_due_date);
             }
-            i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes() != null ? R.string.no_notes : cTask.getNotes());
-            i.putExtra("updated", cTask.getUpdated());
-            context.startActivity(i);
+            i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes() == null ? R.string.no_notes : cTask.getNotes());
+            i.putExtra(Co.DETAIL_TASK_ID, cTask.getTaskId());
+            mPresenter.navigateToEditTask(i);
         }
 
         @Override

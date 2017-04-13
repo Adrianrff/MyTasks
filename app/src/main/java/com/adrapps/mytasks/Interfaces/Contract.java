@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.Interfaces;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
@@ -20,6 +21,8 @@ public class Contract {
 
 
         boolean isDeviceOnline();
+
+        void navigateToEditTask(Intent intent);
 
         void showToast(String msg);
 

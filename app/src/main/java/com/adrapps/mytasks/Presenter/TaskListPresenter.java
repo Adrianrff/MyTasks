@@ -1,5 +1,7 @@
 package com.adrapps.mytasks.Presenter;
 
+import android.content.Intent;
+
 import com.adrapps.mytasks.APICalls.AddTask;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
@@ -188,5 +190,9 @@ public class TaskListPresenter {
 
     public boolean isDeviceOnline() {
         return getView().isDeviceOnline();
+    }
+
+    public void navigateToEditTask(Intent i) {
+        getView().navigateToEditTask(i);
     }
 }

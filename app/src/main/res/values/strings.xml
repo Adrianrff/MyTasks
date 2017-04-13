@@ -28,8 +28,9 @@
     <string name="empty_title_error">The title can not be empty</string>
     <string name="notification_select">Notification</string>
     <string name="notification_spinner_hint">Select notification time</string>
-    <string name="task_notes_hints">Task notes</string>
+    <string name="task_notes_hint">Task notes</string>
     <string name="no_internet_toast">No network connection available.</string>
+    <string name="task_edit_title">Edit task</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

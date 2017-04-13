@@ -22,4 +22,11 @@ public class Co {
     public static final String NO_VALUE = "no value";
     public static final String TASK_COMPLETED = "completed";
     public static final String TASK_NEEDS_ACTION = "needsAction";
+    public static final String TASK_EDITED_TITLE = "task edited title";
+    public static final String TASK_EDITED_NOTE = "task edited note";
+    public static final String TASK_EDITED_DUE = "task edited due date";
+
+    public static final int TASK_DATA_REQUEST_CODE = 99;
+    public static final String DETAIL_TASK_ID = "task id" ;
+    public static final String DETAIL_TASK_LIST_ID = "task list";
 }

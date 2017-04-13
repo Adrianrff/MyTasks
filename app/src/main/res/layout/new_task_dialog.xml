@@ -1,100 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/newTaskDialog"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/newTaskInputLayout"
+    <RelativeLayout
+        android:id="@+id/newTaskDialog"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="@dimen/full_margin"
-        android:layout_marginLeft="@dimen/full_margin"
-        android:layout_marginStart="@dimen/full_margin"
-        android:layout_marginTop="@dimen/full_margin"
-        android:hint="@string/task_title_hint"
-        app:errorEnabled="true">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:focusable="false">
 
-        <android.support.design.widget.TextInputEditText
+        <EditText
             android:id="@+id/etTaskTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
+            android:layout_marginBottom="@dimen/full_margin"
+            android:layout_marginEnd="@dimen/full_margin"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:layout_marginTop="@dimen/full_margin"
+            android:hint="@string/task_title_hint"
             android:textSize="16sp" />
 
-    </android.support.design.widget.TextInputLayout>
+        <TextView
+            android:id="@+id/datePickerTextView"
+            style="@style/Base.Widget.AppCompat.Spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etTaskTitle"
+            android:layout_marginEnd="@dimen/full_margin"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:hint="@string/task_due_date_hint"
+            android:textSize="16sp" />
 
-    <EditText
-        android:id="@+id/notesEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/full_margin"
-        android:layout_marginEnd="@dimen/full_margin"
-        android:layout_marginBottom="@dimen/full_margin"
-        android:hint="@string/task_notes_hints"
-        android:textSize="16sp"
-        android:layout_below="@id/newTaskInputLayout"
-        android:layout_marginLeft="@dimen/full_margin" />
+        <TextView
+            android:id="@+id/notificationLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/datePickerTextView"
+            android:layout_alignStart="@id/datePickerTextView"
+            android:layout_below="@id/datePickerTextView"
+            android:layout_marginEnd="@dimen/full_margin"
+            android:layout_marginRight="@dimen/full_margin"
+            android:layout_marginTop="@dimen/full_margin"
+            android:hint="@string/notification_select"
+            android:textSize="16sp" />
 
+        <Switch
+            android:id="@+id/notificationSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/notificationLabel"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/datePickerTextView"
+            android:layout_marginEnd="@dimen/full_margin"
+            android:layout_marginRight="@dimen/full_margin"
+            android:layout_toEndOf="@id/notificationLabel"
+            android:layout_toRightOf="@id/notificationLabel" />
 
-    <TextView
-        android:id="@+id/datePickerTextView"
-        style="@style/Base.Widget.AppCompat.Spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/notesEditText"
-        android:layout_marginEnd="@dimen/full_margin"
-        android:layout_marginLeft="@dimen/full_margin"
-        android:layout_marginStart="@dimen/full_margin"
-        android:hint="@string/task_due_date_hint"
-        android:textSize="16sp" />
+        <Spinner
+            android:id="@+id/notifSpinner"
+            style="@style/Base.Widget.AppCompat.Spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/notificationLabel"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="16dp"
+            android:entries="@array/notification_options"
+            android:textSize="16sp"
+            android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/notificationLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/datePickerTextView"
-        android:layout_alignStart="@id/datePickerTextView"
-        android:layout_below="@id/datePickerTextView"
-        android:layout_marginEnd="@dimen/full_margin"
-        android:layout_marginRight="@dimen/full_margin"
-        android:layout_marginTop="@dimen/full_margin"
-        android:hint="@string/notification_select"
-        android:textSize="16sp" />
+    </RelativeLayout>
 
-    <Switch
-        android:id="@+id/notificationSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/notificationLabel"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/datePickerTextView"
-        android:layout_marginEnd="@dimen/full_margin"
-        android:layout_marginRight="@dimen/full_margin"
-        android:layout_toEndOf="@id/notificationLabel"
-        android:layout_toRightOf="@id/notificationLabel" />
-
-    <Spinner
-        android:id="@+id/notifSpinner"
-        style="@style/Base.Widget.AppCompat.Spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/notificationLabel"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="16dp"
-        android:entries="@array/notification_options"
-        android:textSize="16sp"
-        android:visibility="gone" />
-
-</RelativeLayout>
+</ScrollView>
