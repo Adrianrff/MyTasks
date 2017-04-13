@@ -473,19 +473,23 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        saveStringShP(Co.CURRENT_LIST_ID, listIds.get(item.getItemId()));
-        saveStringShP(Co.CURRENT_LIST_TITLE, listTitles.get(item.getItemId()));
         Menu menu = navigationView.getMenu();
         MenuItem menuItem = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = menuItem.getSubMenu();
-        for (int i = 0; i < listsMenu.size(); i++) {
-            listsMenu.getItem(i).setChecked(false);
+        if (item.getItemId() <= listTitles.size()) {
+            saveStringShP(Co.CURRENT_LIST_ID, listIds.get(item.getItemId()));
+            saveStringShP(Co.CURRENT_LIST_TITLE, listTitles.get(item.getItemId()));
+            for (int i = 0; i < listsMenu.size(); i++) {
+                listsMenu.getItem(i).setChecked(false);
+            }
+            item.setChecked(true);
+            adapter.updateItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
+            toolbar.setTitle(item.getTitle());
+            drawer.closeDrawer(GravityCompat.START);
+            return false;
         }
-        item.setChecked(true);
-        adapter.updateItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
-        toolbar.setTitle(item.getTitle());
-        drawer.closeDrawer(GravityCompat.START);
         return false;
+
     }
 
     @Override
@@ -505,10 +509,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.refresh:
                 refresh();
-                break;
-
-            case android.R.id.home:
-                onBackPressed();
                 break;
 
         }

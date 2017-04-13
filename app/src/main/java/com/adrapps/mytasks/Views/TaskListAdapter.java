@@ -116,14 +116,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     public void onItemSwiped(int position, int direction) {
         removedTask = tasks.remove(position);
         notifyItemRemoved(position);
-//        mPresenter.deleteTaskFromApi(removedTask.getTaskId(),
-//                removedTask.getTaskList());
         mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
     }
 
     void restoreDeletedItem(int position) {
         tasks.add(position, removedTask);
-//        mPresenter.addTaskToApi(removedTask,removedTask.getTaskList());
         notifyItemInserted(position);
         showToast(context.getString(R.string.task_restored));
     }
