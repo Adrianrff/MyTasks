@@ -7,7 +7,7 @@
 
     <string name="action_settings">Configuración</string>
     <string name="refresh">Actualizar</string>
-    <string name="no_due_date">Sin fecha</string>
+    <string name="no_due_date"><![CDATA[<Sin fecha>]]></string>
     <string name="request_api_authorization">Solicitando autorización</string>
     <string name="task_title_hint">Título de la tarea</string>
     <string name="task_due_date">Fecha límite</string>
@@ -31,13 +31,16 @@
     <string name="notification_spinner_hint">Seleccione cuando notificar</string>
     <string name="task_notes_hint">Notas</string>
     <string name="no_internet_toast">No hay connexión a internet</string>
-    <string name="task_edit_title">Edit task</string>
+    <string name="task_edit_title">Editar tarea</string>
+    <string name="no_task_name"><![CDATA[<Sin título>]]></string>
+    <string name="no_tasks_in_list">No tasks in this list</string>
+    <string name="nothing_to_show">Nothing to show</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>
         <item>En la tarde</item>
         <item>En la noche</item>
-        <item>Personalizada…</item>
+        <item>Personalizar…</item>
     </string-array>
 
 </resources>

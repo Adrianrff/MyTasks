@@ -53,7 +53,7 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <include layout="@layout/task_main_list" />
+            <include layout="@layout/task_list" />
 
         </FrameLayout>
 

@@ -14,14 +14,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import java.io.IOException;
 
-public class RemoveTask extends AsyncTask<String, Void, Void> {
+public class DeleteTask extends AsyncTask<String, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
     private String listId;
 
-    public RemoveTask(TaskListPresenter presenter,
+    public DeleteTask(TaskListPresenter presenter,
                       GoogleAccountCredential credential,
                       String listId) {
         this.mPresenter = presenter;

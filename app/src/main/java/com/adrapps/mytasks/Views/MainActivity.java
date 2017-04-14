@@ -45,6 +45,7 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity
     boolean isFirstTime = true;
     long selectedDateInMills;
     private boolean mTwoPane;
+    private LinearLayout emptyDataLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +135,7 @@ public class MainActivity extends AppCompatActivity
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
     }
@@ -214,6 +217,14 @@ public class MainActivity extends AppCompatActivity
             toolbar.setTitle(currentListTitle);
         }
         setNavDrawerMenu(Co.listTitles);
+        List<LocalTask> tasks = mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID));
+        if (tasks == null || tasks.isEmpty()){
+            recyclerView.setVisibility(View.GONE);
+            emptyDataLayout.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyDataLayout.setVisibility(View.GONE);
+        }
         adapter.updateItems(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
 
     }
@@ -471,6 +482,14 @@ public class MainActivity extends AppCompatActivity
                 listsMenu.getItem(i).setChecked(false);
             }
             item.setChecked(true);
+            List<LocalTask> tasks = mPresenter.getTasksFromList(Co.listIds.get(item.getItemId()));
+            if (tasks == null || tasks.isEmpty()){
+                recyclerView.setVisibility(View.GONE);
+                emptyDataLayout.setVisibility(View.VISIBLE);
+            } else {
+                recyclerView.setVisibility(View.VISIBLE);
+                emptyDataLayout.setVisibility(View.VISIBLE);
+            }
             adapter.updateItems(mPresenter.getTasksFromList(Co.listIds.get(item.getItemId())));
             toolbar.setTitle(item.getTitle());
             drawer.closeDrawer(GravityCompat.START);

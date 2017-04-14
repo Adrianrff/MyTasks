@@ -54,7 +54,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
         Log.d("onBind", String.valueOf(position));
         LocalTask cTask = tasks.get(position);
-        holder.taskName.setText(cTask.getTitle());
+        if (!cTask.getTitle().equals("")) {
+            holder.taskName.setText(cTask.getTitle());
+        } else {
+            holder.taskName.setText(R.string.no_task_name);
+        }
         if (cTask.getDue() == 0) {
             holder.dueDate.setText(R.string.no_due_date);
         } else {

@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.adrapps.mytasks.APICalls.AddTask;
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
-import com.adrapps.mytasks.APICalls.RemoveTask;
+import com.adrapps.mytasks.APICalls.DeleteTask;
 import com.adrapps.mytasks.APICalls.UpdateStatus;
 import com.adrapps.mytasks.Databases.ListsDatabase;
 import com.adrapps.mytasks.Databases.TasksDataBase;
@@ -81,7 +81,7 @@ public class DataModel implements Contract.Model {
     public void deleteTaskFromApi(String taskId, String listId) {
         if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
-            RemoveTask remove = new RemoveTask(mPresenter, credential, listId);
+            DeleteTask remove = new DeleteTask(mPresenter, credential, listId);
             remove.execute(taskId);
         } else
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
