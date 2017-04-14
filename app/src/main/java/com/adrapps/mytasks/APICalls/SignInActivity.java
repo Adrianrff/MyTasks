@@ -260,6 +260,7 @@ public class SignInActivity extends Activity
 
         @Override
         protected List<String> doInBackground(Void... params) {
+
             List<String> listInfo;
             try {
                 listInfo = firstCall();
@@ -321,6 +322,12 @@ public class SignInActivity extends Activity
             TaskLists result = mService.tasklists().list()
                     .execute();
             lists = result.getItems();
+            for (int i = 0; i < lists.size(); i++) {
+                Co.listIds.clear();
+                Co.listTitles.clear();
+                Co.listIds.add(lists.get(i).getId());
+                Co.listTitles.add(lists.get(i).getTitle());
+            }
             defaultListInfo.add(lists.get(0).getId());
             defaultListInfo.add(lists.get(0).getTitle());
             return defaultListInfo;

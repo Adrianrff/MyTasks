@@ -500,11 +500,13 @@ public class MainActivity extends AppCompatActivity
             item.setChecked(true);
             List<LocalTask> tasks = mPresenter.getTasksFromList(Co.listIds.get(item.getItemId()));
             if (tasks == null || tasks.isEmpty()){
+                Log.d("TasksEmpty","empty");
                 recyclerView.setVisibility(View.GONE);
                 emptyDataLayout.setVisibility(View.VISIBLE);
             } else {
+                Log.d("TasksEmpty","not empty");
                 recyclerView.setVisibility(View.VISIBLE);
-                emptyDataLayout.setVisibility(View.VISIBLE);
+                emptyDataLayout.setVisibility(View.GONE);
             }
             adapter.updateItems(mPresenter.getTasksFromList(Co.listIds.get(item.getItemId())));
             toolbar.setTitle(item.getTitle());
@@ -613,7 +615,9 @@ public class MainActivity extends AppCompatActivity
         }
         if (key.equals(Co.CURRENT_LIST_TITLE)) {
             if (prefs.getString(key, Co.NO_VALUE).equals(Co.NO_VALUE)) {
-                return Co.listTitles.get(0);
+                if (!Co.listTitles.isEmpty()) {
+                    return Co.listTitles.get(0);
+                }
             }
         }
 

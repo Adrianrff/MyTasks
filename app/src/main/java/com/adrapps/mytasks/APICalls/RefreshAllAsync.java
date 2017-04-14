@@ -38,8 +38,6 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        List<String> strings = new ArrayList<>();
-        mPresenter.showToast(strings.get(1));
         try {
             refreshAll();
         } catch (Exception e) {
