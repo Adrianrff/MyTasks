@@ -504,6 +504,7 @@ public class MainActivity extends AppCompatActivity
                 recyclerView.setVisibility(View.GONE);
                 emptyDataLayout.setVisibility(View.VISIBLE);
             } else {
+
                 Log.d("TasksEmpty","not empty");
                 recyclerView.setVisibility(View.VISIBLE);
                 emptyDataLayout.setVisibility(View.GONE);
