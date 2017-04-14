@@ -96,8 +96,6 @@ public class MainActivity extends AppCompatActivity
     TextView dateTextView;
     Spinner notifSpinner;
     EditText newTaskTitle;
-    TextInputLayout newTaskInputLayout;
-    EditText notesEditText;
     Switch notSwitch;
     boolean isFirstTime = true;
     long selectedDateInMills;
@@ -168,7 +166,6 @@ public class MainActivity extends AppCompatActivity
                     fab.show();
                     swipeRefresh.setEnabled(true);
                 }
-
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
@@ -319,13 +316,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public GoogleAccountCredential getCredential() {
-//        mCredential = GoogleAccountCredential.usingOAuth2(
-//                getApplicationContext(), Arrays.asList(Co.SCOPES))
-//                .setBackOff(new ExponentialBackOff());
-//        accountName = getStringShP(Co.PREF_ACCOUNT_NAME);
-//        if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
-//            mCredential.setSelectedAccountName(accountName);
-//        }
         return mCredential;
     }
 
@@ -343,11 +333,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
 
-        mPresenter.onClick(v.getId());
+//        mPresenter.onClick(v.getId());
 
         switch (v.getId()) {
-            case R.id.fab:
 
+            case R.id.fab:
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
                 LayoutInflater inflater = this.getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
@@ -466,7 +456,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        isFirstTime = true;
+//        isFirstTime = true;
     }
 
     @Override
@@ -482,7 +472,6 @@ public class MainActivity extends AppCompatActivity
             }
             item.setChecked(true);
             adapter.updateItems(mPresenter.getTasksFromList(Co.listIds.get(item.getItemId())));
-
             toolbar.setTitle(item.getTitle());
             drawer.closeDrawer(GravityCompat.START);
             return false;
@@ -530,7 +519,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.task_list_menu, menu);
         return true;
     }
@@ -538,7 +526,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void navigateToEditTask(Intent intent){
        startActivityForResult(intent,Co.TASK_DATA_REQUEST_CODE);
-
     }
 
     @Override

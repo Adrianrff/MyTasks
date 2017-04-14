@@ -93,6 +93,7 @@ public class TaskListPresenter {
     }
 
     public void updateLists(List<TaskList> lists) {
+        setListsInfo(lists);
         mModel.updateLists(lists);
     }
 

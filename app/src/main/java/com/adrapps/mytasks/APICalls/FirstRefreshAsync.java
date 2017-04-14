@@ -109,16 +109,19 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
                 .execute();
                 lists = result.getItems();
         if (!lists.isEmpty()) {
-            mPresenter.setListsInfo(lists);
             mPresenter.updateLists(lists);
         }
         List<Task> tasks;
 
-        for (int i = 0; i < (!lists.isEmpty() ? lists.size() : 0); i++){
-            tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
-            for (int j = 0; j < tasks.size(); j++){
-                LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
-                localTasks.add(task);
+        if (!lists.isEmpty()) {
+            for (int i = 0; i < lists.size(); i++){
+                tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
+                if (!tasks.isEmpty()) {
+                    for (int j = 0; j < tasks.size(); j++){
+                        LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
+                        localTasks.add(task);
+                    }
+                }
             }
         }
         mPresenter.updateTasks(localTasks);
