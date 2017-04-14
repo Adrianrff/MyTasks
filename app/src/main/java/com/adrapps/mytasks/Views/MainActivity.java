@@ -98,7 +98,6 @@ public class MainActivity extends AppCompatActivity
     Spinner notifSpinner;
     EditText newTaskTitle;
     Switch notSwitch;
-    boolean isFirstTime = true;
     long selectedDateInMills;
     private boolean mTwoPane;
     private LinearLayout emptyDataLayout;
@@ -121,8 +120,9 @@ public class MainActivity extends AppCompatActivity
             refreshFirstTime();
             return;
         }
-        setUpData();
         initRecyclerView(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
+        setUpData();
+
     }
 
 
@@ -242,6 +242,22 @@ public class MainActivity extends AppCompatActivity
                 new SimpleItemTouchHelperCallback(adapter, this);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
+        if (tasks == null || tasks.isEmpty()){
+            showEmptyRecyclerView(true);
+        } else {
+            showEmptyRecyclerView(false);
+        }
+    }
+
+    @Override
+    public void showEmptyRecyclerView(boolean b){
+        if (b){
+            recyclerView.setVisibility(View.GONE);
+            emptyDataLayout.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyDataLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override

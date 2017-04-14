@@ -16,6 +16,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.R;
@@ -62,6 +64,7 @@ public class TaskDetailActivity extends AppCompatActivity
             taskDue.setText(getIntent().getStringExtra(Co.DETAIL_TASK_DUE));
             taskId = getIntent().getStringExtra(Co.DETAIL_TASK_ID);
             listId = getIntent().getStringExtra(Co.DETAIL_TASK_LIST_ID);
+            Toast.makeText(this,getIntent().getStringExtra(Co.DETAIL_TASK_ID),Toast.LENGTH_LONG).show();
         }
         taskDue.setOnClickListener(this);
     }

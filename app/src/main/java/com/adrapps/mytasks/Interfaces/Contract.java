@@ -30,6 +30,8 @@ public class Contract {
 
         void showCircularProgress(boolean b);
 
+        void showEmptyRecyclerView(boolean b);
+
         void showProgressDialog();
 
         void dismissProgressDialog();

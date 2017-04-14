@@ -118,14 +118,20 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public void onItemSwiped(int position, int direction) {
+        Log.d("OnItemSwiped", String.valueOf(position));
         removedTask = tasks.remove(position);
         notifyItemRemoved(position);
         mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
+        if (tasks.isEmpty()){
+            mPresenter.showEmptyRecyclerView(true);
+        }
     }
 
     void restoreDeletedItem(int position) {
+        Log.d("restoreItem", removedTask.getTaskId());
         tasks.add(position, removedTask);
         notifyItemInserted(position);
+        mPresenter.showEmptyRecyclerView(false);
         showToast(context.getString(R.string.task_restored));
     }
 

@@ -151,16 +151,6 @@ public class TaskListPresenter {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
     public void addTaskToLocalDataBase(Task task, String listId){
         mModel.addTaskToLocalDatabase(task,listId);
     }
@@ -215,5 +205,9 @@ public class TaskListPresenter {
 
     public void addTaskToApi(LocalTask task){
         mModel.addTaskToApi(task);
+    }
+
+    public void showEmptyRecyclerView(boolean b) {
+        getView().showEmptyRecyclerView(b);
     }
 }

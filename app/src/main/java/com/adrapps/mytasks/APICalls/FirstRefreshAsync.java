@@ -72,7 +72,6 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
         mPresenter.showProgress(false);
         mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE,lists.get(0).getTitle());
         mPresenter.setUpViews();
-        mPresenter.setUpData();
         mPresenter.initRecyclerView(mPresenter.getTasksFromList(lists.get(0).getId()));
         mPresenter.updateCurrentView();
 
@@ -102,7 +101,6 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
         }
     }
 
-
     private void firstRefresh() throws IOException {
 
         TaskLists result = mService.tasklists().list()
@@ -116,10 +114,12 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
         if (!lists.isEmpty()) {
             for (int i = 0; i < lists.size(); i++){
                 tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
-                if (!tasks.isEmpty()) {
-                    for (int j = 0; j < tasks.size(); j++){
-                        LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
-                        localTasks.add(task);
+                if (tasks != null) {
+                    if (!tasks.isEmpty()) {
+                        for (int j = 0; j < tasks.size(); j++){
+                            LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
+                            localTasks.add(task);
+                        }
                     }
                 }
             }
