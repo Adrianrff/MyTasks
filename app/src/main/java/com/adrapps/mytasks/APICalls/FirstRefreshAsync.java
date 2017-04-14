@@ -25,8 +25,6 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
-    private List<String> listIds = new ArrayList<>();
-    private List<String> listTitles = new ArrayList<>();
     private List<LocalTask> localTasks = new ArrayList<>();
     private List<TaskList> lists = new ArrayList<>();
 
@@ -43,9 +41,6 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-
-        long startTime = System.currentTimeMillis();
-
         try {
             firstRefresh();
         } catch (Exception e) {
@@ -111,14 +106,16 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
         }
         List<Task> tasks;
 
-        if (!lists.isEmpty()) {
-            for (int i = 0; i < lists.size(); i++){
-                tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
-                if (tasks != null) {
-                    if (!tasks.isEmpty()) {
-                        for (int j = 0; j < tasks.size(); j++){
-                            LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
-                            localTasks.add(task);
+        if (lists != null) {
+            if (!lists.isEmpty()) {
+                for (int i = 0; i < lists.size(); i++){
+                    tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
+                    if (tasks != null) {
+                        if (!tasks.isEmpty()) {
+                            for (int j = 0; j < tasks.size(); j++){
+                                LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
+                                localTasks.add(task);
+                            }
                         }
                     }
                 }

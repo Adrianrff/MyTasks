@@ -289,7 +289,7 @@ public class SignInActivity extends Activity
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(Co.IS_FIRST_TIME, false);
-            editor.putString(Co.CURRENT_LIST_TITLE, strings.get(1));
+            editor.putString(Co.CURRENT_LIST_TITLE, strings.get(0));
             editor.putString(Co.CURRENT_LIST_ID, strings.get(0));
             editor.apply();
             goToTaskListActivity();

@@ -38,7 +38,8 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-
+        List<String> strings = new ArrayList<>();
+        mPresenter.showToast(strings.get(1));
         try {
             refreshAll();
         } catch (Exception e) {
@@ -69,6 +70,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onCancelled(Void aVoid) {
         mPresenter.dismissProgressDialog();
+        mPresenter.showSwipeRefreshProgress(false);
         mPresenter.showProgress(false);
         if (mLastError != null) {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {

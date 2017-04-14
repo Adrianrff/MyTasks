@@ -35,6 +35,8 @@
     <string name="no_task_name"><![CDATA[<Sin título>]]></string>
     <string name="no_tasks_in_list">No hay tareas en esta lista</string>
     <string name="nothing_to_show">Nada qué mostrar</string>
+    <string name="crash_toast_text">The app has closed.</string>
+    <string name="bug_report_notification_title">Bug report captured, send to developer</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>
