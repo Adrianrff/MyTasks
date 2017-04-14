@@ -91,8 +91,6 @@ public class MainActivity extends AppCompatActivity
     TaskListAdapter adapter;
     ActionBarDrawerToggle toggle;
     CoordinatorLayout coordinatorLayout;
-    List<String> listIds = new ArrayList<>();
-    List<String> listTitles = new ArrayList<>();
     SwipeRefreshLayout swipeRefresh;
     AlertDialog newTaskDialog;
     TextView dateTextView;
@@ -178,21 +176,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void setUpData() {
-        listTitles = mPresenter.getListsTitles();
-        listIds = mPresenter.getListsIds();
-        setNavDrawerMenu(listTitles);
+        Co.setListIds(mPresenter.getListsIds());
+        Co.setListTitles(mPresenter.getListsTitles());
+        setNavDrawerMenu(Co.listTitles);
     }
 
-    private void refreshFirstTime() {
-        if (isDeviceOnline()) {
-            FirstRefreshAsync firstRefresh = new FirstRefreshAsync(mPresenter, mCredential);
-            firstRefresh.execute();
-        }
-        else {
-            showToast(getString(R.string.no_internet_toast));
-            showSwipeRefreshProgress(false);
-        }
-
+    @Override
+    public void refreshFirstTime() {
+        mPresenter.refreshFirstTime();
     }
 
     @Override
@@ -210,22 +201,22 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void updateCurrentView() {
-        listIds = mPresenter.getListsIds();
-        listTitles = mPresenter.getListsTitles();
-        boolean listStillExists = listIds.contains(getStringShP(Co.CURRENT_LIST_ID));
+        Co.setListIds(mPresenter.getListsIds());
+        Co.setListTitles(mPresenter.getListsTitles());
+        boolean listStillExists = Co.listIds.contains(getStringShP(Co.CURRENT_LIST_ID));
         if (listStillExists) {
             String currentListTitle = mPresenter.getListTitleFromId(
                     getStringShP(Co.CURRENT_LIST_ID));
             saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
             mPresenter.setToolbarTitle(currentListTitle);
         } else {
-            String currentListTitle = listTitles.get(0);
-            String currentListId = listIds.get(0);
+            String currentListTitle = Co.listTitles.get(0);
+            String currentListId = Co.listIds.get(0);
             saveStringShP(Co.CURRENT_LIST_ID, currentListId);
             saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
             toolbar.setTitle(currentListTitle);
         }
-        setNavDrawerMenu(listTitles);
+        setNavDrawerMenu(Co.listTitles);
         adapter.updateItems(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
 
     }
@@ -243,18 +234,6 @@ public class MainActivity extends AppCompatActivity
                 new SimpleItemTouchHelperCallback(adapter, this);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
-    }
-
-    @Override
-    public void setListsIds(List<String> listIds) {
-        listIds.clear();
-        this.listIds.addAll(mPresenter.getListsIds());
-    }
-
-    @Override
-    public void setListsTitles(List<String> titles) {
-        listTitles.clear();
-        this.listTitles.addAll(mPresenter.getListsTitles());
     }
 
     @Override
@@ -285,7 +264,7 @@ public class MainActivity extends AppCompatActivity
             listsMenu.add(0, i, i, taskListsTitles.get(i)).setIcon(R.drawable.ic_list).
                     setOnMenuItemClickListener(this);
         }
-        listsMenu.getItem(listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE))).setChecked(true);
+        listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE))).setChecked(true);
     }
 
     @Override
@@ -363,14 +342,24 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
+
+        mPresenter.onClick(v.getId());
+
         switch (v.getId()) {
             case R.id.fab:
+
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
                 LayoutInflater inflater = this.getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
                 dialogBuilder.setView(dialogView);
+
+                //--------------FIND VIEWS--------------///
                 newTaskTitle = (EditText) dialogView.findViewById(R.id.etTaskTitle);
                 notSwitch = (Switch) dialogView.findViewById(R.id.notificationSwitch);
+                notifSpinner = (Spinner) dialogView.findViewById(R.id.notifSpinner);
+                dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
+
+                //-----------SET LISTENERS-----------////
                 notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -380,9 +369,7 @@ public class MainActivity extends AppCompatActivity
                             notifSpinner.setVisibility(View.GONE);
                     }
                 });
-                notifSpinner = (Spinner) dialogView.findViewById(R.id.notifSpinner);
                 notifSpinner.setOnItemSelectedListener(this);
-                dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
                 dateTextView.setOnClickListener(this);
                 newTaskDialog = dialogBuilder.create();
                 Window window = newTaskDialog.getWindow();
@@ -428,12 +415,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         Log.d("dueDate",String.valueOf(selectedDateInMills));
                         LocalTask task = new LocalTask(newTaskTitle.getText().toString(),selectedDateInMills);
-                        AddTask add = new AddTask(mPresenter,
-                                getCredential(),getStringShP(Co.CURRENT_LIST_ID));
-                        if (isDeviceOnline())
-                            add.execute(task);
-                        else
-                            showToast(getString(R.string.no_internet_toast));
+                        mPresenter.addTaskToApi(task);
                         newTaskDialog.dismiss();
 
                     }
@@ -492,14 +474,14 @@ public class MainActivity extends AppCompatActivity
         Menu menu = navigationView.getMenu();
         MenuItem menuItem = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = menuItem.getSubMenu();
-        if (item.getItemId() <= listTitles.size()) {
-            saveStringShP(Co.CURRENT_LIST_ID, listIds.get(item.getItemId()));
-            saveStringShP(Co.CURRENT_LIST_TITLE, listTitles.get(item.getItemId()));
+        if (item.getItemId() <= Co.listTitles.size()) {
+            saveStringShP(Co.CURRENT_LIST_ID, Co.listIds.get(item.getItemId()));
+            saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(item.getItemId()));
             for (int i = 0; i < listsMenu.size(); i++) {
                 listsMenu.getItem(i).setChecked(false);
             }
             item.setChecked(true);
-            adapter.updateItems(mPresenter.getTasksFromList(listIds.get(item.getItemId())));
+            adapter.updateItems(mPresenter.getTasksFromList(Co.listIds.get(item.getItemId())));
 
             toolbar.setTitle(item.getTitle());
             drawer.closeDrawer(GravityCompat.START);
@@ -579,6 +561,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void showNewTaskDialog(){
+
+    }
+
     ///----------------------------OTHER--------------------------//
 
 
@@ -604,7 +591,7 @@ public class MainActivity extends AppCompatActivity
         }
         if (key.equals(Co.CURRENT_LIST_TITLE)) {
             if (prefs.getString(key, Co.NO_VALUE).equals(Co.NO_VALUE)) {
-                return listTitles.get(0);
+                return Co.listTitles.get(0);
             }
         }
 

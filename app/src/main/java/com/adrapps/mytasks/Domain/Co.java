@@ -2,6 +2,9 @@ package com.adrapps.mytasks.Domain;
 
 import com.google.api.services.tasks.TasksScopes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Co {
 
     public static final int REQUEST_ACCOUNT_PICKER = 1000;
@@ -25,8 +28,18 @@ public class Co {
     public static final String TASK_EDITED_TITLE = "task edited title";
     public static final String TASK_EDITED_NOTE = "task edited note";
     public static final String TASK_EDITED_DUE = "task edited due date";
-
     public static final int TASK_DATA_REQUEST_CODE = 99;
     public static final String DETAIL_TASK_ID = "task id" ;
     public static final String DETAIL_TASK_LIST_ID = "task list";
+
+    public static List<String> listIds = new ArrayList<>();
+    public static List<String> listTitles = new ArrayList<>();
+
+    public static void setListIds(List<String> listIds) {
+        Co.listIds = listIds;
+    }
+
+    public static void setListTitles(List<String> listTitles) {
+        Co.listTitles = listTitles;
+    }
 }

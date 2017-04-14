@@ -20,53 +20,64 @@ public class Contract {
     public interface MainActivityViewOps {
 
 
-        boolean isDeviceOnline();
+        //-----------VIEWS AND WIDGETS------------////
 
-        void navigateToEditTask(Intent intent);
+        void setUpViews();
+
+        void showNewTaskDialog();
 
         void showToast(String msg);
 
         void showCircularProgress(boolean b);
 
-        Context getContext();
-
-        void setCredentials();
-
-        void requestAuthorization(Exception e);
-
-        String getStringShP(String key);
-
-        boolean getBooleanSharedPreference(String key);
-
-        void saveStringShP(String key, String value);
-
-        void setToolbarTitle(String title);
-
-        void setUpData();
-
-        void setUpViews();
-
         void showProgressDialog();
-
-        void setNavDrawerMenu(List<String> taskListsTitles);
 
         void dismissProgressDialog();
 
-        void refresh();
+        void showSwipeRefreshProgress(boolean b);
 
         void updateCurrentView();
 
+        void showUndoSnackBar(String message, int position, LocalTask task);
+
+        void refreshFirstTime();
+
+        void refresh();
+
+
+
+        //------------DATA SETUP-----------///
+
+        void setNavDrawerMenu(List<String> taskListsTitles);
+
+        void setUpData();
+
+        void setToolbarTitle(String title);
+
+        void requestAuthorization(Exception e);
+
+        void setCredentials();
+
+        void saveStringShP(String key, String value);
+
         void initRecyclerView(List<LocalTask> tasks);
 
-        void setListsIds(List<String> listIds);
 
-        void setListsTitles(List<String> titles);
 
-        void showUndoSnackBar(String message, int position, LocalTask task);
+        //-------DATA RETRIEVE-------------///
 
         GoogleAccountCredential getCredential();
 
-        void showSwipeRefreshProgress(boolean b);
+        boolean getBooleanSharedPreference(String key);
+
+        String getStringShP(String key);
+
+        Context getContext();
+
+        boolean isDeviceOnline();
+
+        void navigateToEditTask(Intent intent);
+
     }
 
 
@@ -91,7 +102,11 @@ public class Contract {
 
         void deleteTaskFromApi(String taskId, String listId);
 
-        void updateTask(String taskId, String listId, String newStatus);
+        void updateTaskStatus(String taskId, String listId, String newStatus);
+
+        void refreshFirstTime();
+
+        void addTaskToApi(LocalTask task);
     }
 
     //------------------FRAGMENT OPS---------------------//

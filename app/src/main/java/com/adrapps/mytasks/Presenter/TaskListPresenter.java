@@ -3,6 +3,7 @@ package com.adrapps.mytasks.Presenter;
 import android.content.Intent;
 
 import com.adrapps.mytasks.APICalls.AddTask;
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Models.DataModel;
@@ -38,16 +39,58 @@ public class TaskListPresenter {
             throw new NullPointerException("MainActivityViewOps is unavailable");
     }
 
-    //-------------METHODS------------------///
 
-    public List<LocalTask> getTasksFromList(String listId) {
-        return mModel.getTasksFromList(listId);
-    }
+
+    //-------------VIEW OPERATIONS------------------///
 
     public void showToast(String msg) {
         getView().showToast(msg);
     }
 
+    public void updateCurrentView() {
+        getView().updateCurrentView();
+    }
+    public void setUpViews() {
+        getView().setUpViews();
+    }
+    public void initRecyclerView(List<LocalTask> tasks) {
+        getView().initRecyclerView(tasks);
+    }
+    public void setToolbarTitle(String title) {
+        getView().setToolbarTitle(title);
+    }
+    public void dismissProgressDialog() {
+        getView().dismissProgressDialog();
+    }
+
+    public void showUndoSnackBar(String message, int position, LocalTask removedTask) {
+        getView().showUndoSnackBar(message, position, removedTask);
+    }
+    public void showProgress(boolean b) {
+        getView().showCircularProgress(b);
+    }
+    public void showProgressDialog() {
+        getView().showProgressDialog();
+    }
+    public void setNavDrawerMenu(List<String> listTitles) {
+        getView().setNavDrawerMenu(listTitles);
+    }
+    public void refresh(){
+        getView().refresh();
+    }
+
+    public void showSwipeRefreshProgress(boolean b){
+        getView().showSwipeRefreshProgress(b);
+    }
+
+
+
+
+    //-----------------DATABASE OPERATIONS------------///
+
+    public List<LocalTask> getTasksFromList(String listId) {
+        return mModel.getTasksFromList(listId);
+    }
 
     public void updateLists(List<TaskList> lists) {
         mModel.updateLists(lists);
@@ -58,14 +101,6 @@ public class TaskListPresenter {
     }
 
 
-    public void dismissProgressDialog() {
-        getView().dismissProgressDialog();
-    }
-
-    public void requestApiPermission(Exception mLastError) {
-        getView().requestAuthorization(mLastError);
-    }
-
     public List<String> getListsTitles() {
         return mModel.getListsTitles();
     }
@@ -74,44 +109,33 @@ public class TaskListPresenter {
         return mModel.getListsIds();
     }
 
-    public void setTaskListTitles(List<String> titles) {
-        getView().setListsTitles(titles);
-    }
-
-    public void setListsIds(List<String> listIds) {
-        getView().setListsIds(listIds);
+    public void setListsInfo(List<TaskList> lists){
+        Co.listIds.clear();
+        Co.listTitles.clear();
+        for (int i = 0; i < lists.size(); i++){
+            Co.listIds.add(lists.get(i).getId());
+            Co.listTitles.add(lists.get(i).getTitle());
+        }
     }
 
     public void saveStringSharedPreference(String currentListTitle, String title) {
         getView().saveStringShP(currentListTitle, title);
     }
 
-    public String getStringSharedPreference(String key) {
+    public String getStringShP(String key) {
         return getView().getStringShP(key);
     }
 
-    public boolean getBooleanSharedPreference(String key) {
+    public boolean getBooleanShP(String key) {
         return getView().getBooleanSharedPreference(key);
     }
 
-    public void setToolbarTitle(String title) {
-        getView().setToolbarTitle(title);
-    }
-
-    public void initRecyclerView(List<LocalTask> tasks) {
-        getView().initRecyclerView(tasks);
-    }
-
-    public void setUpViews() {
-        getView().setUpViews();
+    public void requestApiPermission(Exception mLastError) {
+        getView().requestAuthorization(mLastError);
     }
 
     public void  setUpData(){
         getView().setUpData();
-    }
-
-    public void updateCurrentView() {
-        getView().updateCurrentView();
     }
 
     public String getListTitleFromId(String listId) {
@@ -126,25 +150,15 @@ public class TaskListPresenter {
         }
     }
 
-    public void refresh(){
-        getView().refresh();
-    }
 
-    public void setNavDrawerMenu(List<String> listTitles) {
-        getView().setNavDrawerMenu(listTitles);
-    }
 
-    public void showProgressDialog() {
-        getView().showProgressDialog();
-    }
 
-    public void showProgress(boolean b) {
-        getView().showCircularProgress(b);
-    }
 
-    public void showUndoSnackBar(String message, int position, LocalTask removedTask) {
-        getView().showUndoSnackBar(message, position, removedTask);
-    }
+
+
+
+
+
 
     public void addTaskToLocalDataBase(Task task, String listId){
         mModel.addTaskToLocalDatabase(task,listId);
@@ -181,12 +195,9 @@ public class TaskListPresenter {
     }
 
     public void updateTaskStatus(String taskId, String listId, String newStatus) {
-        mModel.updateTask(taskId, listId, newStatus);
+        mModel.updateTaskStatus(taskId, listId, newStatus);
     }
 
-    public void showSwipeRefreshProgress(boolean b){
-        getView().showSwipeRefreshProgress(b);
-    }
 
     public boolean isDeviceOnline() {
         return getView().isDeviceOnline();
@@ -194,5 +205,14 @@ public class TaskListPresenter {
 
     public void navigateToEditTask(Intent i) {
         getView().navigateToEditTask(i);
+    }
+
+    public void refreshFirstTime() {
+        mModel.refreshFirstTime();
+
+    }
+
+    public void addTaskToApi(LocalTask task){
+        mModel.addTaskToApi(task);
     }
 }

@@ -26,9 +26,10 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
     private List<String> listIds = new ArrayList<>();
+    private List<String> listTitles = new ArrayList<>();
     private List<LocalTask> localTasks = new ArrayList<>();
     private List<TaskList> lists = new ArrayList<>();
-    private List<String> listTitles = new ArrayList<>();
+
 
     public FirstRefreshAsync(TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.mPresenter = presenter;
@@ -67,8 +68,6 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        mPresenter.setTaskListTitles(listTitles);
-        mPresenter.setListsIds(listIds);
         mPresenter.dismissProgressDialog();
         mPresenter.showProgress(false);
         mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE,lists.get(0).getTitle());
@@ -109,11 +108,8 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
         TaskLists result = mService.tasklists().list()
                 .execute();
                 lists = result.getItems();
-        for (int i = 0; i< lists.size(); i++){
-            listIds.add(lists.get(i).getId());
-            listTitles.add(lists.get(i).getTitle());
-        }
         if (!lists.isEmpty()) {
+            mPresenter.setListsInfo(lists);
             mPresenter.updateLists(lists);
         }
         List<Task> tasks;
@@ -121,7 +117,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
         for (int i = 0; i < (!lists.isEmpty() ? lists.size() : 0); i++){
             tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
             for (int j = 0; j < tasks.size(); j++){
-                LocalTask task = new LocalTask(tasks.get(j),listIds.get(i));
+                LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
                 localTasks.add(task);
             }
         }

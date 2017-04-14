@@ -3,10 +3,12 @@ package com.adrapps.mytasks.Models;
 import android.content.Context;
 
 import com.adrapps.mytasks.APICalls.AddTask;
+import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RemoveTask;
 import com.adrapps.mytasks.APICalls.UpdateStatus;
 import com.adrapps.mytasks.Databases.ListsDatabase;
 import com.adrapps.mytasks.Databases.TasksDataBase;
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -28,6 +30,8 @@ public class DataModel implements Contract.Model {
         tasksDb = new TasksDataBase(context);
         listsDb = new ListsDatabase(context);
     }
+
+    //-----------------DATABASE OPERATIONS-----------------//
 
     @Override
     public void updateLists(List<TaskList> lists) {
@@ -69,6 +73,10 @@ public class DataModel implements Contract.Model {
         return tasksDb.deleteTask(taskId);
     }
 
+
+
+
+    //------------------------API OPERATIONS----------------------///
     @Override
     public void deleteTaskFromApi(String taskId, String listId) {
         if (mPresenter.isDeviceOnline()) {
@@ -80,7 +88,7 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void updateTask(String taskId, String listId, String newStatus) {
+    public void updateTaskStatus(String taskId, String listId, String newStatus) {
         if (mPresenter.isDeviceOnline()) {
             tasksDb.updateTaskStatus(taskId,newStatus);
             GoogleAccountCredential credential = mPresenter.getCredential();
@@ -90,5 +98,27 @@ public class DataModel implements Contract.Model {
         else
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
 
+    }
+
+    @Override
+    public void refreshFirstTime() {
+        if (mPresenter.isDeviceOnline()) {
+            FirstRefreshAsync firstRefresh = new FirstRefreshAsync(mPresenter, mPresenter.getCredential());
+            firstRefresh.execute();
+        }
+        else {
+            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
+            mPresenter.showSwipeRefreshProgress(false);
+        }
+    }
+
+    @Override
+    public void addTaskToApi(LocalTask task) {
+        AddTask add = new AddTask(mPresenter,
+                mPresenter.getCredential(),mPresenter.getStringShP(Co.CURRENT_LIST_ID));
+        if (mPresenter.isDeviceOnline())
+            add.execute(task);
+        else
+            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
     }
 }
