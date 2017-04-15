@@ -88,6 +88,10 @@ public class TaskListPresenter {
 
     //-----------------DATABASE OPERATIONS------------///
 
+//    public List<LocalTask> getTasksFromList(String listId,String sort) {
+//        return mModel.getTasksFromList(listId, sort);
+//    }
+
     public List<LocalTask> getTasksFromList(String listId) {
         return mModel.getTasksFromList(listId);
     }

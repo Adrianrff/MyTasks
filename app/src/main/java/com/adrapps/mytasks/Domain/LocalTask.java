@@ -24,6 +24,9 @@ public class LocalTask {
     private String notes;
     private String status;
     private String taskList;
+
+
+    private int sortId;
     private int intId;
     private long updated,due,completed;
     private boolean deleted,hidden;
@@ -73,6 +76,23 @@ public class LocalTask {
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
     }
 
+//    public LocalTask(Task task, String listId, int position) {
+//        this.sortId = position;
+//        this.taskId = task.getId();
+//        this.title = task.getTitle();
+//        this.selfLink = task.getSelfLink();
+//        this.parent = task.getParent();
+//        this.position = task.getPosition();
+//        this.notes = task.getNotes();
+//        this.status = task.getStatus();
+//        this.taskList = listId;
+//        this.updated = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
+//        this.due = (task.getDue() == null) ? 0:task.getDue().getValue();
+//        this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
+//        this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
+//        this.hidden = (task.getHidden() == null) ? false:task.getHidden();
+//    }
+
     public LocalTask(String taskId, String title, String selfLink, String parent,
                      String position, String notes, String status,
                      long updated, long due, long completed, boolean deleted,
@@ -95,6 +115,9 @@ public class LocalTask {
 
     ///-------------------SETTERS ----------------------//
 
+    public void setSortId(int sortId) {
+        this.sortId = sortId;
+    }
 
     public void setTaskList(String taskList) {
         this.taskList = taskList;
@@ -156,6 +179,9 @@ public class LocalTask {
     ///-------------------GETTERS---------------------///
 
 
+    public int getSortId() {
+        return sortId;
+    }
     public String getTaskList() {
         return taskList;
     }

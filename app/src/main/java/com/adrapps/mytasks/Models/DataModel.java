@@ -21,6 +21,7 @@ import java.util.List;
 
 public class DataModel implements Contract.Model {
 
+
     private TaskListPresenter mPresenter;
     private TasksDataBase tasksDb;
     private ListsDatabase listsDb;

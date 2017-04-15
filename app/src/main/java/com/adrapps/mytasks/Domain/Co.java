@@ -32,11 +32,19 @@ public class Co {
     public static final int TASK_DATA_REQUEST_CODE = 99;
     public static final String DETAIL_TASK_ID = "task id" ;
     public static final String DETAIL_TASK_LIST_ID = "task list";
-
+    public static final String ORDER_POSITION_ASC = "Order by position asc";
+    public static final String ORDER_POSITION_DESC = "Order by position desc";
+    public static final String ORDER_DUE_DATE_ASC = "Order by due date asc";
+    public static final String ORDER_DUE_DATE_DESC = "Order by due date desc";
+    public static final String ORDER_UPDATED_ASC = "Order by updated asc";
+    public static final String ORDER_UPDATED_DESC = "Order by updated desc";
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
 
     public static Task task;
+    public static final int SNACKBAR_DURATION = 6000;
+    public static String ORDER_TYPE = "order type";
+
 
     public static void setListIds(List<String> listIds) {
         Co.listIds = listIds;

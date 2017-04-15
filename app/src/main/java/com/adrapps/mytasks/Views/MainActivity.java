@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void showUndoSnackBar(String message, final int position, final LocalTask task) {
 
-        Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Co.SNACKBAR_DURATION);
         snackbar.setAction(R.string.undo, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -529,17 +529,6 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-                Calendar ca = Calendar.getInstance();
-                ca.setTimeInMillis(1492218257000L);
-                String s;
-                SimpleDateFormat sdfCA= new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.getDefault());
-                if (DateUtils.isToday(ca.getTimeInMillis())){
-                    s = " today";
-                } else {
-                    s = " not today";
-                }
-                showToast(sdfCA.format(ca.getTimeInMillis()) + s);
-
 //                Intent i = new Intent(this, SignInActivity.class);
 //                startActivity(i);
                 break;

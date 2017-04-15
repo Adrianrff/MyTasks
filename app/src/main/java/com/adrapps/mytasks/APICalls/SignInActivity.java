@@ -292,6 +292,7 @@ public class SignInActivity extends Activity
             editor.putBoolean(Co.IS_FIRST_TIME, false);
             editor.putString(Co.CURRENT_LIST_TITLE, defaultListInfo.get(1));
             editor.putString(Co.CURRENT_LIST_ID, defaultListInfo.get(0));
+//            editor.putString(Co.ORDER_TYPE, Co.ORDER_DUE_DATE_DESC);
             editor.apply();
             goToTaskListActivity();
         }
