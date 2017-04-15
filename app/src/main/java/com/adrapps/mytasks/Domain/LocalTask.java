@@ -15,7 +15,6 @@ import java.util.TimeZone;
 
 public class LocalTask {
 
-
     private String taskId;
     private String title;
     private String selfLink;
@@ -26,6 +25,7 @@ public class LocalTask {
     private String taskList;
     private int sortId;
     private int intId;
+    private long reminder;
     private long updated,due,completed;
     private boolean deleted,hidden;
 
@@ -43,20 +43,11 @@ public class LocalTask {
         this.notes = notes;
     }
 
-    public static Task localTaskToApiTask (LocalTask lTask){
-        int offSet = TimeZone.getDefault().getRawOffset();
-        Task task = new Task();
-        task.setTitle(lTask.title);
-        if (lTask.getNotes() != null) {
-            task.setNotes(lTask.getNotes());
-        }
-        if (lTask.getDue() != 0) {
-            Log.d("due","not zero");
-            task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
-        }
-        Log.d("due",String.valueOf(lTask.getDue()));
-
-        return task;
+    public LocalTask (String taskTitle, long dueDate, String notes, long reminder){
+        title = taskTitle;
+        this.due = dueDate;
+        this.notes = notes;
+        this.reminder = reminder;
     }
 
     public LocalTask(Task task, String listId) {
@@ -96,7 +87,26 @@ public class LocalTask {
     }
 
 
+    public static Task localTaskToApiTask (LocalTask lTask){
+        int offSet = TimeZone.getDefault().getRawOffset();
+        Task task = new Task();
+        task.setTitle(lTask.title);
+        if (lTask.getNotes() != null) {
+            task.setNotes(lTask.getNotes());
+        }
+        if (lTask.getDue() != 0) {
+            Log.d("due","not zero");
+            task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
+        }
+        Log.d("due",String.valueOf(lTask.getDue()));
+
+        return task;
+    }
     ///-------------------SETTERS ----------------------//
+
+    public void setReminder(long reminder) {
+        this.reminder = reminder;
+    }
 
     public void setSortId(int sortId) {
         this.sortId = sortId;
@@ -165,6 +175,11 @@ public class LocalTask {
     public int getSortId() {
         return sortId;
     }
+
+    public long getReminder() {
+        return reminder;
+    }
+
     public String getTaskList() {
         return taskList;
     }

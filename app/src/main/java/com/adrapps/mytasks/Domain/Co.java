@@ -20,7 +20,7 @@ public class Co {
     public static final String IS_FIRST_INIT = "first init";
     public static final String CURRENT_LIST_TITLE = "current list title";
     public static final String FIRST_REFRESH = "first refresh";
-    public static final String DETAIL_TASK_TITLE = "task name";
+    public static final String TASK_TITLE = "task name";
     public static final String DETAIL_TASK_NOTE = "task note";
     public static final String DETAIL_TASK_DUE = "task due date";
     public static final String NO_VALUE = "no value";
@@ -28,7 +28,7 @@ public class Co {
     public static final String TASK_NEEDS_ACTION = "needsAction";
     public static final String TASK_EDITED_TITLE = "task edited title";
     public static final String TASK_EDITED_NOTE = "task edited note";
-    public static final String TASK_EDITED_DUE = "task edited due date";
+    public static final String TASK_DUE = "task edited due date";
     public static final int TASK_DATA_REQUEST_CODE = 99;
     public static final String DETAIL_TASK_ID = "task id" ;
     public static final String DETAIL_TASK_LIST_ID = "task list";

@@ -1,7 +1,11 @@
 package com.adrapps.mytasks.Views;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,7 +34,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -54,6 +57,7 @@ import android.widget.Toast;
 
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
+import com.adrapps.mytasks.AlarmReciever;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Helpers.DateHelper;
@@ -65,12 +69,9 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -427,6 +428,34 @@ public class MainActivity extends AppCompatActivity
                                     return;
                                 }
 //                                Log.d("dueDate", String.valueOf(selectedDateInMills));
+                                if (notifSpinner.getVisibility() == View.VISIBLE && selectedDateInMills != 0){
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTimeInMillis(selectedDateInMills);
+                                    switch(notifSpinner.getSelectedItemPosition()){
+                                        case 0:
+                                            calendar.set(Calendar.HOUR_OF_DAY,9);
+                                            calendar.set(Calendar.MINUTE,0);
+                                            break;
+                                        case 1:
+                                            calendar.set(Calendar.HOUR_OF_DAY,14);
+                                            calendar.set(Calendar.MINUTE,0);
+                                            break;
+                                        case 2:
+                                            calendar.set(Calendar.HOUR_OF_DAY,18);
+                                            calendar.set(Calendar.MINUTE,0);
+                                            break;
+                                     }
+
+                                    Intent intent = new Intent(MainActivity.this, AlarmReciever.class);
+                                    intent.putExtra(Co.TASK_TITLE, newTaskTitle.getText().toString());
+                                    intent.putExtra(Co.TASK_DUE, dateTextView.getText().toString());
+                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 1253, intent,
+                                            PendingIntent.FLAG_UPDATE_CURRENT);
+                                    AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+//                                    SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+//                                    showToast(sdfCA.format(calendar.getTime()));
+                                }
                                 LocalTask task = new LocalTask(newTaskTitle.getText().toString(), selectedDateInMills);
                                 mPresenter.addTaskToApi(task);
                                 newTaskDialog.dismiss();
@@ -443,7 +472,6 @@ public class MainActivity extends AppCompatActivity
                 datePicker.show();
                 break;
             case R.id.notificationSwitch:
-
         }
     }
 
@@ -581,7 +609,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == Co.TASK_DATA_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 LocalTask task = new LocalTask(resultIntent.getStringExtra(Co.TASK_EDITED_TITLE),
-                        resultIntent.getLongExtra(Co.TASK_EDITED_DUE, 0),
+                        resultIntent.getLongExtra(Co.TASK_DUE, 0),
                         resultIntent.getStringExtra(Co.TASK_EDITED_NOTE));
                 task.setTaskId(resultIntent.getStringExtra(Co.DETAIL_TASK_ID));
                 mPresenter.editTask(task);

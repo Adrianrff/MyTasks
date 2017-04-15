@@ -42,6 +42,9 @@
     <string name="tomorrow">Mañana</string>
     <string name="overdue_append"> (vencida)</string>
     <string name="task_updated">Tarea actualizada</string>
+    <string name="task_reminder_notification_title">Recordatorio de tarea</string>
+    <string name="uncompleted_task_text">Tienes una tarea pendiente programada para el</string>
+    <string name="touch_for_details">Toca para ver los detalles</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>

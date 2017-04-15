@@ -16,15 +16,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.R;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 public class TaskDetailActivity extends AppCompatActivity
         implements View.OnClickListener, DatePickerDialog.OnDateSetListener{
@@ -60,20 +57,20 @@ public class TaskDetailActivity extends AppCompatActivity
                     spinner.setVisibility(View.GONE);
             }
         });
-        if (getIntent().hasExtra(Co.DETAIL_TASK_TITLE)){
-            taskTitle.setText(getIntent().getStringExtra(Co.DETAIL_TASK_TITLE));
+        if (getIntent().hasExtra(Co.TASK_TITLE)){
+            taskTitle.setText(getIntent().getStringExtra(Co.TASK_TITLE));
             taskNotes.setText(getIntent().getStringExtra(Co.DETAIL_TASK_NOTE));
             taskDue.setText(getIntent().getStringExtra(Co.DETAIL_TASK_DUE));
             taskId = getIntent().getStringExtra(Co.DETAIL_TASK_ID);
             listId = getIntent().getStringExtra(Co.DETAIL_TASK_LIST_ID);
         }
         taskDue.setOnClickListener(this);
-
-        SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-        Toast.makeText(this,"Updated: "  +
-                sdfCA.format(getIntent().getLongExtra("updated", 0)) + "\n" +
-                "Completed: " + sdfCA.format(getIntent().getLongExtra("completed", 0)) + "\n" +
-                "Due: " +     sdfCA.format(getIntent().getLongExtra("due", 0)),Toast.LENGTH_LONG).show();
+//
+//        SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+//        Toast.makeText(this,"Updated: "  +
+//                sdfCA.format(getIntent().getLongExtra("updated", 0)) + "\n" +
+//                "Completed: " + sdfCA.format(getIntent().getLongExtra("completed", 0)) + "\n" +
+//                "Due: " +     sdfCA.format(getIntent().getLongExtra("due", 0)),Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -94,7 +91,7 @@ public class TaskDetailActivity extends AppCompatActivity
                 Intent i = new Intent();
                 i.putExtra(Co.TASK_EDITED_TITLE, taskTitle.getText().toString());
                 i.putExtra(Co.TASK_EDITED_NOTE, taskNotes.getText().toString());
-                i.putExtra(Co.TASK_EDITED_DUE, selectedDateInMills);
+                i.putExtra(Co.TASK_DUE, selectedDateInMills);
                 i.putExtra(Co.DETAIL_TASK_ID, taskId);
                 setResult(Activity.RESULT_OK,i);
                 finish();

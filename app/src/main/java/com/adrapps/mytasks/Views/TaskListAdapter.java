@@ -194,7 +194,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         public void onClick(View v) {
             LocalTask cTask = tasks.get(getAdapterPosition());
             Intent i = new Intent(context, TaskDetailActivity.class);
-            i.putExtra(Co.DETAIL_TASK_TITLE, cTask.getTitle());
+            i.putExtra(Co.TASK_TITLE, cTask.getTitle());
             if (cTask.getDue() != 0) {
                 i.putExtra(Co.DETAIL_TASK_DUE,
                         DateHelper.timeInMillsToString(cTask.getDue()));
@@ -203,9 +203,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             }
             i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes());
             i.putExtra(Co.DETAIL_TASK_ID, cTask.getTaskId());
-            i.putExtra("updated", cTask.getUpdated());
-            i.putExtra("completed", cTask.getCompleted());
-            i.putExtra("due", cTask.getDue());
+//            i.putExtra("updated", cTask.getUpdated());
+//            i.putExtra("completed", cTask.getCompleted());
+//            i.putExtra("due", cTask.getDue());
             mPresenter.navigateToEditTask(i);
         }
 
