@@ -146,19 +146,18 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
     public long addTaskToLocalDatabase(Task task, String listId){
         SQLiteDatabase db = this.getWritableDatabase();
-        int offSet = TimeZone.getDefault().getRawOffset();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID,task.getId());
         cv.put(COL_LIST,listId);
         cv.put(COL_TITLE,task.getTitle());
-        cv.put(COL_UPDATED,task.getUpdated() == null ? 0 : task.getUpdated().getValue() + offSet);
+        cv.put(COL_UPDATED,task.getUpdated() == null ? 0 : task.getUpdated().getValue());
         cv.put(COL_SELFLINK,task.getSelfLink());
         cv.put(COL_PARENT,task.getParent());
         cv.put(COL_POSITION,task.getPosition());
         cv.put(COL_NOTES,task.getNotes());
         cv.put(COL_STATUS,task.getStatus());
-        cv.put(COL_DUE,task.getDue() == null ? 0 : task.getDue().getValue() + offSet);
-        cv.put(COL_COMPLETED,task.getCompleted() == null ? 0 : task.getCompleted().getValue() + offSet);
+        cv.put(COL_DUE,task.getDue() == null ? 0 : task.getDue().getValue());
+        cv.put(COL_COMPLETED,task.getCompleted() == null ? 0 : task.getCompleted().getValue());
         cv.put(COL_DELETED,task.getDeleted() == null ? 0 : task.getDeleted() ? 1 : 0);
         cv.put(COL_HIDDEN,task.getHidden() == null ? 0 : task.getHidden() ? 1 : 0);
         long insertedRow = db.insert(TABLE_NAME,null,cv);
@@ -168,20 +167,19 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
     public void addTasksInBatchesFromList(List<Task> tasks, String listId){
         SQLiteDatabase db = this.getWritableDatabase();
-        int offSet = TimeZone.getDefault().getRawOffset();
         ContentValues cv = new ContentValues();
         for (int i = 0; i < tasks.size(); i++){
             cv.put(COL_ID,tasks.get(i).getId());
             cv.put(COL_LIST,listId);
             cv.put(COL_TITLE,tasks.get(i).getTitle());
-            cv.put(COL_UPDATED,tasks.get(i).getUpdated().getValue() + offSet);
+            cv.put(COL_UPDATED,tasks.get(i).getUpdated().getValue());
             cv.put(COL_SELFLINK,tasks.get(i).getSelfLink());
             cv.put(COL_PARENT,tasks.get(i).getParent());
             cv.put(COL_POSITION,tasks.get(i).getPosition());
             cv.put(COL_NOTES,tasks.get(i).getNotes());
             cv.put(COL_STATUS,tasks.get(i).getStatus());
-            cv.put(COL_DUE,(tasks.get(i).getDue() == null) ? 0:tasks.get(i).getDue().getValue() + offSet);
-            cv.put(COL_COMPLETED,(tasks.get(i).getCompleted() == null) ? 0 : tasks.get(i).getCompleted().getValue() + offSet);
+            cv.put(COL_DUE,(tasks.get(i).getDue() == null) ? 0:tasks.get(i).getDue().getValue());
+            cv.put(COL_COMPLETED,(tasks.get(i).getCompleted() == null) ? 0 : tasks.get(i).getCompleted().getValue());
             cv.put(COL_DELETED,(tasks.get(i).getDeleted() == null) ? 1:0);
             cv.put(COL_HIDDEN,(tasks.get(i).getHidden() == null) ? 1:0);
             db.insert(TABLE_NAME,null,cv);

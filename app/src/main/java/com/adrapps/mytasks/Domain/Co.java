@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.Domain;
 
 import com.google.api.services.tasks.TasksScopes;
+import com.google.api.services.tasks.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,8 @@ public class Co {
 
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
+
+    public static Task task;
 
     public static void setListIds(List<String> listIds) {
         Co.listIds = listIds;

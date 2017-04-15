@@ -284,14 +284,14 @@ public class SignInActivity extends Activity
         }
 
         @Override
-        protected void onPostExecute(List<String> strings) {
+        protected void onPostExecute(List<String> defaultListInfo) {
             mProgress.dismiss();
             SharedPreferences prefs =
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(Co.IS_FIRST_TIME, false);
-            editor.putString(Co.CURRENT_LIST_TITLE, strings.get(0));
-            editor.putString(Co.CURRENT_LIST_ID, strings.get(0));
+            editor.putString(Co.CURRENT_LIST_TITLE, defaultListInfo.get(1));
+            editor.putString(Co.CURRENT_LIST_ID, defaultListInfo.get(0));
             editor.apply();
             goToTaskListActivity();
         }
@@ -311,7 +311,7 @@ public class SignInActivity extends Activity
                     mLastError.printStackTrace();
                 }
             } else {
-                Toast.makeText(context, "Request cancelled", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.request_canceled, Toast.LENGTH_LONG).show();
             }
         }
 

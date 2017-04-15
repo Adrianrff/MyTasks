@@ -31,6 +31,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -66,12 +67,17 @@ import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -359,9 +365,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-
-//        mPresenter.onClick(v.getId());
-
         switch (v.getId()) {
 
             case R.id.fab:
@@ -442,7 +445,7 @@ public class MainActivity extends AppCompatActivity
                 Calendar c = Calendar.getInstance();
                 DatePickerDialog datePicker = new DatePickerDialog(this, this,
                         c.get(Calendar.YEAR),
-                        c.get(Calendar.MONTH) + 1,
+                        c.get(Calendar.MONTH),
                         c.get(Calendar.DAY_OF_MONTH));
                 datePicker.show();
                 break;
@@ -500,12 +503,9 @@ public class MainActivity extends AppCompatActivity
             item.setChecked(true);
             List<LocalTask> tasks = mPresenter.getTasksFromList(Co.listIds.get(item.getItemId()));
             if (tasks == null || tasks.isEmpty()){
-                Log.d("TasksEmpty","empty");
                 recyclerView.setVisibility(View.GONE);
                 emptyDataLayout.setVisibility(View.VISIBLE);
             } else {
-
-                Log.d("TasksEmpty","not empty");
                 recyclerView.setVisibility(View.VISIBLE);
                 emptyDataLayout.setVisibility(View.GONE);
             }
@@ -529,8 +529,19 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-                Intent i = new Intent(this, SignInActivity.class);
-                startActivity(i);
+                Calendar ca = Calendar.getInstance();
+                ca.setTimeInMillis(1492218257000L);
+                String s;
+                SimpleDateFormat sdfCA= new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.getDefault());
+                if (DateUtils.isToday(ca.getTimeInMillis())){
+                    s = " today";
+                } else {
+                    s = " not today";
+                }
+                showToast(sdfCA.format(ca.getTimeInMillis()) + s);
+
+//                Intent i = new Intent(this, SignInActivity.class);
+//                startActivity(i);
                 break;
 
             case R.id.refresh:

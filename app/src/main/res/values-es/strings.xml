@@ -34,9 +34,13 @@
     <string name="task_edit_title">Editar tarea</string>
     <string name="no_task_name"><![CDATA[<Sin título>]]></string>
     <string name="no_tasks_in_list">No hay tareas en esta lista</string>
-    <string name="nothing_to_show">Nada qué mostrar</string>
-    <string name="crash_toast_text">The app has closed.</string>
-    <string name="bug_report_notification_title">Bug report captured, send to developer</string>
+    <string name="nothing_to_show">Nada que mostrar</string>
+    <string name="crash_toast_text">La aplicación se ha cerrado</string>
+    <string name="bug_report_notification_title">Se ha capturado un reporte de errores.
+        Toca para enviar al desarrollador</string>
+    <string name="today">Hoy</string>
+    <string name="tomorrow">Mañana</string>
+    <string name="overdue_append"> (vencida)</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>

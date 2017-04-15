@@ -27,7 +27,6 @@ public class LocalTask {
     private int intId;
     private long updated,due,completed;
     private boolean deleted,hidden;
-    private int offset = TimeZone.getDefault().getRawOffset();
 
     public LocalTask() {
     }
@@ -67,9 +66,9 @@ public class LocalTask {
         this.notes = task.getNotes();
         this.status = task.getStatus();
         this.taskList = listId;
-        this.updated = (task.getUpdated() == null) ? 0:task.getUpdated().getValue() + offset;
-        this.due = (task.getDue() == null) ? 0:task.getDue().getValue() + offset;
-        this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue() + offset;
+        this.updated = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
+        this.due = (task.getDue() == null) ? 0:task.getDue().getValue();
+        this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
         this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
     }

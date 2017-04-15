@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,7 +64,24 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         if (cTask.getDue() == 0) {
             holder.dueDate.setText(R.string.no_due_date);
         } else {
-            holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue()));
+            if (DateUtils.isToday(cTask.getDue())) {
+                holder.dueDate.setTextColor(holder.oldDueColors);
+                holder.dueDate.setTypeface(null, Typeface.BOLD);
+                holder.dueDate.setText(R.string.today);
+            } else if (DateHelper.isTomorrow(cTask.getDue())) {
+                holder.dueDate.setTextColor(holder.oldDueColors);
+                holder.dueDate.setTypeface(null, Typeface.NORMAL);
+                holder.dueDate.setText(R.string.tomorrow);
+            } else if (DateHelper.isInInThePast(cTask.getDue())){
+                holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
+                        + " " + context.getString(R.string.overdue_append));
+                holder.dueDate.setTypeface(null, Typeface.NORMAL);
+                holder.dueDate.setTextColor(Color.RED);
+            } else {
+                holder.dueDate.setTextColor(holder.oldDueColors);
+                holder.dueDate.setTypeface(null, Typeface.NORMAL);
+                holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue()));
+            }
         }
         holder.taskCheckbox.setOnCheckedChangeListener(null);
         if (cTask.getStatus() == null) {
@@ -71,10 +90,13 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         if (cTask.getStatus().equals(Co.TASK_COMPLETED)) {
             holder.taskCheckbox.setChecked(true);
             holder.taskName.setPaintFlags(holder.taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.dueDate.setPaintFlags(holder.dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.dueDate.setTextColor(Color.GRAY);
             holder.taskName.setTextColor(Color.GRAY);
         } else {
-            holder.taskName.setTextColor(holder.oldColors);
+            holder.taskName.setTextColor(holder.oldTaskColors);
             holder.taskName.setPaintFlags(0);
+            holder.dueDate.setPaintFlags(0);
             holder.taskCheckbox.setChecked(false);
         }
         holder.taskCheckbox.setOnCheckedChangeListener(holder);
@@ -122,7 +144,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         removedTask = tasks.remove(position);
         notifyItemRemoved(position);
         mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
-        if (tasks.isEmpty()){
+        if (tasks.isEmpty()) {
             mPresenter.showEmptyRecyclerView(true);
         }
     }
@@ -148,7 +170,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         CheckBox taskCheckbox;
         Context context;
         TaskListPresenter mPresenter;
-        ColorStateList oldColors;
+        ColorStateList oldTaskColors;
+        ColorStateList oldDueColors;
 
         TaskListViewHolder(View v, Context context, TaskListPresenter presenter) {
             super(v);
@@ -160,7 +183,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
             taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
             taskCheckbox.setOnCheckedChangeListener(this);
-            oldColors = taskName.getTextColors();
+            oldTaskColors = taskName.getTextColors();
+            oldDueColors = dueDate.getTextColors();
         }
 
         @Override
@@ -183,10 +207,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
             LocalTask cTask = tasks.get(getAdapterPosition());
-            Log.d("Task", cTask.getStatus());
             if (isChecked) {
                 if (mPresenter.isDeviceOnline()) {
                     taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    dueDate.setPaintFlags(dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    dueDate.setTextColor(Color.GRAY);
                     taskName.setTextColor(Color.GRAY);
                     mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(), Co.TASK_COMPLETED);
                 } else {
@@ -196,8 +221,25 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
             } else {
                 if (mPresenter.isDeviceOnline()) {
-                    taskName.setTextColor(oldColors);
+                    dueDate.setTextColor(oldDueColors);
+                    dueDate.setPaintFlags(0);
+                    taskName.setTextColor(oldTaskColors);
                     taskName.setPaintFlags(0);
+                    if (DateUtils.isToday(cTask.getDue())) {
+                        dueDate.setTextColor(oldDueColors);
+                        dueDate.setTypeface(null, Typeface.BOLD);
+                    } else if (DateHelper.isTomorrow(cTask.getDue())) {
+                        dueDate.setTextColor(oldDueColors);
+                        dueDate.setTypeface(null, Typeface.NORMAL);
+                    } else if (DateHelper.isInInThePast(cTask.getDue())){
+                        dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
+                                + " " + context.getString(R.string.overdue_append));
+                        dueDate.setTypeface(null, Typeface.NORMAL);
+                        dueDate.setTextColor(Color.RED);
+                    } else {
+                        dueDate.setTextColor(oldDueColors);
+                        dueDate.setTypeface(null, Typeface.NORMAL);
+                    }
                     mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
                 } else {
                     buttonView.setChecked(true);

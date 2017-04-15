@@ -3,6 +3,7 @@ package com.adrapps.mytasks.APICalls;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
@@ -94,8 +95,8 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
     private void addTask(LocalTask lTask) throws IOException {
         Task task = LocalTask.localTaskToApiTask(lTask);
-        mService.tasks().insert(listId,task).execute();
-        Log.d("due", String.valueOf(lTask.getDue()));
+        Task atask = mService.tasks().insert(listId,task).execute();
+        Log.d("due", String.valueOf(atask.getUpdated().getValue()));
 //        mPresenter.addTaskToLocalDataBase(task,listId);
 
     }

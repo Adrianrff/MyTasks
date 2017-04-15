@@ -64,7 +64,6 @@ public class TaskDetailActivity extends AppCompatActivity
             taskDue.setText(getIntent().getStringExtra(Co.DETAIL_TASK_DUE));
             taskId = getIntent().getStringExtra(Co.DETAIL_TASK_ID);
             listId = getIntent().getStringExtra(Co.DETAIL_TASK_LIST_ID);
-            Toast.makeText(this,getIntent().getStringExtra(Co.DETAIL_TASK_ID),Toast.LENGTH_LONG).show();
         }
         taskDue.setOnClickListener(this);
     }
@@ -104,12 +103,11 @@ public class TaskDetailActivity extends AppCompatActivity
                 Calendar c = Calendar.getInstance();
                 DatePickerDialog datePicker = new DatePickerDialog(this, this,
                         c.get(Calendar.YEAR),
-                        c.get(Calendar.MONTH) + 1,
+                        c.get(Calendar.MONTH),
                         c.get(Calendar.DAY_OF_MONTH));
                 datePicker.show();
                 break;
         }
-
     }
 
     @Override

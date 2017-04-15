@@ -14,6 +14,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
     private TaskListPresenter mPresenter;
     private List<String> listIds = new ArrayList<>();
     private List<LocalTask> localTasks = new ArrayList<>();
+    private Task task;
 
     public RefreshAllAsync(TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.mPresenter = presenter;
@@ -47,6 +49,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
         }
         return null;
     }
+
     @Override
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
@@ -94,19 +97,19 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
         List<TaskList> lists;
         TaskLists result = mService.tasklists().list()
                 .execute();
-                lists = result.getItems();
-        for (int i = 0; i< lists.size(); i++){
+        lists = result.getItems();
+        for (int i = 0; i < lists.size(); i++) {
             listIds.add(lists.get(i).getId());
         }
         if (!lists.isEmpty()) {
             mPresenter.updateLists(lists);
         }
         List<Task> tasks;
-        for (int i = 0; i < (!lists.isEmpty() ? lists.size() : 0); i++){
+        for (int i = 0; i < (!lists.isEmpty() ? lists.size() : 0); i++) {
             tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
             if (tasks != null && !tasks.isEmpty()) {
-                for (int j = 0; j < tasks.size(); j++){
-                    LocalTask task = new LocalTask(tasks.get(j),listIds.get(i));
+                for (int j = 0; j < tasks.size(); j++) {
+                    LocalTask task = new LocalTask(tasks.get(j), listIds.get(i));
                     localTasks.add(task);
                 }
             }

@@ -45,6 +45,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
             firstRefresh();
         } catch (Exception e) {
             mLastError = e;
+            e.printStackTrace();
             cancel(true);
             return null;
         }

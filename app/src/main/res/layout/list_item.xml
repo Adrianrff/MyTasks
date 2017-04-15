@@ -28,8 +28,9 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="Tarea 1"
-        android:textColor="@color/colorPrimaryDark"
-        android:textStyle="bold"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textViewDate"
@@ -42,7 +43,7 @@
         android:layout_marginRight="40dp"
         android:ellipsize="end"
         android:text="24/01/2017"
-        android:textSize="12sp" />
+        android:textSize="14sp" />
 
     <ImageView
         android:id="@+id/notificationImage"
