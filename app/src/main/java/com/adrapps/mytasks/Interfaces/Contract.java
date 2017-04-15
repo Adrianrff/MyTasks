@@ -60,6 +60,8 @@ public class Contract {
 
         void setCredentials();
 
+        void saveBooleanShP(String key, boolean value);
+
         void saveStringShP(String key, String value);
 
         void initRecyclerView(List<LocalTask> tasks);
@@ -109,6 +111,10 @@ public class Contract {
         void refreshFirstTime();
 
         void addTaskToApi(LocalTask task);
+
+        void moveTask(String[] params);
+
+        void editTask(LocalTask task);
     }
 
     //------------------FRAGMENT OPS---------------------//

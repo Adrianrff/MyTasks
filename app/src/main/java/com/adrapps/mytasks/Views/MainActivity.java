@@ -18,7 +18,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -31,7 +30,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -53,9 +51,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.APICalls.AddTask;
-import com.adrapps.mytasks.APICalls.EditTask;
-import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.RefreshAllAsync;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.Domain.Co;
@@ -67,17 +62,11 @@ import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -111,7 +100,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getBooleanSharedPreference(Co.IS_FIRST_TIME)) {
+        if (getBooleanSharedPreference(Co.IS_FIRST_LAUNCH)) {
             Intent i = new Intent(this, SignInActivity.class);
             startActivity(i);
             finish();
@@ -122,7 +111,8 @@ public class MainActivity extends AppCompatActivity
         findViews();
         setUpViews();
         setCredentials();
-        if (getIntent().hasExtra(Co.IS_FIRST_INIT)) {
+        if (getBooleanSharedPreference(Co.IS_FIRST_INIT)) {
+            Log.d("firstIt", "ran");
             refreshFirstTime();
             return;
         }
@@ -197,8 +187,7 @@ public class MainActivity extends AppCompatActivity
         if (isDeviceOnline()) {
             RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
             refresh.execute();
-        }
-        else{
+        } else {
             showToast(getString(R.string.no_internet_toast));
             showSwipeRefreshProgress(false);
         }
@@ -224,7 +213,7 @@ public class MainActivity extends AppCompatActivity
         }
         setNavDrawerMenu(Co.listTitles);
         List<LocalTask> tasks = mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID));
-        if (tasks == null || tasks.isEmpty()){
+        if (tasks == null || tasks.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyDataLayout.setVisibility(View.VISIBLE);
         } else {
@@ -248,7 +237,7 @@ public class MainActivity extends AppCompatActivity
                 new SimpleItemTouchHelperCallback(adapter, this);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
-        if (tasks == null || tasks.isEmpty()){
+        if (tasks == null || tasks.isEmpty()) {
             showEmptyRecyclerView(true);
         } else {
             showEmptyRecyclerView(false);
@@ -256,8 +245,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showEmptyRecyclerView(boolean b){
-        if (b){
+    public void showEmptyRecyclerView(boolean b) {
+        if (b) {
             recyclerView.setVisibility(View.GONE);
             emptyDataLayout.setVisibility(View.VISIBLE);
         } else {
@@ -419,27 +408,27 @@ public class MainActivity extends AppCompatActivity
                 newTaskDialog.setButton(AlertDialog.BUTTON_POSITIVE,
                         getString(R.string.label_add_button),
                         new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                    }
-                });
+                            }
+                        });
                 newTaskDialog.show();
                 newTaskDialog.getButton(AlertDialog.BUTTON_POSITIVE).
                         setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (newTaskTitle.getText().toString().matches("")) {
-                            showToast(getString(R.string.empty_title_error));
-                            return;
-                        }
-                        Log.d("dueDate",String.valueOf(selectedDateInMills));
-                        LocalTask task = new LocalTask(newTaskTitle.getText().toString(),selectedDateInMills);
-                        mPresenter.addTaskToApi(task);
-                        newTaskDialog.dismiss();
+                            @Override
+                            public void onClick(View v) {
+                                if (newTaskTitle.getText().toString().matches("")) {
+                                    showToast(getString(R.string.empty_title_error));
+                                    return;
+                                }
+                                Log.d("dueDate", String.valueOf(selectedDateInMills));
+                                LocalTask task = new LocalTask(newTaskTitle.getText().toString(), selectedDateInMills);
+                                mPresenter.addTaskToApi(task);
+                                newTaskDialog.dismiss();
 
-                    }
-                });
+                            }
+                        });
                 break;
             case R.id.datePickerTextView:
                 Calendar c = Calendar.getInstance();
@@ -502,7 +491,7 @@ public class MainActivity extends AppCompatActivity
             }
             item.setChecked(true);
             List<LocalTask> tasks = mPresenter.getTasksFromList(Co.listIds.get(item.getItemId()));
-            if (tasks == null || tasks.isEmpty()){
+            if (tasks == null || tasks.isEmpty()) {
                 recyclerView.setVisibility(View.GONE);
                 emptyDataLayout.setVisibility(View.VISIBLE);
             } else {
@@ -562,22 +551,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void navigateToEditTask(Intent intent){
-       startActivityForResult(intent,Co.TASK_DATA_REQUEST_CODE);
+    public void navigateToEditTask(Intent intent) {
+        startActivityForResult(intent, Co.TASK_DATA_REQUEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         super.onActivityResult(requestCode, resultCode, resultIntent);
-        if (requestCode == Co.TASK_DATA_REQUEST_CODE){
-            if (resultCode == Activity.RESULT_OK){
+        if (requestCode == Co.TASK_DATA_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
                 LocalTask task = new LocalTask(resultIntent.getStringExtra(Co.TASK_EDITED_TITLE),
                         resultIntent.getLongExtra(Co.TASK_EDITED_DUE, 0),
                         resultIntent.getStringExtra(Co.TASK_EDITED_NOTE));
                 task.setTaskId(resultIntent.getStringExtra(Co.DETAIL_TASK_ID));
-                EditTask edit = new EditTask(mPresenter, getCredential(), getStringShP(Co.CURRENT_LIST_ID));
-                edit.execute(task);
-                refresh();
+                mPresenter.editTask(task);
             }
 
             if (resultCode == Activity.RESULT_CANCELED) {
@@ -587,7 +574,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showNewTaskDialog(){
+    public void showNewTaskDialog() {
 
     }
 
@@ -632,6 +619,14 @@ public class MainActivity extends AppCompatActivity
         return prefs.getBoolean(key, true);
     }
 
+    @Override
+    public void saveBooleanShP (String key, boolean value){
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
     @Override
     public void saveStringShP(String key, String value) {
         SharedPreferences prefs = PreferenceManager

@@ -3,8 +3,10 @@ package com.adrapps.mytasks.Models;
 import android.content.Context;
 
 import com.adrapps.mytasks.APICalls.AddTask;
+import com.adrapps.mytasks.APICalls.EditTask;
 import com.adrapps.mytasks.APICalls.FirstRefreshAsync;
 import com.adrapps.mytasks.APICalls.DeleteTask;
+import com.adrapps.mytasks.APICalls.MoveTask;
 import com.adrapps.mytasks.APICalls.UpdateStatus;
 import com.adrapps.mytasks.Databases.ListsDatabase;
 import com.adrapps.mytasks.Databases.TasksDataBase;
@@ -121,5 +123,18 @@ public class DataModel implements Contract.Model {
             add.execute(task);
         else
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
+    }
+
+    @Override
+    public void moveTask(String[] params) {
+        MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
+        move.execute(params);
+        System.out.println();
+    }
+
+    @Override
+    public void editTask(LocalTask task) {
+        EditTask edit = new EditTask(mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
+        edit.execute(task);
     }
 }

@@ -32,8 +32,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
     private static final String COL_COMPLETED = "Completed";
     private static final String COL_DELETED = "Deleted";
     private static final String COL_HIDDEN = "Hidden";
-
-    private static final String ORDER_BY_STATEMENT = "ORDER BY ";
     private static final String ORDER_ASC = " ASC";
     private static final String ORDER_DESC = " DESC";
 
@@ -102,7 +100,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String selection = COL_LIST + " = ? ";
         String[] selectionArgs = {listId};
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,null,null,null);
+        Cursor cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,null,null,COL_POSITION + ORDER_ASC);
         if (cursor.getCount() != 0 && cursor.moveToFirst()){
             do{
                 LocalTask task = new LocalTask();

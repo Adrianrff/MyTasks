@@ -161,7 +161,7 @@ public class SignInActivity extends Activity
                     SharedPreferences prefs =
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean(Co.IS_FIRST_TIME, false);
+                    editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
                     editor.apply();
                     Intent i = new Intent(this, MainActivity.class);
                     startActivity(i);
@@ -225,10 +225,6 @@ public class SignInActivity extends Activity
         dialog.show();
     }
 
-    void showToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-    }
-
     private void goToTaskListActivity() {
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra(Co.IS_FIRST_INIT, true);
@@ -289,10 +285,10 @@ public class SignInActivity extends Activity
             SharedPreferences prefs =
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean(Co.IS_FIRST_TIME, false);
+            editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
             editor.putString(Co.CURRENT_LIST_TITLE, defaultListInfo.get(1));
             editor.putString(Co.CURRENT_LIST_ID, defaultListInfo.get(0));
-//            editor.putString(Co.ORDER_TYPE, Co.ORDER_DUE_DATE_DESC);
+            editor.putBoolean(Co.IS_FIRST_INIT,true);
             editor.apply();
             goToTaskListActivity();
         }

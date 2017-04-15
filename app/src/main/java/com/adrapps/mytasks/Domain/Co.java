@@ -14,7 +14,7 @@ public class Co {
     public static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
     public static final String NO_ACCOUNT_NAME = "no account name";
     public static final String CURRENT_LIST_ID = "current list";
-    public static final String IS_FIRST_TIME = "is first time";
+    public static final String IS_FIRST_LAUNCH = "is first time";
     public static final String PREF_ACCOUNT_NAME = "accountName";
     public static final String[] SCOPES = {TasksScopes.TASKS};
     public static final String IS_FIRST_INIT = "first init";
@@ -44,6 +44,7 @@ public class Co {
     public static Task task;
     public static final int SNACKBAR_DURATION = 6000;
     public static String ORDER_TYPE = "order type";
+    public static String TASK_MOVED_TO_FIRST = "first";
 
 
     public static void setListIds(List<String> listIds) {

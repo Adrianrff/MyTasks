@@ -1,6 +1,8 @@
 package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
+
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -11,6 +13,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
+
 import java.io.IOException;
 
 public class MoveTask extends AsyncTask<String, Void, Void> {
@@ -41,6 +44,7 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
         }
         return null;
     }
+
     @Override
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
@@ -80,10 +84,11 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
         }
     }
 
-
     private void moveTask(String taskId, String listId, String previousTaskId) throws IOException {
-        Tasks.TasksOperations.Move move = mService.tasks().move(listId,taskId);
-        move.setPrevious(previousTaskId);
+        Tasks.TasksOperations.Move move = mService.tasks().move(listId, taskId);
+        if (!previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
+            move.setPrevious(previousTaskId);
+        }
         move.execute();
     }
 }

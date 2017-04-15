@@ -214,4 +214,16 @@ public class TaskListPresenter {
     public void showEmptyRecyclerView(boolean b) {
         getView().showEmptyRecyclerView(b);
     }
+
+    public void moveTask(String[] params) {
+        mModel.moveTask(params);
+    }
+
+    public void editTask(LocalTask task) {
+        mModel.editTask(task);
+    }
+
+    public void saveBooleanShP(String key, boolean b) {
+        getView().saveBooleanShP(key, b);
+    }
 }

@@ -1,6 +1,8 @@
 package com.adrapps.mytasks.APICalls;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
@@ -64,6 +66,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
+        mPresenter.saveBooleanShP(Co.IS_FIRST_INIT,false);
         mPresenter.dismissProgressDialog();
         mPresenter.showProgress(false);
         mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE,lists.get(0).getTitle());

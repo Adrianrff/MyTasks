@@ -66,11 +66,13 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
     @Override
     protected void onPreExecute() {
         mPresenter.showProgress(true);
+
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        mPresenter.showProgress(false);
+        mPresenter.refresh();
+        mPresenter.showToast(mPresenter.getString(R.string.task_updated));
     }
 
     @Override

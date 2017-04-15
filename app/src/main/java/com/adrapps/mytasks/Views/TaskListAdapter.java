@@ -36,12 +36,14 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     private List<LocalTask> tasks;
     private TaskListPresenter mPresenter;
     private LocalTask removedTask;
+    private String selectedTaskId;
+    private int selectedTaskPosition;
 
     TaskListAdapter(Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
         this.mPresenter = presenter;
         this.context = context;
         this.tasks = tasks;
-        setHasStableIds(true);
+//        setHasStableIds(true);
     }
 
     @Override
@@ -72,7 +74,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                 holder.dueDate.setTextColor(holder.oldDueColors);
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
                 holder.dueDate.setText(R.string.tomorrow);
-            } else if (DateHelper.isInInThePast(cTask.getDue())){
+            } else if (DateHelper.isInInThePast(cTask.getDue())) {
                 holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
                         + " " + context.getString(R.string.overdue_append));
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
@@ -125,6 +127,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
+        Log.d("onItemMove", "from" + String.valueOf(fromPosition) + "/" + String.valueOf(toPosition));
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(tasks, i, i + 1);
@@ -140,7 +143,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public void onItemSwiped(int position, int direction) {
-        Log.d("OnItemSwiped", String.valueOf(position));
         removedTask = tasks.remove(position);
         notifyItemRemoved(position);
         mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
@@ -150,7 +152,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     }
 
     void restoreDeletedItem(int position) {
-        Log.d("restoreItem", removedTask.getTaskId());
         tasks.add(position, removedTask);
         notifyItemInserted(position);
         mPresenter.showEmptyRecyclerView(false);
@@ -162,6 +163,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         return tasks.get(position).getIntId();
     }
 
+
+    //------------------------VIEW HOLDER-------------------------------///
     class TaskListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
             ItemTouchHelperViewHolder, CompoundButton.OnCheckedChangeListener {
 
@@ -196,9 +199,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                 i.putExtra(Co.DETAIL_TASK_DUE,
                         DateHelper.timeInMillsToString(cTask.getDue()));
             } else {
-                i.putExtra(Co.DETAIL_TASK_DUE, R.string.no_due_date);
+                i.putExtra(Co.DETAIL_TASK_DUE, context.getString(R.string.no_due_date));
             }
-            i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes() == null ? R.string.no_notes : cTask.getNotes());
+            i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes());
             i.putExtra(Co.DETAIL_TASK_ID, cTask.getTaskId());
             mPresenter.navigateToEditTask(i);
         }
@@ -225,20 +228,24 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                     dueDate.setPaintFlags(0);
                     taskName.setTextColor(oldTaskColors);
                     taskName.setPaintFlags(0);
-                    if (DateUtils.isToday(cTask.getDue())) {
-                        dueDate.setTextColor(oldDueColors);
-                        dueDate.setTypeface(null, Typeface.BOLD);
-                    } else if (DateHelper.isTomorrow(cTask.getDue())) {
-                        dueDate.setTextColor(oldDueColors);
-                        dueDate.setTypeface(null, Typeface.NORMAL);
-                    } else if (DateHelper.isInInThePast(cTask.getDue())){
-                        dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
-                                + " " + context.getString(R.string.overdue_append));
-                        dueDate.setTypeface(null, Typeface.NORMAL);
-                        dueDate.setTextColor(Color.RED);
+                    if (cTask.getDue() == 0) {
+                        dueDate.setText(R.string.no_due_date);
                     } else {
-                        dueDate.setTextColor(oldDueColors);
-                        dueDate.setTypeface(null, Typeface.NORMAL);
+                        if (DateUtils.isToday(cTask.getDue())) {
+                            dueDate.setTextColor(oldDueColors);
+                            dueDate.setTypeface(null, Typeface.BOLD);
+                        } else if (DateHelper.isTomorrow(cTask.getDue())) {
+                            dueDate.setTextColor(oldDueColors);
+                            dueDate.setTypeface(null, Typeface.NORMAL);
+                        } else if (DateHelper.isInInThePast(cTask.getDue())) {
+                            dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
+                                    + " " + context.getString(R.string.overdue_append));
+                            dueDate.setTypeface(null, Typeface.NORMAL);
+                            dueDate.setTextColor(Color.RED);
+                        } else {
+                            dueDate.setTextColor(oldDueColors);
+                            dueDate.setTypeface(null, Typeface.NORMAL);
+                        }
                     }
                     mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
                 } else {
@@ -250,12 +257,34 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onItemSelected() {
+            selectedTaskId = tasks.get(getAdapterPosition()).getTaskId();
+            selectedTaskPosition = getAdapterPosition();
             itemView.setBackgroundColor(Color.LTGRAY);
         }
 
         @Override
         public void onItemClear() {
+//            Log.d("ItemClear", "new Position " + String.valueOf(getAdapterPosition()));
+//            Log.d("ItemClear", "old Position " + String.valueOf(selectedTaskPosition));
+//            if (selectedTaskPosition != getAdapterPosition()) {
+//                Log.d("ItemMoved", "true");
+//            }
             itemView.setBackgroundColor(Color.WHITE);
+            if (getAdapterPosition() >= 0){
+                if (selectedTaskPosition != getAdapterPosition()) {
+                    String previousTaskId;
+                    if (getAdapterPosition() == 0) {
+                        previousTaskId = Co.TASK_MOVED_TO_FIRST;
+                    } else {
+                        previousTaskId = tasks.get(getAdapterPosition() - 1).getTaskId();
+                    }
+                    String[] params = {selectedTaskId,
+                            mPresenter.getStringShP(Co.CURRENT_LIST_ID),
+                            previousTaskId};
+                    mPresenter.moveTask(params);
+                }
+            }
+
         }
 
     }

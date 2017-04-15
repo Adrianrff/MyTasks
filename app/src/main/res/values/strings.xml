@@ -39,6 +39,7 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="overdue_append">(overdue)</string>
+    <string name="task_updated">Task updated</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>
