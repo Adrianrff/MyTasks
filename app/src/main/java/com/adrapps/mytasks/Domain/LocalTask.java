@@ -24,8 +24,6 @@ public class LocalTask {
     private String notes;
     private String status;
     private String taskList;
-
-
     private int sortId;
     private int intId;
     private long updated,due,completed;
@@ -46,6 +44,7 @@ public class LocalTask {
     }
 
     public static Task localTaskToApiTask (LocalTask lTask){
+        int offSet = TimeZone.getDefault().getRawOffset();
         Task task = new Task();
         task.setTitle(lTask.title);
         if (lTask.getNotes() != null) {
@@ -61,6 +60,7 @@ public class LocalTask {
     }
 
     public LocalTask(Task task, String listId) {
+        int offSet = TimeZone.getDefault().getRawOffset();
         this.taskId = task.getId();
         this.title = task.getTitle();
         this.selfLink = task.getSelfLink();
@@ -70,28 +70,11 @@ public class LocalTask {
         this.status = task.getStatus();
         this.taskList = listId;
         this.updated = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
-        this.due = (task.getDue() == null) ? 0:task.getDue().getValue();
+        this.due = (task.getDue() == null) ? 0:task.getDue().getValue() - offSet;
         this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
         this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
     }
-
-//    public LocalTask(Task task, String listId, int position) {
-//        this.sortId = position;
-//        this.taskId = task.getId();
-//        this.title = task.getTitle();
-//        this.selfLink = task.getSelfLink();
-//        this.parent = task.getParent();
-//        this.position = task.getPosition();
-//        this.notes = task.getNotes();
-//        this.status = task.getStatus();
-//        this.taskList = listId;
-//        this.updated = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
-//        this.due = (task.getDue() == null) ? 0:task.getDue().getValue();
-//        this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
-//        this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
-//        this.hidden = (task.getHidden() == null) ? false:task.getHidden();
-//    }
 
     public LocalTask(String taskId, String title, String selfLink, String parent,
                      String position, String notes, String status,

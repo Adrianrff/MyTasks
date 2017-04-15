@@ -30,6 +30,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -64,9 +65,12 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -422,7 +426,7 @@ public class MainActivity extends AppCompatActivity
                                     showToast(getString(R.string.empty_title_error));
                                     return;
                                 }
-                                Log.d("dueDate", String.valueOf(selectedDateInMills));
+//                                Log.d("dueDate", String.valueOf(selectedDateInMills));
                                 LocalTask task = new LocalTask(newTaskTitle.getText().toString(), selectedDateInMills);
                                 mPresenter.addTaskToApi(task);
                                 newTaskDialog.dismiss();
@@ -518,8 +522,24 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-//                Intent i = new Intent(this, SignInActivity.class);
-//                startActivity(i);
+//                Calendar due = Calendar.getInstance();
+//                due.setTimeInMillis(1492300800000L);
+//                Calendar updated = Calendar.getInstance();
+//                updated.setTimeInMillis(1492287300000L);
+//                String sd, su;
+//                SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+//                if (DateUtils.isToday(due.getTimeInMillis() - TimeZone.getDefault().getRawOffset())){
+//                    sd = " today";
+//                } else {
+//                    sd = " not today";
+//                }
+//                if (DateUtils.isToday(updated.getTimeInMillis())){
+//                    su = " today";
+//                } else {
+//                    su = " not today";
+//                }
+//                showToast("Updated: " + sdfCA.format(updated.getTimeInMillis()) + su + "\n" +
+//                        "Due: " + sdfCA.format(due.getTimeInMillis()) + sd);
                 break;
 
             case R.id.refresh:

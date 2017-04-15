@@ -203,6 +203,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             }
             i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes());
             i.putExtra(Co.DETAIL_TASK_ID, cTask.getTaskId());
+            i.putExtra("updated", cTask.getUpdated());
+            i.putExtra("completed", cTask.getCompleted());
+            i.putExtra("due", cTask.getDue());
             mPresenter.navigateToEditTask(i);
         }
 

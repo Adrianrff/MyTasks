@@ -11,20 +11,20 @@ import java.util.TimeZone;
 
 public class DateHelper {
 
+
     public static long dateTimeToMilliseconds(DateTime date){
         Calendar calendar = Calendar.getInstance();
-//        int offset = TimeZone.getDefault().getRawOffset();
-//        Log.d("offset",String.valueOf(offset));
         calendar.setTimeInMillis(date.getValue());
         return calendar.getTimeInMillis();
     }
 
     public static DateTime millisecondsToDateTime (long timeInMills){
-        return new DateTime(timeInMills,-240);
+        return new DateTime(timeInMills);
     }
 
     public static String timeInMillsToString(long timeInMills){
         SimpleDateFormat format = new SimpleDateFormat("EEEE, d MMM yyy", Locale.getDefault());
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         return format.format(calendar.getTime());
