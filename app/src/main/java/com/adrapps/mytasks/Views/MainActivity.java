@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     long selectedDueDateInMills;
     private boolean mTwoPane;
     private LinearLayout emptyDataLayout;
-    private long selectedAlarmInMills;
+    private long selectedReminderInMills;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -366,6 +366,8 @@ public class MainActivity extends AppCompatActivity
         switch (v.getId()) {
 
             case R.id.fab:
+                selectedDueDateInMills = 0;
+                selectedReminderInMills = 0;
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
                 LayoutInflater inflater = this.getLayoutInflater();
                 View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
@@ -431,26 +433,31 @@ public class MainActivity extends AppCompatActivity
                                     showToast(getString(R.string.empty_title_error));
                                     return;
                                 }
-                                if (notifSpinner.getVisibility() == View.VISIBLE && selectedDueDateInMills != 0){
+                                if (notifSpinner.getVisibility() == View.VISIBLE && selectedDueDateInMills != 0) {
                                     Calendar calendar = Calendar.getInstance();
-                                    switch(notifSpinner.getSelectedItemPosition()){
+                                    switch (notifSpinner.getSelectedItemPosition()) {
                                         case 0:
                                             calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY,9);
-                                            calendar.set(Calendar.MINUTE,0);
+                                            calendar.set(Calendar.HOUR_OF_DAY, 9);
+                                            calendar.set(Calendar.MINUTE, 0);
+                                            selectedReminderInMills = calendar.getTimeInMillis();
                                             break;
                                         case 1:
                                             calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY,14);
-                                            calendar.set(Calendar.MINUTE,0);
+                                            calendar.set(Calendar.HOUR_OF_DAY, 14);
+                                            calendar.set(Calendar.MINUTE, 0);
+                                            selectedReminderInMills = calendar.getTimeInMillis();
                                             break;
                                         case 2:
                                             calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY,18);
-                                            calendar.set(Calendar.MINUTE,0);
+                                            calendar.set(Calendar.HOUR_OF_DAY, 18);
+                                            calendar.set(Calendar.MINUTE, 0);
+                                            selectedReminderInMills = calendar.getTimeInMillis();
                                             break;
                                         case 3:
-                                            calendar.setTimeInMillis(selectedAlarmInMills);
+                                            if (selectedReminderInMills != 0) {
+                                                calendar.setTimeInMillis(selectedReminderInMills);
+                                            }
                                     }
 
                                     Intent intent = new Intent(MainActivity.this, AlarmReciever.class);
@@ -467,7 +474,10 @@ public class MainActivity extends AppCompatActivity
 //                                    showToast(sdfCA.format(calendar.getTime()));
                                 }
                                 LocalTask task = new LocalTask(newTaskTitle.getText().toString(), selectedDueDateInMills);
+                                task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
+                                task.setReminder(selectedReminderInMills);
                                 mPresenter.addTaskToApi(task);
+                                recyclerView.smoothScrollToPosition(0);
                                 newTaskDialog.dismiss();
 
                             }
@@ -480,9 +490,9 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         Calendar c = Calendar.getInstance();
-                        c.set(year, month, dayOfMonth,0,0);
-                        SimpleDateFormat sdf= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-                        showToast(sdf.format(c.getTime()));
+                        c.set(year, month, dayOfMonth, 0, 0);
+//                        SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+//                        showToast(sdf.format(c.getTime()));
                         selectedDueDateInMills = c.getTimeInMillis();
                         dateTextView.setText(DateHelper.timeInMillsToString(selectedDueDateInMills));
                     }
@@ -500,16 +510,12 @@ public class MainActivity extends AppCompatActivity
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         switch (position) {
             case 0:
-                showToast("0");
                 break;
             case 1:
-                showToast("1");
                 break;
             case 2:
-                showToast("2");
                 break;
             case 3:
-                showToast("3");
                 Calendar c1 = Calendar.getInstance();
                 DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -517,18 +523,17 @@ public class MainActivity extends AppCompatActivity
                         final Calendar c = Calendar.getInstance();
 //                        SimpleDateFormat sdf= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
 //                        showToast(sdf.format(c.getTime()));
-                        c.set(Calendar.YEAR,year);
-                        c.set(Calendar.MONTH,month);
-                        c.set(Calendar.DAY_OF_MONTH,dayOfMonth);
-                        dateTextView.setText(DateHelper.timeInMillsToString(selectedDueDateInMills));
+                        c.set(Calendar.YEAR, year);
+                        c.set(Calendar.MONTH, month);
+                        c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                         TimePickerDialog timePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                                c.set(Calendar.HOUR_OF_DAY, hourOfDay);
                                 c.set(Calendar.MINUTE, minute);
-                                selectedAlarmInMills = c.getTimeInMillis();
+                                selectedReminderInMills = c.getTimeInMillis();
                             }
-                        },c.get(Calendar.HOUR_OF_DAY),c.get(Calendar.MINUTE),false);
+                        }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), false);
                         timePicker.show();
                     }
                 },
@@ -537,7 +542,7 @@ public class MainActivity extends AppCompatActivity
                         c1.get(Calendar.DAY_OF_MONTH));
                 datePicker.show();
                 break;
-         }
+        }
     }
 
     @Override
@@ -590,13 +595,13 @@ public class MainActivity extends AppCompatActivity
                 Calendar updated = Calendar.getInstance();
                 updated.setTimeInMillis(1492303523000L);
                 String sd, su;
-                SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-                if (DateUtils.isToday(due.getTimeInMillis())){
+                SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+                if (DateUtils.isToday(due.getTimeInMillis())) {
                     sd = " today";
                 } else {
                     sd = " not today";
                 }
-                if (DateUtils.isToday(updated.getTimeInMillis())){
+                if (DateUtils.isToday(updated.getTimeInMillis())) {
                     su = " today";
                 } else {
                     su = " not today";
@@ -639,6 +644,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void addTaskToAdapter(LocalTask localTask) {
+        adapter.addItem(localTask,0);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         super.onActivityResult(requestCode, resultCode, resultIntent);
         if (requestCode == Co.TASK_DATA_REQUEST_CODE) {
@@ -657,7 +667,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showNewTaskDialog() {
+    public void showAndSetUpNewTaskDialog() {
 
     }
 
@@ -703,13 +713,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void saveBooleanShP (String key, boolean value){
+    public void saveBooleanShP(String key, boolean value) {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(key, value);
         editor.apply();
     }
+
     @Override
     public void saveStringShP(String key, String value) {
         SharedPreferences prefs = PreferenceManager

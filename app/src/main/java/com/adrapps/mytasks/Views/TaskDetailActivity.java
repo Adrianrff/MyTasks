@@ -27,7 +27,8 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class TaskDetailActivity extends AppCompatActivity
-        implements View.OnClickListener, DatePickerDialog.OnDateSetListener{
+        implements View.OnClickListener, DatePickerDialog.OnDateSetListener,
+        CompoundButton.OnCheckedChangeListener{
 
     EditText taskTitle, taskNotes;
     TextView taskDue;
@@ -35,6 +36,7 @@ public class TaskDetailActivity extends AppCompatActivity
     private Spinner spinner;
     private Switch notSwitch;
     String taskId, listId;
+    private long reminder;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,29 +53,36 @@ public class TaskDetailActivity extends AppCompatActivity
         taskNotes = (EditText) findViewById(R.id.task_notes_edit_text);
         spinner = (Spinner) findViewById(R.id.notification_spinner);
         notSwitch = (Switch) findViewById(R.id.notification_switch);
-        notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (notSwitch.isChecked())
-                    spinner.setVisibility(View.VISIBLE);
-                else
-                    spinner.setVisibility(View.GONE);
-            }
-        });
+        notSwitch.setOnCheckedChangeListener(this);
         if (getIntent().hasExtra(Co.TASK_TITLE)){
             taskTitle.setText(getIntent().getStringExtra(Co.TASK_TITLE));
             taskNotes.setText(getIntent().getStringExtra(Co.DETAIL_TASK_NOTE));
             taskDue.setText(getIntent().getStringExtra(Co.DETAIL_TASK_DUE));
             taskId = getIntent().getStringExtra(Co.DETAIL_TASK_ID);
             listId = getIntent().getStringExtra(Co.DETAIL_TASK_LIST_ID);
+            reminder = getIntent().getLongExtra(Co.TASK_REMINDER,0);
         }
         taskDue.setOnClickListener(this);
 
-        SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-        Toast.makeText(this,"Updated: "  +
-                sdfCA.format(getIntent().getLongExtra("updated", 0)) + "\n" +
-                "Completed: " + sdfCA.format(getIntent().getLongExtra("completed", 0)) + "\n" +
-                "Due: " +     sdfCA.format(getIntent().getLongExtra("due", 0)),Toast.LENGTH_LONG).show();
+        if (reminder != 0){
+            notSwitch.setOnCheckedChangeListener(null);
+            notSwitch.setChecked(true);
+            notSwitch.setOnCheckedChangeListener(this);
+        }
+//
+//        SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+//        Toast.makeText(this,"Updated: "  +
+//                sdfCA.format(getIntent().getLongExtra("updated", 0)) + "\n" +
+//                "Completed: " + sdfCA.format(getIntent().getLongExtra("completed", 0)) + "\n" +
+//                "Due: " +     sdfCA.format(getIntent().getLongExtra("due", 0)),Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (notSwitch.isChecked())
+            spinner.setVisibility(View.VISIBLE);
+        else
+            spinner.setVisibility(View.GONE);
     }
 
     @Override

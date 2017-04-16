@@ -67,8 +67,13 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
+    public void addTaskToLocalDatabase(LocalTask task) {
+        tasksDb.addTask(task);
+    }
+
+    @Override
     public void addTaskToLocalDatabase(Task task, String listId) {
-        tasksDb.addTaskToLocalDatabase(task,listId);
+        tasksDb.addTask(task, listId);
     }
 
     @Override
@@ -136,5 +141,15 @@ public class DataModel implements Contract.Model {
     public void editTask(LocalTask task) {
         EditTask edit = new EditTask(mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
         edit.execute(task);
+    }
+
+    @Override
+    public long getTaskReminder(String taskId) {
+        return tasksDb.getTaskRemminder(taskId);
+    }
+
+    @Override
+    public boolean taskExistsInDB(String taskId) {
+        return tasksDb.taskExistsInDB(taskId);
     }
 }

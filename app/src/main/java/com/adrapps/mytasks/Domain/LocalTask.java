@@ -35,12 +35,14 @@ public class LocalTask {
     public LocalTask (String taskTitle, long dueDate){
         title = taskTitle;
         this.due = dueDate;
+        this.reminder = 0;
     }
 
     public LocalTask (String taskTitle, long dueDate, String notes){
         title = taskTitle;
         this.due = dueDate;
         this.notes = notes;
+        this.reminder = 0;
     }
 
     public LocalTask (String taskTitle, long dueDate, String notes, long reminder){
@@ -65,51 +67,24 @@ public class LocalTask {
         this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
         this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
+        this.reminder = 0;
     }
-
-    public LocalTask(String taskId, String title, String selfLink, String parent,
-                     String position, String notes, String status,
-                     long updated, long due, long completed, boolean deleted,
-                     boolean hidden, String taskList) {
-        this.taskId = taskId;
-        this.title = title;
-        this.selfLink = selfLink;
-        this.parent = parent;
-        this.position = position;
-        this.notes = notes;
-        this.status = status;
-        this.taskList = taskList;
-        this.updated = updated;
-        this.due = due;
-        this.completed = completed;
-        this.deleted = deleted;
-        this.hidden = hidden;
-    }
-
 
     public static Task localTaskToApiTask (LocalTask lTask){
-        int offSet = TimeZone.getDefault().getRawOffset();
         Task task = new Task();
         task.setTitle(lTask.title);
         if (lTask.getNotes() != null) {
             task.setNotes(lTask.getNotes());
         }
         if (lTask.getDue() != 0) {
-            Log.d("due","not zero");
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
         }
-        Log.d("dueLocalTask",String.valueOf(lTask.getDue()));
-
         return task;
     }
     ///-------------------SETTERS ----------------------//
 
     public void setReminder(long reminder) {
         this.reminder = reminder;
-    }
-
-    public void setSortId(int sortId) {
-        this.sortId = sortId;
     }
 
     public void setTaskList(String taskList) {
@@ -171,10 +146,6 @@ public class LocalTask {
 
     ///-------------------GETTERS---------------------///
 
-
-    public int getSortId() {
-        return sortId;
-    }
 
     public long getReminder() {
         return reminder;

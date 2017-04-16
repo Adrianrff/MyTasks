@@ -94,10 +94,8 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
 
 
     private void refreshAll() throws IOException {
-        List<TaskList> lists;
-        TaskLists result = mService.tasklists().list()
-                .execute();
-        lists = result.getItems();
+        List<TaskList> lists = mService.tasklists().list()
+                .execute().getItems();
         for (int i = 0; i < lists.size(); i++) {
             listIds.add(lists.get(i).getId());
         }
@@ -110,6 +108,9 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
             if (tasks != null && !tasks.isEmpty()) {
                 for (int j = 0; j < tasks.size(); j++) {
                     LocalTask task = new LocalTask(tasks.get(j), listIds.get(i));
+                    if (mPresenter.taskExistsInDB(tasks.get(j).getId())) {
+                        task.setReminder(mPresenter.getTaskReminder(tasks.get(j).getId()));
+                    }
                     localTasks.add(task);
                 }
             }

@@ -64,6 +64,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             holder.taskName.setText(R.string.no_task_name);
         }
         if (cTask.getDue() == 0) {
+            holder.dueDate.setTextColor(holder.oldDueColors);
+            holder.dueDate.setTypeface(null, Typeface.NORMAL);
             holder.dueDate.setText(R.string.no_due_date);
         } else {
             if (DateUtils.isToday(cTask.getDue())) {
@@ -102,6 +104,12 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             holder.taskCheckbox.setChecked(false);
         }
         holder.taskCheckbox.setOnCheckedChangeListener(holder);
+
+        if (mPresenter.getTaskReminder(cTask.getTaskId()) != 0){
+           holder.notificationImage.setVisibility(View.VISIBLE);
+        } else {
+            holder.notificationImage.setVisibility(View.GONE);
+        }
 
     }
 
@@ -203,9 +211,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             }
             i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes());
             i.putExtra(Co.DETAIL_TASK_ID, cTask.getTaskId());
-            i.putExtra("updated", cTask.getUpdated());
-            i.putExtra("completed", cTask.getCompleted());
-            i.putExtra("due", cTask.getDue());
+            i.putExtra(Co.TASK_REMINDER, cTask.getReminder());
+//            i.putExtra("updated", cTask.getUpdated());
+//            i.putExtra("completed", cTask.getCompleted());
+//            i.putExtra("due", cTask.getDue());
             mPresenter.navigateToEditTask(i);
         }
 

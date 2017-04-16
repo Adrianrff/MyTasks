@@ -44,7 +44,8 @@ public class Co {
     public static Task task;
     public static final int SNACKBAR_DURATION = 6000;
     public static String ORDER_TYPE = "order type";
-    public static String TASK_MOVED_TO_FIRST = "first";
+    public static final String TASK_MOVED_TO_FIRST = "first";
+    public static final String TASK_REMINDER = "task reminder";
 
 
     public static void setListIds(List<String> listIds) {

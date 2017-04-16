@@ -28,6 +28,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
     private String listId;
+    private LocalTask localTask;
 
     public AddTask(TaskListPresenter presenter, GoogleAccountCredential credential, String listId) {
         this.mPresenter = presenter;
@@ -66,7 +67,8 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-        mPresenter.refresh();
+        mPresenter.addTaskToAdapter(localTask);
+//        mPresenter.refresh();
     }
 
     @Override
@@ -95,8 +97,13 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
     private void addTask(LocalTask lTask) throws IOException {
         Task task = LocalTask.localTaskToApiTask(lTask);
-        Task atask = mService.tasks().insert(listId,task).execute();
-        Log.d("Updated", String.valueOf(atask.getUpdated().getValue()));
-        Log.d("Due", String.valueOf(atask.getDue().getValue()));
+        Task aTask = mService.tasks().insert(listId,task).execute();
+        Log.d("Updated", String.valueOf(aTask.getUpdated().getValue()));
+        if (aTask.getDue() != null) {
+            Log.d("Due", String.valueOf(aTask.getDue().getValue()));
+        }
+        localTask = new LocalTask(aTask, lTask.getTaskList());
+        localTask.setReminder(lTask.getReminder());
+        mPresenter.addTaskToDatabase(localTask);
     }
 }

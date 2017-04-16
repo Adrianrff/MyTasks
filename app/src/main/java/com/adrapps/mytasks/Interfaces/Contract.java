@@ -24,7 +24,7 @@ public class Contract {
 
         void setUpViews();
 
-        void showNewTaskDialog();
+        void showAndSetUpNewTaskDialog();
 
         void showToast(String msg);
 
@@ -82,6 +82,7 @@ public class Contract {
 
         void navigateToEditTask(Intent intent);
 
+        void addTaskToAdapter(LocalTask localTask);
     }
 
 
@@ -100,6 +101,8 @@ public class Contract {
 
         String getListTitleFromId(String listId);
 
+        void addTaskToLocalDatabase(LocalTask task);
+
         void addTaskToLocalDatabase(Task task, String listId);
 
         int deleteTask(String taskId);
@@ -115,6 +118,10 @@ public class Contract {
         void moveTask(String[] params);
 
         void editTask(LocalTask task);
+
+        long getTaskReminder(String taskId);
+
+        boolean taskExistsInDB(String taskId);
     }
 
     //------------------FRAGMENT OPS---------------------//

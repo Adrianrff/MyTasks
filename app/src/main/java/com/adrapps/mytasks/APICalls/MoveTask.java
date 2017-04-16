@@ -20,7 +20,7 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
-    private TaskListPresenter mPresenter;
+    private final TaskListPresenter mPresenter;
 
     public MoveTask(TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.mPresenter = presenter;

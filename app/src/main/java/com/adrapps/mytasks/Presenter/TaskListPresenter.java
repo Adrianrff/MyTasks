@@ -87,6 +87,7 @@ public class TaskListPresenter {
 
 
     //-----------------DATABASE OPERATIONS------------///
+    //-----------------DATABASE OPERATIONS------------///
 
 //    public List<LocalTask> getTasksFromList(String listId,String sort) {
 //        return mModel.getTasksFromList(listId, sort);
@@ -101,10 +102,13 @@ public class TaskListPresenter {
         mModel.updateLists(lists);
     }
 
+    public long  getTaskReminder(String taskId){
+        return mModel.getTaskReminder(taskId);
+    }
+
     public void updateTasks(List<LocalTask> tasks) {
         mModel.updateTasks(tasks);
     }
-
 
     public List<String> getListsTitles() {
         return mModel.getListsTitles();
@@ -155,10 +159,6 @@ public class TaskListPresenter {
         }
     }
 
-    public void addTaskToLocalDataBase(Task task, String listId){
-        mModel.addTaskToLocalDatabase(task,listId);
-    }
-
     public String getString(int stringId) {
         return getView().getContext().getString(stringId);
     }
@@ -179,20 +179,9 @@ public class TaskListPresenter {
         return getView().getCredential();
     }
 
-    public void addTaskToApi(LocalTask task, String listId){
-        if (getView().isDeviceOnline()) {
-            AddTask add = new AddTask(this, getView().getCredential(), listId);
-            add.execute(task);
-        }
-        else
-            showToast(getString(R.string.no_internet_toast));
-
-    }
-
     public void updateTaskStatus(String taskId, String listId, String newStatus) {
         mModel.updateTaskStatus(taskId, listId, newStatus);
     }
-
 
     public boolean isDeviceOnline() {
         return getView().isDeviceOnline();
@@ -204,7 +193,6 @@ public class TaskListPresenter {
 
     public void refreshFirstTime() {
         mModel.refreshFirstTime();
-
     }
 
     public void addTaskToApi(LocalTask task){
@@ -225,5 +213,20 @@ public class TaskListPresenter {
 
     public void saveBooleanShP(String key, boolean b) {
         getView().saveBooleanShP(key, b);
+    }
+
+    public boolean taskExistsInDB(String taskId) {
+        return mModel.taskExistsInDB(taskId);
+    }
+
+    public void addTaskToDatabase(LocalTask task) {
+        mModel.addTaskToLocalDatabase(task);
+    }
+    public void addTaskToDatabase(Task task, String listId) {
+        mModel.addTaskToLocalDatabase(task, listId);
+    }
+
+    public void addTaskToAdapter(LocalTask localTask) {
+        getView().addTaskToAdapter(localTask);
     }
 }
