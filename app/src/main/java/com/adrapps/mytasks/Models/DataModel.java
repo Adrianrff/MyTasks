@@ -139,8 +139,11 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void editTask(LocalTask task) {
-        EditTask edit = new EditTask(mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
-        edit.execute(task);
+        if (mPresenter.isDeviceOnline()) {
+            EditTask edit = new EditTask(mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
+            edit.execute(task);
+        }else
+            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
     }
 
     @Override

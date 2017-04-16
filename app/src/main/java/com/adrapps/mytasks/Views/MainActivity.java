@@ -657,6 +657,7 @@ public class MainActivity extends AppCompatActivity
                         resultIntent.getLongExtra(Co.TASK_DUE, 0),
                         resultIntent.getStringExtra(Co.TASK_EDITED_NOTE));
                 task.setTaskId(resultIntent.getStringExtra(Co.DETAIL_TASK_ID));
+                task.setReminder(resultIntent.getLongExtra(Co.TASK_REMINDER, 0));
                 mPresenter.editTask(task);
             }
 

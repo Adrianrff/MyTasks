@@ -17,6 +17,7 @@
         android:id="@+id/textViewName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_alignBaseline="@id/taskCheckbox"
         android:layout_marginBottom="1dp"
         android:layout_marginEnd="40dp"
@@ -55,10 +56,10 @@
         android:layout_marginEnd="@dimen/half_margin"
         android:layout_marginBottom="@dimen/half_margin"
         android:layout_marginTop="@dimen/half_margin"
+        android:visibility="gone"
         android:src="@drawable/notification"
         android:tint="@color/colorPrimaryDark"
         android:contentDescription="Notification image" />
-
 
 </RelativeLayout>
 

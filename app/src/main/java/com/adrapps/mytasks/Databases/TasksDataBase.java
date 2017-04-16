@@ -17,24 +17,24 @@ public class TasksDataBase extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "TasksTable";
 
     //----------TABLE COLUMNS---------------//
-    private static final String COL_INT_ID = "Int_Id";
+    public static final String COL_INT_ID = "Int_Id";
 //    private static final String COL_SORT_ID = "Sort_Id";
-    private static final String COL_ID = "Id";
-    private static final String COL_LIST = "List";
-    private static final String COL_TITLE = "Title";
-    private static final String COL_UPDATED = "Updated";
-    private static final String COL_SELFLINK = "Selflink";
-    private static final String COL_PARENT = "Parent";
-    private static final String COL_POSITION = "Position";
-    private static final String COL_NOTES = "Notes";
-    private static final String COL_STATUS = "Status";
-    private static final String COL_DUE = "Due";
-    private static final String COL_COMPLETED = "Completed";
-    private static final String COL_DELETED = "Deleted";
-    private static final String COL_HIDDEN = "Hidden";
-    private static final String COL_REMINDER = "Reminder";
-    private static final String ORDER_ASC = " ASC";
-    private static final String ORDER_DESC = " DESC";
+    public static final String COL_ID = "Id";
+    public static final String COL_LIST = "List";
+    public static final String COL_TITLE = "Title";
+    public static final String COL_UPDATED = "Updated";
+    public static final String COL_SELFLINK = "Selflink";
+    public static final String COL_PARENT = "Parent";
+    public static final String COL_POSITION = "Position";
+    public static final String COL_NOTES = "Notes";
+    public static final String COL_STATUS = "Status";
+    public static final String COL_DUE = "Due";
+    public static final String COL_COMPLETED = "Completed";
+    public static final String COL_DELETED = "Deleted";
+    public static final String COL_HIDDEN = "Hidden";
+    public static final String COL_REMINDER = "Reminder";
+    public static final String ORDER_ASC = " ASC";
+    public static final String ORDER_DESC = " DESC";
 
     //---------ALL COLUMNS ARRAY----------//
     private static final String[] ALL_COLUMNS = {

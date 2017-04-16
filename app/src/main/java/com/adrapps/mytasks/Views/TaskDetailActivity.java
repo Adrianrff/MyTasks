@@ -3,7 +3,10 @@ package com.adrapps.mytasks.Views;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Helpers.DateHelper;
@@ -143,13 +147,18 @@ public class TaskDetailActivity extends AppCompatActivity
                 break;
 
             case R.id.save_task:
-                Intent i = new Intent();
-                i.putExtra(Co.TASK_EDITED_TITLE, taskTitle.getText().toString());
-                i.putExtra(Co.TASK_EDITED_NOTE, taskNotes.getText().toString());
-                i.putExtra(Co.TASK_DUE, selectedDateInMills);
-                i.putExtra(Co.DETAIL_TASK_ID, taskId);
-                setResult(Activity.RESULT_OK,i);
-                finish();
+                if (isDeviceOnline()) {
+                    Intent i = new Intent();
+                    i.putExtra(Co.TASK_EDITED_TITLE, taskTitle.getText().toString());
+                    i.putExtra(Co.TASK_EDITED_NOTE, taskNotes.getText().toString());
+                    i.putExtra(Co.TASK_DUE, selectedDateInMills);
+                    i.putExtra(Co.TASK_REMINDER, selectedReminderInMills);
+                    i.putExtra(Co.DETAIL_TASK_ID, taskId);
+                    setResult(Activity.RESULT_OK, i);
+                    finish();
+                } else {
+                    showToast(getString(R.string.no_internet_toast));
+                }
                 break;
 
         }
@@ -194,6 +203,7 @@ public class TaskDetailActivity extends AppCompatActivity
                 rbMorning.setChecked(false);
                 rbAfternoon.setChecked(false);
                 rbEvening.setChecked(false);
+                selectedReminderInMills = 0;
                 Calendar c1 = Calendar.getInstance();
                 DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -230,5 +240,16 @@ public class TaskDetailActivity extends AppCompatActivity
         c.set(year, month, dayOfMonth);
         selectedDateInMills = c.getTimeInMillis();
         taskDue.setText(DateHelper.timeInMillsToString(selectedDateInMills));
+    }
+
+    public void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    public boolean isDeviceOnline() {
+        ConnectivityManager connMgr =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
     }
 }
