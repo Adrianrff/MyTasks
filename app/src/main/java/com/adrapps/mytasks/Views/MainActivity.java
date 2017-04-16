@@ -456,7 +456,10 @@ public class MainActivity extends AppCompatActivity
                                     Intent intent = new Intent(MainActivity.this, AlarmReciever.class);
                                     intent.putExtra(Co.TASK_TITLE, newTaskTitle.getText().toString());
                                     intent.putExtra(Co.TASK_DUE, dateTextView.getText().toString());
-                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 1253, intent,
+                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                                            MainActivity.this,
+                                            (int) System.currentTimeMillis(),
+                                            intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT);
                                     AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                                     alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
