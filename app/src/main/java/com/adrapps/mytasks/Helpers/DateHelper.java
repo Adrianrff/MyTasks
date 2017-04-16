@@ -6,6 +6,7 @@ import com.google.api.client.util.DateTime;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -19,6 +20,7 @@ public class DateHelper {
     }
 
     public static DateTime millisecondsToDateTime (long timeInMills){
+        int offSet = TimeZone.getDefault().getRawOffset();
         return new DateTime(timeInMills);
     }
 

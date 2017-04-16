@@ -96,7 +96,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     private void addTask(LocalTask lTask) throws IOException {
         Task task = LocalTask.localTaskToApiTask(lTask);
         Task atask = mService.tasks().insert(listId,task).execute();
-//        Log.d("Updated", String.valueOf(atask.getUpdated().getValue()));
-//        Log.d("Due", String.valueOf(atask.getDue().getValue()));
+        Log.d("Updated", String.valueOf(atask.getUpdated().getValue()));
+        Log.d("Due", String.valueOf(atask.getDue().getValue()));
     }
 }

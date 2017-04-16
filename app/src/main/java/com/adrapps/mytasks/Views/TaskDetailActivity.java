@@ -16,12 +16,15 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.R;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class TaskDetailActivity extends AppCompatActivity
         implements View.OnClickListener, DatePickerDialog.OnDateSetListener{
@@ -65,12 +68,12 @@ public class TaskDetailActivity extends AppCompatActivity
             listId = getIntent().getStringExtra(Co.DETAIL_TASK_LIST_ID);
         }
         taskDue.setOnClickListener(this);
-//
-//        SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-//        Toast.makeText(this,"Updated: "  +
-//                sdfCA.format(getIntent().getLongExtra("updated", 0)) + "\n" +
-//                "Completed: " + sdfCA.format(getIntent().getLongExtra("completed", 0)) + "\n" +
-//                "Due: " +     sdfCA.format(getIntent().getLongExtra("due", 0)),Toast.LENGTH_LONG).show();
+
+        SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+        Toast.makeText(this,"Updated: "  +
+                sdfCA.format(getIntent().getLongExtra("updated", 0)) + "\n" +
+                "Completed: " + sdfCA.format(getIntent().getLongExtra("completed", 0)) + "\n" +
+                "Due: " +     sdfCA.format(getIntent().getLongExtra("due", 0)),Toast.LENGTH_LONG).show();
     }
 
     @Override

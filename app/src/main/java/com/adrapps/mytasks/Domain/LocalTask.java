@@ -98,7 +98,7 @@ public class LocalTask {
             Log.d("due","not zero");
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
         }
-        Log.d("due",String.valueOf(lTask.getDue()));
+        Log.d("dueLocalTask",String.valueOf(lTask.getDue()));
 
         return task;
     }

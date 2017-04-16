@@ -3,8 +3,6 @@ package com.adrapps.mytasks.Views;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
@@ -35,6 +33,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -71,9 +70,11 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -100,11 +101,10 @@ public class MainActivity extends AppCompatActivity
     Spinner notifSpinner;
     EditText newTaskTitle;
     Switch notSwitch;
-    long selectedDateInMills = 0;
+    long selectedDueDateInMills;
     private boolean mTwoPane;
     private LinearLayout emptyDataLayout;
-    private long selectedAlarmDateInMills;
-    private Calendar selectedDate = null;
+    private long selectedAlarmInMills;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -377,7 +377,7 @@ public class MainActivity extends AppCompatActivity
                 notifSpinner = (Spinner) dialogView.findViewById(R.id.notifSpinner);
                 dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
 
-                //-----------SET LISTENERS-----------////
+                //---------------LISTENERS-------------////
                 notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -402,7 +402,7 @@ public class MainActivity extends AppCompatActivity
                 newTaskDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
-                        selectedDateInMills = 0
+                        selectedDueDateInMills = 0
                         ;
                     }
                 });
@@ -431,24 +431,27 @@ public class MainActivity extends AppCompatActivity
                                     showToast(getString(R.string.empty_title_error));
                                     return;
                                 }
-//                                Log.d("dueDate", String.valueOf(selectedDateInMills));
-                                if (notifSpinner.getVisibility() == View.VISIBLE && selectedDate != null){
+                                if (notifSpinner.getVisibility() == View.VISIBLE && selectedDueDateInMills != 0){
                                     Calendar calendar = Calendar.getInstance();
-                                    calendar.setTimeInMillis(selectedDateInMills);
                                     switch(notifSpinner.getSelectedItemPosition()){
                                         case 0:
-                                            selectedDate.set(Calendar.HOUR_OF_DAY,9);
-                                            selectedDate.set(Calendar.MINUTE,0);
+                                            calendar.setTimeInMillis(selectedDueDateInMills);
+                                            calendar.set(Calendar.HOUR_OF_DAY,9);
+                                            calendar.set(Calendar.MINUTE,0);
                                             break;
                                         case 1:
-                                            selectedDate.set(Calendar.HOUR_OF_DAY,14);
-                                            selectedDate.set(Calendar.MINUTE,0);
+                                            calendar.setTimeInMillis(selectedDueDateInMills);
+                                            calendar.set(Calendar.HOUR_OF_DAY,14);
+                                            calendar.set(Calendar.MINUTE,0);
                                             break;
                                         case 2:
-                                            selectedDate.set(Calendar.HOUR_OF_DAY,18);
-                                            selectedDate.set(Calendar.MINUTE,0);
+                                            calendar.setTimeInMillis(selectedDueDateInMills);
+                                            calendar.set(Calendar.HOUR_OF_DAY,18);
+                                            calendar.set(Calendar.MINUTE,0);
                                             break;
-                                     }
+                                        case 3:
+                                            calendar.setTimeInMillis(selectedAlarmInMills);
+                                    }
 
                                     Intent intent = new Intent(MainActivity.this, AlarmReciever.class);
                                     intent.putExtra(Co.TASK_TITLE, newTaskTitle.getText().toString());
@@ -456,26 +459,29 @@ public class MainActivity extends AppCompatActivity
                                     PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 1253, intent,
                                             PendingIntent.FLAG_UPDATE_CURRENT);
                                     AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                                    alarmManager.set(AlarmManager.RTC_WAKEUP, selectedDate.getTimeInMillis(), pendingIntent);
+                                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 //                                    SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
 //                                    showToast(sdfCA.format(calendar.getTime()));
                                 }
-                                LocalTask task = new LocalTask(newTaskTitle.getText().toString(), selectedDateInMills);
+                                LocalTask task = new LocalTask(newTaskTitle.getText().toString(), selectedDueDateInMills);
                                 mPresenter.addTaskToApi(task);
                                 newTaskDialog.dismiss();
 
                             }
                         });
                 break;
+
             case R.id.datePickerTextView:
                 Calendar c = Calendar.getInstance();
                 DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        selectedDate = Calendar.getInstance();
-                        selectedDate.set(year, month, dayOfMonth);
-                        selectedDateInMills = selectedDate.getTimeInMillis();
-                        dateTextView.setText(DateHelper.timeInMillsToString(selectedDateInMills));
+                        Calendar c = Calendar.getInstance();
+                        c.set(year, month, dayOfMonth,0,0);
+                        SimpleDateFormat sdf= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+                        showToast(sdf.format(c.getTime()));
+                        selectedDueDateInMills = c.getTimeInMillis();
+                        dateTextView.setText(DateHelper.timeInMillsToString(selectedDueDateInMills));
                     }
                 },
                         c.get(Calendar.YEAR),
@@ -489,22 +495,46 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        switch (position){
+        switch (position) {
+            case 0:
+                showToast("0");
+                break;
+            case 1:
+                showToast("1");
+                break;
+            case 2:
+                showToast("2");
+                break;
             case 3:
-                Calendar c = Calendar.getInstance();
-                TimePickerDialog timePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                showToast("3");
+                Calendar c1 = Calendar.getInstance();
+                DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
                     @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (selectedDate != null && selectedDateInMills != 0){
-                            selectedDate.set(Calendar.HOUR_OF_DAY,hourOfDay);
-                            selectedDate.set(Calendar.MINUTE,minute);
-                            selectedDateInMills = selectedDate.getTimeInMillis();
-                        }
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        final Calendar c = Calendar.getInstance();
+//                        SimpleDateFormat sdf= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+//                        showToast(sdf.format(c.getTime()));
+                        c.set(Calendar.YEAR,year);
+                        c.set(Calendar.MONTH,month);
+                        c.set(Calendar.DAY_OF_MONTH,dayOfMonth);
+                        dateTextView.setText(DateHelper.timeInMillsToString(selectedDueDateInMills));
+                        TimePickerDialog timePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                c.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                                c.set(Calendar.MINUTE, minute);
+                                selectedAlarmInMills = c.getTimeInMillis();
+                            }
+                        },c.get(Calendar.HOUR_OF_DAY),c.get(Calendar.MINUTE),false);
+                        timePicker.show();
                     }
-                }, c.get(Calendar.HOUR_OF_DAY),c.get(Calendar.MINUTE),false);
-                timePicker.show();
-        }
-
+                },
+                        c1.get(Calendar.YEAR),
+                        c1.get(Calendar.MONTH),
+                        c1.get(Calendar.DAY_OF_MONTH));
+                datePicker.show();
+                break;
+         }
     }
 
     @Override
@@ -552,24 +582,24 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-//                Calendar due = Calendar.getInstance();
-//                due.setTimeInMillis(1492300800000L);
-//                Calendar updated = Calendar.getInstance();
-//                updated.setTimeInMillis(1492287300000L);
-//                String sd, su;
-//                SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-//                if (DateUtils.isToday(due.getTimeInMillis() - TimeZone.getDefault().getRawOffset())){
-//                    sd = " today";
-//                } else {
-//                    sd = " not today";
-//                }
-//                if (DateUtils.isToday(updated.getTimeInMillis())){
-//                    su = " today";
-//                } else {
-//                    su = " not today";
-//                }
-//                showToast("Updated: " + sdfCA.format(updated.getTimeInMillis()) + su + "\n" +
-//                        "Due: " + sdfCA.format(due.getTimeInMillis()) + sd);
+                Calendar due = Calendar.getInstance();
+                due.setTimeInMillis(1492214400000L);
+                Calendar updated = Calendar.getInstance();
+                updated.setTimeInMillis(1492303523000L);
+                String sd, su;
+                SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+                if (DateUtils.isToday(due.getTimeInMillis())){
+                    sd = " today";
+                } else {
+                    sd = " not today";
+                }
+                if (DateUtils.isToday(updated.getTimeInMillis())){
+                    su = " today";
+                } else {
+                    su = " not today";
+                }
+                showToast("Updated: " + sdfCA.format(updated.getTimeInMillis()) + su + "\n" +
+                        "Due: " + sdfCA.format(due.getTimeInMillis()) + sd);
                 break;
 
             case R.id.refresh:
