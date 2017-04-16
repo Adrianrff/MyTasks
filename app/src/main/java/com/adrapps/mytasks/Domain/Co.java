@@ -38,6 +38,9 @@ public class Co {
     public static final String ORDER_DUE_DATE_DESC = "Order by due date desc";
     public static final String ORDER_UPDATED_ASC = "Order by updated asc";
     public static final String ORDER_UPDATED_DESC = "Order by updated desc";
+    public static final int MORNING_ALARM_HOUR = 9;
+    public static final int AFTERNOON_ALARM_HOUR = 14;
+    public static final int EVENING_ALARM_HOUR = 18;
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
 

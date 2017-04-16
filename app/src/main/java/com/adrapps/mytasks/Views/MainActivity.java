@@ -438,19 +438,19 @@ public class MainActivity extends AppCompatActivity
                                     switch (notifSpinner.getSelectedItemPosition()) {
                                         case 0:
                                             calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY, 9);
+                                            calendar.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
                                             calendar.set(Calendar.MINUTE, 0);
                                             selectedReminderInMills = calendar.getTimeInMillis();
                                             break;
                                         case 1:
                                             calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY, 14);
+                                            calendar.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
                                             calendar.set(Calendar.MINUTE, 0);
                                             selectedReminderInMills = calendar.getTimeInMillis();
                                             break;
                                         case 2:
                                             calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY, 18);
+                                            calendar.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
                                             calendar.set(Calendar.MINUTE, 0);
                                             selectedReminderInMills = calendar.getTimeInMillis();
                                             break;

@@ -7,7 +7,7 @@
     <RelativeLayout
         android:id="@+id/newTaskDialog"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:focusable="false">
 
@@ -44,7 +44,7 @@
             android:layout_below="@id/datePickerTextView"
             android:layout_marginEnd="@dimen/full_margin"
             android:layout_marginRight="@dimen/full_margin"
-            android:layout_marginTop="@dimen/full_margin"
+            android:layout_marginTop="24dp"
             android:hint="@string/notification_select"
             android:textSize="16sp" />
 

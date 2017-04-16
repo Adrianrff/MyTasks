@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -109,6 +110,7 @@ public class RefreshAllAsync extends AsyncTask<Void, Void, Void> {
                 for (int j = 0; j < tasks.size(); j++) {
                     LocalTask task = new LocalTask(tasks.get(j), listIds.get(i));
                     if (mPresenter.taskExistsInDB(tasks.get(j).getId())) {
+                        Log.d("TaskExists",String.valueOf(mPresenter.getTaskReminder(tasks.get(j).getId())));
                         task.setReminder(mPresenter.getTaskReminder(tasks.get(j).getId()));
                     }
                     localTasks.add(task);

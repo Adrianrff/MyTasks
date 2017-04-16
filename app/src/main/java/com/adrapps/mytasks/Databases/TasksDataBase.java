@@ -122,7 +122,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
                 task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
                 task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
                 task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-                task.setReminder(cursor.getInt(cursor.getColumnIndex(COL_REMINDER)));
+                task.setReminder(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
                 tasks.add(task);
             } while (cursor.moveToNext());
         }

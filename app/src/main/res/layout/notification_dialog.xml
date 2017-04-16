@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/full_margin">
+
+    <LinearLayout
+        android:id="@+id/layout_morning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginBottom="@dimen/full_margin">
+
+        <RadioButton
+            android:id="@+id/rb_morning"
+            android:clickable="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:text="@string/morning"
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_afternoon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginBottom="@dimen/full_margin">
+
+        <RadioButton
+            android:id="@+id/rb_afternoon"
+            android:clickable="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:text="@string/afternoon"
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_evening"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginBottom="@dimen/full_margin">
+
+        <RadioButton
+            android:id="@+id/rb_evening"
+            android:clickable="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:text="@string/evening"
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_custom"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rb_custom"
+            android:clickable="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:text="@string/custom"
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+
+    </LinearLayout>
+
+</LinearLayout>

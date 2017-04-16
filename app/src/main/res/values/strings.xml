@@ -43,6 +43,11 @@
     <string name="task_reminder_notification_title">Task reminder</string>
     <string name="uncompleted_task_text">You have an uncompleted task set for</string>
     <string name="touch_for_details">Tap here for details</string>
+    <string name="notification_dialog_title">Set notification</string>
+    <string name="morning">In the morning</string>
+    <string name="afternoon">In the afternoon</string>
+    <string name="evening">In the evening</string>
+    <string name="custom">Custom…</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

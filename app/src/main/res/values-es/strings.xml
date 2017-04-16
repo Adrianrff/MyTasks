@@ -45,6 +45,11 @@
     <string name="task_reminder_notification_title">Recordatorio de tarea</string>
     <string name="uncompleted_task_text">Tienes una tarea pendiente programada para el</string>
     <string name="touch_for_details">Toca para ver los detalles</string>
+    <string name="notification_dialog_title">Notificación</string>
+    <string name="morning">En la mañana</string>
+    <string name="afternoon">En la tarde</string>
+    <string name="evening">En la noche</string>
+    <string name="custom">Personalizar…</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>

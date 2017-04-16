@@ -32,6 +32,14 @@ public class DateHelper {
         return format.format(calendar.getTime());
     }
 
+    public static String timeInMillsToFullString(long timeInMills){
+        SimpleDateFormat format = new SimpleDateFormat("d MMM yyyy HH:mm", Locale.getDefault());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMills);
+        return format.format(calendar.getTime());
+    }
+
     public static boolean isTomorrow(long timeInMills){
         Calendar ca = Calendar.getInstance();
         Calendar ca1 = Calendar.getInstance();
