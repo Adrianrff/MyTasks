@@ -19,7 +19,9 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Adrian Flores on 10/4/2017.
@@ -45,9 +47,6 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
 
     @Override
     protected Void doInBackground(LocalTask... params) {
-        Log.d("listId",listId);
-        Log.d("taskId", params[0].getTaskId());
-
         try {
             editTask(params[0]);
         } catch (Exception e) {
@@ -106,6 +105,10 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
         if (lTask.getDue() != 0) {
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
         }
+        SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+        Log.d("SelectedDueFromApi",String.valueOf(task.getDue().getValue()) + "\n" +
+                DateHelper.timeInMillsToFullString(task.getDue().getValue()) + "\n" +
+                sdfCA.format(task.getDue().getValue()));
         mService.tasks().update(listId, task.getId(), task).execute();
     }
 }

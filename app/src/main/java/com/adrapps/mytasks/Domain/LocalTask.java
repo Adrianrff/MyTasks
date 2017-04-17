@@ -7,13 +7,14 @@ import com.adrapps.mytasks.Helpers.DateHelper;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 
+import java.io.Serializable;
 import java.util.TimeZone;
 
 /**
  * Created by Adrian Flores on 27/3/2017.
  */
 
-public class LocalTask {
+public class LocalTask implements Serializable {
 
     private String taskId;
     private String title;
@@ -23,11 +24,11 @@ public class LocalTask {
     private String notes;
     private String status;
     private String taskList;
-    private int sortId;
     private int intId;
     private long reminder;
     private long updated,due,completed;
     private boolean deleted,hidden;
+    private int offSet = TimeZone.getDefault().getRawOffset();
 
     public LocalTask() {
     }
@@ -53,7 +54,6 @@ public class LocalTask {
     }
 
     public LocalTask(Task task, String listId) {
-        int offSet = TimeZone.getDefault().getRawOffset();
         this.taskId = task.getId();
         this.title = task.getTitle();
         this.selfLink = task.getSelfLink();

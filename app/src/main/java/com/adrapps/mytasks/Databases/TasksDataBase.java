@@ -131,49 +131,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return tasks;
     }
 
-//    public List<LocalTask> getTasksFromLlist(String listId, String sort){
-//        List<LocalTask> tasks = new ArrayList<>();
-//        String selection = COL_LIST + " = ? ";
-//        String[] selectionArgs = {listId};
-//        SQLiteDatabase db = this.getReadableDatabase();
-//        Cursor cursor;
-//        if (sort.equals(Co.ORDER_POSITION_DESC))
-//            cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,
-//                    null,null,ORDER_BY_STATEMENT + COL_SORT_ID + ORDER_DESC);
-//        else if (sort.equals(Co.ORDER_POSITION_ASC))
-//            cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,
-//                    null,null,ORDER_BY_STATEMENT + COL_SORT_ID + ORDER_ASC);
-//        else if (sort.equals(Co.ORDER_DUE_DATE_ASC))
-//            cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,
-//                    null,null,ORDER_BY_STATEMENT + COL_DUE + ORDER_ASC);
-//        else
-//            cursor = db.query(TABLE_NAME,ALL_COLUMNS,selection,selectionArgs,null,null,null);
-//        if (cursor.getCount() != 0 && cursor.moveToFirst()){
-//            do{
-//                LocalTask task = new LocalTask();
-//                task.setTaskId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-//                task.setSortId(cursor.getInt(cursor.getColumnIndex(COL_SORT_ID)));
-//                task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-//                task.setSelfLink(cursor.getString(cursor.getColumnIndex(COL_SELFLINK)));
-//                task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
-//                task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
-//                task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-//                task.setTaskList(cursor.getString(cursor.getColumnIndex(COL_LIST)));
-//                task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
-//                task.setUpdated(cursor.getLong(cursor.getColumnIndex(COL_UPDATED)));
-//                task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
-//                task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
-//                task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
-//                task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
-//                task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-//                tasks.add(task);
-//            } while (cursor.moveToNext());
-//        }
-//        cursor.close();
-//        db.close();
-//        return tasks;
-//    }
-
     public long addTask(LocalTask localTask) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -285,6 +242,18 @@ public class TasksDataBase extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_NAME,new String[] {COL_ID},selection,selectionArgs,null,null,null);
         boolean exists = cursor.getCount() > 0;
         db.close();
+        cursor.close();
         return exists;
+    }
+
+    public long updateTaskReminder(String taskId, long reminder) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            String selection = COL_ID + " = ? ";
+            String[] selectionArgs = {taskId};
+            ContentValues cv = new ContentValues();
+            cv.put(COL_REMINDER,reminder);
+            int updatedRow = db.update(TABLE_NAME,cv,selection,selectionArgs);
+            db.close();
+            return updatedRow;
     }
 }

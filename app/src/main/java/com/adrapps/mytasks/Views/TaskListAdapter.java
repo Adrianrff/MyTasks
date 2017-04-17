@@ -48,7 +48,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public TaskListAdapter.TaskListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d("onCreate", "run");
         View itemLayoutView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false);
         return new TaskListViewHolder(itemLayoutView, context, mPresenter);
@@ -56,7 +55,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
-        Log.d("onBind", String.valueOf(position));
         LocalTask cTask = tasks.get(position);
         if (!cTask.getTitle().equals("")) {
             holder.taskName.setText(cTask.getTitle());
@@ -77,7 +75,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
                 holder.dueDate.setText(R.string.tomorrow);
             } else if (DateHelper.isInInThePast(cTask.getDue())) {
-                holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
+                holder.dueDate.setText(DateHelper.timeInMillsToFullString(cTask.getDue())
                         + " " + context.getString(R.string.overdue_append));
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
                 holder.dueDate.setTextColor(Color.RED);
@@ -105,7 +103,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         }
         holder.taskCheckbox.setOnCheckedChangeListener(holder);
 
-        if (mPresenter.getTaskReminder(cTask.getTaskId()) != 0){
+        if (cTask.getReminder() != 0){
            holder.notificationImage.setVisibility(View.VISIBLE);
         } else {
             holder.notificationImage.setVisibility(View.GONE);
@@ -124,9 +122,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         notifyDataSetChanged();
     }
 
-    public void addItem(LocalTask task, int position) {
+    void addItem(LocalTask task, int position) {
         tasks.add(0, task);
         notifyItemInserted(position);
+        mPresenter.showEmptyRecyclerView(tasks.isEmpty());
     }
 
     public void showToast(String message) {
@@ -171,6 +170,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         return tasks.get(position).getIntId();
     }
 
+    void updateItem(LocalTask task, int position) {
+        tasks.set(position, task);
+        notifyItemChanged(position);
+    }
+
 
     //------------------------VIEW HOLDER-------------------------------///
     class TaskListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
@@ -201,20 +205,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         @Override
         public void onClick(View v) {
             LocalTask cTask = tasks.get(getAdapterPosition());
-            Intent i = new Intent(context, TaskDetailActivity.class);
-            i.putExtra(Co.TASK_TITLE, cTask.getTitle());
-            if (cTask.getDue() != 0) {
-                i.putExtra(Co.DETAIL_TASK_DUE,
-                        DateHelper.timeInMillsToString(cTask.getDue()));
-            } else {
-                i.putExtra(Co.DETAIL_TASK_DUE, context.getString(R.string.no_due_date));
-            }
-            i.putExtra(Co.DETAIL_TASK_NOTE, cTask.getNotes());
-            i.putExtra(Co.DETAIL_TASK_ID, cTask.getTaskId());
-            i.putExtra(Co.TASK_REMINDER, cTask.getReminder());
-//            i.putExtra("updated", cTask.getUpdated());
-//            i.putExtra("completed", cTask.getCompleted());
-//            i.putExtra("due", cTask.getDue());
+            Intent i = new Intent(context, NewOrDetailActivity.class);
+            i.putExtra(Co.LOCAL_TASK, cTask);
+            i.putExtra(Co.ADAPTER_POSITION, getAdapterPosition());
             mPresenter.navigateToEditTask(i);
         }
 

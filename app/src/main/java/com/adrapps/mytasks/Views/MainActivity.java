@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -35,17 +34,11 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -222,13 +215,7 @@ public class MainActivity extends AppCompatActivity
         }
         setNavDrawerMenu(Co.listTitles);
         List<LocalTask> tasks = mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID));
-        if (tasks == null || tasks.isEmpty()) {
-            recyclerView.setVisibility(View.GONE);
-            emptyDataLayout.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyDataLayout.setVisibility(View.GONE);
-        }
+        showEmptyRecyclerView(tasks == null || tasks.isEmpty());
         adapter.updateItems(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
 
     }
@@ -366,122 +353,132 @@ public class MainActivity extends AppCompatActivity
         switch (v.getId()) {
 
             case R.id.fab:
-                selectedDueDateInMills = 0;
-                selectedReminderInMills = 0;
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-                LayoutInflater inflater = this.getLayoutInflater();
-                View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
-                dialogBuilder.setView(dialogView);
+                Intent i = new Intent(this, NewOrDetailActivity.class);
+                mPresenter.navigateToEditTask(i);
 
-                //--------------FIND VIEWS--------------///
-                newTaskTitle = (EditText) dialogView.findViewById(R.id.etTaskTitle);
-                notSwitch = (Switch) dialogView.findViewById(R.id.notificationSwitch);
-                notifSpinner = (Spinner) dialogView.findViewById(R.id.notifSpinner);
-                dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
-
-                //---------------LISTENERS-------------////
-                notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (notSwitch.isChecked())
-                            notifSpinner.setVisibility(View.VISIBLE);
-                        else
-                            notifSpinner.setVisibility(View.GONE);
-                    }
-                });
-                notifSpinner.setOnItemSelectedListener(this);
-                dateTextView.setOnClickListener(this);
-                newTaskDialog = dialogBuilder.create();
-                Window window = newTaskDialog.getWindow();
-                WindowManager.LayoutParams wlp = window != null ? window.getAttributes() : null;
-
-                wlp.gravity = Gravity.TOP;
-                wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-                if (window != null) {
-                    window.setAttributes(wlp);
-                }
-                newTaskDialog.setCancelable(true);
-                newTaskDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        selectedDueDateInMills = 0
-                        ;
-                    }
-                });
-                newTaskDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.showSoftInput(newTaskTitle, InputMethodManager.SHOW_IMPLICIT);
-                    }
-                });
-                newTaskDialog.setTitle(getString(R.string.new_task_dialog_title));
-                newTaskDialog.setButton(AlertDialog.BUTTON_POSITIVE,
-                        getString(R.string.label_add_button),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        });
-                newTaskDialog.show();
-                newTaskDialog.getButton(AlertDialog.BUTTON_POSITIVE).
-                        setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (newTaskTitle.getText().toString().matches("")) {
-                                    showToast(getString(R.string.empty_title_error));
-                                    return;
-                                }
-                                if (notifSpinner.getVisibility() == View.VISIBLE && selectedDueDateInMills != 0) {
-                                    Calendar calendar = Calendar.getInstance();
-                                    switch (notifSpinner.getSelectedItemPosition()) {
-                                        case 0:
-                                            calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
-                                            calendar.set(Calendar.MINUTE, 0);
-                                            selectedReminderInMills = calendar.getTimeInMillis();
-                                            break;
-                                        case 1:
-                                            calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
-                                            calendar.set(Calendar.MINUTE, 0);
-                                            selectedReminderInMills = calendar.getTimeInMillis();
-                                            break;
-                                        case 2:
-                                            calendar.setTimeInMillis(selectedDueDateInMills);
-                                            calendar.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
-                                            calendar.set(Calendar.MINUTE, 0);
-                                            selectedReminderInMills = calendar.getTimeInMillis();
-                                            break;
-                                        case 3:
-                                            if (selectedReminderInMills != 0) {
-                                                calendar.setTimeInMillis(selectedReminderInMills);
-                                            }
-                                    }
-
-                                    Intent intent = new Intent(MainActivity.this, AlarmReciever.class);
-                                    intent.putExtra(Co.TASK_TITLE, newTaskTitle.getText().toString());
-                                    intent.putExtra(Co.TASK_DUE, dateTextView.getText().toString());
-                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                                            MainActivity.this,
-                                            (int) System.currentTimeMillis(),
-                                            intent,
-                                            PendingIntent.FLAG_UPDATE_CURRENT);
-                                    AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-//                                    SimpleDateFormat sdfCA= new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-//                                    showToast(sdfCA.format(calendar.getTime()));
-                                }
-                                LocalTask task = new LocalTask(newTaskTitle.getText().toString(), selectedDueDateInMills);
-                                task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
-                                task.setReminder(selectedReminderInMills);
-                                mPresenter.addTaskToApi(task);
-                                recyclerView.smoothScrollToPosition(0);
-                                newTaskDialog.dismiss();
-
-                            }
-                        });
+//                selectedDueDateInMills = 0;
+//                selectedReminderInMills = 0;
+//                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+//                LayoutInflater inflater = this.getLayoutInflater();
+//                View dialogView = inflater.inflate(R.layout.new_task_dialog, null);
+//                dialogBuilder.setView(dialogView);
+//
+//                //--------------FIND VIEWS--------------///
+//                newTaskTitle = (EditText) dialogView.findViewById(R.id.etTaskTitle);
+//                notSwitch = (Switch) dialogView.findViewById(R.id.notificationSwitch);
+//                notifSpinner = (Spinner) dialogView.findViewById(R.id.notifSpinner);
+//                dateTextView = (TextView) dialogView.findViewById(R.id.datePickerTextView);
+//
+//                //---------------LISTENERS-------------////
+//                notSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                        if (notSwitch.isChecked())
+//                            notifSpinner.setVisibility(View.VISIBLE);
+//                        else
+//                            notifSpinner.setVisibility(View.GONE);
+//                    }
+//                });
+//                notifSpinner.setOnItemSelectedListener(this);
+//                dateTextView.setOnClickListener(this);
+//                newTaskDialog = dialogBuilder.create();
+//                Window window = newTaskDialog.getWindow();
+//                WindowManager.LayoutParams wlp = window != null ? window.getAttributes() : null;
+//
+//                if (wlp != null) {
+//                    wlp.gravity = Gravity.TOP;
+//                    wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+//                }
+//                if (window != null) {
+//                    window.setAttributes(wlp);
+//                }
+//                newTaskDialog.setCancelable(true);
+//                newTaskDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                    @Override
+//                    public void onDismiss(DialogInterface dialog) {
+//                        selectedDueDateInMills = 0
+//                        ;
+//                    }
+//                });
+//                newTaskDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+//                    @Override
+//                    public void onShow(DialogInterface dialog) {
+//                        InputMethodManager imm = (
+//                                InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                        imm.showSoftInput(newTaskTitle, InputMethodManager.SHOW_IMPLICIT);
+//                    }
+//                });
+//                newTaskDialog.setTitle(getString(R.string.new_task_dialog_title));
+//                newTaskDialog.setButton(AlertDialog.BUTTON_POSITIVE,
+//                        getString(R.string.label_add_button),
+//                        new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//
+//                            }
+//                        });
+//                newTaskDialog.show();
+//                newTaskDialog.getButton(AlertDialog.BUTTON_POSITIVE).
+//                        setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View v) {
+//                                if (newTaskTitle.getText().toString().matches("")) {
+//                                    showToast(getString(R.string.empty_title_error));
+//                                    return;
+//                                }
+//                                if (notifSpinner.getVisibility() ==
+//                                        View.VISIBLE && selectedDueDateInMills != 0) {
+//                                    Calendar calendar = Calendar.getInstance();
+//                                    switch (notifSpinner.getSelectedItemPosition()) {
+//                                        case 0:
+//                                            calendar.setTimeInMillis(selectedDueDateInMills);
+//                                            calendar.set(Calendar.HOUR_OF_DAY,
+//                                                    Co.MORNING_ALARM_HOUR);
+//                                            calendar.set(Calendar.MINUTE, 0);
+//                                            selectedReminderInMills = calendar.getTimeInMillis();
+//                                            break;
+//                                        case 1:
+//                                            calendar.setTimeInMillis(selectedDueDateInMills);
+//                                            calendar.set(Calendar.HOUR_OF_DAY,
+//                                                    Co.AFTERNOON_ALARM_HOUR);
+//                                            calendar.set(Calendar.MINUTE, 0);
+//                                            selectedReminderInMills = calendar.getTimeInMillis();
+//                                            break;
+//                                        case 2:
+//                                            calendar.setTimeInMillis(selectedDueDateInMills);
+//                                            calendar.set(Calendar.HOUR_OF_DAY,
+//                                                    Co.EVENING_ALARM_HOUR);
+//                                            calendar.set(Calendar.MINUTE, 0);
+//                                            selectedReminderInMills = calendar.getTimeInMillis();
+//                                            break;
+//                                        case 3:
+//                                            if (selectedReminderInMills != 0) {
+//                                                calendar.setTimeInMillis(selectedReminderInMills);
+//                                            }
+//                                    }
+////
+////                                    Intent intent = new Intent(MainActivity.this, AlarmReciever.class);
+////                                    intent.putExtra(Co.TASK_TITLE, newTaskTitle.getText().toString());
+////                                    intent.putExtra(Co.TASK_DUE, dateTextView.getText().toString());
+////                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
+////                                            MainActivity.this,
+////                                            (int) System.currentTimeMillis(),
+////                                            intent,
+////                                            PendingIntent.FLAG_UPDATE_CURRENT);
+////                                    AlarmManager alarmManager =
+////                                            (AlarmManager) getSystemService(ALARM_SERVICE);
+////                                    alarmManager.set(AlarmManager.RTC_WAKEUP,
+////                                            calendar.getTimeInMillis(), pendingIntent);
+//                                }
+//                                LocalTask task = new LocalTask(newTaskTitle.getText().toString(),
+//                                        selectedDueDateInMills);
+//                                task.setReminder(selectedReminderInMills);
+//                                setReminder(task);
+//                                mPresenter.addTaskToApi(task);
+//                                newTaskDialog.dismiss();
+//
+//                            }
+//                        });
                 break;
 
             case R.id.datePickerTextView:
@@ -502,7 +499,6 @@ public class MainActivity extends AppCompatActivity
                         c.get(Calendar.DAY_OF_MONTH));
                 datePicker.show();
                 break;
-            case R.id.notificationSwitch:
         }
     }
 
@@ -591,7 +587,7 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.action_settings:
                 Calendar due = Calendar.getInstance();
-                due.setTimeInMillis(1492214400000L);
+                due.setTimeInMillis(1492402055507L);
                 Calendar updated = Calendar.getInstance();
                 updated.setTimeInMillis(1492303523000L);
                 String sd, su;
@@ -606,7 +602,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     su = " not today";
                 }
-                showToast("Updated: " + sdfCA.format(updated.getTimeInMillis()) + su + "\n" +
+                showToast(/*"Updated: " + sdfCA.format(updated.getTimeInMillis()) + su + "\n" +*/
                         "Due: " + sdfCA.format(due.getTimeInMillis()) + sd);
                 break;
 
@@ -645,7 +641,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void addTaskToAdapter(LocalTask localTask) {
-        adapter.addItem(localTask,0);
+        adapter.addItem(localTask, 0);
     }
 
     @Override
@@ -653,17 +649,27 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, resultIntent);
         if (requestCode == Co.TASK_DATA_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                LocalTask task = new LocalTask(resultIntent.getStringExtra(Co.TASK_EDITED_TITLE),
-                        resultIntent.getLongExtra(Co.TASK_DUE, 0),
-                        resultIntent.getStringExtra(Co.TASK_EDITED_NOTE));
-                task.setTaskId(resultIntent.getStringExtra(Co.DETAIL_TASK_ID));
-                task.setReminder(resultIntent.getLongExtra(Co.TASK_REMINDER, 0));
-                mPresenter.editTask(task);
+                if (resultIntent.hasExtra(Co.TASK_EDIT)) {
+                    LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
+                    if (task != null) {
+                        mPresenter.editTask(task);
+                        setReminder(task);
+                        mPresenter.updateReminder(task.getTaskId(), task.getReminder());
+                        adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
+                    }
+                } else if (resultIntent.hasExtra(Co.NEW_TASK)){
+                    LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
+                    if (task != null) {
+                        task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
+                        setReminder(task);
+                        mPresenter.addTaskToApi(task);
+                    }
+                }
             }
-
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
+//
+//            if (resultCode == Activity.RESULT_CANCELED) {
+//                //Write your code if there's no result
+//            }
         }
     }
 
@@ -739,6 +745,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void showSwipeRefreshProgress(boolean b) {
         swipeRefresh.setRefreshing(b);
+    }
+
+    @Override
+    public void setReminder(LocalTask task){
+        if (task.getReminder() != 0) {
+            Intent intent = new Intent(this, AlarmReciever.class);
+            intent.putExtra(Co.TASK_TITLE, task.getTitle());
+            intent.putExtra(Co.TASK_DUE, DateHelper.timeInMillsToString(task.getDue()));
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    (int) System.currentTimeMillis(),
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager alarmManager =
+                    (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManager.set(AlarmManager.RTC_WAKEUP,
+                    task.getReminder(), pendingIntent);
+        }
     }
 
 }

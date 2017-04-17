@@ -155,4 +155,9 @@ public class DataModel implements Contract.Model {
     public boolean taskExistsInDB(String taskId) {
         return tasksDb.taskExistsInDB(taskId);
     }
+
+    @Override
+    public long updateReminder(String taskId, long reminder) {
+        return tasksDb.updateTaskReminder(taskId, reminder);
+    }
 }

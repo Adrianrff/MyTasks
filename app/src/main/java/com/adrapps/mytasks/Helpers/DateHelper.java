@@ -21,23 +21,35 @@ public class DateHelper {
 
     public static DateTime millisecondsToDateTime (long timeInMills){
         int offSet = TimeZone.getDefault().getRawOffset();
-        return new DateTime(timeInMills);
+        return new DateTime(timeInMills, offSet/60000);
     }
 
     public static String timeInMillsToString(long timeInMills){
-        SimpleDateFormat format = new SimpleDateFormat("EEEE, d MMM yyy", Locale.getDefault());
-
         Calendar calendar = Calendar.getInstance();
+        Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
-        return format.format(calendar.getTime());
+        String format;
+        if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)){
+            format = "EEEE, d MMMM";
+        } else {
+            format = "EEEE, d MMMM, yyyy";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        return sdf.format(calendar.getTime());
     }
 
     public static String timeInMillsToFullString(long timeInMills){
-        SimpleDateFormat format = new SimpleDateFormat("d MMM yyyy HH:mm", Locale.getDefault());
-
         Calendar calendar = Calendar.getInstance();
+        Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
-        return format.format(calendar.getTime());
+        String format;
+        if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)){
+            format = "d MMM h:mm a";
+        } else {
+            format = "d MMM yyyy h:mm a";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        return sdf.format(calendar.getTime());
     }
 
     public static boolean isTomorrow(long timeInMills){

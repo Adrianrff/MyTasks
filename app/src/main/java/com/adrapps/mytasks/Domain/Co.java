@@ -41,6 +41,10 @@ public class Co {
     public static final int MORNING_ALARM_HOUR = 9;
     public static final int AFTERNOON_ALARM_HOUR = 14;
     public static final int EVENING_ALARM_HOUR = 18;
+    public static final String LOCAL_TASK = "Local task";
+    public static final String ADAPTER_POSITION = "Adapter position";
+    public static final String TASK_EDIT = "Task edit";
+    public static final String NEW_TASK = "New task";
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
 

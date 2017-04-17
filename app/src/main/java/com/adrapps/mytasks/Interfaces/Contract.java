@@ -83,6 +83,8 @@ public class Contract {
         void navigateToEditTask(Intent intent);
 
         void addTaskToAdapter(LocalTask localTask);
+
+        void setReminder(LocalTask task);
     }
 
 
@@ -122,6 +124,8 @@ public class Contract {
         long getTaskReminder(String taskId);
 
         boolean taskExistsInDB(String taskId);
+
+        long updateReminder(String taskId, long reminder);
     }
 
     //------------------FRAGMENT OPS---------------------//

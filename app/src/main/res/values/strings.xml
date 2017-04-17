@@ -9,12 +9,8 @@
     <string name="no_due_date"><![CDATA[<No due date>]]></string>
     <string name="request_api_authorization">Requesting API authorization</string>
     <string name="task_title_hint">Task title</string>
-    <string name="task_due_date">Task due date</string>
     <string name="label_add_button">Add</string>
-    <string name="note_label">Notes:</string>
     <string name="lists_menu_title">Lists</string>
-    <string name="pick_date">Pick date</string>
-    <string name="no_notes">No notes</string>
     <string name="first_sync_progress_dialog">Fetching data</string>
     <string name="notifications_settings_title">Notifications</string>
     <string name="undo">UNDO</string>
@@ -27,14 +23,12 @@
     <string name="new_task_dialog_title">New task</string>
     <string name="empty_title_error">The title can not be empty</string>
     <string name="notification_select">Notification</string>
-    <string name="notification_spinner_hint">Select notification time</string>
     <string name="task_notes_hint">Task notes</string>
     <string name="no_internet_toast">No network connection available.</string>
     <string name="task_edit_title">Edit task</string>
     <string name="no_task_name"><![CDATA[<No title>]]></string>
     <string name="no_tasks_in_list">No tasks in this list</string>
     <string name="nothing_to_show">Nothing to show</string>
-    <string name="crash_toast_text">The app has closed.</string>
     <string name="bug_report_notification_title">Bug report captured, send to developer</string>
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
@@ -48,6 +42,9 @@
     <string name="afternoon">In the afternoon</string>
     <string name="evening">In the evening</string>
     <string name="custom">Custom…</string>
+    <string name="ok">Ok</string>
+    <string name="no_due_date_selected">No due date selected</string>
+    <string name="nothing_selected">Nothing selected</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

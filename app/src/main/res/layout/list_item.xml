@@ -54,9 +54,9 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="@dimen/half_margin"
         android:layout_marginEnd="@dimen/half_margin"
-        android:layout_marginBottom="@dimen/half_margin"
-        android:layout_marginTop="@dimen/half_margin"
-        android:visibility="gone"
+        android:layout_centerVertical="true"
+        android:foregroundGravity="center_vertical|center_horizontal"
+        android:visibility="visible"
         android:src="@drawable/notification"
         android:tint="@color/colorPrimaryDark"
         android:contentDescription="Notification image" />

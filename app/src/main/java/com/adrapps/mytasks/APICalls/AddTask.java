@@ -98,12 +98,9 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     private void addTask(LocalTask lTask) throws IOException {
         Task task = LocalTask.localTaskToApiTask(lTask);
         Task aTask = mService.tasks().insert(listId,task).execute();
-        Log.d("Updated", String.valueOf(aTask.getUpdated().getValue()));
-        if (aTask.getDue() != null) {
-            Log.d("Due", String.valueOf(aTask.getDue().getValue()));
-        }
         localTask = new LocalTask(aTask, lTask.getTaskList());
         localTask.setReminder(lTask.getReminder());
+        localTask.setTaskList(lTask.getTaskList());
         mPresenter.addTaskToDatabase(localTask);
     }
 }

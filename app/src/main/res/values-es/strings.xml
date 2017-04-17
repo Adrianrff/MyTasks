@@ -10,12 +10,8 @@
     <string name="no_due_date"><![CDATA[<Sin fecha>]]></string>
     <string name="request_api_authorization">Solicitando autorización</string>
     <string name="task_title_hint">Título de la tarea</string>
-    <string name="task_due_date">Fecha límite</string>
     <string name="label_add_button">AGREGAR</string>
-    <string name="note_label">Notas:</string>
     <string name="lists_menu_title">Listas</string>
-    <string name="pick_date">Seleccione la fecha</string>
-    <string name="no_notes">No hay notas</string>
     <string name="first_sync_progress_dialog">Sincronizando datos</string>
     <string name="notifications_settings_title">Notificaciones</string>
     <string name="undo">DESHACER</string>
@@ -28,14 +24,12 @@
     <string name="new_task_dialog_title">Nueva Tarea</string>
     <string name="empty_title_error">El título no puede estar vacío</string>
     <string name="notification_select">Notificación</string>
-    <string name="notification_spinner_hint">Seleccione cuando notificar</string>
     <string name="task_notes_hint">Notas</string>
     <string name="no_internet_toast">No hay connexión a internet</string>
     <string name="task_edit_title">Editar tarea</string>
     <string name="no_task_name"><![CDATA[<Sin título>]]></string>
     <string name="no_tasks_in_list">No hay tareas en esta lista</string>
     <string name="nothing_to_show">Nada que mostrar</string>
-    <string name="crash_toast_text">La aplicación se ha cerrado</string>
     <string name="bug_report_notification_title">Se ha capturado un reporte de errores.
         Toca para enviar al desarrollador</string>
     <string name="today">Hoy</string>
@@ -50,6 +44,9 @@
     <string name="afternoon">En la tarde</string>
     <string name="evening">En la noche</string>
     <string name="custom">Personalizar…</string>
+    <string name="ok">Ok</string>
+    <string name="no_due_date_selected">Fecha no seleccionada</string>
+    <string name="nothing_selected">Nothing selected</string>
 
     <string-array name="notification_options">
         <item>En la mañana</item>

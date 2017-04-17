@@ -211,6 +211,10 @@ public class TaskListPresenter {
         mModel.editTask(task);
     }
 
+    public long updateReminder(String taskId, long reminder){
+        return mModel.updateReminder(taskId, reminder);
+    }
+
     public void saveBooleanShP(String key, boolean b) {
         getView().saveBooleanShP(key, b);
     }
