@@ -1,5 +1,7 @@
 package com.adrapps.mytasks.Domain;
 
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -25,7 +27,9 @@ public class LocalTask implements Serializable {
     private String status;
     private String taskList;
     private int intId;
+    private int syncStatus;
     private long reminder;
+    private long reminderId;
     private long updated,due,completed;
     private boolean deleted,hidden;
     private int offSet = TimeZone.getDefault().getRawOffset();
@@ -37,6 +41,8 @@ public class LocalTask implements Serializable {
         title = taskTitle;
         this.due = dueDate;
         this.reminder = 0;
+        this.reminder = 0;
+        this.syncStatus = Co.NOT_SYNCED;
     }
 
     public LocalTask (String taskTitle, long dueDate, String notes){
@@ -44,6 +50,8 @@ public class LocalTask implements Serializable {
         this.due = dueDate;
         this.notes = notes;
         this.reminder = 0;
+        this.reminderId = 0;
+        this.syncStatus = Co.NOT_SYNCED;
     }
 
     public LocalTask (String taskTitle, long dueDate, String notes, long reminder){
@@ -51,6 +59,8 @@ public class LocalTask implements Serializable {
         this.due = dueDate;
         this.notes = notes;
         this.reminder = reminder;
+        this.reminderId = System.currentTimeMillis();
+        this.syncStatus = Co.NOT_SYNCED;
     }
 
     public LocalTask(Task task, String listId) {
@@ -68,6 +78,8 @@ public class LocalTask implements Serializable {
         this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
         this.reminder = 0;
+        this.reminderId = 0;
+        this.syncStatus = Co.NOT_SYNCED;
     }
 
     public static Task localTaskToApiTask (LocalTask lTask){
@@ -81,10 +93,25 @@ public class LocalTask implements Serializable {
         }
         return task;
     }
+
     ///-------------------SETTERS ----------------------//
+
+
+    public void setSyncStatus(int syncStatus) {
+        this.syncStatus = syncStatus;
+    }
 
     public void setReminder(long reminder) {
         this.reminder = reminder;
+        this.reminderId = System.currentTimeMillis();
+    }
+
+    public void setReminderDontSetID(long reminder) {
+        this.reminder = reminder;
+    }
+
+    public void setReminderId (long reminderId){
+        this.reminderId = reminderId;
     }
 
     public void setTaskList(String taskList) {
@@ -146,6 +173,14 @@ public class LocalTask implements Serializable {
 
     ///-------------------GETTERS---------------------///
 
+
+    public int getSyncStatus() {
+        return syncStatus;
+    }
+
+    public long getReminderId() {
+        return reminderId;
+    }
 
     public long getReminder() {
         return reminder;

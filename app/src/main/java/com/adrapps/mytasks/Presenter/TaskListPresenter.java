@@ -226,6 +226,7 @@ public class TaskListPresenter {
     public void addTaskToDatabase(LocalTask task) {
         mModel.addTaskToLocalDatabase(task);
     }
+
     public void addTaskToDatabase(Task task, String listId) {
         mModel.addTaskToLocalDatabase(task, listId);
     }

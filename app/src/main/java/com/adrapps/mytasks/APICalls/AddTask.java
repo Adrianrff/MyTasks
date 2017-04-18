@@ -67,7 +67,6 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-        mPresenter.addTaskToAdapter(localTask);
 //        mPresenter.refresh();
     }
 

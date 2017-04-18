@@ -17,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -60,7 +59,6 @@ public class NewOrDetailActivity extends AppCompatActivity
     private LocalTask task;
     private int position;
     private TextView customNotOption;
-    private Button notButton;
     private AlertDialog dialog;
     private ImageView notEdit;
 
@@ -69,11 +67,16 @@ public class NewOrDetailActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.task_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.task_edit_title);
+        if (getIntent().hasExtra(Co.LOCAL_TASK))
+            toolbar.setTitle(R.string.task_edit_title);
+        else
+            toolbar.setTitle(R.string.new_task_title);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        selectedReminderInMills = 0;
+        selectedDateInMills = 0;
         taskTitle = (EditText) findViewById(R.id.task_title_edit_text);
         taskDue = (TextView) findViewById(R.id.due_date_picker);
         notInfo = (TextView) findViewById(R.id.notification_info);
@@ -127,8 +130,6 @@ public class NewOrDetailActivity extends AppCompatActivity
         rbAfternoon = (RadioButton) dialogView.findViewById(R.id.rb_afternoon);
         rbEvening = (RadioButton) dialogView.findViewById(R.id.rb_evening);
         rbCustom = (RadioButton) dialogView.findViewById(R.id.rb_custom);
-        notButton = (Button) dialogView.findViewById(R.id.notification_button);
-        notButton.setOnClickListener(this);
         morningLayout.setOnClickListener(this);
         afternoonLayout.setOnClickListener(this);
         eveningLayout.setOnClickListener(this);
@@ -158,12 +159,15 @@ public class NewOrDetailActivity extends AppCompatActivity
                 if (getIntent().hasExtra(Co.LOCAL_TASK)) {
                     if (isDeviceOnline()) {
                         Intent i = new Intent();
-                        task.setReminder(selectedReminderInMills);
+                        if (selectedReminderInMills != 0) {
+                            task.setReminder(selectedReminderInMills);
+                        }
                         task.setTitle(taskTitle.getText().toString());
                         if (taskNotes.getText().toString().trim().length() != 0)
                             task.setNotes(taskNotes.getText().toString());
-                        if (selectedDateInMills != 0)
+                        if (selectedDateInMills != 0) {
                             task.setDue(selectedDateInMills);
+                        }
                         i.putExtra(Co.TASK_EDIT, true);
                         i.putExtra(Co.LOCAL_TASK, task);
                         i.putExtra(Co.ADAPTER_POSITION, position);
@@ -184,8 +188,9 @@ public class NewOrDetailActivity extends AppCompatActivity
                                 selectedDateInMills);
                         if (taskNotes.getText().toString().trim().length() != 0)
                             task.setNotes(taskNotes.getText().toString());
-                        if (selectedReminderInMills != 0)
+                        if (selectedReminderInMills != 0) {
                             task.setReminder(selectedReminderInMills);
+                        }
                         i.putExtra(Co.LOCAL_TASK, task);
                         i.putExtra(Co.NEW_TASK, true);
                         setResult(Activity.RESULT_OK, i);
@@ -293,6 +298,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                                 selectedReminderInMills = c.getTimeInMillis();
                                 customNotOption.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                                 notInfo.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
+                                dialog.dismiss();
                             }
                         }, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), false);
                         timePicker.show();
@@ -300,18 +306,6 @@ public class NewOrDetailActivity extends AppCompatActivity
                 }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
                 break;
-
-            case R.id.notification_button:
-                if (rbCustom.isChecked()) {
-                    dialog.dismiss();
-                    break;
-                } else {
-                    showToast(getString(R.string.nothing_selected));
-                    notSwitch.setChecked(false);
-                    dialog.dismiss();
-                    break;
-                }
-
             case R.id.notif_edit:
                 showNotificationDialog();
 
@@ -328,9 +322,6 @@ public class NewOrDetailActivity extends AppCompatActivity
         selectedDateInMills = c.getTimeInMillis();
         SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
         taskDue.setText(DateHelper.timeInMillsToString(selectedDateInMills));
-        Log.d("SelectedDueFromPicker",String.valueOf(selectedDateInMills) + "\n" +
-                DateHelper.timeInMillsToFullString(selectedDateInMills) + "\n" +
-                sdfCA.format(selectedDateInMills));
     }
 
     public void showToast(String msg) {

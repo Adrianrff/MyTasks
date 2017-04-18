@@ -653,15 +653,15 @@ public class MainActivity extends AppCompatActivity
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
                         mPresenter.editTask(task);
-                        setReminder(task);
+                        if (task.getReminder() != 0) setReminder(task);
                         mPresenter.updateReminder(task.getTaskId(), task.getReminder());
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                     }
-                } else if (resultIntent.hasExtra(Co.NEW_TASK)){
+                } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
                         task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
-                        setReminder(task);
+                        if (task.getReminder() != 0) setReminder(task);
                         mPresenter.addTaskToApi(task);
                     }
                 }
@@ -748,14 +748,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setReminder(LocalTask task){
-        if (task.getReminder() != 0) {
+    public void setReminder(LocalTask task) {
+        if (task.getReminder() != 0 && task.getReminderId() != 0) {
             Intent intent = new Intent(this, AlarmReciever.class);
             intent.putExtra(Co.TASK_TITLE, task.getTitle());
-            intent.putExtra(Co.TASK_DUE, DateHelper.timeInMillsToString(task.getDue()));
+            intent.putExtra(Co.TASK_DUE, task.getDue());
+            intent.putExtra(Co.TASK_ID, task.getTaskId());
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
                     this,
-                    (int) System.currentTimeMillis(),
+                    (int) task.getReminderId(),
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager alarmManager =
@@ -764,5 +765,4 @@ public class MainActivity extends AppCompatActivity
                     task.getReminder(), pendingIntent);
         }
     }
-
 }

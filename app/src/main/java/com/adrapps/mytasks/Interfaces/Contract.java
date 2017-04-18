@@ -66,7 +66,9 @@ public class Contract {
 
         void initRecyclerView(List<LocalTask> tasks);
 
+        void setReminder(LocalTask task);
 
+        void addTaskToAdapter(LocalTask localTask);
 
         //-------DATA RETRIEVE-------------///
 
@@ -81,10 +83,6 @@ public class Contract {
         boolean isDeviceOnline();
 
         void navigateToEditTask(Intent intent);
-
-        void addTaskToAdapter(LocalTask localTask);
-
-        void setReminder(LocalTask task);
     }
 
 

@@ -21,7 +21,7 @@
     <string name="g_services_not_available">Servicios de Google Play no está disponible</string>
     <string name="task_not_found">No se encontró la tarea</string>
     <string name="task_due_date_hint">Seleccione la fecha</string>
-    <string name="new_task_dialog_title">Nueva Tarea</string>
+    <string name="new_task_title">Nueva Tarea</string>
     <string name="empty_title_error">El título no puede estar vacío</string>
     <string name="notification_select">Notificación</string>
     <string name="task_notes_hint">Notas</string>

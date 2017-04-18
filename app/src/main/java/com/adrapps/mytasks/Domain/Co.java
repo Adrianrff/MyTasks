@@ -19,32 +19,22 @@ public class Co {
     public static final String[] SCOPES = {TasksScopes.TASKS};
     public static final String IS_FIRST_INIT = "first init";
     public static final String CURRENT_LIST_TITLE = "current list title";
-    public static final String FIRST_REFRESH = "first refresh";
     public static final String TASK_TITLE = "task name";
-    public static final String DETAIL_TASK_NOTE = "task note";
-    public static final String DETAIL_TASK_DUE = "task due date";
     public static final String NO_VALUE = "no value";
     public static final String TASK_COMPLETED = "completed";
     public static final String TASK_NEEDS_ACTION = "needsAction";
-    public static final String TASK_EDITED_TITLE = "task edited title";
-    public static final String TASK_EDITED_NOTE = "task edited note";
     public static final String TASK_DUE = "task edited due date";
     public static final int TASK_DATA_REQUEST_CODE = 99;
-    public static final String DETAIL_TASK_ID = "task id" ;
-    public static final String DETAIL_TASK_LIST_ID = "task list";
-    public static final String ORDER_POSITION_ASC = "Order by position asc";
-    public static final String ORDER_POSITION_DESC = "Order by position desc";
-    public static final String ORDER_DUE_DATE_ASC = "Order by due date asc";
-    public static final String ORDER_DUE_DATE_DESC = "Order by due date desc";
-    public static final String ORDER_UPDATED_ASC = "Order by updated asc";
-    public static final String ORDER_UPDATED_DESC = "Order by updated desc";
-    public static final int MORNING_ALARM_HOUR = 9;
-    public static final int AFTERNOON_ALARM_HOUR = 14;
+    public static final int MORNING_ALARM_HOUR = 8;
+    public static final int AFTERNOON_ALARM_HOUR = 2;
     public static final int EVENING_ALARM_HOUR = 18;
     public static final String LOCAL_TASK = "Local task";
     public static final String ADAPTER_POSITION = "Adapter position";
     public static final String TASK_EDIT = "Task edit";
     public static final String NEW_TASK = "New task";
+    public static final int NOT_SYNCED = 0;
+    public static final int EDITED_NOT_SYNCED = 1;
+    public static final int SYNCED = 2;
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
 
@@ -53,6 +43,7 @@ public class Co {
     public static String ORDER_TYPE = "order type";
     public static final String TASK_MOVED_TO_FIRST = "first";
     public static final String TASK_REMINDER = "task reminder";
+    public static final String TASK_ID = "task id";
 
 
     public static void setListIds(List<String> listIds) {

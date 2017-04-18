@@ -126,8 +126,12 @@ public class DataModel implements Contract.Model {
                 mPresenter.getCredential(),mPresenter.getStringShP(Co.CURRENT_LIST_ID));
         if (mPresenter.isDeviceOnline())
             add.execute(task);
-        else
+        else {
+            task.setSyncStatus(Co.NOT_SYNCED);
+            mPresenter.addTaskToAdapter(task);
+            mPresenter.addTaskToDatabase(task);
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
+        }
     }
 
     @Override
@@ -148,7 +152,7 @@ public class DataModel implements Contract.Model {
 
     @Override
     public long getTaskReminder(String taskId) {
-        return tasksDb.getTaskRemminder(taskId);
+        return tasksDb.getTaskReminder(taskId);
     }
 
     @Override

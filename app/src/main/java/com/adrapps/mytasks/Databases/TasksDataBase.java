@@ -33,6 +33,8 @@ public class TasksDataBase extends SQLiteOpenHelper {
     public static final String COL_DELETED = "Deleted";
     public static final String COL_HIDDEN = "Hidden";
     public static final String COL_REMINDER = "Reminder";
+    public static final String COL_REMINDER_ID = "Reminder_ID";
+    public static final String COL_SYNC_STATUS = "Sync_status";
     public static final String ORDER_ASC = " ASC";
     public static final String ORDER_DESC = " DESC";
 
@@ -53,7 +55,9 @@ public class TasksDataBase extends SQLiteOpenHelper {
             COL_COMPLETED,
             COL_DELETED,
             COL_HIDDEN,
-            COL_REMINDER};
+            COL_REMINDER,
+            COL_REMINDER_ID,
+            COL_SYNC_STATUS};
 
     //-----------CREATE TABLE STATEMENT--------//
     private static final String CREATE_TABLE =
@@ -73,7 +77,9 @@ public class TasksDataBase extends SQLiteOpenHelper {
                     COL_COMPLETED + " text," +
                     COL_DELETED + " int," +
                     COL_HIDDEN + " int," +
-                    COL_REMINDER + " bigint)";
+                    COL_REMINDER + " bigint," +
+                    COL_REMINDER_ID + " bigint," +
+                    COL_SYNC_STATUS + " int)";
 
 
 
@@ -108,7 +114,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
             do{
                 LocalTask task = new LocalTask();
                 task.setTaskId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-//                task.setSortId(cursor.getInt(cursor.getColumnIndex(COL_SORT_ID)));
                 task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
                 task.setSelfLink(cursor.getString(cursor.getColumnIndex(COL_SELFLINK)));
                 task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
@@ -122,7 +127,9 @@ public class TasksDataBase extends SQLiteOpenHelper {
                 task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
                 task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
                 task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-                task.setReminder(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
+                task.setReminderDontSetID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
+                task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+                task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
                 tasks.add(task);
             } while (cursor.moveToNext());
         }
@@ -148,6 +155,8 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_DELETED,(localTask.isDeleted()) ? 1:0);
         cv.put(COL_HIDDEN,(localTask.isHidden()) ? 1:0);
         cv.put(COL_REMINDER,localTask.getReminder());
+        cv.put(COL_REMINDER_ID,localTask.getReminderId());
+        cv.put(COL_SYNC_STATUS,localTask.getSyncStatus());
         long insertedRow = db.insert(TABLE_NAME,null,cv);
         db.close();
         return insertedRow;
@@ -169,6 +178,8 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_DELETED,task.getDeleted() == null ? 0 : task.getDeleted() ? 1 : 0);
         cv.put(COL_HIDDEN,task.getHidden() == null ? 0 : task.getHidden() ? 1 : 0);
         cv.put(COL_REMINDER,0);
+        cv.put(COL_REMINDER_ID,0);
+        cv.put(COL_SYNC_STATUS,0);
         long insertedRow = db.insert(TABLE_NAME,null,cv);
         db.close();
         return insertedRow;
@@ -193,6 +204,8 @@ public class TasksDataBase extends SQLiteOpenHelper {
             cv.put(COL_DELETED,(tasks.get(i).isDeleted()) ? 1:0);
             cv.put(COL_HIDDEN,(tasks.get(i).isHidden()) ? 1:0);
             cv.put(COL_REMINDER,tasks.get(i).getReminder());
+            cv.put(COL_REMINDER_ID,tasks.get(i).getReminder());
+            cv.put(COL_SYNC_STATUS,tasks.get(i).getSyncStatus());
             db.insert(TABLE_NAME,null,cv);
         }
         db.close();
@@ -208,7 +221,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return deletedRow;
     }
 
-    public long getTaskRemminder(String taskId){
+    public long getTaskReminder(String taskId){
         SQLiteDatabase db = this.getWritableDatabase();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
@@ -234,11 +247,21 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return updatedRow;
     }
 
+    public int updateTaskSyncStatus(String taskId, int newStatus){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {taskId};
+        ContentValues cv = new ContentValues();
+        cv.put(COL_SYNC_STATUS,newStatus);
+        int updatedRow = db.update(TABLE_NAME,cv,selection,selectionArgs);
+        db.close();
+        return updatedRow;
+    }
+
     public boolean taskExistsInDB (String taskId){
         SQLiteDatabase db = this.getWritableDatabase();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
-        long taskReminder = 0;
         Cursor cursor = db.query(TABLE_NAME,new String[] {COL_ID},selection,selectionArgs,null,null,null);
         boolean exists = cursor.getCount() > 0;
         db.close();

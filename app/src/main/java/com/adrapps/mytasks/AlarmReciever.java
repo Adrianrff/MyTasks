@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import com.adrapps.mytasks.Domain.Co;
+import com.adrapps.mytasks.Domain.LocalTask;
+import com.adrapps.mytasks.Helpers.DateHelper;
 
 public class AlarmReciever extends BroadcastReceiver {
 
@@ -14,12 +16,10 @@ public class AlarmReciever extends BroadcastReceiver {
         Notification.Builder notifyBuilder = new Notification.Builder(context)
                 .setSmallIcon(R.drawable.ic_assignment_late_black_24dp)
                 .setContentTitle(context.getString(R.string.task_reminder_notification_title))
-                .setContentText(context.getString(R.string.uncompleted_task_text) + " " +
-                        intent.getStringExtra(Co.TASK_DUE))
+                .setContentText(intent.getStringExtra(Co.TASK_TITLE))
                 .setDefaults(Notification.DEFAULT_ALL)
-                .setStyle(new Notification.BigTextStyle().bigText(context.getString(R.string.uncompleted_task_text) + " " +
-                        intent.getStringExtra(Co.TASK_DUE) + ".\n" +
-                context.getString(R.string.touch_for_details)));
+                .setStyle(new Notification.BigTextStyle().bigText("Your task " +
+                                intent.getStringExtra(Co.TASK_TITLE) + " is due"));
 //                .setContentIntent(pendingIntent);
         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).
                 notify((int) System.currentTimeMillis(), notifyBuilder.build());
