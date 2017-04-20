@@ -104,11 +104,14 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
                 if (lTask.getReminder() != 0) localTask.setReminder(lTask.getReminder());
                 localTask.setTaskList(lTask.getTaskList());
                 localTask.setSyncStatus(Co.SYNCED);
+                mPresenter.addTaskFirstTimeFromServer(aTask, lTask.getTaskList());
             }
         } catch (IOException e) {
             e.printStackTrace();
-            mPresenter.showToast("Task could not be added to the server");
+            mPresenter.showToast("Task could not be added to the server.\n" + "Please try again");
+            lTask.setSyncStatus(Co.NOT_SYNCED);
             mPresenter.addTaskToDatabase(lTask);
+
         }
     }
 }

@@ -12,11 +12,9 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * Created by Adrian Flores on 10/4/2017.
@@ -96,6 +94,7 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
             task.setCompleted(null);
         }
         task.setStatus(newStatus);
+        mPresenter.updateSyncStatus(taskId, Co.SYNCED);
         mService.tasks().update(listId, task.getId(), task).execute();
     }
 }

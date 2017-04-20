@@ -66,7 +66,7 @@ public class LocalTask implements Serializable {
         this.status = task.getStatus();
         this.taskList = listId;
         this.serverModify = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
-        this.due = (task.getDue() == null) ? 0:task.getDue().getValue();
+        this.due = (task.getDue() == null) ? 0:task.getDue().getValue() - offSet;
         this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
         this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
@@ -112,7 +112,7 @@ public class LocalTask implements Serializable {
     }
 
     public void setLocalModify() {
-        this.localModify = System.currentTimeMillis();
+        this.localModify = System.currentTimeMillis() + 10000;
     }
 
     public void setLocalModify(long localModify) {

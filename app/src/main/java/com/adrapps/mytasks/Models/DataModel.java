@@ -72,8 +72,8 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void addTaskToLocalDatabase(Task task, String listId) {
-        tasksDb.addTask(task, listId);
+    public void addTaskFirstTimeFromServer(Task task, String listId) {
+        tasksDb.addTaskFirstTimeFromServer(task, listId);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class DataModel implements Contract.Model {
 
     @Override
     public int updateLocalTask(LocalTask modifiedTask) {
-        return tasksDb.updateTask(modifiedTask);
+        return tasksDb.updateLocalTask(modifiedTask);
     }
 
     @Override
@@ -134,6 +134,26 @@ public class DataModel implements Contract.Model {
     @Override
     public void updateLocalTask(Task task, String listId) {
         tasksDb.updateTask(task, listId);
+    }
+
+    @Override
+    public void markDeleted(String taskId) {
+        tasksDb.markDeleted(taskId);
+    }
+
+    @Override
+    public void updateNewlyCreatedTask(Task aTask, String listId, String intId) {
+        tasksDb.updateNewLyCreatedTask(aTask, listId, intId);
+    }
+
+    @Override
+    public void setTemporaryPosition(String taskId, String newTaskTempPos) {
+        tasksDb.setTemporaryPosition(taskId, newTaskTempPos);
+    }
+
+    @Override
+    public void updateMoved(String id, int moved) {
+        tasksDb.updateMoved(moved, id);
     }
 
 
@@ -178,14 +198,13 @@ public class DataModel implements Contract.Model {
     @Override
     public void addTask(LocalTask task) {
         mPresenter.addTaskToAdapter(task);
-        task.setLocalModify();
-        task.setLocalSibling(null);
         if (mPresenter.isDeviceOnline()) {
             AddTask add = new AddTask(mPresenter,
                     mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
             add.execute(task);
         }
         else {
+            task.setLocalModify();
             task.setSyncStatus(Co.NOT_SYNCED);
             mPresenter.addTaskToDatabase(task);
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
@@ -194,21 +213,25 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void moveTask(String[] params) {
-        if (mPresenter.isDeviceOnline()) {
+        mPresenter.updateSyncStatus(params[0], Co.EDITED_NOT_SYNCED);
+        mPresenter.updateSibling(params[0], params[2]);if (mPresenter.isDeviceOnline()) {
             MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
             move.execute(params);
         } else {
-            mPresenter.updateSibling(params[0], params[2]);
+            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }
     }
 
     @Override
     public void editTask(LocalTask task) {
+        mPresenter.updateLocalTask(task);
+        task.setSyncStatus(Co.EDITED_NOT_SYNCED);
         if (mPresenter.isDeviceOnline()) {
             EditTask edit = new EditTask(mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
             edit.execute(task);
-        }else
+        }else {
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
+        }
     }
 
 

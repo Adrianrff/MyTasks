@@ -1,8 +1,8 @@
 package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
+import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -17,8 +17,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 /**
  * Created by Adrian Flores on 10/4/2017.
@@ -67,7 +65,6 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        mPresenter.refresh();
         mPresenter.showToast(mPresenter.getString(R.string.task_updated));
     }
 
@@ -102,10 +99,8 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
         if (lTask.getDue() != 0) {
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
         }
-        SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-        Log.d("SelectedDueFromApi",String.valueOf(task.getDue().getValue()) + "\n" +
-                DateHelper.timeInMillsToFullString(task.getDue().getValue()) + "\n" +
-                sdfCA.format(task.getDue().getValue()));
         mService.tasks().update(listId, task.getId(), task).execute();
+        mPresenter.updateSyncStatus(lTask.getId(), Co.SYNCED);
+        mPresenter.updateMoved(lTask.getId(), Co.NOT_MOVED);
     }
 }

@@ -103,7 +103,7 @@ public class Contract {
 
         void addTaskToLocalDatabase(LocalTask task);
 
-        void addTaskToLocalDatabase(Task task, String listId);
+        void addTaskFirstTimeFromServer(Task task, String listId);
 
         int deleteTask(String taskId);
 
@@ -140,6 +140,14 @@ public class Contract {
         List<LocalTask> getTaskFromLlistForAdapter(String listId);
 
         void updateLocalTask(Task task, String listId);
+
+        void markDeleted(String taskId);
+
+        void updateNewlyCreatedTask(Task aTask, String listId, String intId);
+
+        void setTemporaryPosition(String taskId, String newTaskTempPos);
+
+        void updateMoved(String id, int moved);
     }
 
 

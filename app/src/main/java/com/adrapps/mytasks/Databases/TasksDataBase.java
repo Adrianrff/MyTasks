@@ -13,6 +13,7 @@ import com.google.api.services.tasks.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 public class TasksDataBase extends SQLiteOpenHelper {
 
@@ -94,6 +95,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
                     COL_MOVED + " int," +
                     COL_LOCAL_UPDATED + " bigint," +
                     COL_LOCAL_DELETED + " int)";
+    private long offSet = TimeZone.getDefault().getRawOffset();
 
 
     //----------CONSTRUCTOR--------------//
@@ -232,7 +234,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
 
-
     public long addTask(LocalTask localTask) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -261,7 +262,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return insertedRow;
     }
 
-    public long addTask(Task task, String listId) {
+    public long addTaskFirstTimeFromServer(Task task, String listId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, task.getId());
@@ -273,13 +274,14 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_POSITION, task.getPosition());
         cv.put(COL_NOTES, task.getNotes());
         cv.put(COL_STATUS, task.getStatus());
-        cv.put(COL_DUE, task.getDue() == null ? 0 : task.getDue().getValue());
+        cv.put(COL_DUE, task.getDue() == null ? 0 : task.getDue().getValue() - offSet);
         cv.put(COL_COMPLETED, task.getCompleted() == null ? 0 : task.getCompleted().getValue());
         cv.put(COL_DELETED, task.getDeleted() == null ? 0 : task.getDeleted() ? 1 : 0);
         cv.put(COL_HIDDEN, task.getHidden() == null ? 0 : task.getHidden() ? 1 : 0);
         cv.put(COL_REMINDER, 0);
         cv.put(COL_REMINDER_ID, 0);
-        cv.put(COL_SYNC_STATUS, 0);
+        cv.put(COL_SYNC_STATUS, Co.SYNCED);
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 15000);
         long insertedRow = db.insert(TABLE_NAME, null, cv);
         db.close();
         return insertedRow;
@@ -381,14 +383,14 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return updatedRow;
     }
 
-    public int markDeleted (String taskId) {
+    public int markDeleted(String taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
         cv.put(COL_LOCAL_DELETED, Co.LOCAL_DELETED);
         cv.put(COL_SYNC_STATUS, Co.EDITED_NOT_SYNCED);
-        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
         return updatedRow;
@@ -400,13 +402,12 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
         cv.put(COL_SYNC_STATUS, newStatus);
-        if (newStatus == Co.SYNCED){
+        if (newStatus == Co.SYNCED) {
             cv.put(COL_MOVED, Co.NOT_MOVED);
             cv.put(COL_DELETED, Co.NOT_DELETED);
             cv.putNull(COL_LOCAL_SIBLING);
-            cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
         }
-
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
         return updatedRow;
@@ -418,7 +419,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
         cv.put(COL_LOCAL_DELETED, localDeleted);
-        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
         return updatedRow;
@@ -430,7 +431,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
         cv.put(COL_MOVED, moved);
-        cv.put(COL_SYNC_STATUS, Co.EDITED_NOT_SYNCED);
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
@@ -442,7 +442,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
-        if (localSibling.equals(Co.TASK_MOVED_TO_FIRST)){
+        if (localSibling.equals(Co.TASK_MOVED_TO_FIRST)) {
             cv.putNull(COL_LOCAL_SIBLING);
         } else {
             cv.put(COL_LOCAL_SIBLING, localSibling);
@@ -507,9 +507,12 @@ public class TasksDataBase extends SQLiteOpenHelper {
             task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
             task.setLocalSibling(cursor.getString(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
             db.close();
+            cursor.close();
+            return task;
+        } else {
+            cursor.close();
+            return null;
         }
-        cursor.close();
-        return task;
     }
 
     public long updateTaskReminder(String taskId, long reminder) {
@@ -600,7 +603,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
 
-    public int updateTask(LocalTask modifiedTask) {
+    public int updateLocalTask(LocalTask modifiedTask) {
         SQLiteDatabase db = this.getWritableDatabase();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {modifiedTask.getId()};
@@ -621,7 +624,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_REMINDER, modifiedTask.getReminder());
         cv.put(COL_REMINDER_ID, modifiedTask.getReminder());
         cv.put(COL_SYNC_STATUS, modifiedTask.getSyncStatus());
-        cv.put(COL_LOCAL_UPDATED, modifiedTask.getLocalModify());
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         cv.put(COL_LOCAL_SIBLING, modifiedTask.getLocalSibling());
         cv.put(COL_LOCAL_DELETED, modifiedTask.getLocalDeleted());
         cv.put(COL_MOVED, modifiedTask.getMoved());
@@ -645,11 +648,49 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_POSITION, task.getPosition());
         cv.put(COL_NOTES, task.getNotes());
         cv.put(COL_STATUS, task.getStatus());
-        cv.put(COL_DUE, task.getDue() != null ? task.getDue().getValue() : 0);
+        cv.put(COL_DUE, task.getDue() != null ? task.getDue().getValue() - offSet : 0);
         cv.put(COL_COMPLETED, task.getCompleted() != null ? task.getCompleted().getValue() : 0);
-        cv.put(COL_DELETED, (task.getDeleted()) ? 1 : 0);
-        cv.put(COL_HIDDEN, (task.getHidden()) ? 1 : 0);
+        cv.put(COL_DELETED, task.getDeleted() == null ? 0 : 1);
+        cv.put(COL_HIDDEN, task.getHidden() == null ? 0 : 1);
+        cv.put(COL_SYNC_STATUS, Co.SYNCED);
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
+    }
+
+    public void updateNewLyCreatedTask(Task task, String listId, String intId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {intId};
+        ContentValues cv = new ContentValues();
+        cv.put(COL_ID, task.getId());
+        cv.put(COL_LIST, listId);
+        cv.put(COL_TITLE, task.getTitle());
+        cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
+        cv.put(COL_SELFLINK, task.getSelfLink());
+        cv.put(COL_PARENT, task.getParent());
+        cv.put(COL_POSITION, task.getPosition());
+        cv.put(COL_NOTES, task.getNotes());
+        cv.put(COL_STATUS, task.getStatus());
+        cv.put(COL_DUE, task.getDue() != null ? task.getDue().getValue() - offSet : 0);
+        cv.put(COL_COMPLETED, task.getCompleted() != null ? task.getCompleted().getValue() : 0);
+        cv.put(COL_DELETED, task.getDeleted() == null ? 0 : 1);
+        cv.put(COL_HIDDEN, task.getHidden() == null ? 0 : 1);
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
+        cv.put(COL_SYNC_STATUS, Co.SYNCED);
+        int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
+        db.close();
+    }
+
+    public void setTemporaryPosition(String taskId, String newTaskTempPos) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {taskId};
+        ContentValues cv = new ContentValues();
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
+        cv.put(COL_POSITION, newTaskTempPos);
+        int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
+        db.close();
+
     }
 }

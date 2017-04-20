@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity
 //                                        selectedDueDateInMills);
 //                                task.setReminder(selectedReminderInMills);
 //                                setReminder(task);
-//                                mPresenter.addTask(task);
+//                                mPresenter.addTaskFirstTimeFromServer(task);
 //                                newTaskDialog.dismiss();
 //
 //                            }
@@ -652,17 +652,21 @@ public class MainActivity extends AppCompatActivity
                 if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
-                        mPresenter.editTask(task);
-                        if (task.getReminder() != 0) setReminder(task);
-                        mPresenter.updateReminder(task.getId(), task.getReminder());
+                        if (task.getReminder() != 0){
+                            //Cancel current alarm if exists and set new one
+                            setReminder(task);
+                        } else {
+                            //cancel alarm if exists
+                        }
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
+                        mPresenter.editTask(task);
                     }
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
                         task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
                         if (task.getReminder() != 0) setReminder(task);
-                        mPresenter.addTaskToApi(task);
+                        mPresenter.addTask(task);
                     }
                 }
             }

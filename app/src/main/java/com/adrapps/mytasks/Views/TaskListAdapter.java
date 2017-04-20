@@ -39,6 +39,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     private String selectedTaskId;
     private int selectedTaskPosition;
 
+
     TaskListAdapter(Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
         this.mPresenter = presenter;
         this.context = context;
@@ -103,8 +104,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         }
         holder.taskCheckbox.setOnCheckedChangeListener(holder);
 
-        if (cTask.getReminder() != 0){
-           holder.notificationImage.setVisibility(View.VISIBLE);
+        if (cTask.getReminder() != 0) {
+            holder.notificationImage.setVisibility(View.VISIBLE);
         } else {
             holder.notificationImage.setVisibility(View.GONE);
         }
@@ -274,17 +275,30 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 //                Log.d("ItemMoved", "true");
 //            }
             itemView.setBackgroundColor(Color.WHITE);
-            if (getAdapterPosition() >= 0){
+            if (getAdapterPosition() >= 0) {
                 if (selectedTaskPosition != getAdapterPosition()) {
+                    String newTaskTempPos = null;
                     String previousTaskId;
                     if (getAdapterPosition() == 0) {
                         previousTaskId = Co.TASK_MOVED_TO_FIRST;
                     } else {
+                        String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
+                                getPosition();
+                        String previousTaskServerPositionLastChar;
                         previousTaskId = tasks.get(getAdapterPosition() - 1).getId();
+                        previousTaskServerPositionLastChar =
+                                previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
+                        int lastCharNewPos = Integer.parseInt(previousTaskServerPositionLastChar) + 1;
+                        newTaskTempPos = previousTaskServerPos.substring(0,
+                                previousTaskServerPos.length() - 1) + lastCharNewPos;
+                        Log.d("NewTaskPos", newTaskTempPos);
+                        Log.d("PreviousTaskPos", previousTaskServerPos);
+
                     }
-                    String[] params = {selectedTaskId,
-                            mPresenter.getStringShP(Co.CURRENT_LIST_ID),
+                    String[] params = {selectedTaskId, mPresenter.getStringShP(Co.CURRENT_LIST_ID),
                             previousTaskId};
+                    if (newTaskTempPos != null)
+                        mPresenter.setTemporaryPosition(selectedTaskId, newTaskTempPos);
                     mPresenter.moveTask(params);
                 }
             }

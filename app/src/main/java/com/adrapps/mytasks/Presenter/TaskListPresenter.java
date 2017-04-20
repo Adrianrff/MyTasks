@@ -194,7 +194,7 @@ public class TaskListPresenter {
         mModel.refreshFirstTime();
     }
 
-    public void addTaskToApi(LocalTask task){
+    public void addTask(LocalTask task){
         mModel.addTask(task);
     }
 
@@ -226,15 +226,15 @@ public class TaskListPresenter {
         mModel.addTaskToLocalDatabase(task);
     }
 
-    public void addTaskToDatabase(Task task, String listId) {
-        mModel.addTaskToLocalDatabase(task, listId);
+    public void addTaskFirstTimeFromServer(Task task, String listId) {
+        mModel.addTaskFirstTimeFromServer(task, listId);
     }
 
     public void addTaskToAdapter(LocalTask localTask) {
         getView().addTaskToAdapter(localTask);
     }
 
-    public void updateSyncStatus(int synced,String taskId) {
+    public void updateSyncStatus(String taskId, int synced) {
         mModel.updateSyncStatus(synced, taskId);
     }
 
@@ -264,5 +264,21 @@ public class TaskListPresenter {
 
     public void updateLocalTask(Task task, String listId) {
         mModel.updateLocalTask(task, listId);
+    }
+
+    public void markDeleted(String taskId) {
+        mModel.markDeleted(taskId);
+    }
+
+    public void updateNewlyCreatedTask(Task aTask, String listId, String intId) {
+        mModel.updateNewlyCreatedTask(aTask, listId, intId);
+    }
+
+    public void setTemporaryPosition(String taskId, String newTaskTempPos) {
+        mModel.setTemporaryPosition(taskId, newTaskTempPos);
+    }
+
+    public void updateMoved(String id, int moved) {
+        mModel.updateMoved(id, moved);
     }
 }

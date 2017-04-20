@@ -55,7 +55,7 @@ public class NewOrDetailActivity extends AppCompatActivity
     private RadioButton rbEvening;
     private RadioButton rbCustom;
     private long selectedReminderInMills;
-    private LocalTask task;
+    private LocalTask taskToEdit;
     private int position;
     private TextView customNotOption;
     private AlertDialog dialog;
@@ -66,9 +66,7 @@ public class NewOrDetailActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.task_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (getIntent().hasExtra(Co.LOCAL_TASK))
-            toolbar.setTitle(R.string.task_edit_title);
-        else
+        if (!getIntent().hasExtra(Co.LOCAL_TASK))
             toolbar.setTitle(R.string.new_task_title);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -85,26 +83,31 @@ public class NewOrDetailActivity extends AppCompatActivity
         notifLayout = (LinearLayout) findViewById(R.id.notification_layout);
         notEdit.setOnClickListener(this);
         notSwitch.setOnCheckedChangeListener(this);
+        taskDue.setOnClickListener(this);
 
         if (getIntent().hasExtra(Co.LOCAL_TASK)) {
-            task = (LocalTask) getIntent().getExtras().getSerializable(Co.LOCAL_TASK);
-            if (task != null) {
-                taskTitle.setText(task.getTitle());
-                taskNotes.setText(task.getNotes());
-                if (task.getDue() != 0)
-                    taskDue.setText(DateHelper.timeInMillsToString(task.getDue()));
+            toolbar.setTitle(R.string.task_edit_title);
+            taskToEdit = (LocalTask) getIntent().getExtras().getSerializable(Co.LOCAL_TASK);
+            if (taskToEdit != null) {
+                taskTitle.setText(taskToEdit.getTitle());
+                taskNotes.setText(taskToEdit.getNotes());
+                if (taskToEdit.getDue() != 0) {
+                    taskDue.setText(DateHelper.timeInMillsToString(taskToEdit.getDue()));
+                    selectedDateInMills = taskToEdit.getDue();
+                }
+
                 position = getIntent().getIntExtra(Co.ADAPTER_POSITION, -1);
-                if (task.getReminder() != 0) {
+                if (taskToEdit.getReminder() != 0) {
                     notSwitch.setOnCheckedChangeListener(null);
                     notSwitch.setChecked(true);
+                    selectedReminderInMills = taskToEdit.getReminder();
                     notSwitch.setOnCheckedChangeListener(this);
-                    notInfo.setText(DateHelper.timeInMillsToFullString(task.getReminder()));
+                    notInfo.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
                     notifLayout.setVisibility(View.VISIBLE);
                 }
             }
 
         }
-        taskDue.setOnClickListener(this);
     }
 
     @Override
@@ -113,7 +116,8 @@ public class NewOrDetailActivity extends AppCompatActivity
             showNotificationDialog();
             notifLayout.setVisibility(View.VISIBLE);
         } else
-            notifLayout.setVisibility(View.GONE);
+            selectedReminderInMills = 0;
+        notifLayout.setVisibility(View.GONE);
     }
 
     private void showNotificationDialog() {
@@ -157,21 +161,37 @@ public class NewOrDetailActivity extends AppCompatActivity
             case R.id.save_task:
                 if (getIntent().hasExtra(Co.LOCAL_TASK)) {
                     Intent i = new Intent();
-                    if (selectedReminderInMills != 0) {
-                        task.setReminder(selectedReminderInMills);
+                    if (selectedReminderInMills == 0 && taskToEdit.getReminder() != 0) {
+                        //clear alarm
+                        taskToEdit.setReminderNoID(0);
+                        taskToEdit.setReminderId(0);
                     }
-                    task.setTitle(taskTitle.getText().toString());
+                    if (selectedReminderInMills != 0 &&
+                            selectedReminderInMills != taskToEdit.getReminder()) {
+                        if (taskToEdit.getReminder() != 0) {
+                            taskToEdit.setReminderNoID(selectedReminderInMills);
+                            //Update alarm
+                        } else {
+                            taskToEdit.setReminder(selectedReminderInMills);
+                            //update alarm
+                        }
+                    }
+                    taskToEdit.setTitle(taskTitle.getText().toString());
                     if (taskNotes.getText().toString().trim().length() != 0)
-                        task.setNotes(taskNotes.getText().toString());
-                    if (selectedDateInMills != 0) {
-                        task.setDue(selectedDateInMills);
+                        taskToEdit.setNotes(taskNotes.getText().toString());
+                    if (selectedDateInMills != 0 && selectedDateInMills != taskToEdit.getDue()) {
+                        taskToEdit.setDue(selectedDateInMills);
+                    }
+                    if (selectedDateInMills == 0 && taskToEdit.getDue() != 0){
+                        taskToEdit.setDue(0);
                     }
                     i.putExtra(Co.TASK_EDIT, true);
-                    i.putExtra(Co.LOCAL_TASK, task);
+                    i.putExtra(Co.LOCAL_TASK, taskToEdit);
                     i.putExtra(Co.ADAPTER_POSITION, position);
                     setResult(Activity.RESULT_OK, i);
                     finish();
                     break;
+
                 } else {
                     if (taskTitle.getText().toString().trim().length() == 0) {
                         showToast(getString(R.string.empty_title_error));
@@ -213,9 +233,9 @@ public class NewOrDetailActivity extends AppCompatActivity
                 rbCustom.setChecked(false);
                 rbEvening.setChecked(false);
                 rbAfternoon.setChecked(false);
-                if (selectedDateInMills != 0 || task.getDue() != 0) {
+                if (selectedDateInMills != 0 || taskToEdit.getDue() != 0) {
                     cal.setTimeInMillis(selectedDateInMills == 0 ?
-                            task.getDue() : selectedDateInMills);
+                            taskToEdit.getDue() : selectedDateInMills);
                     cal.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
                     cal.set(Calendar.MINUTE, 0);
                     selectedReminderInMills = cal.getTimeInMillis();
@@ -232,9 +252,9 @@ public class NewOrDetailActivity extends AppCompatActivity
                 rbMorning.setChecked(false);
                 rbCustom.setChecked(false);
                 rbEvening.setChecked(false);
-                if (selectedDateInMills != 0 || task.getDue() != 0) {
+                if (selectedDateInMills != 0 || taskToEdit.getDue() != 0) {
                     cal.setTimeInMillis(selectedDateInMills == 0 ?
-                            task.getDue() : selectedDateInMills);
+                            taskToEdit.getDue() : selectedDateInMills);
                     cal.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
                     cal.set(Calendar.MINUTE, 0);
                     selectedReminderInMills = cal.getTimeInMillis();
@@ -251,9 +271,9 @@ public class NewOrDetailActivity extends AppCompatActivity
                 rbMorning.setChecked(false);
                 rbCustom.setChecked(false);
                 rbAfternoon.setChecked(false);
-                if (selectedDateInMills != 0 || task.getDue() != 0) {
+                if (selectedDateInMills != 0 || taskToEdit.getDue() != 0) {
                     cal.setTimeInMillis(selectedDateInMills == 0 ?
-                            task.getDue() : selectedDateInMills);
+                            taskToEdit.getDue() : selectedDateInMills);
                     cal.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
                     cal.set(Calendar.MINUTE, 0);
                     selectedReminderInMills = cal.getTimeInMillis();

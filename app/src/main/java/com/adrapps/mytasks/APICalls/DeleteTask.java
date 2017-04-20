@@ -87,8 +87,13 @@ public class DeleteTask extends AsyncTask<String, Void, Void> {
 
 
     private void removeTask(String taskId) throws IOException {
-        mService.tasks().delete(listId,taskId).execute();
-        mPresenter.deleteTask(taskId);
+        try {
+            mService.tasks().delete(listId,taskId).execute();
+            mPresenter.deleteTask(taskId);
+        } catch (IOException e) {
+            e.printStackTrace();
+            mPresenter.markDeleted(taskId);
+        }
 
     }
 }
