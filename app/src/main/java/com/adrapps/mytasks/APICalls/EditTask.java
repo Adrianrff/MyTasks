@@ -3,7 +3,6 @@ package com.adrapps.mytasks.APICalls;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -15,12 +14,10 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -99,7 +96,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
 
 
     private void editTask(LocalTask lTask) throws IOException {
-        Task task = mService.tasks().get(listId,lTask.getTaskId()).execute();
+        Task task = mService.tasks().get(listId,lTask.getId()).execute();
         task.setTitle(lTask.getTitle());
         task.setNotes(lTask.getNotes());
         if (lTask.getDue() != 0) {

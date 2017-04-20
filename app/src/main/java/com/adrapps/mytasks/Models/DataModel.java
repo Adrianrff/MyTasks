@@ -81,18 +81,73 @@ public class DataModel implements Contract.Model {
         return tasksDb.deleteTask(taskId);
     }
 
+    @Override
+    public long getTaskReminder(String taskId) {
+        return tasksDb.getTaskReminder(taskId);
+    }
 
+    @Override
+    public boolean taskExistsInDB(String taskId) {
+        return tasksDb.taskExistsInDB(taskId);
+    }
+
+    @Override
+    public long updateReminder(String taskId, long reminder) {
+        return tasksDb.updateTaskReminder(taskId, reminder);
+    }
+
+    @Override
+    public void updateSyncStatus(int synced, String taskId) {
+        tasksDb.updateSyncStatus(synced, taskId);
+    }
+
+    @Override
+    public long getTaskReminderId(String taskId) {
+        return tasksDb.getTaskReminderId(taskId);
+    }
+
+    @Override
+    public List<LocalTask> getLocalTasksFromDB() {
+        return tasksDb.getLocalTasks();
+    }
+
+    @Override
+    public LocalTask getTask(String id) {
+        return tasksDb.getTask(id);
+    }
+
+    @Override
+    public int updateLocalTask(LocalTask modifiedTask) {
+        return tasksDb.updateTask(modifiedTask);
+    }
+
+    @Override
+    public void updateSibling(String taskId, String previousTaskId) {
+        tasksDb.updateLocalSibling(taskId,previousTaskId);
+    }
+
+    @Override
+    public List<LocalTask> getTaskFromLlistForAdapter(String listId) {
+        return tasksDb.getTasksFromListForAdapter(listId);
+    }
+
+    @Override
+    public void updateLocalTask(Task task, String listId) {
+        tasksDb.updateTask(task, listId);
+    }
 
 
     //------------------------API OPERATIONS----------------------///
     @Override
-    public void deleteTaskFromApi(String taskId, String listId) {
+    public void deleteTask(String taskId, String listId) {
         if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
             DeleteTask remove = new DeleteTask(mPresenter, credential, listId);
             remove.execute(taskId);
-        } else
+        } else {
+            tasksDb.markDeleted(taskId);
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
+        }
     }
 
     @Override
@@ -121,14 +176,17 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void addTaskToApi(LocalTask task) {
-        AddTask add = new AddTask(mPresenter,
-                mPresenter.getCredential(),mPresenter.getStringShP(Co.CURRENT_LIST_ID));
-        if (mPresenter.isDeviceOnline())
+    public void addTask(LocalTask task) {
+        mPresenter.addTaskToAdapter(task);
+        task.setLocalModify();
+        task.setLocalSibling(null);
+        if (mPresenter.isDeviceOnline()) {
+            AddTask add = new AddTask(mPresenter,
+                    mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
             add.execute(task);
+        }
         else {
             task.setSyncStatus(Co.NOT_SYNCED);
-            mPresenter.addTaskToAdapter(task);
             mPresenter.addTaskToDatabase(task);
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }
@@ -136,9 +194,12 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void moveTask(String[] params) {
-        MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
-        move.execute(params);
-        System.out.println();
+        if (mPresenter.isDeviceOnline()) {
+            MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
+            move.execute(params);
+        } else {
+            mPresenter.updateSibling(params[0], params[2]);
+        }
     }
 
     @Override
@@ -150,18 +211,5 @@ public class DataModel implements Contract.Model {
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
     }
 
-    @Override
-    public long getTaskReminder(String taskId) {
-        return tasksDb.getTaskReminder(taskId);
-    }
 
-    @Override
-    public boolean taskExistsInDB(String taskId) {
-        return tasksDb.taskExistsInDB(taskId);
-    }
-
-    @Override
-    public long updateReminder(String taskId, long reminder) {
-        return tasksDb.updateTaskReminder(taskId, reminder);
-    }
 }

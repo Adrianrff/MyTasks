@@ -1,7 +1,6 @@
 package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
@@ -39,6 +38,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
                 transport, jsonFactory, credential)
                 .setApplicationName("My Tasks")
                 .build();
+        localTask = null;
     }
 
     @Override
@@ -53,6 +53,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
         }
         return null;
     }
+
     @Override
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
@@ -67,7 +68,6 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
-//        mPresenter.refresh();
     }
 
     @Override
@@ -96,10 +96,19 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
     private void addTask(LocalTask lTask) throws IOException {
         Task task = LocalTask.localTaskToApiTask(lTask);
-        Task aTask = mService.tasks().insert(listId,task).execute();
-        localTask = new LocalTask(aTask, lTask.getTaskList());
-        localTask.setReminder(lTask.getReminder());
-        localTask.setTaskList(lTask.getTaskList());
-        mPresenter.addTaskToDatabase(localTask);
+        Task aTask = null;
+        try {
+            aTask = mService.tasks().insert(listId, task).execute();
+            if (aTask != null) {
+                localTask = new LocalTask(aTask, lTask.getTaskList());
+                if (lTask.getReminder() != 0) localTask.setReminder(lTask.getReminder());
+                localTask.setTaskList(lTask.getTaskList());
+                localTask.setSyncStatus(Co.SYNCED);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            mPresenter.showToast("Task could not be added to the server");
+            mPresenter.addTaskToDatabase(lTask);
+        }
     }
 }

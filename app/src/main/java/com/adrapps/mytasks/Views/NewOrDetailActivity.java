@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -157,49 +156,39 @@ public class NewOrDetailActivity extends AppCompatActivity
 
             case R.id.save_task:
                 if (getIntent().hasExtra(Co.LOCAL_TASK)) {
-                    if (isDeviceOnline()) {
-                        Intent i = new Intent();
-                        if (selectedReminderInMills != 0) {
-                            task.setReminder(selectedReminderInMills);
-                        }
-                        task.setTitle(taskTitle.getText().toString());
-                        if (taskNotes.getText().toString().trim().length() != 0)
-                            task.setNotes(taskNotes.getText().toString());
-                        if (selectedDateInMills != 0) {
-                            task.setDue(selectedDateInMills);
-                        }
-                        i.putExtra(Co.TASK_EDIT, true);
-                        i.putExtra(Co.LOCAL_TASK, task);
-                        i.putExtra(Co.ADAPTER_POSITION, position);
-                        setResult(Activity.RESULT_OK, i);
-                        finish();
-                    } else {
-                        showToast(getString(R.string.no_internet_toast));
+                    Intent i = new Intent();
+                    if (selectedReminderInMills != 0) {
+                        task.setReminder(selectedReminderInMills);
                     }
+                    task.setTitle(taskTitle.getText().toString());
+                    if (taskNotes.getText().toString().trim().length() != 0)
+                        task.setNotes(taskNotes.getText().toString());
+                    if (selectedDateInMills != 0) {
+                        task.setDue(selectedDateInMills);
+                    }
+                    i.putExtra(Co.TASK_EDIT, true);
+                    i.putExtra(Co.LOCAL_TASK, task);
+                    i.putExtra(Co.ADAPTER_POSITION, position);
+                    setResult(Activity.RESULT_OK, i);
+                    finish();
                     break;
                 } else {
                     if (taskTitle.getText().toString().trim().length() == 0) {
                         showToast(getString(R.string.empty_title_error));
                         break;
                     }
-                    if (isDeviceOnline()) {
-                        Intent i = new Intent();
-                        LocalTask task = new LocalTask(taskTitle.getText().toString(),
-                                selectedDateInMills);
-                        if (taskNotes.getText().toString().trim().length() != 0)
-                            task.setNotes(taskNotes.getText().toString());
-                        if (selectedReminderInMills != 0) {
-                            task.setReminder(selectedReminderInMills);
-                        }
-                        i.putExtra(Co.LOCAL_TASK, task);
-                        i.putExtra(Co.NEW_TASK, true);
-                        setResult(Activity.RESULT_OK, i);
-                        finish();
-                    } else {
-                        showToast(getString(R.string.no_internet_toast));
-                        break;
+                    Intent i = new Intent();
+                    LocalTask task = new LocalTask(taskTitle.getText().toString(),
+                            selectedDateInMills);
+                    if (taskNotes.getText().toString().trim().length() != 0)
+                        task.setNotes(taskNotes.getText().toString());
+                    if (selectedReminderInMills != 0) {
+                        task.setReminder(selectedReminderInMills);
                     }
-
+                    i.putExtra(Co.LOCAL_TASK, task);
+                    i.putExtra(Co.NEW_TASK, true);
+                    setResult(Activity.RESULT_OK, i);
+                    finish();
                     break;
                 }
         }

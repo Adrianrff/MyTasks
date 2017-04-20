@@ -21,7 +21,8 @@ public class DateHelper {
 
     public static DateTime millisecondsToDateTime (long timeInMills){
         int offSet = TimeZone.getDefault().getRawOffset();
-        return new DateTime(timeInMills, offSet/60000);
+        return new DateTime(timeInMills);
+//        return new DateTime(timeInMills, offSet/60000);
     }
 
     public static String timeInMillsToString(long timeInMills){

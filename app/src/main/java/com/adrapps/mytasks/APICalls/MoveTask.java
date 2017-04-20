@@ -90,5 +90,6 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
             move.setPrevious(previousTaskId);
         }
         move.execute();
+        mPresenter.updateSyncStatus(Co.SYNCED,taskId);
     }
 }

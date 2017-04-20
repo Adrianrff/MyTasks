@@ -134,7 +134,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
-        Log.d("onItemMove", "from" + String.valueOf(fromPosition) + "/" + String.valueOf(toPosition));
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(tasks, i, i + 1);
@@ -221,7 +220,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                     dueDate.setPaintFlags(dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     dueDate.setTextColor(Color.GRAY);
                     taskName.setTextColor(Color.GRAY);
-                    mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(), Co.TASK_COMPLETED);
+                    mPresenter.updateTaskStatus(cTask.getId(), cTask.getTaskList(), Co.TASK_COMPLETED);
                 } else {
                     buttonView.setChecked(false);
                     showToast(mPresenter.getString(R.string.no_internet_toast));
@@ -252,7 +251,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                             dueDate.setTypeface(null, Typeface.NORMAL);
                         }
                     }
-                    mPresenter.updateTaskStatus(cTask.getTaskId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
+                    mPresenter.updateTaskStatus(cTask.getId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
                 } else {
                     buttonView.setChecked(true);
                     showToast(mPresenter.getString(R.string.no_internet_toast));
@@ -262,7 +261,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onItemSelected() {
-            selectedTaskId = tasks.get(getAdapterPosition()).getTaskId();
+            selectedTaskId = tasks.get(getAdapterPosition()).getId();
             selectedTaskPosition = getAdapterPosition();
             itemView.setBackgroundColor(Color.LTGRAY);
         }
@@ -281,7 +280,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                     if (getAdapterPosition() == 0) {
                         previousTaskId = Co.TASK_MOVED_TO_FIRST;
                     } else {
-                        previousTaskId = tasks.get(getAdapterPosition() - 1).getTaskId();
+                        previousTaskId = tasks.get(getAdapterPosition() - 1).getId();
                     }
                     String[] params = {selectedTaskId,
                             mPresenter.getStringShP(Co.CURRENT_LIST_ID),

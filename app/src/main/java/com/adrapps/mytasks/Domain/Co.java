@@ -35,8 +35,11 @@ public class Co {
     public static final int NOT_SYNCED = 0;
     public static final int EDITED_NOT_SYNCED = 1;
     public static final int SYNCED = 2;
+    public static final int NOT_MOVED = 0;
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
+    public static int LOCAL_DELETED = 1;
+    public static int MOVED = 1;
 
     public static Task task;
     public static final int SNACKBAR_DURATION = 6000;
@@ -44,6 +47,7 @@ public class Co {
     public static final String TASK_MOVED_TO_FIRST = "first";
     public static final String TASK_REMINDER = "task reminder";
     public static final String TASK_ID = "task id";
+    public static int NOT_DELETED = 0;
 
 
     public static void setListIds(List<String> listIds) {

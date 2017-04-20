@@ -2,7 +2,6 @@ package com.adrapps.mytasks.Presenter;
 
 import android.content.Intent;
 
-import com.adrapps.mytasks.APICalls.AddTask;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
@@ -170,8 +169,8 @@ public class TaskListPresenter {
         }
     }
 
-    public void deleteTaskFromApi(String taskId, String listId) {
-        mModel.deleteTaskFromApi(taskId,listId);
+    public void deleteTask(String taskId, String listId) {
+        mModel.deleteTask(taskId,listId);
     }
 
     public GoogleAccountCredential getCredential() {
@@ -196,7 +195,7 @@ public class TaskListPresenter {
     }
 
     public void addTaskToApi(LocalTask task){
-        mModel.addTaskToApi(task);
+        mModel.addTask(task);
     }
 
     public void showEmptyRecyclerView(boolean b) {
@@ -233,5 +232,37 @@ public class TaskListPresenter {
 
     public void addTaskToAdapter(LocalTask localTask) {
         getView().addTaskToAdapter(localTask);
+    }
+
+    public void updateSyncStatus(int synced,String taskId) {
+        mModel.updateSyncStatus(synced, taskId);
+    }
+
+    public long getTaskReminderId(String taskId) {
+        return mModel.getTaskReminderId(taskId);
+    }
+
+    public List<LocalTask> getLocalTasksFromDB() {
+        return mModel.getLocalTasksFromDB();
+    }
+
+    public LocalTask getTask(String id) {
+        return mModel.getTask(id);
+    }
+
+    public int updateLocalTask(LocalTask modifiedTask) {
+        return mModel.updateLocalTask(modifiedTask);
+    }
+
+    public void updateSibling(String taskId, String previousTaskId) {
+        mModel.updateSibling(taskId, previousTaskId);
+    }
+
+    public List<LocalTask> getTasksFromListForAdapter(String listId) {
+        return mModel.getTaskFromLlistForAdapter(listId);
+    }
+
+    public void updateLocalTask(Task task, String listId) {
+        mModel.updateLocalTask(task, listId);
     }
 }

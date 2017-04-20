@@ -49,7 +49,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.APICalls.RefreshAllAsync;
+import com.adrapps.mytasks.APICalls.SyncTasks;
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.AlarmReciever;
 import com.adrapps.mytasks.Domain.Co;
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity
             refreshFirstTime();
             return;
         }
-        initRecyclerView(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
+        initRecyclerView(mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID)));
         setUpData();
 
     }
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void refresh() {
         if (isDeviceOnline()) {
-            RefreshAllAsync refresh = new RefreshAllAsync(mPresenter, mCredential);
+            SyncTasks refresh = new SyncTasks(mPresenter, mCredential);
             refresh.execute();
         } else {
             showToast(getString(R.string.no_internet_toast));
@@ -214,9 +214,9 @@ public class MainActivity extends AppCompatActivity
             toolbar.setTitle(currentListTitle);
         }
         setNavDrawerMenu(Co.listTitles);
-        List<LocalTask> tasks = mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID));
+        List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID));
         showEmptyRecyclerView(tasks == null || tasks.isEmpty());
-        adapter.updateItems(mPresenter.getTasksFromList(getStringShP(Co.CURRENT_LIST_ID)));
+        adapter.updateItems(tasks);
 
     }
 
@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity
                 if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT ||
                         event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
                         event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE) {
-                    mPresenter.deleteTaskFromApi(task.getTaskId(), task.getTaskList());
+                    mPresenter.deleteTask(task.getId(), task.getTaskList());
                 }
             }
         });
@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity
 //                                        selectedDueDateInMills);
 //                                task.setReminder(selectedReminderInMills);
 //                                setReminder(task);
-//                                mPresenter.addTaskToApi(task);
+//                                mPresenter.addTask(task);
 //                                newTaskDialog.dismiss();
 //
 //                            }
@@ -558,7 +558,7 @@ public class MainActivity extends AppCompatActivity
                 listsMenu.getItem(i).setChecked(false);
             }
             item.setChecked(true);
-            List<LocalTask> tasks = mPresenter.getTasksFromList(Co.listIds.get(item.getItemId()));
+            List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(Co.listIds.get(item.getItemId()));
             if (tasks == null || tasks.isEmpty()) {
                 recyclerView.setVisibility(View.GONE);
                 emptyDataLayout.setVisibility(View.VISIBLE);
@@ -566,7 +566,7 @@ public class MainActivity extends AppCompatActivity
                 recyclerView.setVisibility(View.VISIBLE);
                 emptyDataLayout.setVisibility(View.GONE);
             }
-            adapter.updateItems(mPresenter.getTasksFromList(Co.listIds.get(item.getItemId())));
+            adapter.updateItems(mPresenter.getTasksFromListForAdapter(Co.listIds.get(item.getItemId())));
             toolbar.setTitle(item.getTitle());
             drawer.closeDrawer(GravityCompat.START);
             return false;
@@ -654,7 +654,7 @@ public class MainActivity extends AppCompatActivity
                     if (task != null) {
                         mPresenter.editTask(task);
                         if (task.getReminder() != 0) setReminder(task);
-                        mPresenter.updateReminder(task.getTaskId(), task.getReminder());
+                        mPresenter.updateReminder(task.getId(), task.getReminder());
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                     }
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
@@ -753,7 +753,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, AlarmReciever.class);
             intent.putExtra(Co.TASK_TITLE, task.getTitle());
             intent.putExtra(Co.TASK_DUE, task.getDue());
-            intent.putExtra(Co.TASK_ID, task.getTaskId());
+            intent.putExtra(Co.TASK_ID, task.getId());
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
                     this,
                     (int) task.getReminderId(),

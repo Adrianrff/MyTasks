@@ -1,12 +1,8 @@
 package com.adrapps.mytasks.Domain;
 
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.util.Log;
+import android.support.annotation.Nullable;
 
 import com.adrapps.mytasks.Helpers.DateHelper;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.Serializable;
@@ -18,21 +14,10 @@ import java.util.TimeZone;
 
 public class LocalTask implements Serializable {
 
-    private String taskId;
-    private String title;
-    private String selfLink;
-    private String parent;
-    private String position;
-    private String notes;
-    private String status;
-    private String taskList;
-    private int intId;
-    private int syncStatus;
-    private long reminder;
-    private long reminderId;
-    private long updated,due,completed;
+    private String id, title, selfLink, parent, position, notes, status, taskList, localSibling;
+    private int moved, localDeleted, intId, syncStatus;
+    private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
-    private int offSet = TimeZone.getDefault().getRawOffset();
 
     public LocalTask() {
     }
@@ -41,8 +26,10 @@ public class LocalTask implements Serializable {
         title = taskTitle;
         this.due = dueDate;
         this.reminder = 0;
-        this.reminder = 0;
+        this.reminderId = 0;
         this.syncStatus = Co.NOT_SYNCED;
+        this.localDeleted = 0;
+        this.moved = 0;
     }
 
     public LocalTask (String taskTitle, long dueDate, String notes){
@@ -52,6 +39,9 @@ public class LocalTask implements Serializable {
         this.reminder = 0;
         this.reminderId = 0;
         this.syncStatus = Co.NOT_SYNCED;
+        this.localDeleted = 0;
+        this.moved = 0;
+
     }
 
     public LocalTask (String taskTitle, long dueDate, String notes, long reminder){
@@ -61,10 +51,13 @@ public class LocalTask implements Serializable {
         this.reminder = reminder;
         this.reminderId = System.currentTimeMillis();
         this.syncStatus = Co.NOT_SYNCED;
+        this.localDeleted = 0;
+        this.moved = 0;
     }
 
     public LocalTask(Task task, String listId) {
-        this.taskId = task.getId();
+        int offSet = TimeZone.getDefault().getRawOffset();
+        this.id = task.getId();
         this.title = task.getTitle();
         this.selfLink = task.getSelfLink();
         this.parent = task.getParent();
@@ -72,14 +65,16 @@ public class LocalTask implements Serializable {
         this.notes = task.getNotes();
         this.status = task.getStatus();
         this.taskList = listId;
-        this.updated = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
-        this.due = (task.getDue() == null) ? 0:task.getDue().getValue() - offSet;
+        this.serverModify = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
+        this.due = (task.getDue() == null) ? 0:task.getDue().getValue();
         this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
         this.deleted = (task.getDeleted() == null) ? false:task.getDeleted();
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
         this.reminder = 0;
         this.reminderId = 0;
         this.syncStatus = Co.NOT_SYNCED;
+        this.localDeleted = 0;
+        this.moved = 0;
     }
 
     public static Task localTaskToApiTask (LocalTask lTask){
@@ -94,8 +89,39 @@ public class LocalTask implements Serializable {
         return task;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
     ///-------------------SETTERS ----------------------//
 
+
+    public void setMoved(@Nullable String localSibling) {
+        this.moved = Co.MOVED;
+        this.localSibling = localSibling == null ? null : localSibling;
+    }
+
+    public void setMoved(int moved) {
+        this.moved = moved;
+    }
+
+    public void setLocalModify() {
+        this.localModify = System.currentTimeMillis();
+    }
+
+    public void setLocalModify(long localModify) {
+        this.localModify = localModify;
+    }
+
+    public void setLocalDeleted(int localDeleted) {
+        this.localDeleted = localDeleted;
+    }
 
     public void setSyncStatus(int syncStatus) {
         this.syncStatus = syncStatus;
@@ -106,7 +132,7 @@ public class LocalTask implements Serializable {
         this.reminderId = System.currentTimeMillis();
     }
 
-    public void setReminderDontSetID(long reminder) {
+    public void setReminderNoID(long reminder) {
         this.reminder = reminder;
     }
 
@@ -122,8 +148,8 @@ public class LocalTask implements Serializable {
         this.intId = intId;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setTitle(String title) {
@@ -150,8 +176,8 @@ public class LocalTask implements Serializable {
         this.status = status;
     }
 
-    public void setUpdated(long updated) {
-        this.updated = updated;
+    public void setServerModify(long serverModify) {
+        this.serverModify = serverModify;
     }
 
     public void setDue(long due) {
@@ -174,6 +200,26 @@ public class LocalTask implements Serializable {
     ///-------------------GETTERS---------------------///
 
 
+    public String getLocalSibling() {
+        return localSibling;
+    }
+
+    public int getMoved() {
+        return moved;
+    }
+
+    public long getLocalModify() {
+        return localModify;
+    }
+
+    public long getLocalDeleted() {
+        return localDeleted;
+    }
+
+    public void setLocalSibling(String localSibling) {
+        this.localSibling = localSibling;
+    }
+
     public int getSyncStatus() {
         return syncStatus;
     }
@@ -194,8 +240,8 @@ public class LocalTask implements Serializable {
         return intId;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public String getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -222,8 +268,8 @@ public class LocalTask implements Serializable {
         return status;
     }
 
-    public long getUpdated() {
-        return updated;
+    public long getServerModify() {
+        return serverModify;
     }
 
     public long getDue() {

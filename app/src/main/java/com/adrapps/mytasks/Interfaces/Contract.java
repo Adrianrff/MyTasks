@@ -107,13 +107,13 @@ public class Contract {
 
         int deleteTask(String taskId);
 
-        void deleteTaskFromApi(String taskId, String listId);
+        void deleteTask(String taskId, String listId);
 
         void updateTaskStatus(String taskId, String listId, String newStatus);
 
         void refreshFirstTime();
 
-        void addTaskToApi(LocalTask task);
+        void addTask(LocalTask task);
 
         void moveTask(String[] params);
 
@@ -124,24 +124,23 @@ public class Contract {
         boolean taskExistsInDB(String taskId);
 
         long updateReminder(String taskId, long reminder);
+
+        void updateSyncStatus(int synced, String taskId);
+
+        long getTaskReminderId(String taskId);
+
+        List<LocalTask> getLocalTasksFromDB();
+
+        LocalTask getTask(String id);
+
+        int updateLocalTask(LocalTask modifiedTask);
+
+        void updateSibling(String taskId, String previousTaskId);
+
+        List<LocalTask> getTaskFromLlistForAdapter(String listId);
+
+        void updateLocalTask(Task task, String listId);
     }
 
-    //------------------FRAGMENT OPS---------------------//
 
-    public interface AdapterOps {
-
-        void updateCurrentView();
-
-        void updateAdapterItems(List<LocalTask> localTasks);
-
-        void initRecyclerView(List<LocalTask> tasks);
-
-        List<String> getListIds();
-
-        List<String> getListTitles();
-
-        void setListsIds(List<String> listIds);
-
-        void setListsTitles(List<String> titles);
-    }
 }

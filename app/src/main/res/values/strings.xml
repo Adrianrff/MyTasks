@@ -33,7 +33,7 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="overdue_append">(overdue)</string>
-    <string name="task_updated">Task updated</string>
+    <string name="task_updated">Task serverModify</string>
     <string name="task_reminder_notification_title">Task reminder</string>
     <string name="uncompleted_task_text">You have an uncompleted task set for</string>
     <string name="touch_for_details">Tap here for details</string>
