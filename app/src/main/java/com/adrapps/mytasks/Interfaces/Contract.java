@@ -148,6 +148,8 @@ public class Contract {
         void setTemporaryPosition(String taskId, String newTaskTempPos);
 
         void updateMoved(String id, int moved);
+
+        void updatePosition(Task task);
     }
 
 

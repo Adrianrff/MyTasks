@@ -28,7 +28,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
     public static final String COL_LIST = "List";
     public static final String COL_TITLE = "Title";
     public static final String COL_SERVER_UPDATED = "serverUpdated";
-    public static final String COL_SELFLINK = "Selflink";
     public static final String COL_PARENT = "Parent";
     public static final String COL_POSITION = "Position";
     public static final String COL_NOTES = "Notes";
@@ -54,7 +53,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
             COL_LIST,
             COL_TITLE,
             COL_SERVER_UPDATED,
-            COL_SELFLINK,
             COL_PARENT,
             COL_POSITION,
             COL_NOTES,
@@ -79,7 +77,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
                     COL_LIST + " text," +
                     COL_TITLE + " text," +
                     COL_SERVER_UPDATED + " bigint," +
-                    COL_SELFLINK + " text," +
                     COL_PARENT + " text," +
                     COL_POSITION + " text," +
                     COL_NOTES + " text," +
@@ -127,7 +124,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
                 LocalTask task = new LocalTask();
                 task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
                 task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-                task.setSelfLink(cursor.getString(cursor.getColumnIndex(COL_SELFLINK)));
                 task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
                 task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
                 task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
@@ -154,7 +150,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return tasks;
     }
 
-    public List<LocalTask> getTasksFromLlist(String listId) {
+    public List<LocalTask> getTasksFromList(String listId) {
         List<LocalTask> tasks = new ArrayList<>();
         String selection = COL_LIST + " = ? ";
         String[] selectionArgs = {listId};
@@ -165,7 +161,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
                 LocalTask task = new LocalTask();
                 task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
                 task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-                task.setSelfLink(cursor.getString(cursor.getColumnIndex(COL_SELFLINK)));
                 task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
                 task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
                 task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
@@ -205,7 +200,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
                     LocalTask task = new LocalTask();
                     task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
                     task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-                    task.setSelfLink(cursor.getString(cursor.getColumnIndex(COL_SELFLINK)));
                     task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
                     task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
                     task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
@@ -241,7 +235,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_LIST, localTask.getTaskList());
         cv.put(COL_TITLE, localTask.getTitle());
         cv.put(COL_SERVER_UPDATED, localTask.getServerModify());
-        cv.put(COL_SELFLINK, localTask.getSelfLink());
         cv.put(COL_PARENT, localTask.getParent());
         cv.put(COL_POSITION, localTask.getPosition());
         cv.put(COL_NOTES, localTask.getNotes());
@@ -269,7 +262,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_LIST, listId);
         cv.put(COL_TITLE, task.getTitle());
         cv.put(COL_SERVER_UPDATED, task.getUpdated() == null ? 0 : task.getUpdated().getValue());
-        cv.put(COL_SELFLINK, task.getSelfLink());
         cv.put(COL_PARENT, task.getParent());
         cv.put(COL_POSITION, task.getPosition());
         cv.put(COL_NOTES, task.getNotes());
@@ -295,7 +287,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
             cv.put(COL_LIST, tasks.get(i).getTaskList());
             cv.put(COL_TITLE, tasks.get(i).getTitle());
             cv.put(COL_SERVER_UPDATED, tasks.get(i).getServerModify());
-            cv.put(COL_SELFLINK, tasks.get(i).getSelfLink());
             cv.put(COL_PARENT, tasks.get(i).getParent());
             cv.put(COL_POSITION, tasks.get(i).getPosition());
             cv.put(COL_NOTES, tasks.get(i).getNotes());
@@ -325,7 +316,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
             cv.put(COL_LIST, tasks.get(i).getTaskList());
             cv.put(COL_TITLE, tasks.get(i).getTitle());
             cv.put(COL_SERVER_UPDATED, tasks.get(i).getServerModify());
-            cv.put(COL_SELFLINK, tasks.get(i).getSelfLink());
             cv.put(COL_PARENT, tasks.get(i).getParent());
             cv.put(COL_POSITION, tasks.get(i).getPosition());
             cv.put(COL_NOTES, tasks.get(i).getNotes());
@@ -442,13 +432,12 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
-        if (localSibling.equals(Co.TASK_MOVED_TO_FIRST)) {
+        if (localSibling != null && localSibling.equals(Co.TASK_MOVED_TO_FIRST)) {
             cv.putNull(COL_LOCAL_SIBLING);
         } else {
             cv.put(COL_LOCAL_SIBLING, localSibling);
         }
         cv.put(COL_MOVED, Co.MOVED);
-        cv.put(COL_SYNC_STATUS, Co.EDITED_NOT_SYNCED);
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
@@ -478,7 +467,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public LocalTask getTask(String taskId) {
-        Log.d("Server Task ID", taskId);
         SQLiteDatabase db = this.getWritableDatabase();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
@@ -487,7 +475,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
             task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-            task.setSelfLink(cursor.getString(cursor.getColumnIndex(COL_SELFLINK)));
             task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
             task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
             task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
@@ -612,7 +599,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_LIST, modifiedTask.getTaskList());
         cv.put(COL_TITLE, modifiedTask.getTitle());
         cv.put(COL_SERVER_UPDATED, modifiedTask.getServerModify());
-        cv.put(COL_SELFLINK, modifiedTask.getSelfLink());
         cv.put(COL_PARENT, modifiedTask.getParent());
         cv.put(COL_POSITION, modifiedTask.getPosition());
         cv.put(COL_NOTES, modifiedTask.getNotes());
@@ -643,7 +629,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_LIST, listId);
         cv.put(COL_TITLE, task.getTitle());
         cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
-        cv.put(COL_SELFLINK, task.getSelfLink());
         cv.put(COL_PARENT, task.getParent());
         cv.put(COL_POSITION, task.getPosition());
         cv.put(COL_NOTES, task.getNotes());
@@ -667,7 +652,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_LIST, listId);
         cv.put(COL_TITLE, task.getTitle());
         cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
-        cv.put(COL_SELFLINK, task.getSelfLink());
         cv.put(COL_PARENT, task.getParent());
         cv.put(COL_POSITION, task.getPosition());
         cv.put(COL_NOTES, task.getNotes());
@@ -687,10 +671,21 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
-        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         cv.put(COL_POSITION, newTaskTempPos);
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
 
+    }
+
+    public void updatePosition(Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {task.getId()};
+        ContentValues cv = new ContentValues();
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
+        cv.put(COL_POSITION, task.getPosition());
+        int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
+        db.close();
     }
 }

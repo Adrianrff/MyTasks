@@ -48,7 +48,7 @@ public class DataModel implements Contract.Model {
 
     @Override
     public List<LocalTask> getTasksFromList(String listId) {
-        return tasksDb.getTasksFromLlist(listId);
+        return tasksDb.getTasksFromList(listId);
     }
 
     @Override
@@ -156,6 +156,11 @@ public class DataModel implements Contract.Model {
         tasksDb.updateMoved(moved, id);
     }
 
+    @Override
+    public void updatePosition(Task task) {
+        tasksDb.updatePosition(task);
+    }
+
 
     //------------------------API OPERATIONS----------------------///
     @Override
@@ -213,8 +218,8 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void moveTask(String[] params) {
-        mPresenter.updateSyncStatus(params[0], Co.EDITED_NOT_SYNCED);
-        mPresenter.updateSibling(params[0], params[2]);if (mPresenter.isDeviceOnline()) {
+        mPresenter.updateSibling(params[0], params[2]);
+        if (mPresenter.isDeviceOnline()) {
             MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
             move.execute(params);
         } else {

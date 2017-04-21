@@ -14,7 +14,7 @@ import java.util.TimeZone;
 
 public class LocalTask implements Serializable {
 
-    private String id, title, selfLink, parent, position, notes, status, taskList, localSibling;
+    private String id, title, parent, position, notes, status, taskList, localSibling;
     private int moved, localDeleted, intId, syncStatus;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
@@ -59,7 +59,6 @@ public class LocalTask implements Serializable {
         int offSet = TimeZone.getDefault().getRawOffset();
         this.id = task.getId();
         this.title = task.getTitle();
-        this.selfLink = task.getSelfLink();
         this.parent = task.getParent();
         this.position = task.getPosition();
         this.notes = task.getNotes();
@@ -156,10 +155,6 @@ public class LocalTask implements Serializable {
         this.title = title;
     }
 
-    public void setSelfLink(String selfLink) {
-        this.selfLink = selfLink;
-    }
-
     public void setParent(String parent) {
         this.parent = parent;
     }
@@ -246,10 +241,6 @@ public class LocalTask implements Serializable {
 
     public String getTitle() {
         return title;
-    }
-
-    public String getSelfLink() {
-        return selfLink;
     }
 
     public String getParent() {

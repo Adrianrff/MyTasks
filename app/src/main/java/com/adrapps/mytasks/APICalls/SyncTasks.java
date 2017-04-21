@@ -1,10 +1,10 @@
 package com.adrapps.mytasks.APICalls;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
+import com.adrapps.mytasks.Helpers.CompareLists;
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -114,7 +114,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
         }
 
         List<Task> serverTasks = new ArrayList<>();
-        List<LocalTask> localTasks = mPresenter.getLocalTasksFromDB();
+        List<LocalTask> localTasks = new ArrayList<>();
         Task currentServerTask;
         LocalTask currentLocalTask, modifiedLocalTask;
         String currentListId;
@@ -125,10 +125,11 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             currentListId = lists.get(i).getId();
             //Get server tasks and local tasks from list
             serverTasks = mService.tasks().list(currentListId).execute().getItems();
+            localTasks = mPresenter.getTasksFromList(currentListId);
 //            localTasks = mPresenter.getTasksFromList(lists.get(i).getId());
 
             if (serverTasks != null && !serverTasks.isEmpty()) {
-                for (int j = 0; j < serverTasks.size(); j++  ) {
+                for (int j = 0; j < serverTasks.size(); j++) {
                     currentServerTask = serverTasks.get(j);
                     currentLocalTask = mPresenter.getTask(currentServerTask.getId());
 
@@ -154,6 +155,32 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
                                 //Last updated locally
                             } else {
+                                if (currentLocalTask.getMoved() == Co.MOVED) {
+                                    //Task was moved
+
+                                    //Was moved inside another task
+                                    if (currentLocalTask.getParent() != null) {
+                                        currentServerTask = mService.tasks().move(currentListId, currentServerTask.getId())
+                                                .setParent(currentLocalTask.getParent()).execute();
+                                        //Was moved below a sibling
+                                    } else {
+                                        Tasks.TasksOperations.Move move = mService.tasks().
+                                                move(currentListId, currentServerTask.getId());
+
+                                        //Sibling not null. Move below it
+                                        if (currentLocalTask.getLocalSibling() != null) {
+                                            currentServerTask = move.setPrevious(currentLocalTask.getLocalSibling()).execute();
+
+                                            //Sibling null. Move to first
+                                        } else {
+                                            currentServerTask = move.execute();
+                                        }
+                                    }
+                                    mPresenter.updatePosition(currentServerTask);
+                                    mPresenter.updateMoved(currentLocalTask.getId(), Co.NOT_MOVED);
+                                    mPresenter.updateSibling(currentLocalTask.getId(), null);
+                                }
+
                                 if (currentLocalTask.getSyncStatus() != 2) {
                                     //Task wasn't moved
                                     currentServerTask.setTitle(currentLocalTask.getTitle());
@@ -167,68 +194,48 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                                     mService.tasks().update(currentListId, currentServerTask.getId(),
                                             currentServerTask).execute();
                                     mPresenter.updateSyncStatus(currentLocalTask.getId(), Co.SYNCED);
-
-                                    if (currentLocalTask.getMoved() == Co.MOVED) {
-                                        //Task was moved
-
-                                        //Was moved inside another task
-                                        if (currentLocalTask.getParent() != null) {
-                                            mService.tasks().move(currentListId, currentServerTask.getId())
-                                                    .setParent(currentLocalTask.getParent()).execute();
-
-                                            //Was moved below a sibling
-                                        } else {
-                                            Tasks.TasksOperations.Move move = mService.tasks().
-                                                    move(currentListId, currentServerTask.getId());
-
-                                            //Sibling not null. Move below it
-                                            if (currentLocalTask.getLocalSibling() != null) {
-                                                move.setPrevious(currentLocalTask.getLocalSibling()).execute();
-
-                                                //Sibling null. Move to first
-                                            } else {
-                                                move.execute();
-                                            }
-                                        }
-                                        currentLocalTask.setPosition(currentServerTask.getPosition());
-                                        mPresenter.updateLocalTask(currentLocalTask);
-                                    }
                                 }
+
 
                             }
                         }
 
                         //Task doesn't exist in database. Create it
                     } else {
+                        if (currentServerTask.getTitle().equals("") &&
+                                currentServerTask.getDue() == null &&
+                                currentServerTask.getNotes() == null) {
+                            try {
+                                mService.tasks().delete(currentListId,
+                                        currentServerTask.getId()).execute();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            continue;
+                        }
                         LocalTask localTask = new LocalTask(currentServerTask, currentListId);
                         localTask.setSyncStatus(Co.SYNCED);
                         localTask.setLocalModify();
                         mPresenter.addTaskToDatabase(localTask);
                     }
                 }
-
-
-            }
-
-            //Check if a local task is not in the server tasks and
-            // add it to the server if there're any
-            List<LocalTask> localTaskFromThisList = mPresenter.getTasksFromList(currentListId);
-            for (int k = 0; k < localTaskFromThisList.size(); k++){
-                if (localTaskFromThisList.get(k).getSyncStatus() == 0){
-                    LocalTask unsyncedTask = localTaskFromThisList.get(k);
-                    Task task = LocalTask.localTaskToApiTask(unsyncedTask);
-                    Task aTask = mService.tasks().insert(unsyncedTask.getTaskList(),task).execute();
-                    mPresenter.updateNewlyCreatedTask(aTask, unsyncedTask.getTaskList(),
-                            String.valueOf(unsyncedTask.getIntId()));
-                    Log.d("InIdUnsyncedTask", String.valueOf(unsyncedTask.getIntId()));
-
+                List<LocalTask> tasksNotInServer = CompareLists.localTasksNotInServer(localTasks, serverTasks);
+                LocalTask lTask = null;
+                if (tasksNotInServer != null && !tasksNotInServer.isEmpty()) {
+                    for (int k = 0; k < tasksNotInServer.size(); k++) {
+                        lTask = tasksNotInServer.get(k);
+                        if (lTask.getSyncStatus() != 0) {
+                            mPresenter.deleteTask(lTask.getId());
+                        } else {
+                            Task task = LocalTask.localTaskToApiTask(tasksNotInServer.get(k));
+                            Task aTask = mService.tasks().insert(lTask.getTaskList(), task).execute();
+                            mPresenter.updateNewlyCreatedTask(aTask, lTask.getTaskList(),
+                                    String.valueOf(lTask.getIntId()));
+                        }
+                    }
                 }
+
             }
-
         }
-
-
-
-
     }
 }

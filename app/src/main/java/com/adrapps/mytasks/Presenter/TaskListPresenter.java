@@ -281,4 +281,8 @@ public class TaskListPresenter {
     public void updateMoved(String id, int moved) {
         mModel.updateMoved(id, moved);
     }
+
+    public void updatePosition(Task task) {
+        mModel.updatePosition(task);
+    }
 }

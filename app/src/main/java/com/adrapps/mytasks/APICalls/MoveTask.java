@@ -13,6 +13,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
+import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
 
@@ -85,11 +86,17 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
     }
 
     private void moveTask(String taskId, String listId, String previousTaskId) throws IOException {
-        Tasks.TasksOperations.Move move = mService.tasks().move(listId, taskId);
-        if (!previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
-            move.setPrevious(previousTaskId);
+        try {
+            Tasks.TasksOperations.Move move = mService.tasks().move(listId, taskId);
+            if (!previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
+                move.setPrevious(previousTaskId);
+            }
+            Task task = move.execute();
+            mPresenter.updateMoved(taskId, Co.NOT_MOVED);
+            mPresenter.updatePosition(task);
+        } catch (IOException e) {
+            e.printStackTrace();
+            mPresenter.showToast("The task could not be moved");
         }
-        move.execute();
-        mPresenter.updateSyncStatus(taskId, Co.SYNCED);
     }
 }

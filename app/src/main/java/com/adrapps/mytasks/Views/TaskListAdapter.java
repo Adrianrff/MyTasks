@@ -281,19 +281,28 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                     String previousTaskId;
                     if (getAdapterPosition() == 0) {
                         previousTaskId = Co.TASK_MOVED_TO_FIRST;
+                        if (tasks.size() >= 2 && !mPresenter.isDeviceOnline()) {
+                            String nextTaskServerPos = tasks.get(getAdapterPosition() + 1).
+                                    getPosition();
+                            String nextTaskServerPositionLastTwoChar =
+                                    nextTaskServerPos.substring(nextTaskServerPos.length() - 2);
+                            int lastTwoCharNewPos = Integer.parseInt(nextTaskServerPositionLastTwoChar) - 1;
+                            newTaskTempPos = nextTaskServerPos.substring(0,
+                                    nextTaskServerPos.length() - 2) + lastTwoCharNewPos;
+//                        newTaskTempPos = "0";
+//                        mPresenter.updateSibling(selectedTaskId, null);
+                        }
                     } else {
-                        String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
-                                getPosition();
-                        String previousTaskServerPositionLastChar;
                         previousTaskId = tasks.get(getAdapterPosition() - 1).getId();
-                        previousTaskServerPositionLastChar =
-                                previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
-                        int lastCharNewPos = Integer.parseInt(previousTaskServerPositionLastChar) + 1;
-                        newTaskTempPos = previousTaskServerPos.substring(0,
-                                previousTaskServerPos.length() - 1) + lastCharNewPos;
-                        Log.d("NewTaskPos", newTaskTempPos);
-                        Log.d("PreviousTaskPos", previousTaskServerPos);
-
+                        if (!mPresenter.isDeviceOnline()) {
+                            String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
+                                    getPosition();
+                            String previousTaskServerPositionLastTwoChar =
+                                    previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
+                            int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
+                            newTaskTempPos = previousTaskServerPos.substring(0,
+                                    previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
+                        }
                     }
                     String[] params = {selectedTaskId, mPresenter.getStringShP(Co.CURRENT_LIST_ID),
                             previousTaskId};
