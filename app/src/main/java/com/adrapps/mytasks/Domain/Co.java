@@ -36,6 +36,7 @@ public class Co {
     public static final int EDITED_NOT_SYNCED = 1;
     public static final int SYNCED = 2;
     public static final int NOT_MOVED = 0;
+    public static final int MOVED_TO_FIRST = -2;
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
     public static int LOCAL_DELETED = 1;

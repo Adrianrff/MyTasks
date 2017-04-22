@@ -113,7 +113,7 @@ public class DataModel implements Contract.Model {
 
     @Override
     public LocalTask getTask(String id) {
-        return tasksDb.getTask(id);
+        return tasksDb.getTaskByTaskId(id);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public List<LocalTask> getTaskFromLlistForAdapter(String listId) {
+    public List<LocalTask> getTaskFromListForAdapter(String listId) {
         return tasksDb.getTasksFromListForAdapter(listId);
     }
 
@@ -142,8 +142,8 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void updateNewlyCreatedTask(Task aTask, String listId, String intId) {
-        tasksDb.updateNewLyCreatedTask(aTask, listId, intId);
+    public LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId) {
+        return tasksDb.updateNewlyCreatedTask(aTask, listId, intId);
     }
 
     @Override
@@ -159,6 +159,21 @@ public class DataModel implements Contract.Model {
     @Override
     public void updatePosition(Task task) {
         tasksDb.updatePosition(task);
+    }
+
+    @Override
+    public void updateSiblingByIntId(int id, int sibling) {
+        tasksDb.updateSibling(id, sibling);
+    }
+
+    @Override
+    public String getTaskIdByIntId(int id) {
+        return tasksDb.getTaskIdByIntId(id);
+    }
+
+    @Override
+    public void updateMovedByIntId(int intId, int moved) {
+        tasksDb.updateMovedByIntId(intId, moved);
     }
 
 
@@ -217,11 +232,10 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void moveTask(String[] params) {
-        mPresenter.updateSibling(params[0], params[2]);
+    public void moveTask(LocalTask movedTask, String previousTaskId) {
         if (mPresenter.isDeviceOnline()) {
             MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
-            move.execute(params);
+            move.execute(movedTask.getId(), movedTask.getTaskList(), previousTaskId);
         } else {
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }

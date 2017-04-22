@@ -117,6 +117,12 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
                     if (tasks != null) {
                         if (!tasks.isEmpty()) {
                             for (int j = 0; j < tasks.size(); j++){
+                                Task currentTask = tasks.get(j);
+                                if (currentTask.getTitle().trim().equals("") &&
+                                        currentTask.getDue() == null &&
+                                        currentTask.getNotes() == null){
+                                    mService.tasks().delete(lists.get(i).getId(), currentTask.getId()).execute();
+                                }
                                 LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
                                 task.setSyncStatus(Co.SYNCED);
                                 localTasks.add(task);

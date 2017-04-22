@@ -14,8 +14,8 @@ import java.util.TimeZone;
 
 public class LocalTask implements Serializable {
 
-    private String id, title, parent, position, notes, status, taskList, localSibling;
-    private int moved, localDeleted, intId, syncStatus;
+    private String id, title, parent, position, notes, status, taskList;
+    private int moved, localDeleted, intId, localParent, localSibling, syncStatus;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
 
@@ -79,18 +79,25 @@ public class LocalTask implements Serializable {
     public static Task localTaskToApiTask (LocalTask lTask){
         Task task = new Task();
         task.setTitle(lTask.title);
-        if (lTask.getNotes() != null) {
+        if (lTask.getNotes() != null || lTask.getNotes().trim().equals("")) {
             task.setNotes(lTask.getNotes());
+        } else {
+            task.setNotes(null);
         }
         if (lTask.getDue() != 0) {
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
+        } else {
+            task.setDue(null);
         }
         return task;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    public boolean equals(LocalTask task) {
+        return this.id.equals(task.getId());
+    }
+
+    public boolean equals(Task task) {
+        return this.id.equals(task.getId());
     }
 
     @Override
@@ -101,13 +108,9 @@ public class LocalTask implements Serializable {
     ///-------------------SETTERS ----------------------//
 
 
-    public void setMoved(@Nullable String localSibling) {
+    public void setMoved(int localSibling) {
         this.moved = Co.MOVED;
-        this.localSibling = localSibling == null ? null : localSibling;
-    }
-
-    public void setMoved(int moved) {
-        this.moved = moved;
+        this.localSibling = localSibling;
     }
 
     public void setLocalModify() {
@@ -195,7 +198,7 @@ public class LocalTask implements Serializable {
     ///-------------------GETTERS---------------------///
 
 
-    public String getLocalSibling() {
+    public int getSibling() {
         return localSibling;
     }
 
@@ -211,7 +214,7 @@ public class LocalTask implements Serializable {
         return localDeleted;
     }
 
-    public void setLocalSibling(String localSibling) {
+    public void setSibling(int localSibling) {
         this.localSibling = localSibling;
     }
 

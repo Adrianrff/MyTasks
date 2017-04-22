@@ -115,7 +115,7 @@ public class Contract {
 
         void addTask(LocalTask task);
 
-        void moveTask(String[] params);
+        void moveTask(LocalTask movedTask, String previousTaskId);
 
         void editTask(LocalTask task);
 
@@ -137,19 +137,25 @@ public class Contract {
 
         void updateSibling(String taskId, String previousTaskId);
 
-        List<LocalTask> getTaskFromLlistForAdapter(String listId);
+        List<LocalTask> getTaskFromListForAdapter(String listId);
 
         void updateLocalTask(Task task, String listId);
 
         void markDeleted(String taskId);
 
-        void updateNewlyCreatedTask(Task aTask, String listId, String intId);
+        LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId);
 
         void setTemporaryPosition(String taskId, String newTaskTempPos);
 
         void updateMoved(String id, int moved);
 
         void updatePosition(Task task);
+
+        void updateSiblingByIntId(int id, int sibling);
+
+        String getTaskIdByIntId(int id);
+
+        void updateMovedByIntId(int intId, int moved);
     }
 
 

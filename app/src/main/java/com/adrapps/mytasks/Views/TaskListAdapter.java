@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +36,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     private TaskListPresenter mPresenter;
     private LocalTask removedTask;
     private String selectedTaskId;
-    private int selectedTaskPosition;
+    private int newPos;
+    private int oldPos;
+    private LocalTask movedTask;
 
 
     TaskListAdapter(Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
@@ -135,6 +136,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
+
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(tasks, i, i + 1);
@@ -144,6 +146,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                 Collections.swap(tasks, i, i - 1);
             }
         }
+        newPos = toPosition;
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }
@@ -263,52 +266,65 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         @Override
         public void onItemSelected() {
             selectedTaskId = tasks.get(getAdapterPosition()).getId();
-            selectedTaskPosition = getAdapterPosition();
+             oldPos = getAdapterPosition();
             itemView.setBackgroundColor(Color.LTGRAY);
         }
 
         @Override
         public void onItemClear() {
 //            Log.d("ItemClear", "new Position " + String.valueOf(getAdapterPosition()));
-//            Log.d("ItemClear", "old Position " + String.valueOf(selectedTaskPosition));
-//            if (selectedTaskPosition != getAdapterPosition()) {
+//            Log.d("ItemClear", "old Position " + String.valueOf(oldPos));
+//            if (oldPos != getAdapterPosition()) {
 //                Log.d("ItemMoved", "true");
 //            }
             itemView.setBackgroundColor(Color.WHITE);
             if (getAdapterPosition() >= 0) {
-                if (selectedTaskPosition != getAdapterPosition()) {
+                LocalTask task1, task2;
+                task1 = tasks.get(newPos);
+                task2 = tasks.get(oldPos);
+                movedTask = tasks.get(getAdapterPosition());
+                mPresenter.updateMovedByIntId(movedTask.getIntId(), Co.MOVED);
+                if (oldPos != getAdapterPosition()) {
+                    mPresenter.updateSiblingByIntId(movedTask.getIntId(),
+                            newPos - 1 < 0 ? Co.MOVED_TO_FIRST : tasks.get(newPos - 1).getIntId());
+                    mPresenter.updateSiblingByIntId(tasks.get(oldPos).getIntId(), oldPos - 1 < 0 ? 0 : tasks.get(oldPos - 1).getIntId());
+                    if (newPos + 1 <= tasks.size() - 1) {
+                        mPresenter.updateSiblingByIntId(tasks.get(newPos + 1).getIntId(), movedTask.getIntId());
+                    }
                     String newTaskTempPos = null;
                     String previousTaskId;
                     if (getAdapterPosition() == 0) {
                         previousTaskId = Co.TASK_MOVED_TO_FIRST;
                         if (tasks.size() >= 2 && !mPresenter.isDeviceOnline()) {
-                            String nextTaskServerPos = tasks.get(getAdapterPosition() + 1).
-                                    getPosition();
-                            String nextTaskServerPositionLastTwoChar =
-                                    nextTaskServerPos.substring(nextTaskServerPos.length() - 2);
-                            int lastTwoCharNewPos = Integer.parseInt(nextTaskServerPositionLastTwoChar) - 1;
-                            newTaskTempPos = nextTaskServerPos.substring(0,
-                                    nextTaskServerPos.length() - 2) + lastTwoCharNewPos;
-//                        newTaskTempPos = "0";
-//                        mPresenter.updateSibling(selectedTaskId, null);
+                            if (tasks.get(getAdapterPosition() + 1).getPosition() != null){
+                                String nextTaskServerPos = tasks.get(getAdapterPosition() + 1).
+                                        getPosition();
+                                String nextTaskServerPositionLastTwoChar =
+                                        nextTaskServerPos.substring(nextTaskServerPos.length() - 2);
+                                int lastTwoCharNewPos = Integer.parseInt(nextTaskServerPositionLastTwoChar) - 1;
+                                newTaskTempPos = nextTaskServerPos.substring(0,
+                                        nextTaskServerPos.length() - 2) + lastTwoCharNewPos;
+                            } else {
+                                newTaskTempPos = "0";
+                            }
+
                         }
                     } else {
                         previousTaskId = tasks.get(getAdapterPosition() - 1).getId();
-                        if (!mPresenter.isDeviceOnline()) {
-                            String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
-                                    getPosition();
-                            String previousTaskServerPositionLastTwoChar =
-                                    previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
-                            int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
-                            newTaskTempPos = previousTaskServerPos.substring(0,
-                                    previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
-                        }
+                        String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
+                                getPosition();
+                        String previousTaskServerPositionLastTwoChar =
+                                previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
+                        int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
+                        newTaskTempPos = previousTaskServerPos.substring(0,
+                                previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
+
                     }
                     String[] params = {selectedTaskId, mPresenter.getStringShP(Co.CURRENT_LIST_ID),
                             previousTaskId};
                     if (newTaskTempPos != null)
                         mPresenter.setTemporaryPosition(selectedTaskId, newTaskTempPos);
-                    mPresenter.moveTask(params);
+                    mPresenter.moveTask(movedTask, previousTaskId);
                 }
             }
 

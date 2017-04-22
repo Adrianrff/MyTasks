@@ -202,8 +202,8 @@ public class TaskListPresenter {
         getView().showEmptyRecyclerView(b);
     }
 
-    public void moveTask(String[] params) {
-        mModel.moveTask(params);
+    public void moveTask(LocalTask movedTask, String previousTaskId) {
+        mModel.moveTask(movedTask, previousTaskId);
     }
 
     public void editTask(LocalTask task) {
@@ -259,7 +259,7 @@ public class TaskListPresenter {
     }
 
     public List<LocalTask> getTasksFromListForAdapter(String listId) {
-        return mModel.getTaskFromLlistForAdapter(listId);
+        return mModel.getTaskFromListForAdapter(listId);
     }
 
     public void updateLocalTask(Task task, String listId) {
@@ -270,8 +270,8 @@ public class TaskListPresenter {
         mModel.markDeleted(taskId);
     }
 
-    public void updateNewlyCreatedTask(Task aTask, String listId, String intId) {
-        mModel.updateNewlyCreatedTask(aTask, listId, intId);
+    public LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId) {
+        return mModel.updateNewlyCreatedTask(aTask, listId, intId);
     }
 
     public void setTemporaryPosition(String taskId, String newTaskTempPos) {
@@ -284,5 +284,17 @@ public class TaskListPresenter {
 
     public void updatePosition(Task task) {
         mModel.updatePosition(task);
+    }
+
+    public void updateSiblingByIntId(int id, int sibling) {
+        mModel.updateSiblingByIntId(id,sibling);
+    }
+
+    public String getTaskIdByIntId(int id) {
+        return mModel.getTaskIdByIntId(id);
+    }
+
+    public void updateMovedByIntId(int intId, int moved) {
+        mModel.updateMovedByIntId(intId, moved);
     }
 }
