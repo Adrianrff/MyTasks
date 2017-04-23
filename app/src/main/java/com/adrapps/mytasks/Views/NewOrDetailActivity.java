@@ -115,9 +115,10 @@ public class NewOrDetailActivity extends AppCompatActivity
         if (notSwitch.isChecked()) {
             showNotificationDialog();
             notifLayout.setVisibility(View.VISIBLE);
-        } else
+        } else {
             selectedReminderInMills = 0;
-        notifLayout.setVisibility(View.GONE);
+            notifLayout.setVisibility(View.GONE);
+        }
     }
 
     private void showNotificationDialog() {
@@ -159,12 +160,13 @@ public class NewOrDetailActivity extends AppCompatActivity
                 break;
 
             case R.id.save_task:
+
+                //TASK EDITED
                 if (getIntent().hasExtra(Co.LOCAL_TASK)) {
                     Intent i = new Intent();
                     if (selectedReminderInMills == 0 && taskToEdit.getReminder() != 0) {
                         //clear alarm
                         taskToEdit.setReminderNoID(0);
-                        taskToEdit.setReminderId(0);
                     }
                     if (selectedReminderInMills != 0 &&
                             selectedReminderInMills != taskToEdit.getReminder()) {
@@ -192,6 +194,8 @@ public class NewOrDetailActivity extends AppCompatActivity
                     finish();
                     break;
 
+
+                //TASK CREATED
                 } else {
                     if (taskTitle.getText().toString().trim().length() == 0) {
                         showToast(getString(R.string.empty_title_error));
@@ -244,6 +248,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
+                    notSwitch.setChecked(false);
                 }
                 break;
 
@@ -263,6 +268,8 @@ public class NewOrDetailActivity extends AppCompatActivity
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
+                    dialog.dismiss();
+                    notSwitch.setChecked(false);
                 }
                 break;
 
@@ -282,6 +289,8 @@ public class NewOrDetailActivity extends AppCompatActivity
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
+                    dialog.dismiss();
+                    notSwitch.setChecked(false);
                 }
                 break;
 

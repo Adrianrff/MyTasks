@@ -125,6 +125,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
                                 }
                                 LocalTask task = new LocalTask(tasks.get(j),Co.listIds.get(i));
                                 task.setSyncStatus(Co.SYNCED);
+                                task.setLocalModify();
                                 localTasks.add(task);
                             }
                         }

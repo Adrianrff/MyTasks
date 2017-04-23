@@ -6,10 +6,6 @@ import com.google.api.services.tasks.model.Task;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Adrian Flores on 20/4/2017.
- */
-
 public class CompareLists {
 
     public static List<LocalTask> localTasksNotInServer(List<LocalTask> localTasks, List<Task> serverTasks) {
@@ -53,6 +49,9 @@ public class CompareLists {
                 boolean serverTaskInDB = false;
                 for (int j = 0; j < localTasks.size(); j++) {
                     LocalTask currentLocalTask = localTasks.get(j);
+                    if (currentLocalTask.getId() == null){
+                        continue;
+                    }
                     if (currentServerTask.getId().trim().equals(currentLocalTask.getId().trim())) {
                         serverTaskInDB = true;
                         continue;
@@ -68,25 +67,25 @@ public class CompareLists {
         }
     }
 
-    //Excludes tasks created offline (not synced)
-    public static List<LocalTask> commonTasks(List<LocalTask> localTasks, List<Task> serverTasks) {
-        if (localTasks != null && serverTasks != null && !localTasks.isEmpty() && !serverTasks.isEmpty()) {
-            List<LocalTask> commonTasks = new ArrayList<>();
-            for (int i = 0; i < localTasks.size(); i++) {
-                LocalTask currentLocalTask = localTasks.get(i);
-                if (currentLocalTask.getId() != null) {
-                    for (int j = 0; j < serverTasks.size(); j++) {
-                        Task currentServerTask = serverTasks.get(j);
-                        if (currentLocalTask.getId().trim().equals(currentServerTask.getId().trim())) {
-                            commonTasks.add(currentLocalTask);
-                        }
-                    }
-                }
-            }
-            return commonTasks;
-        } else {
-            return new ArrayList<>();
-        }
-
-    }
+//    //Excludes tasks created offline (not synced)
+//    public static List<LocalTask> commonTasks(List<LocalTask> localTasks, List<Task> serverTasks) {
+//        if (localTasks != null && serverTasks != null && !localTasks.isEmpty() && !serverTasks.isEmpty()) {
+//            List<LocalTask> commonTasks = new ArrayList<>();
+//            for (int i = 0; i < localTasks.size(); i++) {
+//                LocalTask currentLocalTask = localTasks.get(i);
+//                if (currentLocalTask.getId() != null) {
+//                    for (int j = 0; j < serverTasks.size(); j++) {
+//                        Task currentServerTask = serverTasks.get(j);
+//                        if (currentLocalTask.getId().trim().equals(currentServerTask.getId().trim())) {
+//                            commonTasks.add(currentLocalTask);
+//                        }
+//                    }
+//                }
+//            }
+//            return commonTasks;
+//        } else {
+//            return new ArrayList<>();
+//        }
+//
+//    }
 }

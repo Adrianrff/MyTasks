@@ -35,10 +35,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     private List<LocalTask> tasks;
     private TaskListPresenter mPresenter;
     private LocalTask removedTask;
-    private String selectedTaskId;
     private int newPos;
     private int oldPos;
-    private LocalTask movedTask;
 
 
     TaskListAdapter(Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
@@ -265,7 +263,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onItemSelected() {
-            selectedTaskId = tasks.get(getAdapterPosition()).getId();
              oldPos = getAdapterPosition();
             itemView.setBackgroundColor(Color.LTGRAY);
         }
@@ -279,10 +276,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 //            }
             itemView.setBackgroundColor(Color.WHITE);
             if (getAdapterPosition() >= 0) {
-                LocalTask task1, task2;
-                task1 = tasks.get(newPos);
-                task2 = tasks.get(oldPos);
-                movedTask = tasks.get(getAdapterPosition());
+                LocalTask movedTask = tasks.get(getAdapterPosition());
+                movedTask.setMoved(Co.MOVED);
                 mPresenter.updateMovedByIntId(movedTask.getIntId(), Co.MOVED);
                 if (oldPos != getAdapterPosition()) {
                     mPresenter.updateSiblingByIntId(movedTask.getIntId(),
@@ -313,17 +308,17 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                         previousTaskId = tasks.get(getAdapterPosition() - 1).getId();
                         String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
                                 getPosition();
-                        String previousTaskServerPositionLastTwoChar =
-                                previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
-                        int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
-                        newTaskTempPos = previousTaskServerPos.substring(0,
-                                previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
+                        if (previousTaskServerPos != null) {
+                            String previousTaskServerPositionLastTwoChar =
+                                    previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
+                            int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
+                            newTaskTempPos = previousTaskServerPos.substring(0,
+                                    previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
+                        }
 
                     }
-                    String[] params = {selectedTaskId, mPresenter.getStringShP(Co.CURRENT_LIST_ID),
-                            previousTaskId};
                     if (newTaskTempPos != null)
-                        mPresenter.setTemporaryPosition(selectedTaskId, newTaskTempPos);
+                        mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(), newTaskTempPos);
                     mPresenter.moveTask(movedTask, previousTaskId);
                 }
             }

@@ -114,11 +114,10 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             mPresenter.updateLists(lists);
         }
 
-        List<Task> serverTasks = new ArrayList<>();
-        List<LocalTask> localTasks = new ArrayList<>();
-        List<LocalTask> localTasksNotInServer = new ArrayList<>();
-        List<Task> serverTasksNotInDB = new ArrayList<>();
-        List<LocalTask> commonTasks = new ArrayList<>();
+        List<Task> serverTasks;
+        List<LocalTask> localTasks;
+        List<LocalTask> localTasksNotInServer;
+        List<Task> serverTasksNotInDB;
         String currentListId;
 
         // Loop through list of lists
@@ -137,7 +136,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             localTasksNotInServer = CompareLists.localTasksNotInServer(localTasks, serverTasks);
             serverTasksNotInDB = CompareLists.serverTasksNotInDB(localTasks, serverTasks);
 
-            commonTasks.clear();
 
             //LOCAL TASKS NOT IN SERVER
             if (localTasksNotInServer != null && !localTasksNotInServer.isEmpty()) {
@@ -150,7 +148,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                                         (currentLocalTaskNotInServer)).execute();
                         LocalTask lTask = mPresenter.updateNewlyCreatedTask(task, currentListId,
                                 String.valueOf(currentLocalTaskNotInServer.getIntId()));
-                        commonTasks.add(lTask);
                     } else {
                         mPresenter.deleteTask(currentLocalTaskNotInServer.getId());
                     }
@@ -168,11 +165,10 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         continue;
                     }
                     mPresenter.addTaskFirstTimeFromServer(currentServerTaskNotInDB, currentListId);
-                    commonTasks.add(mPresenter.getTask(currentServerTaskNotInDB.getId()));
                 }
             }
 
-            //UPDATED TASKS (NO POSITION)
+            //UPDATED TASKS (POSITIONS NOT UPDATED)
             localTasks = mPresenter.getTasksFromList(currentListId);
             serverTasks = mService.tasks().list(currentListId).execute().getItems();
 
@@ -192,17 +188,26 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                 }
             }
 
+            //LOOP THROUGH LOCAL TASKS
             for (int k = 0; k < localTasks.size(); k++) {
                 LocalTask currentLocalTask = localTasks.get(k);
                 Task sameServerTask = serverTasksMap.get(currentLocalTask.getId());
+                if (currentLocalTask.getLocalDeleted() == Co.LOCAL_DELETED){
+                    mService.tasks().delete(currentListId, currentLocalTask.getId()).execute();
+                    continue;
+                }
                 if (currentLocalTask.getLocalModify() > sameServerTask.getUpdated().getValue()) {
-                    if (currentLocalTask.getSyncStatus() == 2) continue;
                     if (currentLocalTask.getSyncStatus() == 1) {
+                        Task task = new Task();
+                        task.setTitle(currentLocalTask.getTitle());
+                        task.setNotes(currentLocalTask.getNotes() == null ? null : currentLocalTask.getNotes());
+                        task.setDue(currentLocalTask.getDue()==0 ? null :
+                        DateHelper.millisecondsToDateTime(currentLocalTask.getDue()));
                         mService.tasks().update(currentListId,
                                 currentLocalTask.getId(),
-                                LocalTask.localTaskToApiTask(currentLocalTask)).execute();
+                                task).execute();
                     }
-                    if (currentLocalTask.getMoved() == 1) {
+                    if (currentLocalTask.getMoved() == Co.MOVED) {
                         Tasks.TasksOperations.Move moveOperation = mService.tasks().
                                 move(currentListId, sameServerTask.getId());
                         int localSiblingIntId = currentLocalTask.getSibling();
@@ -214,68 +219,68 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         }
                         mPresenter.updatePosition(sameServerTask);
                     }
+                    mPresenter.updateSyncStatus(currentLocalTask.getId(), Co.SYNCED);
                 } else {
                     mPresenter.updateLocalTask(sameServerTask, currentListId);
                 }
-                mPresenter.updateSyncStatus(currentLocalTask.getId(), Co.SYNCED);
             }
 
 
             //---------------------------------------------------------
 
-            commonTasks.addAll(CompareLists.commonTasks(localTasks, serverTasks));
-
-            for (int k = 0; k < commonTasks.size(); k++) {
-                LocalTask task = commonTasks.get(k);
-                Task sTask = mService.tasks().get(currentListId, task.getId()).execute();
-                if (sTask.getTitle().trim().equals("") && sTask.getDue() == null && sTask.getNotes() == null) {
-                    mService.tasks().delete(currentListId, sTask.getId()).execute();
-                    continue;
-                }
-                if (task.getLocalDeleted() == Co.LOCAL_DELETED) {
-                    mService.tasks().delete(currentListId, task.getId()).execute();
-                } else {
-                    if (sTask.getUpdated().getValue() < task.getLocalModify()) {
-                        if (task.getSyncStatus() == 1) {
-                            if (task.getMoved() == 1) {
-                                if (task.getParent() != null) {
-                                    //move in server into parent
-                                } else {
-                                    Tasks.TasksOperations.Move move = mService.tasks().
-                                            move(currentListId, task.getId());
-                                    if (task.getSibling() != 0) {
-                                        move.setPrevious(mPresenter.getTaskIdByIntId(task.getSibling())).execute();
-                                    } else {
-                                        move.execute();
-                                    }
-                                    mPresenter.updateMoved(task.getId(), Co.NOT_MOVED);
-
-                                }
-                            }
-
-                            sTask.setTitle(task.getTitle());
-                            if (task.getDue() != 0) {
-                                sTask.setDue(DateHelper.millisecondsToDateTime(task.getDue()));
-                            }
-                            sTask.setNotes(task.getNotes());
-                            mService.tasks().update(currentListId, task.getId(), sTask).execute();
-                            mPresenter.updateSyncStatus(task.getId(), Co.SYNCED);
-                        }
-                    } else {
-                        mPresenter.updateLocalTask(sTask, currentListId);
-                        Tasks.TasksOperations.Move move = mService.tasks().
-                                move(currentListId, task.getId());
-                        if (task.getSibling() != Co.MOVED_TO_FIRST) {
-                            String localSibling = mPresenter.getTaskIdByIntId(task.getSibling());
-                            if (localSibling != null) {
-                                move.setPrevious(localSibling).execute();
-                            }
-                        } else {
-                            move.execute();
-                        }
-                    }
-                }
-            }
+//            commonTasks.addAll(CompareLists.commonTasks(localTasks, serverTasks));
+//
+//            for (int k = 0; k < commonTasks.size(); k++) {
+//                LocalTask task = commonTasks.get(k);
+//                Task sTask = mService.tasks().get(currentListId, task.getId()).execute();
+//                if (sTask.getTitle().trim().equals("") && sTask.getDue() == null && sTask.getNotes() == null) {
+//                    mService.tasks().delete(currentListId, sTask.getId()).execute();
+//                    continue;
+//                }
+//                if (task.getLocalDeleted() == Co.LOCAL_DELETED) {
+//                    mService.tasks().delete(currentListId, task.getId()).execute();
+//                } else {
+//                    if (sTask.getUpdated().getValue() < task.getLocalModify()) {
+//                        if (task.getSyncStatus() == 1) {
+//                            if (task.getMoved() == 1) {
+//                                if (task.getParent() != null) {
+//                                    //move in server into parent
+//                                } else {
+//                                    Tasks.TasksOperations.Move move = mService.tasks().
+//                                            move(currentListId, task.getId());
+//                                    if (task.getSibling() != 0) {
+//                                        move.setPrevious(mPresenter.getTaskIdByIntId(task.getSibling())).execute();
+//                                    } else {
+//                                        move.execute();
+//                                    }
+//                                    mPresenter.updateMoved(task.getId(), Co.NOT_MOVED);
+//
+//                                }
+//                            }
+//
+//                            sTask.setTitle(task.getTitle());
+//                            if (task.getDue() != 0) {
+//                                sTask.setDue(DateHelper.millisecondsToDateTime(task.getDue()));
+//                            }
+//                            sTask.setNotes(task.getNotes());
+//                            mService.tasks().update(currentListId, task.getId(), sTask).execute();
+//                            mPresenter.updateSyncStatus(task.getId(), Co.SYNCED);
+//                        }
+//                    } else {
+//                        mPresenter.updateLocalTask(sTask, currentListId);
+//                        Tasks.TasksOperations.Move move = mService.tasks().
+//                                move(currentListId, task.getId());
+//                        if (task.getSibling() != Co.MOVED_TO_FIRST) {
+//                            String localSibling = mPresenter.getTaskIdByIntId(task.getSibling());
+//                            if (localSibling != null) {
+//                                move.setPrevious(localSibling).execute();
+//                            }
+//                        } else {
+//                            move.execute();
+//                        }
+//                    }
+//                }
+//            }
 
 //            if (serverTasks != null && !serverTasks.isEmpty()) {
 //                for (int j = 0; j < serverTasks.size(); j++) {

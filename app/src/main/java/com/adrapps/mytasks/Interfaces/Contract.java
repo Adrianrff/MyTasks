@@ -83,6 +83,8 @@ public class Contract {
         boolean isDeviceOnline();
 
         void navigateToEditTask(Intent intent);
+
+        void cancelReminder(LocalTask task);
     }
 
 
@@ -101,7 +103,7 @@ public class Contract {
 
         String getListTitleFromId(String listId);
 
-        void addTaskToLocalDatabase(LocalTask task);
+        int addTaskToLocalDatabase(LocalTask task);
 
         void addTaskFirstTimeFromServer(Task task, String listId);
 
@@ -113,7 +115,7 @@ public class Contract {
 
         void refreshFirstTime();
 
-        void addTask(LocalTask task);
+        int addTask(LocalTask task);
 
         void moveTask(LocalTask movedTask, String previousTaskId);
 
@@ -156,6 +158,10 @@ public class Contract {
         String getTaskIdByIntId(int id);
 
         void updateMovedByIntId(int intId, int moved);
+
+        void setTemporaryPositionByIntId(int intId, String newTaskTempPos);
+
+        void deleteTaskFromDataBase(int intId);
     }
 
 

@@ -117,7 +117,7 @@ public class TaskListPresenter {
         return mModel.getListsIds();
     }
 
-    public void setListsInfo(List<TaskList> lists){
+    private void setListsInfo(List<TaskList> lists){
         Co.listIds.clear();
         Co.listTitles.clear();
         for (int i = 0; i < lists.size(); i++){
@@ -194,8 +194,8 @@ public class TaskListPresenter {
         mModel.refreshFirstTime();
     }
 
-    public void addTask(LocalTask task){
-        mModel.addTask(task);
+    public int addTask(LocalTask task){
+        return mModel.addTask(task);
     }
 
     public void showEmptyRecyclerView(boolean b) {
@@ -222,8 +222,8 @@ public class TaskListPresenter {
         return mModel.taskExistsInDB(taskId);
     }
 
-    public void addTaskToDatabase(LocalTask task) {
-        mModel.addTaskToLocalDatabase(task);
+    public int addTaskToDatabase(LocalTask task) {
+        return mModel.addTaskToLocalDatabase(task);
     }
 
     public void addTaskFirstTimeFromServer(Task task, String listId) {
@@ -296,5 +296,13 @@ public class TaskListPresenter {
 
     public void updateMovedByIntId(int intId, int moved) {
         mModel.updateMovedByIntId(intId, moved);
+    }
+
+    public void setTemporaryPositionByIntId(int intId, String newTaskTempPos) {
+        mModel.setTemporaryPositionByIntId(intId, newTaskTempPos);
+    }
+
+    public void deleteTaskFromDataBase(int intId) {
+        mModel.deleteTaskFromDataBase(intId);
     }
 }

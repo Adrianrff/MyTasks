@@ -17,10 +17,6 @@ import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
 
-/**
- * Created by Adrian Flores on 10/4/2017.
- */
-
 public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
@@ -96,22 +92,16 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
     private void addTask(LocalTask lTask) throws IOException {
         Task task = LocalTask.localTaskToApiTask(lTask);
-        Task aTask = null;
+        Task aTask;
         try {
             aTask = mService.tasks().insert(listId, task).execute();
             if (aTask != null) {
                 localTask = new LocalTask(aTask, lTask.getTaskList());
-                if (lTask.getReminder() != 0) localTask.setReminder(lTask.getReminder());
-                localTask.setTaskList(lTask.getTaskList());
-                localTask.setSyncStatus(Co.SYNCED);
-                mPresenter.addTaskFirstTimeFromServer(aTask, lTask.getTaskList());
+                mPresenter.updateLocalTask(aTask, lTask.getTaskList());
             }
         } catch (IOException e) {
             e.printStackTrace();
             mPresenter.showToast("Task could not be added to the server.\n" + "Please try again");
-            lTask.setSyncStatus(Co.NOT_SYNCED);
-            mPresenter.addTaskToDatabase(lTask);
-
         }
     }
 }

@@ -1,21 +1,15 @@
 package com.adrapps.mytasks.Domain;
 
-import android.support.annotation.Nullable;
-
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.Serializable;
 import java.util.TimeZone;
 
-/**
- * Created by Adrian Flores on 27/3/2017.
- */
-
 public class LocalTask implements Serializable {
 
     private String id, title, parent, position, notes, status, taskList;
-    private int moved, localDeleted, intId, localParent, localSibling, syncStatus;
+    private int moved, localDeleted, intId, localSibling, syncStatus;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
 
@@ -79,25 +73,22 @@ public class LocalTask implements Serializable {
     public static Task localTaskToApiTask (LocalTask lTask){
         Task task = new Task();
         task.setTitle(lTask.title);
-        if (lTask.getNotes() != null || lTask.getNotes().trim().equals("")) {
-            task.setNotes(lTask.getNotes());
+        if (lTask.getNotes() != null){
+            if (!lTask.getNotes().trim().equals("")){
+                task.setNotes(lTask.getNotes());
+            } else {
+                task.setNotes(null);
+            }
         } else {
             task.setNotes(null);
         }
+
         if (lTask.getDue() != 0) {
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
         } else {
             task.setDue(null);
         }
         return task;
-    }
-
-    public boolean equals(LocalTask task) {
-        return this.id.equals(task.getId());
-    }
-
-    public boolean equals(Task task) {
-        return this.id.equals(task.getId());
     }
 
     @Override
@@ -108,9 +99,8 @@ public class LocalTask implements Serializable {
     ///-------------------SETTERS ----------------------//
 
 
-    public void setMoved(int localSibling) {
-        this.moved = Co.MOVED;
-        this.localSibling = localSibling;
+    public void setMoved(int moved) {
+        this.moved = moved;
     }
 
     public void setLocalModify() {

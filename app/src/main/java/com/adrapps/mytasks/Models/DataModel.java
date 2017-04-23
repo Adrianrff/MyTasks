@@ -67,8 +67,8 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void addTaskToLocalDatabase(LocalTask task) {
-        tasksDb.addTask(task);
+    public int addTaskToLocalDatabase(LocalTask task) {
+        return (int) tasksDb.addTask(task);
     }
 
     @Override
@@ -176,6 +176,16 @@ public class DataModel implements Contract.Model {
         tasksDb.updateMovedByIntId(intId, moved);
     }
 
+    @Override
+    public void setTemporaryPositionByIntId(int intId, String newTaskTempPos) {
+        tasksDb.setTemporaryPositionByIntId(intId, newTaskTempPos);
+    }
+
+    @Override
+    public void deleteTaskFromDataBase(int intId) {
+        tasksDb.deleteTask(intId);
+    }
+
 
     //------------------------API OPERATIONS----------------------///
     @Override
@@ -216,19 +226,19 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void addTask(LocalTask task) {
-        mPresenter.addTaskToAdapter(task);
+    public int addTask(LocalTask task) {
+        int newTaskId = mPresenter.addTaskToDatabase(task);
         if (mPresenter.isDeviceOnline()) {
             AddTask add = new AddTask(mPresenter,
                     mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
             add.execute(task);
         }
         else {
-            task.setLocalModify();
-            task.setSyncStatus(Co.NOT_SYNCED);
-            mPresenter.addTaskToDatabase(task);
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }
+        task.setIntId(newTaskId);
+        mPresenter.addTaskToAdapter(task);
+        return newTaskId;
     }
 
     @Override

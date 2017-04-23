@@ -25,7 +25,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,17 +39,13 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import com.adrapps.mytasks.APICalls.SyncTasks;
 import com.adrapps.mytasks.APICalls.SignInActivity;
+import com.adrapps.mytasks.APICalls.SyncTasks;
 import com.adrapps.mytasks.AlarmReciever;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
@@ -89,13 +84,8 @@ public class MainActivity extends AppCompatActivity
     ActionBarDrawerToggle toggle;
     CoordinatorLayout coordinatorLayout;
     SwipeRefreshLayout swipeRefresh;
-    AlertDialog newTaskDialog;
     TextView dateTextView;
-    Spinner notifSpinner;
-    EditText newTaskTitle;
-    Switch notSwitch;
     long selectedDueDateInMills;
-    private boolean mTwoPane;
     private LinearLayout emptyDataLayout;
     private long selectedReminderInMills;
 
@@ -305,6 +295,9 @@ public class MainActivity extends AppCompatActivity
                 if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT ||
                         event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
                         event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE) {
+                    if (mPresenter.getTaskIdByIntId(task.getIntId()) == null) {
+                        mPresenter.deleteTaskFromDataBase(task.getIntId());
+                    }
                     mPresenter.deleteTask(task.getId(), task.getTaskList());
                 }
             }
@@ -586,24 +579,24 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-                Calendar due = Calendar.getInstance();
-                due.setTimeInMillis(1492402055507L);
-                Calendar updated = Calendar.getInstance();
-                updated.setTimeInMillis(1492303523000L);
-                String sd, su;
-                SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-                if (DateUtils.isToday(due.getTimeInMillis())) {
-                    sd = " today";
-                } else {
-                    sd = " not today";
-                }
-                if (DateUtils.isToday(updated.getTimeInMillis())) {
-                    su = " today";
-                } else {
-                    su = " not today";
-                }
-                showToast(/*"Updated: " + sdfCA.format(updated.getTimeInMillis()) + su + "\n" +*/
-                        "Due: " + sdfCA.format(due.getTimeInMillis()) + sd);
+//                Calendar due = Calendar.getInstance();
+//                due.setTimeInMillis(1492402055507L);
+//                Calendar updated = Calendar.getInstance();
+//                updated.setTimeInMillis(1492303523000L);
+//                String sd, su;
+//                SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
+//                if (DateUtils.isToday(due.getTimeInMillis())) {
+//                    sd = " today";
+//                } else {
+//                    sd = " not today";
+//                }
+//                if (DateUtils.isToday(updated.getTimeInMillis())) {
+//                    su = " today";
+//                } else {
+//                    su = " not today";
+//                }
+//                showToast(/*"Updated: " + sdfCA.format(updated.getTimeInMillis()) + su + "\n" +*/
+//                        "Due: " + sdfCA.format(due.getTimeInMillis()) + sd);
                 break;
 
             case R.id.refresh:
@@ -649,6 +642,8 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, resultIntent);
         if (requestCode == Co.TASK_DATA_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
+
+                // TASK EDITED
                 if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
@@ -656,11 +651,14 @@ public class MainActivity extends AppCompatActivity
                             //Cancel current alarm if exists and set new one
                             setReminder(task);
                         } else {
-                            //cancel alarm if exists
+                            cancelReminder(task);
+                            Log.d("Alarm canceled", "canceled");
                         }
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                         mPresenter.editTask(task);
                     }
+
+                // TASK DELETED
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
@@ -670,10 +668,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             }
-//
-//            if (resultCode == Activity.RESULT_CANCELED) {
-//                //Write your code if there's no result
-//            }
         }
     }
 
@@ -768,5 +762,14 @@ public class MainActivity extends AppCompatActivity
             alarmManager.set(AlarmManager.RTC_WAKEUP,
                     task.getReminder(), pendingIntent);
         }
+    }
+
+    @Override
+    public void cancelReminder(LocalTask task) {
+            Intent intent = new Intent(this, AlarmReciever.class);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
+                    (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            alarmManager.cancel(pendingIntent);
     }
 }

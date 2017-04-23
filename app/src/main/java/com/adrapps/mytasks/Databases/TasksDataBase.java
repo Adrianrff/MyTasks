@@ -21,28 +21,28 @@ public class TasksDataBase extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "TasksTable";
 
     //----------TABLE COLUMNS---------------//
-    public static final String COL_INT_ID = "Int_Id";
+    private static final String COL_INT_ID = "Int_Id";
     //    private static final String COL_SORT_ID = "Sort_Id";
-    public static final String COL_ID = "Id";
-    public static final String COL_LIST = "List";
-    public static final String COL_TITLE = "Title";
-    public static final String COL_SERVER_UPDATED = "serverUpdated";
-    public static final String COL_PARENT = "Parent";
-    public static final String COL_POSITION = "Position";
-    public static final String COL_NOTES = "Notes";
-    public static final String COL_STATUS = "Status";
-    public static final String COL_DUE = "Due";
-    public static final String COL_COMPLETED = "Completed";
-    public static final String COL_DELETED = "Deleted";
-    public static final String COL_HIDDEN = "Hidden";
-    public static final String COL_REMINDER = "Reminder";
-    public static final String COL_REMINDER_ID = "ReminderID";
-    public static final String COL_SYNC_STATUS = "Sync_status";
+    private static final String COL_ID = "Id";
+    private static final String COL_LIST = "List";
+    private static final String COL_TITLE = "Title";
+    private static final String COL_SERVER_UPDATED = "serverUpdated";
+    private static final String COL_PARENT = "Parent";
+    private static final String COL_POSITION = "Position";
+    private static final String COL_NOTES = "Notes";
+    private static final String COL_STATUS = "Status";
+    private static final String COL_DUE = "Due";
+    private static final String COL_COMPLETED = "Completed";
+    private static final String COL_DELETED = "Deleted";
+    private static final String COL_HIDDEN = "Hidden";
+    private static final String COL_REMINDER = "Reminder";
+    private static final String COL_REMINDER_ID = "ReminderID";
+    private static final String COL_SYNC_STATUS = "Sync_status";
     private static final String COL_LOCAL_SIBLING = "local_sibling";
     private static final String COL_MOVED = "moved";
     private static final String COL_LOCAL_UPDATED = "local_updated";
     private static final String COL_LOCAL_DELETED = "loca_deleted";
-    public static final String ORDER_ASC = " ASC";
+    private static final String ORDER_ASC = " ASC";
     public static final String ORDER_DESC = " DESC";
 
     //---------ALL COLUMNS ARRAY----------//
@@ -244,9 +244,9 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_HIDDEN, (localTask.isHidden()) ? 1 : 0);
         cv.put(COL_REMINDER, localTask.getReminder());
         cv.put(COL_REMINDER_ID, localTask.getReminderId());
-        cv.put(COL_SYNC_STATUS, localTask.getSyncStatus());
+        cv.put(COL_SYNC_STATUS, Co.NOT_SYNCED);
         cv.put(COL_LOCAL_DELETED, localTask.getLocalDeleted());
-        cv.put(COL_LOCAL_UPDATED, localTask.getLocalModify());
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
         cv.put(COL_LOCAL_SIBLING, localTask.getSibling());
         cv.put(COL_MOVED, localTask.getMoved());
         long insertedRow = db.insert(TABLE_NAME, null, cv);
@@ -345,6 +345,15 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return deletedRow;
     }
 
+
+    public void deleteTask(int intId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(intId)};
+        int deletedRow = db.delete(TABLE_NAME, selection, selectionArgs);
+        db.close();
+    }
+
     public long getTaskReminder(String taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         String selection = COL_ID + " = ? ";
@@ -378,7 +387,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
         cv.put(COL_LOCAL_DELETED, Co.LOCAL_DELETED);
-        cv.put(COL_SYNC_STATUS, Co.EDITED_NOT_SYNCED);
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
@@ -394,7 +402,6 @@ public class TasksDataBase extends SQLiteOpenHelper {
         if (newStatus == Co.SYNCED) {
             cv.put(COL_MOVED, Co.NOT_MOVED);
             cv.put(COL_DELETED, Co.NOT_DELETED);
-            cv.putNull(COL_LOCAL_SIBLING);
         }
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
@@ -762,8 +769,19 @@ public class TasksDataBase extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         cv.put(COL_MOVED, moved);
-        cv.put(COL_SYNC_STATUS, Co.EDITED_NOT_SYNCED);
         int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
         db.close();
     }
+
+    public void setTemporaryPositionByIntId(int intId, String newTaskTempPos) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(intId)};
+        ContentValues cv = new ContentValues();
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
+        cv.put(COL_POSITION, newTaskTempPos);
+        int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
+        db.close();
+    }
+
 }

@@ -18,10 +18,6 @@ import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
 
-/**
- * Created by Adrian Flores on 10/4/2017.
- */
-
 public class EditTask extends AsyncTask<LocalTask, Void, Void> {
 
     private String listId;
@@ -66,6 +62,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showToast(mPresenter.getString(R.string.task_updated));
+        mPresenter.showProgress(false);
     }
 
     @Override
@@ -101,6 +98,5 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
         }
         mService.tasks().update(listId, task.getId(), task).execute();
         mPresenter.updateSyncStatus(lTask.getId(), Co.SYNCED);
-        mPresenter.updateMoved(lTask.getId(), Co.NOT_MOVED);
     }
 }
