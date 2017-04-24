@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
@@ -60,12 +59,12 @@ public class NewOrDetailActivity extends AppCompatActivity
     private int position;
     private TextView customNotOption;
     private AlertDialog dialog;
-    private ImageView notEdit;
+    private TextView notEdit;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.task_detail);
+        setContentView(R.layout.new_task);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (!getIntent().hasExtra(Co.LOCAL_TASK))
             toolbar.setTitle(R.string.new_task_title);
@@ -77,12 +76,11 @@ public class NewOrDetailActivity extends AppCompatActivity
         selectedDateInMills = 0;
         taskTitle = (EditText) findViewById(R.id.task_title_edit_text);
         taskDue = (TextView) findViewById(R.id.due_date_picker);
-        notInfo = (TextView) findViewById(R.id.notification_info);
+        notInfo = (TextView) findViewById(R.id.timeTv);
         taskNotes = (EditText) findViewById(R.id.task_notes_edit_text);
         notSwitch = (Switch) findViewById(R.id.notification_switch);
-        notEdit = (ImageView) findViewById(R.id.notif_edit);
         notifLayout = (LinearLayout) findViewById(R.id.notification_layout);
-        notEdit.setOnClickListener(this);
+        notInfo.setOnClickListener(this);
         notSwitch.setOnCheckedChangeListener(this);
         taskDue.setOnClickListener(this);
 
@@ -148,8 +146,10 @@ public class NewOrDetailActivity extends AppCompatActivity
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                if (selectedReminderInMills == 0){
-                    notSwitch.setChecked(false);
+                if (selectedDateInMills != 0) {
+                    if (selectedReminderInMills == 0) {
+                        notSwitch.setChecked(false);
+                    }
                 }
             }
         });
@@ -195,7 +195,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                     if (selectedDateInMills != 0 && selectedDateInMills != taskToEdit.getDue()) {
                         taskToEdit.setDue(selectedDateInMills);
                     }
-                    if (selectedDateInMills == 0 && taskToEdit.getDue() != 0){
+                    if (selectedDateInMills == 0 && taskToEdit.getDue() != 0) {
                         taskToEdit.setDue(0);
                     }
                     i.putExtra(Co.TASK_EDIT, true);
@@ -206,7 +206,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                     break;
 
 
-                //TASK CREATED
+                    //TASK CREATED
                 } else {
                     if (taskTitle.getText().toString().trim().length() == 0) {
                         showToast(getString(R.string.empty_title_error));
@@ -335,7 +335,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                 }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
                 break;
-            case R.id.notif_edit:
+            case R.id.timeTv:
                 showNotificationDialog();
 
         }

@@ -246,15 +246,6 @@
                 android:layout_weight="1"
                 android:hint="Select time and date" />
 
-            <ImageView
-                android:id="@+id/noNotificationImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:layout_marginRight="02dp"
-                android:contentDescription="Description"
-                android:src="@drawable/ic_close_black_24dp" />
-
         </LinearLayout>
 
         <View
@@ -288,14 +279,6 @@
                 android:layout_weight="1"
                 android:hint="Select repeat mode" />
 
-            <ImageView
-                android:id="@+id/noRepeatImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:layout_marginRight="02dp"
-                android:contentDescription="Description"
-                android:src="@drawable/ic_close_black_24dp" />
 
         </LinearLayout>
 
