@@ -17,6 +17,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
+            FirebaseCrash.report(e);
             return null;
         }
         return null;
@@ -198,11 +200,17 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                 }
                 if (currentLocalTask.getLocalModify() > sameServerTask.getUpdated().getValue()) {
                     if (currentLocalTask.getSyncStatus() == 1) {
-                        Task task = new Task();
+                        Task task = mService.tasks().get(currentListId, currentLocalTask.getId()).execute();
                         task.setTitle(currentLocalTask.getTitle());
                         task.setNotes(currentLocalTask.getNotes() == null ? null : currentLocalTask.getNotes());
                         task.setDue(currentLocalTask.getDue()==0 ? null :
                         DateHelper.millisecondsToDateTime(currentLocalTask.getDue()));
+                        if (currentLocalTask.getStatus().equals(Co.TASK_COMPLETED)) {
+                            task.setCompleted(DateHelper.millisecondsToDateTime(currentLocalTask.getLocalModify()));
+                            task.setStatus(Co.TASK_COMPLETED);
+                        } else {
+                            task.setCompleted(null);
+                        }
                         mService.tasks().update(currentListId,
                                 currentLocalTask.getId(),
                                 task).execute();
@@ -219,7 +227,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         }
                         mPresenter.updatePosition(sameServerTask);
                     }
-                    mPresenter.updateSyncStatus(currentLocalTask.getId(), Co.SYNCED);
+                    mPresenter.updateSyncStatus(currentLocalTask.getIntId(), Co.SYNCED);
                 } else {
                     mPresenter.updateLocalTask(sameServerTask, currentListId);
                 }

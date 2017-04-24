@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:fitsSystemWindows="true">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.AppBarLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/full_margin"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/title_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:contentDescription="Description"
+            android:src="@drawable/ic_label" />
+
+        <EditText
+            android:id="@+id/task_title_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/full_margin"
+            android:layout_marginLeft="28dp"
+            android:layout_marginRight="@dimen/full_margin"
+            android:layout_marginStart="28dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/task_title_hint" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp"
+        android:alpha="0.50"
+        android:background="@android:color/darker_gray" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/full_margin"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginTop="@dimen/full_margin"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/notes_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:contentDescription="sd"
+            android:src="@drawable/notes_24dp" />
+
+        <EditText
+            android:id="@+id/task_notes_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/full_margin"
+            android:layout_marginLeft="28dp"
+            android:layout_marginRight="@dimen/full_margin"
+            android:layout_marginStart="28dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/task_notes_hint"
+            android:inputType="textMultiLine" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp"
+        android:alpha="0.50"
+        android:background="@android:color/darker_gray" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/full_margin"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginTop="@dimen/full_margin"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:contentDescription="sd"
+            android:src="@drawable/ic_date" />
+
+        <TextView
+            android:id="@+id/due_date_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="28dp"
+            android:layout_marginStart="28dp"
+            android:layout_weight="1"
+            android:hint="@string/task_due_date_hint"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/noDateImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="02dp"
+            android:contentDescription="Description"
+            android:src="@drawable/ic_close_black_24dp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp"
+        android:alpha="0.50"
+        android:background="@android:color/darker_gray" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/full_margin"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginTop="@dimen/full_margin"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:contentDescription="sd"
+            android:src="@drawable/notification_small"
+            android:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/notificationTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="28dp"
+            android:layout_marginStart="28dp"
+            android:layout_weight="1"
+            android:hint="@string/notification_select"
+            android:textSize="18sp" />
+
+
+        <Switch
+            android:id="@+id/notification_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/half_margin"
+            android:layout_marginRight="@dimen/half_margin"
+            android:contentDescription="Description"
+            android:src="@drawable/ic_close_black_24dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/notification_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginLeft="72dp"
+        android:layout_marginRight="@dimen/full_margin"
+        android:visibility="visible"
+        android:layout_marginStart="72dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/dateLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/half_margin"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/timeIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_access_time_black_24dp" />
+
+            <TextView
+                android:id="@+id/timeTv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/full_margin"
+                android:layout_marginStart="@dimen/full_margin"
+                android:layout_weight="1"
+                android:hint="Select time and date" />
+
+            <ImageView
+                android:id="@+id/noNotificationImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="02dp"
+                android:contentDescription="Description"
+                android:src="@drawable/ic_close_black_24dp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="@dimen/half_margin"
+            android:alpha="0.50"
+            android:background="@android:color/darker_gray" />
+
+
+        <LinearLayout
+            android:id="@+id/repeatLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/repeatIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_repeat_black_24dp" />
+
+            <TextView
+                android:id="@+id/repeatTv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/full_margin"
+                android:layout_marginStart="@dimen/full_margin"
+                android:layout_weight="1"
+                android:hint="Select repeat mode" />
+
+            <ImageView
+                android:id="@+id/noRepeatImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="02dp"
+                android:contentDescription="Description"
+                android:src="@drawable/ic_close_black_24dp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="@dimen/half_margin"
+            android:layout_marginTop="@dimen/half_margin"
+            android:alpha="0.50"
+            android:background="@android:color/darker_gray" />
+
+
+    </LinearLayout>
+
+
+</LinearLayout>
+
+
+

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -107,6 +108,8 @@ public class NewOrDetailActivity extends AppCompatActivity
                 }
             }
 
+        } else {
+            toolbar.setTitle(getString(R.string.new_task_title));
         }
     }
 
@@ -142,6 +145,14 @@ public class NewOrDetailActivity extends AppCompatActivity
         dialog = dialogBuilder.create();
         dialog.setTitle(getString(R.string.notification_dialog_title));
         dialog.show();
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (selectedReminderInMills == 0){
+                    notSwitch.setChecked(false);
+                }
+            }
+        });
 
     }
 

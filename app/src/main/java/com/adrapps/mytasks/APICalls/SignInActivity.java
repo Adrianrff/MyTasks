@@ -35,6 +35,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -263,6 +264,7 @@ public class SignInActivity extends Activity
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
+                FirebaseCrash.report(e);
                 return null;
             }
             return listInfo;

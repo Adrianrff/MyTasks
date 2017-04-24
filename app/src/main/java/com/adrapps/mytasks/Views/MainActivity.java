@@ -57,6 +57,7 @@ import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -98,13 +99,13 @@ public class MainActivity extends AppCompatActivity
             finish();
             return;
         }
+        FirebaseCrash.report(new Exception("My first Android non-fatal error"));
         setContentView(R.layout.main_activity);
         mPresenter = new TaskListPresenter(this);
         findViews();
         setUpViews();
         setCredentials();
         if (getBooleanSharedPreference(Co.IS_FIRST_INIT)) {
-            Log.d("firstIt", "ran");
             refreshFirstTime();
             return;
         }
@@ -474,24 +475,6 @@ public class MainActivity extends AppCompatActivity
 //                        });
                 break;
 
-            case R.id.datePickerTextView:
-                Calendar c = Calendar.getInstance();
-                DatePickerDialog datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        Calendar c = Calendar.getInstance();
-                        c.set(year, month, dayOfMonth, 0, 0);
-//                        SimpleDateFormat sdf = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-//                        showToast(sdf.format(c.getTime()));
-                        selectedDueDateInMills = c.getTimeInMillis();
-                        dateTextView.setText(DateHelper.timeInMillsToString(selectedDueDateInMills));
-                    }
-                },
-                        c.get(Calendar.YEAR),
-                        c.get(Calendar.MONTH),
-                        c.get(Calendar.DAY_OF_MONTH));
-                datePicker.show();
-                break;
         }
     }
 

@@ -14,6 +14,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 
@@ -41,6 +42,7 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
+            FirebaseCrash.report(e);
             return null;
         }
         return null;
@@ -70,7 +72,7 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
                 mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
             } else if (mLastError instanceof UserRecoverableAuthIOException) {
-//                mPresenter.showToast("The API has no authorization");
+                mPresenter.showToast("The API has no authorization");
                 mPresenter.requestApiPermission(mLastError);
 
             } else {
@@ -86,7 +88,6 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
     }
 
     private void moveTask(String taskId, String listId, String previousTaskId) throws IOException {
-        try {
             Tasks.TasksOperations.Move move = mService.tasks().move(listId, taskId);
             if (!previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
                 move.setPrevious(previousTaskId);
@@ -94,9 +95,5 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
             Task task = move.execute();
             mPresenter.updateMoved(taskId, Co.NOT_MOVED);
             mPresenter.updatePosition(task);
-        } catch (IOException e) {
-            e.printStackTrace();
-            mPresenter.showToast("The task could not be moved");
-        }
     }
 }

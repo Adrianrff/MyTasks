@@ -13,6 +13,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 
@@ -44,6 +45,7 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
+            FirebaseCrash.report(e);
             return null;
         }
         return null;
@@ -94,7 +96,7 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
             task.setCompleted(null);
         }
         task.setStatus(newStatus);
-        mPresenter.updateSyncStatus(taskId, Co.SYNCED);
+        mPresenter.updateSyncStatus(mPresenter.getIntIdByTaskId(taskId), Co.SYNCED);
         mService.tasks().update(listId, task.getId(), task).execute();
     }
 }

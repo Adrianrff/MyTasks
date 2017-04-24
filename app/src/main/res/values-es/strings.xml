@@ -46,7 +46,10 @@
     <string name="custom">Personalizar…</string>
     <string name="ok">Ok</string>
     <string name="no_due_date_selected">Fecha no seleccionada</string>
-    <string name="nothing_selected">Nothing selected</string>
+    <string name="nothing_selected">No se ha seleccionado nada</string>
+    <string name="app_intro1">Esta aplicación te permite crear, consultar y modificar tus tareas de Google Task</string>
+    <string name="app_intro2">Para comenzar, por favor asocia tu cuenta de Google y otorga los permisos requeridos. Si tienes tareas ya creadas, las verás al iniciar.</string>
+
 
     <string-array name="notification_options">
         <item>En la mañana</item>

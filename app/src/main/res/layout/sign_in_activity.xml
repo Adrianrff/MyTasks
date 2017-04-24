@@ -35,9 +35,17 @@
             android:layout_gravity="center_vertical|center_horizontal"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="Consulta y modifica fácilmente tus tareas en Google Tasks
+            android:text="@string/app_intro1"
+            android:textColor="@android:color/white" />
 
-Debes asociar tu cuenta de Google para comenzar. "
+
+        <TextView
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/app_intro2"
             android:textColor="@android:color/white" />
 
     </LinearLayout>

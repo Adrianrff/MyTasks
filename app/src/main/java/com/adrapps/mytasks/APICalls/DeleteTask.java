@@ -11,6 +11,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 
@@ -42,6 +43,7 @@ public class DeleteTask extends AsyncTask<String, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
+            FirebaseCrash.report(e);
             return null;
         }
         return null;

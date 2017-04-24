@@ -217,19 +217,12 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
             LocalTask cTask = tasks.get(getAdapterPosition());
             if (isChecked) {
-                if (mPresenter.isDeviceOnline()) {
                     taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     dueDate.setPaintFlags(dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     dueDate.setTextColor(Color.GRAY);
                     taskName.setTextColor(Color.GRAY);
-                    mPresenter.updateTaskStatus(cTask.getId(), cTask.getTaskList(), Co.TASK_COMPLETED);
-                } else {
-                    buttonView.setChecked(false);
-                    showToast(mPresenter.getString(R.string.no_internet_toast));
-                }
-
+                    mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getTaskList(), Co.TASK_COMPLETED);
             } else {
-                if (mPresenter.isDeviceOnline()) {
                     dueDate.setTextColor(oldDueColors);
                     dueDate.setPaintFlags(0);
                     taskName.setTextColor(oldTaskColors);
@@ -253,11 +246,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                             dueDate.setTypeface(null, Typeface.NORMAL);
                         }
                     }
-                    mPresenter.updateTaskStatus(cTask.getId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
-                } else {
-                    buttonView.setChecked(true);
-                    showToast(mPresenter.getString(R.string.no_internet_toast));
-                }
+                    mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
+
             }
         }
 

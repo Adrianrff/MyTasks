@@ -97,8 +97,8 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void updateSyncStatus(int synced, String taskId) {
-        tasksDb.updateSyncStatus(synced, taskId);
+    public void updateSyncStatus(int synced, int intId) {
+        tasksDb.updateSyncStatus(synced, intId);
     }
 
     @Override
@@ -186,30 +186,37 @@ public class DataModel implements Contract.Model {
         tasksDb.deleteTask(intId);
     }
 
+    @Override
+    public int getIntIdByTaskId(String taskId) {
+        return tasksDb.getIntIdByTaskId(taskId);
+    }
+
 
     //------------------------API OPERATIONS----------------------///
     @Override
-    public void deleteTask(String taskId, String listId) {
+    public void deleteTask(String intId, String listId) {
         if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
             DeleteTask remove = new DeleteTask(mPresenter, credential, listId);
-            remove.execute(taskId);
+            remove.execute(intId);
         } else {
-            tasksDb.markDeleted(taskId);
+            tasksDb.markDeleted(intId);
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }
     }
 
     @Override
-    public void updateTaskStatus(String taskId, String listId, String newStatus) {
+    public void updateTaskStatus(int intId, String listId, String newStatus) {
+        tasksDb.updateTaskStatus(intId,newStatus);
+        tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED,intId);
         if (mPresenter.isDeviceOnline()) {
-            tasksDb.updateTaskStatus(taskId,newStatus);
             GoogleAccountCredential credential = mPresenter.getCredential();
             UpdateStatus update = new UpdateStatus(mPresenter, credential);
-            update.execute(taskId,listId,newStatus);
+            update.execute(mPresenter.getTaskIdByIntId(intId),listId,newStatus);
         }
-        else
+        else {
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
+        }
 
     }
 

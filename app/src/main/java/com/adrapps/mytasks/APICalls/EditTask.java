@@ -15,6 +15,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 
@@ -43,6 +44,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
+            FirebaseCrash.report(e);
             return null;
         }
         return null;
@@ -97,6 +99,6 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
         }
         mService.tasks().update(listId, task.getId(), task).execute();
-        mPresenter.updateSyncStatus(lTask.getId(), Co.SYNCED);
+        mPresenter.updateSyncStatus(lTask.getIntId(), Co.SYNCED);
     }
 }

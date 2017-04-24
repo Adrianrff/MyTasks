@@ -26,7 +26,7 @@ public class Co {
     public static final String TASK_DUE = "task edited due date";
     public static final int TASK_DATA_REQUEST_CODE = 99;
     public static final int MORNING_ALARM_HOUR = 8;
-    public static final int AFTERNOON_ALARM_HOUR = 2;
+    public static final int AFTERNOON_ALARM_HOUR = 14;
     public static final int EVENING_ALARM_HOUR = 18;
     public static final String LOCAL_TASK = "Local task";
     public static final String ADAPTER_POSITION = "Adapter position";

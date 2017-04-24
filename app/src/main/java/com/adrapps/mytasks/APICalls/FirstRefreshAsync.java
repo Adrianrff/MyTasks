@@ -17,6 +17,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
             mLastError = e;
             e.printStackTrace();
             cancel(true);
+            FirebaseCrash.report(e);
             return null;
         }
         return null;

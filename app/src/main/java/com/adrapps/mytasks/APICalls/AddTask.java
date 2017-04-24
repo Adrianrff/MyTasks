@@ -14,6 +14,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 
@@ -45,6 +46,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
+            FirebaseCrash.report(e);
             return null;
         }
         return null;
@@ -96,8 +98,8 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
         try {
             aTask = mService.tasks().insert(listId, task).execute();
             if (aTask != null) {
-                localTask = new LocalTask(aTask, lTask.getTaskList());
-                mPresenter.updateLocalTask(aTask, lTask.getTaskList());
+                mPresenter.updateNewlyCreatedTask(aTask,lTask.getTaskList(),
+                        String.valueOf(lTask.getIntId()));
             }
         } catch (IOException e) {
             e.printStackTrace();

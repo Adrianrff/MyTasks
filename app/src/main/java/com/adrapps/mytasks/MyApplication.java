@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
+import com.google.firebase.crash.FirebaseCrash;
+
 import org.acra.*;
 import org.acra.annotation.*;
 
@@ -38,6 +40,8 @@ public class MyApplication extends Application {
                         .setContentText(arg0.getMessage())
                         .setContentIntent(pendingIntent);
                 ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(8, notifyBuilder.build());
+                FirebaseCrash.report(arg0);
+
             }
         });
     }

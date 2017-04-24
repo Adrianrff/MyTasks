@@ -164,9 +164,6 @@ public class TaskListPresenter {
 
     public void deleteTask(String taskId) {
         int rowDeleted =  mModel.deleteTask(taskId);
-        if (rowDeleted < 0) {
-           showToast(getView().getContext().getString(R.string.task_not_found));
-        }
     }
 
     public void deleteTask(String taskId, String listId) {
@@ -178,8 +175,8 @@ public class TaskListPresenter {
         return getView().getCredential();
     }
 
-    public void updateTaskStatus(String taskId, String listId, String newStatus) {
-        mModel.updateTaskStatus(taskId, listId, newStatus);
+    public void updateTaskStatus(int intId, String listId, String newStatus) {
+        mModel.updateTaskStatus(intId, listId, newStatus);
     }
 
     public boolean isDeviceOnline() {
@@ -234,8 +231,8 @@ public class TaskListPresenter {
         getView().addTaskToAdapter(localTask);
     }
 
-    public void updateSyncStatus(String taskId, int synced) {
-        mModel.updateSyncStatus(synced, taskId);
+    public void updateSyncStatus(int intId, int synced) {
+        mModel.updateSyncStatus(synced, intId);
     }
 
     public long getTaskReminderId(String taskId) {
@@ -304,5 +301,9 @@ public class TaskListPresenter {
 
     public void deleteTaskFromDataBase(int intId) {
         mModel.deleteTaskFromDataBase(intId);
+    }
+
+    public int getIntIdByTaskId(String taskId) {
+        return mModel.getIntIdByTaskId(taskId);
     }
 }

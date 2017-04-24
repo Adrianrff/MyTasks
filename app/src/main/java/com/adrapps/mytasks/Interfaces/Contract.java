@@ -111,7 +111,7 @@ public class Contract {
 
         void deleteTask(String taskId, String listId);
 
-        void updateTaskStatus(String taskId, String listId, String newStatus);
+        void updateTaskStatus(int intId, String listId, String newStatus);
 
         void refreshFirstTime();
 
@@ -127,7 +127,7 @@ public class Contract {
 
         long updateReminder(String taskId, long reminder);
 
-        void updateSyncStatus(int synced, String taskId);
+        void updateSyncStatus(int synced, int intId);
 
         long getTaskReminderId(String taskId);
 
@@ -162,6 +162,8 @@ public class Contract {
         void setTemporaryPositionByIntId(int intId, String newTaskTempPos);
 
         void deleteTaskFromDataBase(int intId);
+
+        int getIntIdByTaskId(String taskId);
     }
 
 

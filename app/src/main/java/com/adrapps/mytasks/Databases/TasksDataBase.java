@@ -369,10 +369,10 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return taskReminder;
     }
 
-    public int updateTaskStatus(String taskId, String newStatus) {
+    public int updateTaskStatus(int intId, String newStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String selection = COL_ID + " = ? ";
-        String[] selectionArgs = {taskId};
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(intId)};
         ContentValues cv = new ContentValues();
         cv.put(COL_STATUS, newStatus);
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
@@ -393,10 +393,10 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return updatedRow;
     }
 
-    public int updateSyncStatus(int newStatus, String taskId) {
+    public int updateSyncStatus(int newStatus, int intId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String selection = COL_ID + " = ? ";
-        String[] selectionArgs = {taskId};
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(intId)};
         ContentValues cv = new ContentValues();
         cv.put(COL_SYNC_STATUS, newStatus);
         if (newStatus == Co.SYNCED) {
@@ -760,6 +760,24 @@ public class TasksDataBase extends SQLiteOpenHelper {
         }
         db.close();
         return taskId;
+    }
+
+    public int getIntIdByTaskId(String taskId) {
+        if (taskId == null || taskId.trim().equals("")){
+            return -1;
+        }
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {taskId};
+        int intId = 0;
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_INT_ID}, selection, selectionArgs, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            intId = cursor.getInt(cursor.getColumnIndex(COL_INT_ID));
+            cursor.close();
+        }
+        db.close();
+        return intId;
     }
 
     public void updateMovedByIntId(int intId, int moved) {
