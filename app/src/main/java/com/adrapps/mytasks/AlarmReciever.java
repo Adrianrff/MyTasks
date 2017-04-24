@@ -21,6 +21,7 @@ public class AlarmReciever extends BroadcastReceiver {
                 .setStyle(new Notification.BigTextStyle().bigText("Your task " +
                                 intent.getStringExtra(Co.TASK_TITLE) + " is due"));
 //                .setContentIntent(pendingIntent);
+
         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).
                 notify((int) System.currentTimeMillis(), notifyBuilder.build());
     }

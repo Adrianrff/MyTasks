@@ -50,7 +50,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
             mLastError = e;
             e.printStackTrace();
             cancel(true);
-            FirebaseCrash.report(e);
+//            FirebaseCrash.report(e);
             return null;
         }
         return null;

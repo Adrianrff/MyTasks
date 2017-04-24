@@ -49,6 +49,8 @@
     <string name="nothing_selected">No se ha seleccionado nada</string>
     <string name="app_intro1">Esta aplicación te permite crear, consultar y modificar tus tareas de Google Task</string>
     <string name="app_intro2">Para comenzar, por favor asocia tu cuenta de Google y otorga los permisos requeridos. Si tienes tareas ya creadas, las verás al iniciar.</string>
+    <string name="notification_info_hint">Fecha y hora</string>
+    <string name="repeat_hint">Modo de repetición</string>
 
 
     <string-array name="notification_options">

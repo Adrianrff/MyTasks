@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
@@ -40,16 +41,12 @@ public class NewOrDetailActivity extends AppCompatActivity
         implements View.OnClickListener, DatePickerDialog.OnDateSetListener,
         CompoundButton.OnCheckedChangeListener {
 
-    EditText taskTitle, taskNotes;
-    TextView taskDue;
+    EditText titleTV, notesTv;
+    TextView dueDateTv;
     private long selectedDateInMills = 0;
     private Switch notSwitch;
     private TextView notInfo;
     private LinearLayout notifLayout;
-    private LinearLayout morningLayout;
-    private LinearLayout afternoonLayout;
-    private LinearLayout eveningLayout;
-    private LinearLayout customLayout;
     private RadioButton rbMorning;
     private RadioButton rbAfternoon;
     private RadioButton rbEvening;
@@ -58,6 +55,7 @@ public class NewOrDetailActivity extends AppCompatActivity
     private LocalTask taskToEdit;
     private int position;
     private TextView customNotOption;
+    ImageView clearDate, clearReminder;
     private AlertDialog dialog;
     private TextView notEdit;
 
@@ -74,25 +72,33 @@ public class NewOrDetailActivity extends AppCompatActivity
         }
         selectedReminderInMills = 0;
         selectedDateInMills = 0;
-        taskTitle = (EditText) findViewById(R.id.task_title_edit_text);
-        taskDue = (TextView) findViewById(R.id.due_date_picker);
+        titleTV = (EditText) findViewById(R.id.task_title_edit_text);
+        dueDateTv = (TextView) findViewById(R.id.dueDateTv);
         notInfo = (TextView) findViewById(R.id.timeTv);
-        taskNotes = (EditText) findViewById(R.id.task_notes_edit_text);
+        notesTv = (EditText) findViewById(R.id.task_notes_edit_text);
         notSwitch = (Switch) findViewById(R.id.notification_switch);
         notifLayout = (LinearLayout) findViewById(R.id.notification_layout);
+        clearDate = (ImageView) findViewById(R.id.clearDate);
+        clearReminder = (ImageView) findViewById(R.id.clearReminder);
         notInfo.setOnClickListener(this);
+        clearDate.setOnClickListener(this);
+        clearReminder.setOnClickListener(this);
+        dueDateTv.setOnClickListener(this);
         notSwitch.setOnCheckedChangeListener(this);
-        taskDue.setOnClickListener(this);
+        dueDateTv.setOnClickListener(this);
 
         if (getIntent().hasExtra(Co.LOCAL_TASK)) {
             toolbar.setTitle(R.string.task_edit_title);
             taskToEdit = (LocalTask) getIntent().getExtras().getSerializable(Co.LOCAL_TASK);
             if (taskToEdit != null) {
-                taskTitle.setText(taskToEdit.getTitle());
-                taskNotes.setText(taskToEdit.getNotes());
+                titleTV.setText(taskToEdit.getTitle());
+                notesTv.setText(taskToEdit.getNotes());
                 if (taskToEdit.getDue() != 0) {
-                    taskDue.setText(DateHelper.timeInMillsToString(taskToEdit.getDue()));
+                    dueDateTv.setText(DateHelper.timeInMillsToString(taskToEdit.getDue()));
                     selectedDateInMills = taskToEdit.getDue();
+                    clearDate.setVisibility(View.VISIBLE);
+                } else {
+                    clearDate.setVisibility(View.GONE);
                 }
 
                 position = getIntent().getIntExtra(Co.ADAPTER_POSITION, -1);
@@ -114,7 +120,6 @@ public class NewOrDetailActivity extends AppCompatActivity
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (notSwitch.isChecked()) {
-            showNotificationDialog();
             notifLayout.setVisibility(View.VISIBLE);
         } else {
             selectedReminderInMills = 0;
@@ -127,10 +132,10 @@ public class NewOrDetailActivity extends AppCompatActivity
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.notification_dialog, null);
         dialogBuilder.setView(dialogView);
-        morningLayout = (LinearLayout) dialogView.findViewById(R.id.layout_morning);
-        afternoonLayout = (LinearLayout) dialogView.findViewById(R.id.layout_afternoon);
-        eveningLayout = (LinearLayout) dialogView.findViewById(R.id.layout_evening);
-        customLayout = (LinearLayout) dialogView.findViewById(R.id.layout_custom);
+        LinearLayout morningLayout = (LinearLayout) dialogView.findViewById(R.id.layout_morning);
+        LinearLayout afternoonLayout = (LinearLayout) dialogView.findViewById(R.id.layout_afternoon);
+        LinearLayout eveningLayout = (LinearLayout) dialogView.findViewById(R.id.layout_evening);
+        LinearLayout customLayout = (LinearLayout) dialogView.findViewById(R.id.layout_custom);
         rbMorning = (RadioButton) dialogView.findViewById(R.id.rb_morning);
         rbAfternoon = (RadioButton) dialogView.findViewById(R.id.rb_afternoon);
         rbEvening = (RadioButton) dialogView.findViewById(R.id.rb_evening);
@@ -175,23 +180,22 @@ public class NewOrDetailActivity extends AppCompatActivity
                 //TASK EDITED
                 if (getIntent().hasExtra(Co.LOCAL_TASK)) {
                     Intent i = new Intent();
-                    if (selectedReminderInMills == 0 && taskToEdit.getReminder() != 0) {
-                        //clear alarm
-                        taskToEdit.setReminderNoID(0);
-                    }
-                    if (selectedReminderInMills != 0 &&
-                            selectedReminderInMills != taskToEdit.getReminder()) {
-                        if (taskToEdit.getReminder() != 0) {
-                            taskToEdit.setReminderNoID(selectedReminderInMills);
-                            //Update alarm
+                    if (taskToEdit.getReminderId() != 0) {
+                        if (selectedReminderInMills == 0) {
+                            taskToEdit.setReminderNoID(0);
                         } else {
+                            if (selectedReminderInMills != taskToEdit.getReminder()) {
+                                taskToEdit.setReminderNoID(selectedReminderInMills);
+                            }
+                        }
+                    } else {
+                        if (selectedReminderInMills != 0){
                             taskToEdit.setReminder(selectedReminderInMills);
-                            //update alarm
                         }
                     }
-                    taskToEdit.setTitle(taskTitle.getText().toString());
-                    if (taskNotes.getText().toString().trim().length() != 0)
-                        taskToEdit.setNotes(taskNotes.getText().toString());
+                    taskToEdit.setTitle(titleTV.getText().toString());
+                    if (notesTv.getText().toString().trim().length() != 0)
+                        taskToEdit.setNotes(notesTv.getText().toString());
                     if (selectedDateInMills != 0 && selectedDateInMills != taskToEdit.getDue()) {
                         taskToEdit.setDue(selectedDateInMills);
                     }
@@ -205,18 +209,17 @@ public class NewOrDetailActivity extends AppCompatActivity
                     finish();
                     break;
 
-
                     //TASK CREATED
                 } else {
-                    if (taskTitle.getText().toString().trim().length() == 0) {
+                    if (titleTV.getText().toString().trim().length() == 0) {
                         showToast(getString(R.string.empty_title_error));
                         break;
                     }
                     Intent i = new Intent();
-                    LocalTask task = new LocalTask(taskTitle.getText().toString(),
+                    LocalTask task = new LocalTask(titleTV.getText().toString(),
                             selectedDateInMills);
-                    if (taskNotes.getText().toString().trim().length() != 0)
-                        task.setNotes(taskNotes.getText().toString());
+                    if (notesTv.getText().toString().trim().length() != 0)
+                        task.setNotes(notesTv.getText().toString());
                     if (selectedReminderInMills != 0) {
                         task.setReminder(selectedReminderInMills);
                     }
@@ -235,7 +238,23 @@ public class NewOrDetailActivity extends AppCompatActivity
 
         final Calendar cal = Calendar.getInstance();
         switch (v.getId()) {
-            case R.id.due_date_picker:
+
+            //Clear date click
+            case R.id.clearDate:
+                selectedDateInMills = 0;
+                dueDateTv.setText(null);
+                clearDate.setVisibility(View.GONE);
+                break;
+
+            //Clear reminder click
+            case R.id.clearReminder:
+                selectedReminderInMills = 0;
+                notInfo.setText(null);
+                clearReminder.setVisibility(View.GONE);
+                break;
+
+            //Date picker click
+            case R.id.dueDateTv:
                 DatePickerDialog datePicker = new DatePickerDialog(this, this,
                         cal.get(Calendar.YEAR),
                         cal.get(Calendar.MONTH),
@@ -243,6 +262,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                 datePicker.show();
                 break;
 
+            //Morning reminder click
             case (R.id.layout_morning):
                 rbMorning.setChecked(true);
                 rbCustom.setChecked(false);
@@ -256,13 +276,15 @@ public class NewOrDetailActivity extends AppCompatActivity
                     selectedReminderInMills = cal.getTimeInMillis();
                     notInfo.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                     dialog.dismiss();
+                    clearReminder.setVisibility(View.VISIBLE);
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
-                    notSwitch.setChecked(false);
+                    clearReminder.setVisibility(View.GONE);
                 }
                 break;
 
+            //Afternoon reminder click
             case R.id.layout_afternoon:
                 rbAfternoon.setChecked(true);
                 rbMorning.setChecked(false);
@@ -276,14 +298,16 @@ public class NewOrDetailActivity extends AppCompatActivity
                     selectedReminderInMills = cal.getTimeInMillis();
                     notInfo.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                     dialog.dismiss();
+                    clearReminder.setVisibility(View.VISIBLE);
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
+                    clearReminder.setVisibility(View.GONE);
                     dialog.dismiss();
-                    notSwitch.setChecked(false);
                 }
                 break;
 
+            //Evening click
             case R.id.layout_evening:
                 rbEvening.setChecked(true);
                 rbMorning.setChecked(false);
@@ -297,14 +321,16 @@ public class NewOrDetailActivity extends AppCompatActivity
                     selectedReminderInMills = cal.getTimeInMillis();
                     notInfo.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                     dialog.dismiss();
+                    clearReminder.setVisibility(View.VISIBLE);
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
+                    clearReminder.setVisibility(View.GONE);
                     dialog.dismiss();
-                    notSwitch.setChecked(false);
                 }
                 break;
 
+            //Custom reminder click
             case R.id.layout_custom:
                 rbCustom.setChecked(true);
                 rbMorning.setChecked(false);
@@ -334,7 +360,10 @@ public class NewOrDetailActivity extends AppCompatActivity
                     }
                 }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
+                clearReminder.setVisibility(View.VISIBLE);
                 break;
+
+            //Reminder textview click
             case R.id.timeTv:
                 showNotificationDialog();
 
@@ -350,7 +379,12 @@ public class NewOrDetailActivity extends AppCompatActivity
         c.set(Calendar.MINUTE, 0);
         selectedDateInMills = c.getTimeInMillis();
         SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
-        taskDue.setText(DateHelper.timeInMillsToString(selectedDateInMills));
+        dueDateTv.setText(DateHelper.timeInMillsToString(selectedDateInMills));
+        if (selectedDateInMills != 0) {
+            clearDate.setVisibility(View.VISIBLE);
+        } else {
+            clearDate.setVisibility(View.GONE);
+        }
     }
 
     public void showToast(String msg) {

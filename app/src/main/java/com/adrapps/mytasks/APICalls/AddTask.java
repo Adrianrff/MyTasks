@@ -46,7 +46,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
-            FirebaseCrash.report(e);
+//            FirebaseCrash.report(e);
             return null;
         }
         return null;

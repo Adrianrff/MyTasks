@@ -44,7 +44,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
-            FirebaseCrash.report(e);
+//            FirebaseCrash.report(e);
             return null;
         }
         return null;
@@ -97,6 +97,8 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
         task.setNotes(lTask.getNotes());
         if (lTask.getDue() != 0) {
             task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
+        } else {
+            task.setDue(null);
         }
         mService.tasks().update(listId, task.getId(), task).execute();
         mPresenter.updateSyncStatus(lTask.getIntId(), Co.SYNCED);

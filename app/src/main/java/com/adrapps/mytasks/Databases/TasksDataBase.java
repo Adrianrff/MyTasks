@@ -44,6 +44,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     private static final String COL_LOCAL_DELETED = "loca_deleted";
     private static final String ORDER_ASC = " ASC";
     public static final String ORDER_DESC = " DESC";
+    private SQLiteDatabase db;
 
     //---------ALL COLUMNS ARRAY----------//
     private static final String[] ALL_COLUMNS = {
@@ -111,12 +112,28 @@ public class TasksDataBase extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    private SQLiteDatabase getWritableDB() {
+        if (db == null || !db.isOpen()) {
+            db = getWritableDatabase();
+        }
+        return db;
+
+    }
+
+    private SQLiteDatabase getReadableDB() {
+        if (db == null || !db.isOpen()) {
+            db = getReadableDatabase();
+        }
+        return db;
+
+    }
+
 
     ///********------------------------------OPERATIONS-----------------------------------******//
 
     public List<LocalTask> getLocalTasks() {
         List<LocalTask> tasks = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getWritableDB();
         Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, COL_POSITION + ORDER_ASC);
         if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
@@ -153,7 +170,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         List<LocalTask> tasks = new ArrayList<>();
         String selection = COL_LIST + " = ? ";
         String[] selectionArgs = {listId};
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDB();
         Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
         if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
@@ -191,7 +208,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         List<LocalTask> tasks = new ArrayList<>();
         String selection = COL_LIST + " = ? ";
         String[] selectionArgs = {listId};
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDB();
         Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
         if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
@@ -228,7 +245,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
 
     public long addTask(LocalTask localTask) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, localTask.getId());
         cv.put(COL_LIST, localTask.getTaskList());
@@ -255,7 +272,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long addTaskFirstTimeFromServer(Task task, String listId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, task.getId());
         cv.put(COL_LIST, listId);
@@ -279,7 +296,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public void addTasks(List<LocalTask> tasks) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         ContentValues cv = new ContentValues();
         for (int i = 0; i < tasks.size(); i++) {
             cv.put(COL_ID, tasks.get(i).getId());
@@ -307,7 +324,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public void updateTasks(List<LocalTask> tasks) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         ContentValues cv = new ContentValues();
         onUpgrade(db, 1, 1);
         for (int i = 0; i < tasks.size(); i++) {
@@ -337,7 +354,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
 
     public int deleteTask(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         int deletedRow = db.delete(TABLE_NAME, selection, selectionArgs);
@@ -347,7 +364,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
 
     public void deleteTask(int intId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(intId)};
         int deletedRow = db.delete(TABLE_NAME, selection, selectionArgs);
@@ -355,7 +372,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long getTaskReminder(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         long taskReminder = 0;
@@ -370,7 +387,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int updateTaskStatus(int intId, String newStatus) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(intId)};
         ContentValues cv = new ContentValues();
@@ -382,7 +399,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int markDeleted(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
@@ -394,7 +411,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int updateSyncStatus(int newStatus, int intId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(intId)};
         ContentValues cv = new ContentValues();
@@ -410,7 +427,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int updateSibling(int id, int sibling) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(id)};
         ContentValues cv = new ContentValues();
@@ -422,7 +439,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int updateLocalDeleted(int localDeleted, String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
@@ -434,7 +451,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int updateMoved(int moved, String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
@@ -446,7 +463,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int updateLocalSibling(String taskId, String localSibling) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
@@ -463,7 +480,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int updateLocalModify(long localModify, String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
@@ -474,7 +491,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public boolean taskExistsInDB(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         Cursor cursor = db.query(TABLE_NAME, new String[]{COL_ID}, selection, selectionArgs, null, null, null);
@@ -485,7 +502,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public LocalTask getTaskByTaskId(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         LocalTask task = new LocalTask();
@@ -521,7 +538,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public LocalTask getTaskByIntId(int Id) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(Id)};
         LocalTask task = new LocalTask();
@@ -557,7 +574,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long updateTaskReminder(String taskId, long reminder) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
@@ -569,7 +586,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long getTaskReminderId(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         long reminderId = 0;
@@ -584,7 +601,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long getDeleted(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         long deleted = 0;
@@ -599,7 +616,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long getLocalModify(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         long modify = 0;
@@ -614,7 +631,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long getLocalSIbling(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         long modify = 0;
@@ -629,7 +646,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public long getMoved(String taskId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         long modify = 0;
@@ -645,9 +662,9 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
 
     public int updateLocalTask(LocalTask modifiedTask) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String selection = COL_ID + " = ? ";
-        String[] selectionArgs = {modifiedTask.getId()};
+        SQLiteDatabase db = getWritableDB();
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(modifiedTask.getIntId())};
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, modifiedTask.getId());
         cv.put(COL_LIST, modifiedTask.getTaskList());
@@ -675,7 +692,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
 
 
     public void updateTask(Task task, String listId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {task.getId()};
         ContentValues cv = new ContentValues();
@@ -698,7 +715,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public LocalTask updateNewlyCreatedTask(Task task, String listId, String intId) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {intId};
         ContentValues cv = new ContentValues();
@@ -722,7 +739,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public void setTemporaryPosition(String taskId, String newTaskTempPos) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         ContentValues cv = new ContentValues();
@@ -734,7 +751,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public void updatePosition(Task task) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {task.getId()};
         ContentValues cv = new ContentValues();
@@ -745,10 +762,10 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public String getTaskIdByIntId(int id) {
-        if (id == 0){
+        if (id == 0) {
             return null;
         }
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(id)};
         String taskId = null;
@@ -763,10 +780,10 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public int getIntIdByTaskId(String taskId) {
-        if (taskId == null || taskId.trim().equals("")){
+        if (taskId == null || taskId.trim().equals("")) {
             return -1;
         }
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
         int intId = 0;
@@ -781,7 +798,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public void updateMovedByIntId(int intId, int moved) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(intId)};
         ContentValues cv = new ContentValues();
@@ -792,7 +809,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
     public void setTemporaryPositionByIntId(int intId, String newTaskTempPos) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDB();
         String selection = COL_INT_ID + " = ? ";
         String[] selectionArgs = {String.valueOf(intId)};
         ContentValues cv = new ContentValues();

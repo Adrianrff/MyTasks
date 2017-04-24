@@ -75,7 +75,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
                 holder.dueDate.setText(R.string.tomorrow);
             } else if (DateHelper.isInInThePast(cTask.getDue())) {
-                holder.dueDate.setText(DateHelper.timeInMillsToFullString(cTask.getDue())
+                holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
                         + " " + context.getString(R.string.overdue_append));
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
                 holder.dueDate.setTextColor(Color.RED);

@@ -72,8 +72,10 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="72dp"
-        android:layout_marginStart="72dp"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginStart="70dp"
         android:alpha="0.50"
         android:background="@android:color/darker_gray" />
 
@@ -115,8 +117,10 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="72dp"
-        android:layout_marginStart="72dp"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginStart="70dp"
         android:alpha="0.50"
         android:background="@android:color/darker_gray" />
 
@@ -140,7 +144,7 @@
             android:src="@drawable/ic_date" />
 
         <TextView
-            android:id="@+id/due_date_picker"
+            android:id="@+id/dueDateTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="28dp"
@@ -150,11 +154,9 @@
             android:textSize="18sp" />
 
         <ImageView
-            android:id="@+id/noDateImageView"
+            android:id="@+id/clearDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginRight="02dp"
             android:contentDescription="Description"
             android:src="@drawable/ic_close_black_24dp" />
 
@@ -163,8 +165,10 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="72dp"
-        android:layout_marginStart="72dp"
+        android:layout_marginLeft="70dp"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginStart="70dp"
         android:alpha="0.50"
         android:background="@android:color/darker_gray" />
 
@@ -218,15 +222,16 @@
         android:layout_marginEnd="@dimen/full_margin"
         android:layout_marginLeft="72dp"
         android:layout_marginRight="@dimen/full_margin"
-        android:visibility="visible"
         android:layout_marginStart="72dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <LinearLayout
             android:id="@+id/dateLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/half_margin"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -241,17 +246,28 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/half_margin"
                 android:layout_marginLeft="@dimen/full_margin"
+                android:layout_marginRight="@dimen/half_margin"
                 android:layout_marginStart="@dimen/full_margin"
                 android:layout_weight="1"
-                android:hint="Select time and date" />
+                android:hint="@string/notification_info_hint"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/clearReminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="Description"
+                android:src="@drawable/ic_close_black_24dp" />
 
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="@dimen/half_margin"
+            android:layout_marginBottom="10dp"
             android:alpha="0.50"
             android:background="@android:color/darker_gray" />
 
@@ -277,18 +293,11 @@
                 android:layout_marginLeft="@dimen/full_margin"
                 android:layout_marginStart="@dimen/full_margin"
                 android:layout_weight="1"
-                android:hint="Select repeat mode" />
+                android:hint="@string/repeat_hint"
+                android:textSize="16sp" />
 
 
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="@dimen/half_margin"
-            android:layout_marginTop="@dimen/half_margin"
-            android:alpha="0.50"
-            android:background="@android:color/darker_gray" />
 
 
     </LinearLayout>

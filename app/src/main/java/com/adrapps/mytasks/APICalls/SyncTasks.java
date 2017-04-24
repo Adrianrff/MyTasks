@@ -51,7 +51,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
         } catch (Exception e) {
             mLastError = e;
             cancel(true);
-            FirebaseCrash.report(e);
+//            FirebaseCrash.report(e);
             return null;
         }
         return null;
@@ -209,9 +209,10 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                             task.setCompleted(DateHelper.millisecondsToDateTime(currentLocalTask.getLocalModify()));
                             task.setStatus(Co.TASK_COMPLETED);
                         } else {
+                            task.setStatus(Co.TASK_NEEDS_ACTION);
                             task.setCompleted(null);
                         }
-                        mService.tasks().update(currentListId,
+                        sameServerTask = mService.tasks().update(currentListId,
                                 currentLocalTask.getId(),
                                 task).execute();
                     }
@@ -228,6 +229,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         mPresenter.updatePosition(sameServerTask);
                     }
                     mPresenter.updateSyncStatus(currentLocalTask.getIntId(), Co.SYNCED);
+                    mPresenter.updateLocalTask(sameServerTask, currentListId);
                 } else {
                     mPresenter.updateLocalTask(sameServerTask, currentListId);
                 }

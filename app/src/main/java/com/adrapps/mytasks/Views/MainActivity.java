@@ -31,8 +31,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -44,12 +42,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
 import com.adrapps.mytasks.APICalls.SignInActivity;
 import com.adrapps.mytasks.APICalls.SyncTasks;
 import com.adrapps.mytasks.AlarmReciever;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
-import com.adrapps.mytasks.Helpers.DateHelper;
 import com.adrapps.mytasks.Helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.Interfaces.Contract;
 import com.adrapps.mytasks.Presenter.TaskListPresenter;
@@ -59,11 +57,9 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.firebase.crash.FirebaseCrash;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -466,8 +462,8 @@ public class MainActivity extends AppCompatActivity
 //                                }
 //                                LocalTask task = new LocalTask(newTaskTitle.getText().toString(),
 //                                        selectedDueDateInMills);
-//                                task.setReminder(selectedReminderInMills);
-//                                setReminder(task);
+//                                task.setOrUpdateAlarm(selectedReminderInMills);
+//                                setOrUpdateAlarm(task);
 //                                mPresenter.addTaskFirstTimeFromServer(task);
 //                                newTaskDialog.dismiss();
 //
@@ -630,23 +626,24 @@ public class MainActivity extends AppCompatActivity
                 if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
-                        if (task.getReminder() != 0){
-                            //Cancel current alarm if exists and set new one
-                            setReminder(task);
-                        } else {
-                            cancelReminder(task);
-                            Log.d("Alarm canceled", "canceled");
+                        if (task.getReminderId() != 0) {
+                            if (task.getReminder() != 0) {
+                                setOrUpdateAlarm(task);
+                            } else {
+                                cancelReminder(task);
+                            }
                         }
+                        showToast(isReminderSet((int) task.getReminderId()) ? "Alarm set" : "Alarm not set");
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                         mPresenter.editTask(task);
                     }
 
-                // TASK DELETED
+                    // TASK DELETED
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
                         task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
-                        if (task.getReminder() != 0) setReminder(task);
+                        if (task.getReminder() != 0) setOrUpdateAlarm(task);
                         mPresenter.addTask(task);
                     }
                 }
@@ -729,7 +726,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setReminder(LocalTask task) {
+    public void setOrUpdateAlarm(LocalTask task) {
         if (task.getReminder() != 0 && task.getReminderId() != 0) {
             Intent intent = new Intent(this, AlarmReciever.class);
             intent.putExtra(Co.TASK_TITLE, task.getTitle());
@@ -749,10 +746,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void cancelReminder(LocalTask task) {
-            Intent intent = new Intent(this, AlarmReciever.class);
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
-                    (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            alarmManager.cancel(pendingIntent);
+        Intent intent = new Intent(this, AlarmReciever.class);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
+                (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+        pendingIntent.cancel();
+    }
+
+    @Override
+    public boolean isReminderSet(int reminderId) {
+        Intent intent = new Intent(this, AlarmReciever.class);
+        return (PendingIntent.getBroadcast(this,
+                reminderId,
+                intent,
+                PendingIntent.FLAG_NO_CREATE) != null);
     }
 }
