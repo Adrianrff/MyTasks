@@ -17,7 +17,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
-import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -151,7 +150,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         LocalTask lTask = mPresenter.updateNewlyCreatedTask(task, currentListId,
                                 String.valueOf(currentLocalTaskNotInServer.getIntId()));
                     } else {
-                        mPresenter.deleteTask(currentLocalTaskNotInServer.getId());
+                        mPresenter.deleteTaskFromDatabase(currentLocalTaskNotInServer.getId());
                     }
                 }
             }
@@ -304,7 +303,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 //                        //If local task is marked deleted, delete task from server
 //                        if (currentLocalTask.getLocalDeleted() == Co.LOCAL_DELETED) {
 //                            mService.tasks().delete(currentListId, currentServerTask.getId()).execute();
-//                            mPresenter.deleteTask(currentLocalTask.getId());
+//                            mPresenter.deleteTaskFromDatabase(currentLocalTask.getId());
 //                        } else {
 //
 //                            //Last updated in server
@@ -389,7 +388,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 //                    for (int k = 0; k < tasksNotInServer.size(); k++) {
 //                        lTask = tasksNotInServer.get(k);
 //                        if (lTask.getSyncStatus() != 0) {
-//                            mPresenter.deleteTask(lTask.getId());
+//                            mPresenter.deleteTaskFromDatabase(lTask.getId());
 //                        } else {
 //                            Task task = LocalTask.localTaskToApiTask(tasksNotInServer.get(k));
 //                            Task aTask = mService.tasks().insert(lTask.getTaskList(), task).execute();

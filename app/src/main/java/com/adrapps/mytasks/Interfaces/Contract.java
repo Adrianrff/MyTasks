@@ -24,8 +24,6 @@ public class Contract {
 
         void setUpViews();
 
-        void showAndSetUpNewTaskDialog();
-
         void showToast(String msg);
 
         void showCircularProgress(boolean b);
@@ -40,7 +38,7 @@ public class Contract {
 
         void updateCurrentView();
 
-        void showUndoSnackBar(String message, int position, LocalTask task);
+        void showTaskDeleteUndoSnackBar(String message, int position, LocalTask task);
 
         void refreshFirstTime();
 
@@ -52,7 +50,7 @@ public class Contract {
 
         void setNavDrawerMenu(List<String> taskListsTitles);
 
-        void setUpData();
+        void setListsData();
 
         void setToolbarTitle(String title);
 
@@ -74,7 +72,7 @@ public class Contract {
 
         GoogleAccountCredential getCredential();
 
-        boolean getBooleanSharedPreference(String key);
+        boolean getBooleanShP(String key);
 
         String getStringShP(String key);
 
@@ -82,7 +80,7 @@ public class Contract {
 
         boolean isDeviceOnline();
 
-        void navigateToEditTask(Intent intent);
+        void navigateToEditTask();
 
         void cancelReminder(LocalTask task);
 

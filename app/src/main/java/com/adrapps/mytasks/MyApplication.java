@@ -40,7 +40,7 @@ public class MyApplication extends Application {
                         .setContentText(arg0.getMessage())
                         .setContentIntent(pendingIntent);
                 ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(8, notifyBuilder.build());
-                FirebaseCrash.report(arg0);
+//                FirebaseCrash.report(arg0);
 
             }
         });

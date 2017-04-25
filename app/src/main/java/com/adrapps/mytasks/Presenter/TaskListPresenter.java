@@ -1,7 +1,6 @@
 package com.adrapps.mytasks.Presenter;
 
-import android.content.Intent;
-
+import com.adrapps.mytasks.APICalls.SyncTasks;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
 import com.adrapps.mytasks.Interfaces.Contract;
@@ -63,7 +62,7 @@ public class TaskListPresenter {
     }
 
     public void showUndoSnackBar(String message, int position, LocalTask removedTask) {
-        getView().showUndoSnackBar(message, position, removedTask);
+        getView().showTaskDeleteUndoSnackBar(message, position, removedTask);
     }
     public void showProgress(boolean b) {
         getView().showCircularProgress(b);
@@ -75,7 +74,13 @@ public class TaskListPresenter {
         getView().setNavDrawerMenu(listTitles);
     }
     public void refresh(){
-        getView().refresh();
+        if (isDeviceOnline()) {
+            SyncTasks refresh = new SyncTasks(this, getView().getCredential());
+            refresh.execute();
+        } else {
+            showToast(getString(R.string.no_internet_toast));
+            showSwipeRefreshProgress(false);
+        }
     }
 
     public void showSwipeRefreshProgress(boolean b){
@@ -86,11 +91,7 @@ public class TaskListPresenter {
 
 
     //-----------------DATABASE OPERATIONS------------///
-    //-----------------DATABASE OPERATIONS------------///
 
-//    public List<LocalTask> getTasksFromList(String listId,String sort) {
-//        return mModel.getTasksFromList(listId, sort);
-//    }
 
     public List<LocalTask> getTasksFromList(String listId) {
         return mModel.getTasksFromList(listId);
@@ -135,7 +136,7 @@ public class TaskListPresenter {
     }
 
     public boolean getBooleanShP(String key) {
-        return getView().getBooleanSharedPreference(key);
+        return getView().getBooleanShP(key);
     }
 
     public void requestApiPermission(Exception mLastError) {
@@ -143,10 +144,10 @@ public class TaskListPresenter {
     }
 
     public void  setUpData(){
-        getView().setUpData();
+        getView().setListsData();
     }
 
-    public String getListTitleFromId(String listId) {
+    public String getListTitleById(String listId) {
         return mModel.getListTitleFromId(listId);
     }
 
@@ -162,7 +163,7 @@ public class TaskListPresenter {
         return getView().getContext().getString(stringId);
     }
 
-    public void deleteTask(String taskId) {
+    public void deleteTaskFromDatabase(String taskId) {
         int rowDeleted =  mModel.deleteTask(taskId);
     }
 
@@ -183,8 +184,8 @@ public class TaskListPresenter {
         return getView().isDeviceOnline();
     }
 
-    public void navigateToEditTask(Intent i) {
-        getView().navigateToEditTask(i);
+    public void navigateToEditTask() {
+        getView().navigateToEditTask();
     }
 
     public void refreshFirstTime() {

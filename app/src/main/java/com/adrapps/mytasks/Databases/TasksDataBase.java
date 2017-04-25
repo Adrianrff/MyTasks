@@ -244,7 +244,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     }
 
 
-    public long addTask(LocalTask localTask) {
+    public long addTaskToDataBase(LocalTask localTask) {
         SQLiteDatabase db = getWritableDB();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, localTask.getId());

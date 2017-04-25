@@ -68,7 +68,7 @@ public class DataModel implements Contract.Model {
 
     @Override
     public int addTaskToLocalDatabase(LocalTask task) {
-        return (int) tasksDb.addTask(task);
+        return (int) tasksDb.addTaskToDataBase(task);
     }
 
     @Override
@@ -194,13 +194,13 @@ public class DataModel implements Contract.Model {
 
     //------------------------API OPERATIONS----------------------///
     @Override
-    public void deleteTask(String intId, String listId) {
+    public void deleteTask(String taskId, String listId) {
+        tasksDb.markDeleted(taskId);
         if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
             DeleteTask remove = new DeleteTask(mPresenter, credential, listId);
-            remove.execute(intId);
+            remove.execute(taskId);
         } else {
-            tasksDb.markDeleted(intId);
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }
     }
