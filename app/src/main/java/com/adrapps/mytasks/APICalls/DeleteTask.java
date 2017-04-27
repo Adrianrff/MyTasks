@@ -89,6 +89,6 @@ public class DeleteTask extends AsyncTask<String, Void, Void> {
 
     private void removeTask(String taskId) throws IOException {
             mService.tasks().delete(listId,taskId).execute();
-            mPresenter.deleteTaskFromDatabase(taskId);
+            mPresenter.deleteTaskFromDatabase(mPresenter.getIntIdByTaskId(taskId));
     }
 }

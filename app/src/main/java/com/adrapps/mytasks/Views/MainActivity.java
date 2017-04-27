@@ -48,10 +48,13 @@ import com.adrapps.mytasks.Presenter.TaskListPresenter;
 import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.util.Collections2;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.firebase.crash.FirebaseCrash;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity
     long selectedDueDateInMills;
     private LinearLayout emptyDataLayout;
     private long selectedReminderInMills;
+    private LinearLayout noInternetLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity
             finish();
             return;
         }
-        FirebaseCrash.report(new Exception("My first Android non-fatal error"));
+
         setContentView(R.layout.main_activity);
         mPresenter = new TaskListPresenter(this);
         findViews();
@@ -99,6 +103,16 @@ public class MainActivity extends AppCompatActivity
         }
         initRecyclerView(mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID)));
         setListsData();
+        if (getIntent().hasExtra(Co.LOCAL_TASK)){
+            LocalTask task = (LocalTask) getIntent().getSerializableExtra(Co.LOCAL_TASK);
+            Intent i = new Intent(this, NewOrDetailActivity.class);
+            i.putExtra(Co.LOCAL_TASK, task);
+            startActivityForResult(i, Co.TASK_DATA_REQUEST_CODE);
+        }
+
+        if (!isDeviceOnline()){
+           showNoInternetWarning(true);
+        }
 
     }
 
@@ -115,6 +129,7 @@ public class MainActivity extends AppCompatActivity
         emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
+        noInternetLayout = (LinearLayout) findViewById(R.id.noInternetLayout);
     }
 
     @Override
@@ -224,6 +239,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void showNoInternetWarning(boolean b){
+        if (b) {
+            noInternetLayout.setVisibility(View.VISIBLE);
+        } else {
+            noInternetLayout.setVisibility(View.GONE);
+        }
+
+    }
+
+    @Override
     public void showProgressDialog() {
         mProgress.show();
     }
@@ -317,7 +342,13 @@ public class MainActivity extends AppCompatActivity
         ConnectivityManager connMgr =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
+        if ((networkInfo != null && networkInfo.isConnected())){
+            showNoInternetWarning(false);
+            return true;
+        } else {
+            showNoInternetWarning(true);
+            return false;
+        }
     }
 
 
@@ -328,7 +359,8 @@ public class MainActivity extends AppCompatActivity
         switch (v.getId()) {
 
             case R.id.fab:
-                mPresenter.navigateToEditTask();
+                Intent i = new Intent(this, NewOrDetailActivity.class);
+                mPresenter.navigateToEditTask(i);
                 break;
 
         }
@@ -404,9 +436,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void navigateToEditTask() {
-        Intent i = new Intent(this, NewOrDetailActivity.class);
-        startActivityForResult(i, Co.TASK_DATA_REQUEST_CODE);
+    public void navigateToEditTask(Intent i) {
+         startActivityForResult(i, Co.TASK_DATA_REQUEST_CODE);
     }
 
     @Override
@@ -428,7 +459,9 @@ public class MainActivity extends AppCompatActivity
                             if (task.getReminder() != 0) {
                                 setOrUpdateAlarm(task);
                             } else {
-                                cancelReminder(task);
+                                if (isReminderSet((int) task.getReminderId())) {
+                                    cancelReminder(task);
+                                }
                             }
                         }
 //                        showToast(isReminderSet((int) task.getReminderId()) ? "Alarm set" : "Alarm not set");
@@ -436,7 +469,7 @@ public class MainActivity extends AppCompatActivity
                         mPresenter.editTask(task);
                     }
 
-                    // TASK DELETED
+                // TASK ADDED
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
@@ -506,6 +539,7 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(key, value);
         editor.apply();
+
     }
 
     @Override
@@ -522,6 +556,9 @@ public class MainActivity extends AppCompatActivity
     public void setOrUpdateAlarm(LocalTask task) {
         if (task.getReminder() != 0 && task.getReminderId() != 0) {
             Intent intent = new Intent(this, AlarmReciever.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Co.LOCAL_TASK, task);
+            intent.putExtra(Co.LOCAL_TASK, bundle);
             intent.putExtra(Co.TASK_TITLE, task.getTitle());
             intent.putExtra(Co.TASK_DUE, task.getDue());
             intent.putExtra(Co.TASK_ID, task.getId());
@@ -540,6 +577,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void cancelReminder(LocalTask task) {
         Intent intent = new Intent(this, AlarmReciever.class);
+
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
                 (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);

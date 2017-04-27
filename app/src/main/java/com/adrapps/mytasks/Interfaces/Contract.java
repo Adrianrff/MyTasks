@@ -30,6 +30,8 @@ public class Contract {
 
         void showEmptyRecyclerView(boolean b);
 
+        void showNoInternetWarning(boolean b);
+
         void showProgressDialog();
 
         void dismissProgressDialog();
@@ -80,7 +82,7 @@ public class Contract {
 
         boolean isDeviceOnline();
 
-        void navigateToEditTask();
+        void navigateToEditTask(Intent i);
 
         void cancelReminder(LocalTask task);
 
@@ -126,6 +128,8 @@ public class Contract {
         boolean taskExistsInDB(String taskId);
 
         long updateReminder(String taskId, long reminder);
+
+        long updateReminder(int intId, long reminder);
 
         void updateSyncStatus(int synced, int intId);
 

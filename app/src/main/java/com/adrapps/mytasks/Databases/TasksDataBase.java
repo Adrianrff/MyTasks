@@ -209,7 +209,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String selection = COL_LIST + " = ? ";
         String[] selectionArgs = {listId};
         SQLiteDatabase db = getReadableDB();
-        Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
+        Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_DUE + ORDER_ASC);
         if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
                 if (cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)) != Co.LOCAL_DELETED) {
@@ -577,6 +577,18 @@ public class TasksDataBase extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDB();
         String selection = COL_ID + " = ? ";
         String[] selectionArgs = {taskId};
+        ContentValues cv = new ContentValues();
+        cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
+        cv.put(COL_REMINDER, reminder);
+        int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
+        db.close();
+        return updatedRow;
+    }
+
+    public long updateTaskReminder(int intId, long reminder) {
+        SQLiteDatabase db = getWritableDB();
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(intId)};
         ContentValues cv = new ContentValues();
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
         cv.put(COL_REMINDER, reminder);

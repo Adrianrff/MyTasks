@@ -1,5 +1,7 @@
 package com.adrapps.mytasks.Presenter;
 
+import android.content.Intent;
+
 import com.adrapps.mytasks.APICalls.SyncTasks;
 import com.adrapps.mytasks.Domain.Co;
 import com.adrapps.mytasks.Domain.LocalTask;
@@ -163,8 +165,8 @@ public class TaskListPresenter {
         return getView().getContext().getString(stringId);
     }
 
-    public void deleteTaskFromDatabase(String taskId) {
-        int rowDeleted =  mModel.deleteTask(taskId);
+    public void deleteTaskFromDatabase(int id) {
+        mModel.deleteTaskFromDataBase(id);
     }
 
     public void deleteTask(String taskId, String listId) {
@@ -184,8 +186,8 @@ public class TaskListPresenter {
         return getView().isDeviceOnline();
     }
 
-    public void navigateToEditTask() {
-        getView().navigateToEditTask();
+    public void navigateToEditTask(Intent i) {
+        getView().navigateToEditTask(i);
     }
 
     public void refreshFirstTime() {

@@ -116,6 +116,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         return tasks.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
     void updateItems(List<LocalTask> localTasks) {
         this.tasks.clear();
         this.tasks = localTasks;
@@ -172,8 +177,13 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
     }
 
     void updateItem(LocalTask task, int position) {
-        tasks.set(position, task);
-        notifyItemChanged(position);
+        if (position == -1){
+            tasks.set(tasks.indexOf(task), task);
+            notifyItemChanged(tasks.indexOf(task));
+        } else {
+            tasks.set(position, task);
+            notifyItemChanged(position);
+        }
     }
 
 
@@ -253,7 +263,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onItemSelected() {
-             oldPos = getAdapterPosition();
+            oldPos = getAdapterPosition();
             itemView.setBackgroundColor(Color.LTGRAY);
         }
 

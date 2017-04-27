@@ -36,7 +36,7 @@
     <string name="task_updated">Task serverModify</string>
     <string name="task_reminder_notification_title">Task reminder</string>
     <string name="uncompleted_task_text">You have an uncompleted task set for</string>
-    <string name="touch_for_details">Tap here for details</string>
+    <string name="touch_for_details">tap for details</string>
     <string name="notification_dialog_title">Set notification</string>
     <string name="morning">In the morning</string>
     <string name="afternoon">In the afternoon</string>
@@ -45,10 +45,12 @@
     <string name="ok">Ok</string>
     <string name="no_due_date_selected">No due date selected</string>
     <string name="nothing_selected">Nothing selected</string>
-    <string name="app_intro1">This app allows to create, read and modify your tasks in Google Tasks</string>
+    <string name="app_intro1">This app allows you to create, read and modify your tasks in Google Tasks</string>
     <string name="app_intro2">To start, please add your Google account and grant the necessary permissions. If you have already created some tasks, you should see them right away</string>
     <string name="notification_info_hint">Date and time</string>
     <string name="repeat_hint">Select repeat mode</string>
+    <string name="no_internet_warning">Changes made now will sync with Google Tasks once a connection has been established</string>
+    <string name="no_internet_warning_title">No internet connection</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

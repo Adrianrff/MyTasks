@@ -1,12 +1,15 @@
 package com.adrapps.mytasks.Domain;
 
+import android.support.annotation.NonNull;
+
 import com.adrapps.mytasks.Helpers.DateHelper;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.TimeZone;
 
-public class LocalTask implements Serializable {
+public class LocalTask implements Serializable, Comparable {
 
     private String id, title, parent, position, notes, status, taskList;
     private int moved, localDeleted, intId, localSibling, syncStatus;
@@ -95,6 +98,17 @@ public class LocalTask implements Serializable {
     public int hashCode() {
         return super.hashCode();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LocalTask) {
+            LocalTask task = (LocalTask) obj;
+            return this.getIntId() == task.getIntId();
+        } else {
+            return false;
+        }
+    }
+
 
     ///-------------------SETTERS ----------------------//
 
@@ -272,4 +286,8 @@ public class LocalTask implements Serializable {
         return hidden;
     }
 
+    @Override
+    public int compareTo(@NonNull Object o) {
+        return 0;
+    }
 }

@@ -48,6 +48,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
         try {
             syncAll();
         } catch (Exception e) {
+            e.printStackTrace();
             mLastError = e;
             cancel(true);
 //            FirebaseCrash.report(e);
@@ -142,7 +143,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             if (localTasksNotInServer != null && !localTasksNotInServer.isEmpty()) {
                 for (int k = 0; k < localTasksNotInServer.size(); k++) {
                     LocalTask currentLocalTaskNotInServer = localTasksNotInServer.get(k);
-                    if (currentLocalTaskNotInServer.getSyncStatus() == 0) {
+                    if (currentLocalTaskNotInServer.getSyncStatus() != 2) {
                         LocalTask.localTaskToApiTask(currentLocalTaskNotInServer);
                         Task task = mService.tasks().insert
                                 (currentListId, LocalTask.localTaskToApiTask
@@ -150,7 +151,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         LocalTask lTask = mPresenter.updateNewlyCreatedTask(task, currentListId,
                                 String.valueOf(currentLocalTaskNotInServer.getIntId()));
                     } else {
-                        mPresenter.deleteTaskFromDatabase(currentLocalTaskNotInServer.getId());
+                        mPresenter.deleteTaskFromDatabase(currentLocalTaskNotInServer.getIntId());
                     }
                 }
             }

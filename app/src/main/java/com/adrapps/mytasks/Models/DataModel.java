@@ -21,6 +21,7 @@ import com.google.api.services.tasks.model.TaskList;
 
 import java.util.List;
 
+
 public class DataModel implements Contract.Model {
 
 
@@ -30,6 +31,11 @@ public class DataModel implements Contract.Model {
 
     public DataModel(TaskListPresenter presenter, Context context) {
         this.mPresenter = presenter;
+        tasksDb = new TasksDataBase(context);
+        listsDb = new ListsDatabase(context);
+    }
+
+    public DataModel(Context context) {
         tasksDb = new TasksDataBase(context);
         listsDb = new ListsDatabase(context);
     }
@@ -94,6 +100,11 @@ public class DataModel implements Contract.Model {
     @Override
     public long updateReminder(String taskId, long reminder) {
         return tasksDb.updateTaskReminder(taskId, reminder);
+    }
+
+    @Override
+    public long updateReminder(int intId, long reminder) {
+        return tasksDb.updateTaskReminder(intId, reminder);
     }
 
     @Override

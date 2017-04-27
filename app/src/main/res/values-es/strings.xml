@@ -38,7 +38,7 @@
     <string name="task_updated">Tarea actualizada</string>
     <string name="task_reminder_notification_title">Recordatorio de tarea</string>
     <string name="uncompleted_task_text">Tienes una tarea pendiente programada para el</string>
-    <string name="touch_for_details">Toca para ver los detalles</string>
+    <string name="touch_for_details">toca para ver los detalles</string>
     <string name="notification_dialog_title">Notificación</string>
     <string name="morning">En la mañana</string>
     <string name="afternoon">En la tarde</string>
@@ -51,6 +51,8 @@
     <string name="app_intro2">Para comenzar, por favor asocia tu cuenta de Google y otorga los permisos requeridos. Si tienes tareas ya creadas, las verás al iniciar.</string>
     <string name="notification_info_hint">Fecha y hora</string>
     <string name="repeat_hint">Modo de repetición</string>
+    <string name="no_internet_warning">Los cambios que hagas ahora se sincronizarán con Google Tasks cuando se establezca una conexión</string>
+    <string name="no_internet_warning_title">Sin conexión a internet</string>
 
 
     <string-array name="notification_options">

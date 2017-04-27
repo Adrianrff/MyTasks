@@ -37,6 +37,7 @@ public class Co {
     public static final int SYNCED = 2;
     public static final int NOT_MOVED = 0;
     public static final int MOVED_TO_FIRST = -2;
+    public static final String EVERY_DAY_OF_MONTH = "Every day of month";
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
     public static int LOCAL_DELETED = 1;
