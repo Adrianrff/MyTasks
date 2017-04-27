@@ -16,6 +16,7 @@ public class LocalTask implements Serializable, Comparable {
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
 
+
     public LocalTask() {
     }
 
