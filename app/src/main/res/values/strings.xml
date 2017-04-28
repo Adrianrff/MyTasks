@@ -42,7 +42,7 @@
     <string name="afternoon">In the afternoon</string>
     <string name="evening">In the evening</string>
     <string name="custom">Custom…</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="no_due_date_selected">No due date selected</string>
     <string name="nothing_selected">Nothing selected</string>
     <string name="app_intro1">This app allows you to create, read and modify your tasks in Google Tasks</string>
@@ -51,6 +51,17 @@
     <string name="repeat_hint">Select repeat mode</string>
     <string name="no_internet_warning">Changes made now will sync with Google Tasks once a connection has been established</string>
     <string name="no_internet_warning_title">No internet connection</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="new_list">New list</string>
+    <string name="list_name_hint">List name</string>
+    <string name="add_button">ADD</string>
+    <string name="list_title_empty_toast">The list title can not be empty</string>
+    <string name="edit_list_menu_item">Edit list</string>
+    <string name="edit_button">edit</string>
+    <string name="edit_list">Edit list</string>
+    <string name="delete_list_menu_item">Delete list</string>
+    <string name="confirmation_task_delete_message">Are you sure you want to delete this list? You will lose all the tasks in it.</string>
+    <string name="yes">Yes</string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

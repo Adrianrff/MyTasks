@@ -8,13 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.adrapps.mytasks.Domain.Co;
-import com.adrapps.mytasks.Domain.LocalTask;
-import com.adrapps.mytasks.Helpers.DateHelper;
-import com.adrapps.mytasks.Interfaces.Contract;
-import com.adrapps.mytasks.Models.DataModel;
-import com.adrapps.mytasks.Views.MainActivity;
-import com.adrapps.mytasks.Views.NewOrDetailActivity;
+import com.adrapps.mytasks.domain.Co;
+import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.interfaces.Contract;
+import com.adrapps.mytasks.models.DataModel;
+import com.adrapps.mytasks.views.MainActivity;
 
 public class AlarmReciever extends BroadcastReceiver {
     private Contract.Model mModel;

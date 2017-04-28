@@ -9,7 +9,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".Views.MainActivity">
+    tools:context=".views.MainActivity">
 
     <android.support.design.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,7 +18,7 @@
         android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.adrapps.mytasks.Views.MainActivity">
+        tools:context="com.adrapps.mytasks.views.MainActivity">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"

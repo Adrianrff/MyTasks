@@ -3,26 +3,37 @@
 
     <group
         android:checkableBehavior="single"
+        android:background="?android:attr/selectableItemBackground"
         android:id="@+id/lists_titles">
+
+
+
         <item
             android:checkableBehavior="single"
+            android:background="?android:attr/selectableItemBackground"
             android:id="@+id/lists_titles_menu"
-            android:title="@string/lists_menu_title"
-            android:checkable="true"
-            >
+            android:title="@string/lists_menu_title">
+
             <menu>
 
             </menu>
+
         </item>
+
+
     </group>
 
     <group>
-        <item android:id="@+id/Notifications"
+        <item
+            android:id="@+id/Notifications"
+            android:background="?android:attr/selectableItemBackground"
             android:title="@string/notifications_settings_title" />
     </group>
 
     <group>
-        <item android:id="@+id/Settings"
+        <item
+            android:id="@+id/Settings"
+            android:background="?android:attr/selectableItemBackground"
             android:title="@string/action_settings" />
     </group>
 </menu>

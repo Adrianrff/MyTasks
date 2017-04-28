@@ -30,7 +30,7 @@ public class MyApplication extends Application {
                 Intent mailIntent = new Intent(Intent.ACTION_SEND);
                 mailIntent.setType("message/rfc822");
                 mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"adrianrff@gmail.com"});
-                mailIntent.putExtra(Intent.EXTRA_SUBJECT, "Subject");
+                mailIntent.putExtra(Intent.EXTRA_SUBJECT, "Exception stacktrace");
                 mailIntent.putExtra(Intent.EXTRA_TEXT, getFullErrorMessage(arg0));
                 PendingIntent pendingIntent = PendingIntent.getActivity(MyApplication.this,
                         0, mailIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -39,7 +39,8 @@ public class MyApplication extends Application {
                         .setContentTitle(getString(R.string.bug_report_notification_title))
                         .setContentText(arg0.getMessage())
                         .setContentIntent(pendingIntent);
-                ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(8, notifyBuilder.build());
+                ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(
+                        (int) System.currentTimeMillis(), notifyBuilder.build());
 //                FirebaseCrash.report(arg0);
 
             }

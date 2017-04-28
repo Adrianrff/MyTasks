@@ -53,6 +53,17 @@
     <string name="repeat_hint">Modo de repetición</string>
     <string name="no_internet_warning">Los cambios que hagas ahora se sincronizarán con Google Tasks cuando se establezca una conexión</string>
     <string name="no_internet_warning_title">Sin conexión a internet</string>
+    <string name="please_wait">Por favor, espere…</string>
+    <string name="new_list">Nueva lista</string>
+    <string name="list_name_hint">Nombre de la lista</string>
+    <string name="add_button">AGREGAR</string>
+    <string name="list_title_empty_toast">El título de la lista no puede estar vacío</string>
+    <string name="edit_list_menu_item">Editar lista</string>
+    <string name="edit_button">editar</string>
+    <string name="edit_list">Editar lista</string>
+    <string name="delete_list_menu_item">Eliminar lista</string>
+    <string name="confirmation_task_delete_message">¿Estás seguro de que quieres borrar esta lista? Perderás todas las tareas en ella</string>
+    <string name="yes">Sí</string>
 
 
     <string-array name="notification_options">
