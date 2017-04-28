@@ -9,9 +9,6 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.firebase.crash.FirebaseCrash;
 
-import org.acra.*;
-import org.acra.annotation.*;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
