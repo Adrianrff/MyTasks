@@ -210,7 +210,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String selection = COL_LIST + " = ? ";
         String[] selectionArgs = {listId};
         db = getReadableDB();
-        Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_DUE + ORDER_ASC);
+        Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
         if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
                 if (cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)) != Co.LOCAL_DELETED) {
@@ -249,7 +249,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         db = getWritableDB();
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, localTask.getId());
-        cv.put(COL_LIST, localTask.getTaskList());
+        cv.put(COL_LIST, localTask.getList());
         cv.put(COL_TITLE, localTask.getTitle());
         cv.put(COL_SERVER_UPDATED, localTask.getServerModify());
         cv.put(COL_PARENT, localTask.getParent());
@@ -301,7 +301,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         for (int i = 0; i < tasks.size(); i++) {
             cv.put(COL_ID, tasks.get(i).getId());
-            cv.put(COL_LIST, tasks.get(i).getTaskList());
+            cv.put(COL_LIST, tasks.get(i).getList());
             cv.put(COL_TITLE, tasks.get(i).getTitle());
             cv.put(COL_SERVER_UPDATED, tasks.get(i).getServerModify());
             cv.put(COL_PARENT, tasks.get(i).getParent());
@@ -330,7 +330,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         onUpgrade(db, 1, 1);
         for (int i = 0; i < tasks.size(); i++) {
             cv.put(COL_ID, tasks.get(i).getId());
-            cv.put(COL_LIST, tasks.get(i).getTaskList());
+            cv.put(COL_LIST, tasks.get(i).getList());
             cv.put(COL_TITLE, tasks.get(i).getTitle());
             cv.put(COL_SERVER_UPDATED, tasks.get(i).getServerModify());
             cv.put(COL_PARENT, tasks.get(i).getParent());
@@ -680,7 +680,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         String[] selectionArgs = {String.valueOf(modifiedTask.getIntId())};
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, modifiedTask.getId());
-        cv.put(COL_LIST, modifiedTask.getTaskList());
+        cv.put(COL_LIST, modifiedTask.getList());
         cv.put(COL_TITLE, modifiedTask.getTitle());
         cv.put(COL_SERVER_UPDATED, modifiedTask.getServerModify());
         cv.put(COL_PARENT, modifiedTask.getParent());

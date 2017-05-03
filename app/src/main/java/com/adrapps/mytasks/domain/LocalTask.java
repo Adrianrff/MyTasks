@@ -234,7 +234,7 @@ public class LocalTask implements Serializable, Comparable {
         return reminder;
     }
 
-    public String getTaskList() {
+    public String getList() {
         return taskList;
     }
 

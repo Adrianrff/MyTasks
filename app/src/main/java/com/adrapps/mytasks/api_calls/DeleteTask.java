@@ -21,8 +21,7 @@ public class DeleteTask extends AsyncTask<String, Void, Void> {
     private TaskListPresenter mPresenter;
     private String listId;
 
-    public DeleteTask(TaskListPresenter presenter,
-                      GoogleAccountCredential credential,
+    public DeleteTask(TaskListPresenter presenter, GoogleAccountCredential credential,
                       String listId) {
         this.mPresenter = presenter;
         this.listId = listId;

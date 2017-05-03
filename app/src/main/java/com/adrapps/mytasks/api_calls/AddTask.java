@@ -21,12 +21,10 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
-    private String listId;
     private LocalTask localTask;
 
-    public AddTask(TaskListPresenter presenter, GoogleAccountCredential credential, String listId) {
+    public AddTask(TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.mPresenter = presenter;
-        this.listId = listId;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.tasks.Tasks.Builder(
@@ -94,9 +92,9 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
         Task task = LocalTask.localTaskToApiTask(lTask);
         Task aTask;
         try {
-            aTask = mService.tasks().insert(listId, task).execute();
+            aTask = mService.tasks().insert(lTask.getList(), task).execute();
             if (aTask != null) {
-                mPresenter.updateNewlyCreatedTask(aTask,lTask.getTaskList(),
+                mPresenter.updateNewlyCreatedTask(aTask,lTask.getList(),
                         String.valueOf(lTask.getIntId()));
             }
         } catch (IOException e) {

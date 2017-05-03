@@ -311,7 +311,7 @@ public class DataModel implements Contract.Model {
         int newTaskId = mPresenter.addTaskToDatabase(task);
         if (mPresenter.isDeviceOnline()) {
             AddTask add = new AddTask(mPresenter,
-                    mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
+                    mPresenter.getCredential());
             add.execute(task);
         }
         else {
@@ -326,7 +326,7 @@ public class DataModel implements Contract.Model {
     public void moveTask(LocalTask movedTask, String previousTaskId) {
         if (mPresenter.isDeviceOnline()) {
             MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
-            move.execute(movedTask.getId(), movedTask.getTaskList(), previousTaskId);
+            move.execute(movedTask.getId(), movedTask.getList(), previousTaskId);
         } else {
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }

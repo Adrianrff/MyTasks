@@ -231,7 +231,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                     dueDate.setPaintFlags(dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     dueDate.setTextColor(Color.GRAY);
                     taskName.setTextColor(Color.GRAY);
-                    mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getTaskList(), Co.TASK_COMPLETED);
+                    mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_COMPLETED);
             } else {
                     dueDate.setTextColor(oldDueColors);
                     dueDate.setPaintFlags(0);
@@ -256,7 +256,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                             dueDate.setTypeface(null, Typeface.NORMAL);
                         }
                     }
-                    mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getTaskList(), Co.TASK_NEEDS_ACTION);
+                    mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_NEEDS_ACTION);
 
             }
         }

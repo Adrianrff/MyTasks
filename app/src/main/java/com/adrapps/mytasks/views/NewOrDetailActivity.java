@@ -263,7 +263,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                 break;
 
             //Morning reminder click
-            case (R.id.layout_morning):
+            case R.id.layout_morning:
                 rbMorning.setChecked(true);
                 rbCustom.setChecked(false);
                 rbEvening.setChecked(false);

@@ -401,8 +401,8 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 //                            mPresenter.deleteTaskFromDatabase(lTask.getId());
 //                        } else {
 //                            Task task = LocalTask.localTaskToApiTask(tasksNotInServer.get(k));
-//                            Task aTask = mService.tasks().insert(lTask.getTaskList(), task).execute();
-//                            mPresenter.updateNewlyCreatedTask(aTask, lTask.getTaskList(),
+//                            Task aTask = mService.tasks().insert(lTask.getList(), task).execute();
+//                            mPresenter.updateNewlyCreatedTask(aTask, lTask.getList(),
 //                                    String.valueOf(lTask.getIntId()));
 //                        }
 //                    }

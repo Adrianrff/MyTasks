@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity
                     if (mPresenter.getTaskIdByIntId(task.getIntId()) == null) {
                         mPresenter.deleteTaskFromDataBase(task.getIntId());
                     }
-                    mPresenter.deleteTask(task.getId(), task.getTaskList());
+                    mPresenter.deleteTask(task.getId(), task.getList());
                 }
             }
         });
