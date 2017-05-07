@@ -16,7 +16,7 @@ public class Co {
     public static final String CURRENT_LIST_ID = "current list";
     public static final String IS_FIRST_LAUNCH = "is first time";
     public static final String PREF_ACCOUNT_NAME = "accountName";
-    public static final String[] SCOPES = {TasksScopes.TASKS};
+    public static final String[] SCOPES = {TasksScopes.TASKS, "https://www.googleapis.com/auth/userinfo.profile"};
     public static final String IS_FIRST_INIT = "first init";
     public static final String CURRENT_LIST_TITLE = "current list title";
     public static final String TASK_TITLE = "task name";
@@ -39,6 +39,7 @@ public class Co {
     public static final int MOVED_TO_FIRST = -2;
     public static final String EVERY_DAY_OF_MONTH = "Every day of month";
     public static final int NEW_LIST_MENU_ITEM_ID = 1001;
+
     public static List<String> listIds = new ArrayList<>();
     public static List<String> listTitles = new ArrayList<>();
     public static int LOCAL_DELETED = 1;
@@ -51,6 +52,9 @@ public class Co {
     public static final String TASK_REMINDER = "task reminder";
     public static final String TASK_ID = "task id";
     public static int NOT_DELETED = 0;
+    public static final String USER_PIC_URL = "user pic url";
+    public static final String USER_NAME = "user name";
+    public static final String USER_EMAIL = "user email";
 
 
     public static void setListIds(List<String> listIds) {

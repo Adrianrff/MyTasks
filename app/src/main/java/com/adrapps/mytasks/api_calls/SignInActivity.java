@@ -2,7 +2,6 @@ package com.adrapps.mytasks.api_calls;
 
 import android.Manifest;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,17 +13,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.views.MainActivity;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -44,14 +49,16 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class SignInActivity extends Activity
-        implements EasyPermissions.PermissionCallbacks {
+public class SignInActivity extends AppCompatActivity
+        implements EasyPermissions.PermissionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     GoogleAccountCredential mCredential;
     private SignInButton signInButton;
 
     private com.google.api.services.tasks.Tasks mService = null;
     ProgressDialog mProgress;
+    private GoogleApiClient mGoogleApiClient;
+    private GoogleSignInOptions gso;
 
 
     /**
@@ -84,19 +91,37 @@ public class SignInActivity extends Activity
         });
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(getString(R.string.request_api_authorization));
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestProfile()
+                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
     }
 
     private void signIn() {
-        if (!isGooglePlayServicesAvailable()) {
-            acquireGooglePlayServices();
-        } else if (mCredential.getSelectedAccountName() == null) {
-            chooseAccount();
-        } else if (!isDeviceOnline()) {
-            Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
-        } else {
-            FirstAPICall firstCall = new FirstAPICall(this, mCredential);
-            firstCall.execute();
-        }
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, 1007);
+
+
+//        if (!isGooglePlayServicesAvailable()) {
+//            acquireGooglePlayServices();
+//        } else if (mCredential.getSelectedAccountName() == null) {
+//            chooseAccount();
+//        } else if (!isDeviceOnline()) {
+//            Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
+//        } else {
+//            FirstAPICall firstCall = new FirstAPICall(this, mCredential);
+//            firstCall.execute();
+//        }
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 
     @AfterPermissionGranted(Co.REQUEST_PERMISSION_GET_ACCOUNTS)
@@ -162,12 +187,41 @@ public class SignInActivity extends Activity
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
+                    GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                    GoogleSignInAccount acct = result.getSignInAccount();
                     editor.apply();
                     Intent i = new Intent(this, MainActivity.class);
                     startActivity(i);
                     finish();
+
                 }
                 break;
+
+            case 1007:
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                if (result.isSuccess()) {
+                    // Signed in successfully, show authenticated UI.
+                    SharedPreferences prefs =
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
+                    GoogleSignInAccount acct = result.getSignInAccount();
+                    if (acct != null) {
+                        editor.putString(Co.PREF_ACCOUNT_NAME, acct.getEmail());
+                        editor.putString(Co.USER_NAME, acct.getDisplayName());
+                        mCredential.setSelectedAccountName(acct.getEmail());
+                        if (acct.getPhotoUrl()!= null) {
+                            editor.putString(Co.USER_PIC_URL, acct.getPhotoUrl().toString());
+                        }
+                    }
+                    editor.apply();
+                } else {
+                    // Signed out, show unauthenticated UI.
+
+                }
+
+
+
         }
     }
 
@@ -238,6 +292,7 @@ public class SignInActivity extends Activity
         super.onPause();
     }
 
+
     private class FirstAPICall extends AsyncTask<Void, Void, List<String>> {
 
         private com.google.api.services.tasks.Tasks mService = null;
@@ -289,7 +344,7 @@ public class SignInActivity extends Activity
             editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
             editor.putString(Co.CURRENT_LIST_TITLE, defaultListInfo.get(1));
             editor.putString(Co.CURRENT_LIST_ID, defaultListInfo.get(0));
-            editor.putBoolean(Co.IS_FIRST_INIT,true);
+            editor.putBoolean(Co.IS_FIRST_INIT, true);
             editor.apply();
             goToTaskListActivity();
         }

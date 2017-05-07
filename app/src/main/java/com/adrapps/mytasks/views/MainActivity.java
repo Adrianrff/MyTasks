@@ -463,6 +463,7 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
+                showToast(Co.USER_NAME + "\n" + Co.USER_EMAIL + "\n" + Co.USER_PIC_URL);
                 break;
 
             case R.id.refresh:

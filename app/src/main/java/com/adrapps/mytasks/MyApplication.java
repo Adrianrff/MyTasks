@@ -3,12 +3,8 @@ package com.adrapps.mytasks;
 import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-
-import com.google.firebase.crash.FirebaseCrash;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
