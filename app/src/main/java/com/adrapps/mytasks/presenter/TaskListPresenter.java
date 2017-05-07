@@ -78,8 +78,8 @@ public class TaskListPresenter {
     }
     public void refresh(){
         if (isDeviceOnline()) {
-            SyncTasks refresh = new SyncTasks(this, getView().getCredential());
-            refresh.execute();
+            SyncTasks syncTasks = new SyncTasks(this, getView().getCredential());
+            syncTasks.execute();
         } else {
             showToast(getString(R.string.no_internet_toast));
             showSwipeRefreshProgress(false);
@@ -179,6 +179,10 @@ public class TaskListPresenter {
     }
 
     public GoogleAccountCredential getCredential() {
+        return getView().getCredential();
+    }
+
+    public GoogleAccountCredential setAndGetCredential() {
         getView().setCredentials();
         return getView().getCredential();
     }

@@ -1,5 +1,6 @@
 package com.adrapps.mytasks.domain;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.tasks.TasksScopes;
 import com.google.api.services.tasks.model.Task;
 
@@ -15,7 +16,6 @@ public class Co {
     public static final String NO_ACCOUNT_NAME = "no account name";
     public static final String CURRENT_LIST_ID = "current list";
     public static final String IS_FIRST_LAUNCH = "is first time";
-    public static final String PREF_ACCOUNT_NAME = "accountName";
     public static final String[] SCOPES = {TasksScopes.TASKS, "https://www.googleapis.com/auth/userinfo.profile"};
     public static final String IS_FIRST_INIT = "first init";
     public static final String CURRENT_LIST_TITLE = "current list title";
@@ -54,7 +54,9 @@ public class Co {
     public static int NOT_DELETED = 0;
     public static final String USER_PIC_URL = "user pic url";
     public static final String USER_NAME = "user name";
-    public static final String USER_EMAIL = "user email";
+    public static final String USER_EMAIL = "accountName";
+
+    public static GoogleAccountCredential mCredential;
 
 
     public static void setListIds(List<String> listIds) {

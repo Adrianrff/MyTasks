@@ -1,7 +1,7 @@
 package com.adrapps.mytasks.api_calls;
 
 import android.Manifest;
-import android.accounts.AccountManager;
+import android.accounts.Account;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class SignInActivity extends AppCompatActivity
@@ -59,6 +58,7 @@ public class SignInActivity extends AppCompatActivity
     ProgressDialog mProgress;
     private GoogleApiClient mGoogleApiClient;
     private GoogleSignInOptions gso;
+    private String accountName;
 
 
     /**
@@ -103,53 +103,29 @@ public class SignInActivity extends AppCompatActivity
     }
 
     private void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, 1007);
 
+        if (!isGooglePlayServicesAvailable()) {
+            acquireGooglePlayServices();
+        } else if (mCredential.getSelectedAccountName() == null) {
+            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+            startActivityForResult(signInIntent, 1007);
+        } else if (!isDeviceOnline()) {
+            Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
+        } else {
+            EasyPermissions.requestPermissions(
+                    this,
+                    "This app needs to access your Google account in order to authorize access to" +
+                            "the Google Tasks API. Google does this through the" +
+                            " contacts permissions. We will not store or use your contacts thuogh",
+                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
 
-//        if (!isGooglePlayServicesAvailable()) {
-//            acquireGooglePlayServices();
-//        } else if (mCredential.getSelectedAccountName() == null) {
-//            chooseAccount();
-//        } else if (!isDeviceOnline()) {
-//            Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
-//        } else {
-//            FirstAPICall firstCall = new FirstAPICall(this, mCredential);
-//            firstCall.execute();
-//        }
+        }
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-    }
-
-    @AfterPermissionGranted(Co.REQUEST_PERMISSION_GET_ACCOUNTS)
-    private void chooseAccount() {
-        if (EasyPermissions.hasPermissions(
-                this, Manifest.permission.GET_ACCOUNTS)) {
-            String accountName = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                    .getString(Co.PREF_ACCOUNT_NAME, null);
-            if (accountName != null) {
-                SharedPreferences.Editor editor = PreferenceManager.
-                        getDefaultSharedPreferences(getApplicationContext()).edit();
-                editor.putString(Co.PREF_ACCOUNT_NAME, Co.NO_ACCOUNT_NAME);
-                editor.apply();
-                mCredential.setSelectedAccountName(accountName);
-                signIn();
-            } else {
-
-                startActivityForResult(
-                        mCredential.newChooseAccountIntent(),
-                        Co.REQUEST_ACCOUNT_PICKER);
-            }
-        } else {
-            EasyPermissions.requestPermissions(
-                    this,
-                    "This app needs to access your Google account (via Contacts).",
-                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
-                    Manifest.permission.GET_ACCOUNTS);
-        }
     }
 
     @Override
@@ -163,37 +139,33 @@ public class SignInActivity extends AppCompatActivity
                                     "Google Play Services on your device and relaunch this app.",
                             Toast.LENGTH_SHORT).show();
                 }
-
                 break;
-            case Co.REQUEST_ACCOUNT_PICKER:
-                if (resultCode == RESULT_OK && data != null &&
-                        data.getExtras() != null) {
-                    String accountName =
-                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                    if (accountName != null) {
-                        SharedPreferences prefs =
-                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString(Co.PREF_ACCOUNT_NAME, accountName);
-                        editor.apply();
-                        mCredential.setSelectedAccountName(accountName);
-                        signIn();
-                    }
-                }
-                break;
+//            case Co.REQUEST_ACCOUNT_PICKER:
+//                if (resultCode == RESULT_OK && data != null &&
+//                        data.getExtras() != null) {
+//                    String accountName =
+//                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+//                    if (accountName != null) {
+//                        SharedPreferences prefs =
+//                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//                        SharedPreferences.Editor editor = prefs.edit();
+//                        editor.putString(Co.USER_EMAIL, accountName);
+//                        editor.apply();
+//                        mCredential.setSelectedAccountName(accountName);
+//                        signIn();
+//                    }
+//                }
+//                break;
             case Co.REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
                     SharedPreferences prefs =
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
-                    GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-                    GoogleSignInAccount acct = result.getSignInAccount();
                     editor.apply();
                     Intent i = new Intent(this, MainActivity.class);
                     startActivity(i);
                     finish();
-
                 }
                 break;
 
@@ -207,25 +179,18 @@ public class SignInActivity extends AppCompatActivity
                     editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
                     GoogleSignInAccount acct = result.getSignInAccount();
                     if (acct != null) {
-                        editor.putString(Co.PREF_ACCOUNT_NAME, acct.getEmail());
+                        Account account = acct.getAccount();
+                        editor.putString(Co.USER_EMAIL, account.name);
                         editor.putString(Co.USER_NAME, acct.getDisplayName());
-                        mCredential.setSelectedAccountName(acct.getEmail());
+                        mCredential.setSelectedAccount(acct.getAccount());
+                        Co.mCredential = mCredential;
                         if (acct.getPhotoUrl()!= null) {
                             editor.putString(Co.USER_PIC_URL, acct.getPhotoUrl().toString());
                         }
                     }
                     editor.apply();
-                    Toast.makeText(this, "success" + "\n" + acct.getEmail(), Toast.LENGTH_LONG).show();
-                    Intent i = new Intent(this, MainActivity.class);
-                    startActivity(i);
-                    finish();
-                } else {
-                    // Signed out, show unauthenticated UI.
-
+                    signIn();
                 }
-
-
-
         }
     }
 
@@ -240,7 +205,8 @@ public class SignInActivity extends AppCompatActivity
 
     @Override
     public void onPermissionsGranted(int requestCode, List<String> list) {
-        // Do nothing.
+        FirstAPICall firstCall = new FirstAPICall(this, mCredential);
+        firstCall.execute();
     }
 
     @Override

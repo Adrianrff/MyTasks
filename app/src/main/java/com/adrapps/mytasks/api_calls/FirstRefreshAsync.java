@@ -87,7 +87,6 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
             } else if (mLastError instanceof UserRecoverableAuthIOException) {
 //                mPresenter.showToast("The API has no authorization");
                 mPresenter.requestApiPermission(mLastError);
-
             } else {
                 mPresenter.showToast("The following error occurred:\n"
                         + mLastError.getMessage());

@@ -38,18 +38,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.adrapps.mytasks.api_calls.SignInActivity;
+
 import com.adrapps.mytasks.AlarmReciever;
+import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
+import com.bumptech.glide.Glide;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
@@ -82,6 +85,10 @@ public class MainActivity extends AppCompatActivity
     private LinearLayout emptyDataLayout;
     private long selectedReminderInMills;
     private LinearLayout noInternetLayout;
+    private View headerView;
+    private ImageView profilePic;
+    private TextView userName;
+    private TextView userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,11 +127,16 @@ public class MainActivity extends AppCompatActivity
     //-------------------------VIEWS AND DATA------------------------///
 
     private void findViews() {
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
+        headerView = navigationView.getHeaderView(0);
+        profilePic = (ImageView) headerView.findViewById(R.id.profilePic);
+        userName = (TextView) headerView.findViewById(R.id.userName);
+        userEmail = (TextView) headerView.findViewById(R.id.userEmail);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -140,6 +152,9 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         toggle.setToolbarNavigationClickListener(this);
         toggle.syncState();
+        Glide.with(this).load(getStringShP(Co.USER_PIC_URL)).into(profilePic);
+        userName.setText(getStringShP(Co.USER_NAME));
+        userEmail.setText(getStringShP(Co.USER_EMAIL));
         navigationView.setNavigationItemSelectedListener(this);
         progressBar.getIndeterminateDrawable()
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
@@ -324,7 +339,7 @@ public class MainActivity extends AppCompatActivity
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(Co.SCOPES))
                 .setBackOff(new ExponentialBackOff());
-        accountName = getStringShP(Co.PREF_ACCOUNT_NAME);
+        accountName = getStringShP(Co.USER_EMAIL);
         if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
             mCredential.setSelectedAccountName(accountName);
         }
@@ -406,7 +421,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void showNewListDialog(){
+    public void showNewListDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialog_layout = inflater.inflate(R.layout.new_list_dialog,
                 null);
@@ -429,7 +444,7 @@ public class MainActivity extends AppCompatActivity
         db.show();
     }
 
-    public void showEditListDialog(){
+    public void showEditListDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialog_layout = inflater.inflate(R.layout.new_list_dialog,
                 null);
@@ -454,7 +469,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (drawer.isDrawerOpen(navigationView))
+            drawer.closeDrawer(GravityCompat.START);
+        else
+            super.onBackPressed();
+
+
     }
 
     @Override
@@ -463,7 +483,8 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-                showToast(mCredential.getSelectedAccountName());
+                showToast(getStringShP(Co.USER_PIC_URL) + "\n" + getStringShP(Co.USER_EMAIL)
+                        + "\n" + getStringShP(Co.USER_NAME));
                 break;
 
             case R.id.refresh:
@@ -543,7 +564,6 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
                         }
-//                        showToast(isReminderSet((int) task.getReminderId()) ? "Alarm set" : "Alarm not set");
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                         mPresenter.editTask(task);
                     }
