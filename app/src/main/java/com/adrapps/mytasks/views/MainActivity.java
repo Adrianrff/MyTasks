@@ -463,6 +463,7 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
+                showToast(mCredential.getSelectedAccountName());
                 break;
 
             case R.id.refresh:
