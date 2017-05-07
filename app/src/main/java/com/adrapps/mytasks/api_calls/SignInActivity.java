@@ -200,7 +200,6 @@ public class SignInActivity extends AppCompatActivity
             case 1007:
                 GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
                 if (result.isSuccess()) {
-                    Toast.makeText(this, "success", Toast.LENGTH_LONG).show();
                     // Signed in successfully, show authenticated UI.
                     SharedPreferences prefs =
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -217,6 +216,9 @@ public class SignInActivity extends AppCompatActivity
                     }
                     editor.apply();
                     Toast.makeText(this, "success" + "\n" + acct.getEmail(), Toast.LENGTH_LONG).show();
+                    Intent i = new Intent(this, MainActivity.class);
+                    startActivity(i);
+                    finish();
                 } else {
                     // Signed out, show unauthenticated UI.
 
