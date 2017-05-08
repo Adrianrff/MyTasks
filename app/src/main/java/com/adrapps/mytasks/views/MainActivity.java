@@ -79,11 +79,7 @@ public class MainActivity extends AppCompatActivity
     ActionBarDrawerToggle toggle;
     CoordinatorLayout coordinatorLayout;
     SwipeRefreshLayout swipeRefresh;
-    TextView dateTextView;
-    Dialog newListDialog;
-    long selectedDueDateInMills;
     private LinearLayout emptyDataLayout;
-    private long selectedReminderInMills;
     private LinearLayout noInternetLayout;
     private View headerView;
     private ImageView profilePic;

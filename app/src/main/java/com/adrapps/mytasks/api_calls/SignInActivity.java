@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
-
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.views.MainActivity;
@@ -40,32 +39,22 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class SignInActivity extends AppCompatActivity
         implements EasyPermissions.PermissionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     GoogleAccountCredential mCredential;
-    private SignInButton signInButton;
-
     private com.google.api.services.tasks.Tasks mService = null;
     ProgressDialog mProgress;
     private GoogleApiClient mGoogleApiClient;
     private GoogleSignInOptions gso;
-    private String accountName;
 
 
-    /**
-     * Create the task_list_menu activity.
-     *
-     * @param savedInstanceState previously saved instance data.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +71,7 @@ public class SignInActivity extends AppCompatActivity
                 transport, jsonFactory, mCredential)
                 .setApplicationName(getString(R.string.app_name))
                 .build();
-        signInButton = (SignInButton) findViewById(R.id.signIn);
+        SignInButton signInButton = (SignInButton) findViewById(R.id.signIn);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,11 +88,9 @@ public class SignInActivity extends AppCompatActivity
                 .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-
     }
 
     private void signIn() {
-
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
@@ -135,8 +122,7 @@ public class SignInActivity extends AppCompatActivity
         switch (requestCode) {
             case Co.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    Toast.makeText(this, "This app requires Google Play Services. Please install " +
-                                    "Google Play Services on your device and relaunch this app.",
+                    Toast.makeText(this, getString(R.string.requires_Google_Services_message),
                             Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -180,10 +166,9 @@ public class SignInActivity extends AppCompatActivity
                     GoogleSignInAccount acct = result.getSignInAccount();
                     if (acct != null) {
                         Account account = acct.getAccount();
-                        editor.putString(Co.USER_EMAIL, account.name);
+                        editor.putString(Co.USER_EMAIL, account != null ? account.name : null);
                         editor.putString(Co.USER_NAME, acct.getDisplayName());
                         mCredential.setSelectedAccount(acct.getAccount());
-                        Co.mCredential = mCredential;
                         if (acct.getPhotoUrl()!= null) {
                             editor.putString(Co.USER_PIC_URL, acct.getPhotoUrl().toString());
                         }
@@ -323,13 +308,13 @@ public class SignInActivity extends AppCompatActivity
         protected void onCancelled(List<String> strings) {
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    Toast.makeText(context, "Google Play Services is not available", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, R.string.Google_Services_not_available_toast, Toast.LENGTH_LONG).show();
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             Co.REQUEST_AUTHORIZATION);
                 } else {
-                    Toast.makeText(context, "The following error occurred:\n"
+                    Toast.makeText(context, getString(R.string.error_toast)
                             + mLastError.getMessage(), Toast.LENGTH_LONG).show();
                     mLastError.printStackTrace();
                 }
@@ -337,7 +322,6 @@ public class SignInActivity extends AppCompatActivity
                 Toast.makeText(context, R.string.request_canceled, Toast.LENGTH_LONG).show();
             }
         }
-
 
         private List<String> firstCall() throws IOException {
             List<TaskList> lists;

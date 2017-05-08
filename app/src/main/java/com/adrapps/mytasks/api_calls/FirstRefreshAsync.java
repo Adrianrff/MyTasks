@@ -108,7 +108,6 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
             mPresenter.updateLists(lists);
         }
         List<Task> tasks;
-
         if (lists != null) {
             if (!lists.isEmpty()) {
                 for (int i = 0; i < lists.size(); i++){
@@ -133,6 +132,5 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
             }
         }
         mPresenter.updateTasks(localTasks);
-
     }
 }

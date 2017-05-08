@@ -28,7 +28,7 @@ public class AlarmReciever extends BroadcastReceiver {
         detailIntent.putExtra(Co.LOCAL_TASK, task);
         if (task != null) {
             title = task.getTitle();
-            notes = task.getNotes();
+            notes = task.getNotes() == null ? "" : task.getNotes();
             mModel.updateReminder(task.getId(), 0);
         }
         PendingIntent pendingIntent = PendingIntent.getActivity(context,
