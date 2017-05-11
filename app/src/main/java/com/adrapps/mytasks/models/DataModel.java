@@ -32,11 +32,13 @@ public class DataModel implements Contract.Model {
     private TaskListPresenter mPresenter;
     private TasksDataBase tasksDb;
     private ListsDatabase listsDb;
+    private Context context;
 
     public DataModel(TaskListPresenter presenter, Context context) {
         this.mPresenter = presenter;
         tasksDb = new TasksDataBase(context);
         listsDb = new ListsDatabase(context);
+        this.context = context;
     }
 
     public DataModel(Context context) {
@@ -87,7 +89,7 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public int deleteTask(String taskId) {
+    public int deleteTaskFromDatabase(String taskId) {
         return tasksDb.deleteTask(taskId);
     }
 
@@ -213,7 +215,7 @@ public class DataModel implements Contract.Model {
         list.setIntId(addListToDb(listTitle));
         if (mPresenter.isDeviceOnline()){
             GoogleAccountCredential credential = mPresenter.getCredential();
-            CreateList createList = new CreateList(mPresenter, credential);
+            CreateList createList = new CreateList(context, mPresenter, credential);
             createList.execute(list);
         }
     }
@@ -233,7 +235,7 @@ public class DataModel implements Contract.Model {
         listsDb.editListTitle(listId, title);
         if (mPresenter.isDeviceOnline()){
             GoogleAccountCredential credential = mPresenter.getCredential();
-            EditList editList = new EditList(mPresenter, credential);
+            EditList editList = new EditList(context, mPresenter, credential);
             editList.execute(listId, title);
         } else {
 //            listsDb.updateListSyncStatus(Co.EDITED_NOT_SYNCED);
@@ -251,7 +253,7 @@ public class DataModel implements Contract.Model {
         listsDb.deleteList(listId);
         if (mPresenter.isDeviceOnline()){
             GoogleAccountCredential credential = mPresenter.getCredential();
-            DeleteList deleteList = new DeleteList(mPresenter, credential);
+            DeleteList deleteList = new DeleteList(context, mPresenter, credential);
             deleteList.execute(listId);
         }
     }
@@ -259,6 +261,11 @@ public class DataModel implements Contract.Model {
     @Override
     public List<LocalList> getLocalLists() {
         return listsDb.getLocalLists();
+    }
+
+    @Override
+    public LocalTask getTask(int intId) {
+        return tasksDb.getTask(intId);
     }
 
     @Override
@@ -278,7 +285,7 @@ public class DataModel implements Contract.Model {
         tasksDb.markDeleted(taskId);
         if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
-            DeleteTask remove = new DeleteTask(mPresenter, credential, listId);
+            DeleteTask remove = new DeleteTask(context, mPresenter, credential, listId);
             remove.execute(taskId);
         }
     }
@@ -289,7 +296,7 @@ public class DataModel implements Contract.Model {
         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED,intId);
         if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
-            UpdateStatus update = new UpdateStatus(mPresenter, credential);
+            UpdateStatus update = new UpdateStatus(context, mPresenter, credential);
             update.execute(mPresenter.getTaskIdByIntId(intId),listId,newStatus);
         }
 
@@ -298,7 +305,7 @@ public class DataModel implements Contract.Model {
     @Override
     public void refreshFirstTime() {
         if (mPresenter.isDeviceOnline()) {
-            FirstRefreshAsync firstRefresh = new FirstRefreshAsync(mPresenter, mPresenter.getCredential());
+            FirstRefreshAsync firstRefresh = new FirstRefreshAsync(context, mPresenter, mPresenter.getCredential());
             firstRefresh.execute();
         }
         else {
@@ -309,15 +316,12 @@ public class DataModel implements Contract.Model {
     @Override
     public int addTask(LocalTask task) {
         int newTaskId = mPresenter.addTaskToDatabase(task);
+        task.setIntId(newTaskId);
         if (mPresenter.isDeviceOnline()) {
-            AddTask add = new AddTask(mPresenter,
+            AddTask add = new AddTask(context, mPresenter,
                     mPresenter.getCredential());
             add.execute(task);
         }
-        else {
-            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
-        }
-        task.setIntId(newTaskId);
         mPresenter.addTaskToAdapter(task);
         return newTaskId;
     }
@@ -325,7 +329,7 @@ public class DataModel implements Contract.Model {
     @Override
     public void moveTask(LocalTask movedTask, String previousTaskId) {
         if (mPresenter.isDeviceOnline()) {
-            MoveTask move = new MoveTask(mPresenter, mPresenter.getCredential());
+            MoveTask move = new MoveTask(context, mPresenter, mPresenter.getCredential());
             move.execute(movedTask.getId(), movedTask.getList(), previousTaskId);
         } else {
             mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
@@ -334,10 +338,10 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void editTask(LocalTask task) {
-        mPresenter.updateLocalTask(task);
         task.setSyncStatus(Co.EDITED_NOT_SYNCED);
+        mPresenter.updateLocalTask(task);
         if (mPresenter.isDeviceOnline()) {
-            EditTask edit = new EditTask(mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
+            EditTask edit = new EditTask(context, mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
             edit.execute(task);
         }
     }

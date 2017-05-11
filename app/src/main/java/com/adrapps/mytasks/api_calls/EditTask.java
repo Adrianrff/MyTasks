@@ -1,12 +1,14 @@
 package com.adrapps.mytasks.api_calls;
 
+import android.Manifest;
+import android.content.Context;
 import android.os.AsyncTask;
 
+import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -18,14 +20,18 @@ import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class EditTask extends AsyncTask<LocalTask, Void, Void> {
 
     private String listId;
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
+    Context context;
 
-    public EditTask(TaskListPresenter presenter, GoogleAccountCredential credential, String listId) {
+    public EditTask(Context context, TaskListPresenter presenter, GoogleAccountCredential credential, String listId) {
+        this.context = context;
         this.listId = listId;
         this.mPresenter = presenter;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -48,6 +54,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
         }
         return null;
     }
+
     @Override
     protected void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
@@ -62,7 +69,6 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        mPresenter.showToast(mPresenter.getString(R.string.task_updated));
         mPresenter.showProgress(false);
     }
 
@@ -91,15 +97,22 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
 
 
     private void editTask(LocalTask lTask) throws IOException {
-        Task task = mService.tasks().get(listId,lTask.getId()).execute();
-        task.setTitle(lTask.getTitle());
-        task.setNotes(lTask.getNotes());
-        if (lTask.getDue() != 0) {
-            task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
+        if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
+            Task task = mService.tasks().get(listId, lTask.getId()).execute();
+            task.setTitle(lTask.getTitle());
+            task.setNotes(lTask.getNotes());
+            if (lTask.getDue() != 0) {
+                task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
+            } else {
+                task.setDue(null);
+            }
+            mService.tasks().update(listId, task.getId(), task).execute();
+            mPresenter.updateSyncStatus(lTask.getIntId(), Co.SYNCED);
         } else {
-            task.setDue(null);
+            EasyPermissions.requestPermissions(
+                    context, context.getString(R.string.contacts_permissions_rationale),
+                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
         }
-        mService.tasks().update(listId, task.getId(), task).execute();
-        mPresenter.updateSyncStatus(lTask.getIntId(), Co.SYNCED);
     }
 }

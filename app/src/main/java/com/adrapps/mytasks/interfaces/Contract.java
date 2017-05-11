@@ -39,6 +39,8 @@ public class Contract {
 
         void showTaskDeleteUndoSnackBar(String message, int position, LocalTask task);
 
+        void showBottomSheet(LocalTask task, int position, boolean b);
+
         void refreshFirstTime();
 
         void refresh();
@@ -106,7 +108,7 @@ public class Contract {
 
         void addTaskFirstTimeFromServer(Task task, String listId);
 
-        int deleteTask(String taskId);
+        int deleteTaskFromDatabase(String taskId);
 
         void deleteListFromDB(int intId);
 
@@ -183,6 +185,8 @@ public class Contract {
         void deleteList(String listId);
 
         List<LocalList> getLocalLists();
+
+        LocalTask getTask(int intId);
     }
 
 

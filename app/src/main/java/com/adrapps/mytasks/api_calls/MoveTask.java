@@ -1,10 +1,12 @@
 package com.adrapps.mytasks.api_calls;
 
+import android.Manifest;
+import android.content.Context;
 import android.os.AsyncTask;
 
+import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -17,13 +19,17 @@ import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class MoveTask extends AsyncTask<String, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private final TaskListPresenter mPresenter;
+    Context context;
 
-    public MoveTask(TaskListPresenter presenter, GoogleAccountCredential credential) {
+    public MoveTask(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
+        this.context = context;
         this.mPresenter = presenter;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -87,6 +93,7 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
     }
 
     private void moveTask(String taskId, String listId, String previousTaskId) throws IOException {
+        if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
             Tasks.TasksOperations.Move move = mService.tasks().move(listId, taskId);
             if (!previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
                 move.setPrevious(previousTaskId);
@@ -94,5 +101,11 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
             Task task = move.execute();
             mPresenter.updateMoved(taskId, Co.NOT_MOVED);
             mPresenter.updatePosition(task);
+        } else {
+            EasyPermissions.requestPermissions(
+                    context, context.getString(R.string.contacts_permissions_rationale),
+                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
+        }
     }
 }

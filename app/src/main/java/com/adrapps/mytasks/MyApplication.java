@@ -5,16 +5,20 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 
 public class MyApplication extends Application {
+
+
     @Override
     public void onCreate() {
         super.onCreate();
         setupDebugNotification();
     }
+
 
     private void setupDebugNotification() {
         UncaughtExceptionFilter.setUncaughtExceptionHandler(new UncaughtExceptionFilter.Action<Throwable>() {

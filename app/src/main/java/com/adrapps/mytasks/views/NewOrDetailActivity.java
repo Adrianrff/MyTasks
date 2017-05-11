@@ -17,34 +17,30 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.DateHelper;
-import com.adrapps.mytasks.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class NewOrDetailActivity extends AppCompatActivity
-        implements View.OnClickListener, DatePickerDialog.OnDateSetListener,
-        CompoundButton.OnCheckedChangeListener {
+        implements View.OnClickListener, DatePickerDialog.OnDateSetListener{
 
     EditText titleTV, notesTv;
     TextView dueDateTv;
     private long selectedDateInMills = 0;
-    private Switch notSwitch;
     private TextView notInfo;
     private LinearLayout notifLayout;
     private RadioButton rbMorning;
@@ -57,7 +53,7 @@ public class NewOrDetailActivity extends AppCompatActivity
     private TextView customNotOption;
     ImageView clearDate, clearReminder;
     private AlertDialog dialog;
-    private TextView notEdit;
+    private TextView notTextView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,15 +72,14 @@ public class NewOrDetailActivity extends AppCompatActivity
         dueDateTv = (TextView) findViewById(R.id.dueDateTv);
         notInfo = (TextView) findViewById(R.id.timeTv);
         notesTv = (EditText) findViewById(R.id.task_notes_edit_text);
-        notSwitch = (Switch) findViewById(R.id.notification_switch);
         notifLayout = (LinearLayout) findViewById(R.id.notification_layout);
+        notTextView = (TextView) findViewById(R.id.notificationTextView);
         clearDate = (ImageView) findViewById(R.id.clearDate);
         clearReminder = (ImageView) findViewById(R.id.clearReminder);
         notInfo.setOnClickListener(this);
         clearDate.setOnClickListener(this);
         clearReminder.setOnClickListener(this);
-        dueDateTv.setOnClickListener(this);
-        notSwitch.setOnCheckedChangeListener(this);
+        notTextView.setOnClickListener(this);
         dueDateTv.setOnClickListener(this);
 
         if (getIntent().hasExtra(Co.LOCAL_TASK)) {
@@ -103,27 +98,16 @@ public class NewOrDetailActivity extends AppCompatActivity
 
                 position = getIntent().getIntExtra(Co.ADAPTER_POSITION, -1);
                 if (taskToEdit.getReminder() != 0) {
-                    notSwitch.setOnCheckedChangeListener(null);
-                    notSwitch.setChecked(true);
                     selectedReminderInMills = taskToEdit.getReminder();
-                    notSwitch.setOnCheckedChangeListener(this);
                     notInfo.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
                     notifLayout.setVisibility(View.VISIBLE);
+                } else {
+                    notTextView.setOnClickListener(null);
                 }
             }
 
         } else {
             toolbar.setTitle(getString(R.string.new_task_title));
-        }
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (notSwitch.isChecked()) {
-            notifLayout.setVisibility(View.VISIBLE);
-        } else {
-            selectedReminderInMills = 0;
-            notifLayout.setVisibility(View.GONE);
         }
     }
 
@@ -153,7 +137,6 @@ public class NewOrDetailActivity extends AppCompatActivity
             public void onDismiss(DialogInterface dialog) {
                 if (selectedDateInMills != 0) {
                     if (selectedReminderInMills == 0) {
-                        notSwitch.setChecked(false);
                     }
                 }
             }
@@ -251,6 +234,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                 selectedReminderInMills = 0;
                 notInfo.setText(null);
                 clearReminder.setVisibility(View.GONE);
+                notifLayout.setVisibility(View.INVISIBLE);
                 break;
 
             //Date picker click
@@ -366,7 +350,11 @@ public class NewOrDetailActivity extends AppCompatActivity
             //Reminder textview click
             case R.id.timeTv:
                 showNotificationDialog();
+                break;
 
+            case R.id.notificationTextView:
+                showNotificationDialog();
+                break;
         }
     }
 

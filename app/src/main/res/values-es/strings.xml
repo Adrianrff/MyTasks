@@ -20,11 +20,11 @@
     <string name="request_canceled">Petición cancelada</string>
     <string name="g_services_not_available">Servicios de Google Play no está disponible</string>
     <string name="task_not_found">No se encontró la tarea</string>
-    <string name="task_due_date_hint">Seleccione la fecha</string>
+    <string name="task_due_date_hint">Sin fecha</string>
     <string name="new_task_title">Nueva Tarea</string>
     <string name="empty_title_error">El título no puede estar vacío</string>
-    <string name="notification_select">Notificación</string>
-    <string name="task_notes_hint">Notas</string>
+    <string name="notification_select">Recordatorios</string>
+    <string name="task_notes_hint">Sin notas</string>
     <string name="no_internet_toast">No hay connexión a internet</string>
     <string name="task_edit_title">Editar tarea</string>
     <string name="no_task_name"><![CDATA[<Sin título>]]></string>
@@ -68,6 +68,7 @@
     <string name="Google_Services_not_available_toast">Servicios de Google no está disponible</string>
     <string name="error_toast">Ha ocurrido un error:\\n</string>
     <string name="welcome_title">BIENVENIDO A MY TASKS</string>
+    <string name="contacts_permissions_rationale">Esta aplicación necesita acceder a tu cuenta para funcionar correctamente. Android agrupa este permiso en específico dentro del grupo de permisos de los contactos.\n\n<b>Tus contactos no serán consultados.</b></string>
 
 
     <string-array name="notification_options">

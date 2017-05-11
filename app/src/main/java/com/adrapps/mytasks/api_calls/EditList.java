@@ -1,10 +1,13 @@
 package com.adrapps.mytasks.api_calls;
 
+import android.Manifest;
+import android.content.Context;
 import android.os.AsyncTask;
 
+import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -17,6 +20,8 @@ import com.google.api.services.tasks.model.TaskList;
 
 import java.io.IOException;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class EditList extends AsyncTask<String, Void, Void> {
 
     private Tasks mService = null;
@@ -24,8 +29,10 @@ public class EditList extends AsyncTask<String, Void, Void> {
     private TaskListPresenter mPresenter;
     private String listId;
     private LocalTask localTask;
+    Context context;
 
-    public EditList(TaskListPresenter presenter, GoogleAccountCredential credential) {
+    public EditList(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
+        this.context = context;
         this.mPresenter = presenter;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -92,9 +99,16 @@ public class EditList extends AsyncTask<String, Void, Void> {
 
 
     private void editList(String listId, String title) throws IOException {
-        TaskList list = mService.tasklists().get(listId).execute();
-        list.setTitle(title);
-        mService.tasklists().update(listId, list).execute();
-        mPresenter.updateList(list);
+        if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
+            TaskList list = mService.tasklists().get(listId).execute();
+            list.setTitle(title);
+            mService.tasklists().update(listId, list).execute();
+            mPresenter.updateList(list);
+        } else {
+            EasyPermissions.requestPermissions(
+                    context, context.getString(R.string.contacts_permissions_rationale),
+                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
+        }
     }
 }

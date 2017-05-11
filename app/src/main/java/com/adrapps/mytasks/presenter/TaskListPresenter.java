@@ -78,7 +78,7 @@ public class TaskListPresenter {
     }
     public void refresh(){
         if (isDeviceOnline()) {
-            SyncTasks syncTasks = new SyncTasks(this, getView().getCredential());
+            SyncTasks syncTasks = new SyncTasks(getView().getContext(), this, getView().getCredential());
             syncTasks.execute();
         } else {
             showToast(getString(R.string.no_internet_toast));
@@ -207,6 +207,10 @@ public class TaskListPresenter {
         return mModel.addTask(task);
     }
 
+    public LocalTask getTask(int intId){
+       return mModel.getTask(intId);
+    }
+
     public void showEmptyRecyclerView(boolean b) {
         getView().showEmptyRecyclerView(b);
     }
@@ -221,6 +225,10 @@ public class TaskListPresenter {
 
     public long updateReminder(String taskId, long reminder){
         return mModel.updateReminder(taskId, reminder);
+    }
+
+    public void showBottomSheet(LocalTask task, int position, boolean b){
+        getView().showBottomSheet(task, position, b);
     }
 
     public void saveBooleanShP(String key, boolean b) {

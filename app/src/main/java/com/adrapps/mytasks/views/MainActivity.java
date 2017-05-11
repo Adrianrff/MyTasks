@@ -2,7 +2,6 @@ package com.adrapps.mytasks.views;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -10,12 +9,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -36,6 +37,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.ImageView;
@@ -49,6 +51,7 @@ import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
@@ -79,12 +82,12 @@ public class MainActivity extends AppCompatActivity
     ActionBarDrawerToggle toggle;
     CoordinatorLayout coordinatorLayout;
     SwipeRefreshLayout swipeRefresh;
-    private LinearLayout emptyDataLayout;
-    private LinearLayout noInternetLayout;
-    private View headerView;
+    private LinearLayout emptyDataLayout, noInternetLayout, repeatLayout;
+    private View headerView, bottomSheet;
     private ImageView profilePic;
-    private TextView userName;
-    private TextView userEmail;
+    private TextView userEmail, userName, detailTitle, detailDate, detailNotification, detailNotes, detailTime;
+    private BottomSheetBehavior mBottomSheetBehavior;
+    private float previousSlideOffset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,14 +119,19 @@ public class MainActivity extends AppCompatActivity
         if (!isDeviceOnline()) {
             showNoInternetWarning(true);
         }
-
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        fab.setImageResource(R.drawable.add_white);
     }
 
 
     //-------------------------VIEWS AND DATA------------------------///
 
     private void findViews() {
-
+        detailTitle = (TextView) findViewById(R.id.detail_title);
+        detailDate  = (TextView) findViewById(R.id.detail_date);
+        detailNotification = (TextView) findViewById(R.id.detail_notification_tv);
+        detailNotes = (TextView) findViewById(R.id.detail_notes);
+        bottomSheet = findViewById( R.id.bottom_sheet);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -135,6 +143,7 @@ public class MainActivity extends AppCompatActivity
         userEmail = (TextView) headerView.findViewById(R.id.userEmail);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
+        repeatLayout = (LinearLayout) findViewById(R.id.repeatLayout);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
         noInternetLayout = (LinearLayout) findViewById(R.id.noInternetLayout);
@@ -168,12 +177,51 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    fab.show();
-                    swipeRefresh.setEnabled(true);
+                    if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                        fab.show();
+                        swipeRefresh.setEnabled(true);
+                    }
                 }
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED){
+//                    fab.setImageResource(R.drawable.edit_white);
+                } else if (newState == BottomSheetBehavior.STATE_HIDDEN ||
+                        newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_DRAGGING){
+                    fab.setOnClickListener(MainActivity.this);
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                fab.setImageAlpha((int) (255*Math.abs(-2*slideOffset + 1)));
+                if (slideOffset < 0.6 && slideOffset > 0.4){
+                    if (previousSlideOffset < slideOffset) {
+                        fab.setImageResource(R.drawable.edit_white);
+                    } else {
+                        fab.setImageResource(R.drawable.add_white);
+                    }
+                }
+                previousSlideOffset = slideOffset;
+            }
+        });
+    }
+
+    @Override public boolean dispatchTouchEvent(MotionEvent event){
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (mBottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED) {
+                Rect outRect = new Rect();
+                bottomSheet.getGlobalVisibleRect(outRect);
+                if(!outRect.contains((int)event.getRawX(), (int)event.getRawY()))
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 
     @Override
@@ -181,6 +229,34 @@ public class MainActivity extends AppCompatActivity
         Co.setListIds(mPresenter.getListsIds());
         Co.setListTitles(mPresenter.getListsTitles());
         setNavDrawerMenu(Co.listTitles);
+    }
+
+    @Override
+    public void showBottomSheet(final LocalTask task, final int position, boolean b){
+        if (b){
+            swipeRefresh.setEnabled(false);
+            detailTitle.setText(task.getTitle());
+            detailDate.setText(task.getDue() == 0 ? getString(R.string.no_due_date) : DateHelper.timeInMillsToString(task.getDue()));
+            detailNotes.setText(task.getNotes());
+            if (task.getReminder() != 0) {
+                detailNotification.setText(task.getReminder() ==
+                        0 ? null : DateHelper.timeInMillsToFullString(task.getReminder()));
+                repeatLayout.setVisibility(View.VISIBLE);
+            }
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(MainActivity.this, NewOrDetailActivity.class);
+                    i.putExtra(Co.LOCAL_TASK, task);
+                    i.putExtra(Co.ADAPTER_POSITION, position);
+                    navigateToEditTask(i);
+                }
+            });
+        } else {
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            swipeRefresh.setEnabled(true);
+        }
     }
 
     @Override
@@ -288,7 +364,7 @@ public class MainActivity extends AppCompatActivity
                     setOnMenuItemClickListener(this);
             if (i == taskListsTitles.size() - 1) {
                 listsMenu.add(0, Co.NEW_LIST_MENU_ITEM_ID, i + 1, getString(R.string.new_list)).
-                        setIcon(R.drawable.ic_add_black_24dp).
+                        setIcon(R.drawable.add_white).
                         setOnMenuItemClickListener(this);
             }
         }
@@ -318,10 +394,17 @@ public class MainActivity extends AppCompatActivity
                 if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT ||
                         event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
                         event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE) {
-                    if (mPresenter.getTaskIdByIntId(task.getIntId()) == null) {
+                    String taskId;
+                    if (task.getId() == null || task.getId().trim().isEmpty()) {
+                        taskId = mPresenter.getTaskIdByIntId(task.getIntId());
+                    } else {
+                        taskId = task.getId();
+                    }
+                    if (taskId == null || taskId.trim().isEmpty()) {
                         mPresenter.deleteTaskFromDataBase(task.getIntId());
                     }
-                    mPresenter.deleteTask(task.getId(), task.getList());
+                    mPresenter.deleteTask(taskId, task.getList());
+                    cancelReminder(task);
                 }
             }
         });
@@ -465,12 +548,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (drawer.isDrawerOpen(navigationView))
+        if (drawer.isDrawerOpen(navigationView)) {
             drawer.closeDrawer(GravityCompat.START);
+        }
+        if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            swipeRefresh.setEnabled(true);
+            fab.show();
+        }
         else
             super.onBackPressed();
-
-
     }
 
     @Override
@@ -522,6 +609,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        fab.setImageResource(R.drawable.add_white);
         toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
     }
 
@@ -672,7 +761,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void cancelReminder(LocalTask task) {
         Intent intent = new Intent(this, AlarmReciever.class);
-
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
                 (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);

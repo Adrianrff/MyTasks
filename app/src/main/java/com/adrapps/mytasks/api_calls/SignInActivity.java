@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.views.MainActivity;
@@ -39,10 +40,13 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class SignInActivity extends AppCompatActivity
@@ -100,10 +104,7 @@ public class SignInActivity extends AppCompatActivity
             Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
         } else {
             EasyPermissions.requestPermissions(
-                    this,
-                    "This app needs to access your Google account in order to authorize access to" +
-                            "the Google Tasks API. Google does this through the" +
-                            " contacts permissions. We will not store or use your contacts thuogh",
+                    this,getString(R.string.contacts_permissions_rationale),
                     Co.REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
 
@@ -196,7 +197,9 @@ public class SignInActivity extends AppCompatActivity
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> list) {
-        // Do nothing.
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, list)) {
+            new AppSettingsDialog.Builder(this, getString(R.string.contacts_permissions_rationale)).build().show();
+        }
     }
 
     private boolean isDeviceOnline() {

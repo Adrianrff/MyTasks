@@ -19,11 +19,11 @@
     <string name="request_canceled">Request cancelled</string>
     <string name="g_services_not_available">Google Play Services is not available</string>
     <string name="task_not_found">Task not found</string>
-    <string name="task_due_date_hint">Select due date</string>
+    <string name="task_due_date_hint">No due date</string>
     <string name="new_task_title">New task</string>
     <string name="empty_title_error">The title can not be empty</string>
-    <string name="notification_select">Notification</string>
-    <string name="task_notes_hint">Task notes</string>
+    <string name="notification_select">Reminders</string>
+    <string name="task_notes_hint">No notes</string>
     <string name="no_internet_toast">No network connection available.</string>
     <string name="task_edit_title">Edit task</string>
     <string name="no_task_name"><![CDATA[<No title>]]></string>
@@ -66,6 +66,7 @@
     <string name="Google_Services_not_available_toast">Google Play Services is not available</string>
     <string name="error_toast">The following error occurred:\\n</string>
     <string name="welcome_title">WELCOME TO MY TASKS</string>
+    <string name="contacts_permissions_rationale">This app needs permission to access your Google account in order work properly. Android groups this specific permission inside the Contacts permission group.\n\n<b>We will not actually access your contacts.</b></string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

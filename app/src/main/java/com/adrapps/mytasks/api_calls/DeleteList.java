@@ -1,10 +1,13 @@
 package com.adrapps.mytasks.api_calls;
 
+import android.Manifest;
+import android.content.Context;
 import android.os.AsyncTask;
 
+import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -16,6 +19,8 @@ import com.google.api.services.tasks.Tasks;
 
 import java.io.IOException;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class DeleteList extends AsyncTask<String, Void, Void> {
 
     private Tasks mService = null;
@@ -23,8 +28,10 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
     private TaskListPresenter mPresenter;
     private String listId;
     private LocalTask localTask;
+    Context context;
 
-    public DeleteList(TaskListPresenter presenter, GoogleAccountCredential credential) {
+    public DeleteList(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
+        this.context = context;
         this.mPresenter = presenter;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -91,6 +98,13 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
 
 
     private void deleteList(String listId) throws IOException {
-        mService.tasklists().delete(listId).execute();
+        if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
+            mService.tasklists().delete(listId).execute();
+        } else {
+            EasyPermissions.requestPermissions(
+                    context, context.getString(R.string.contacts_permissions_rationale),
+                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
+        }
     }
 }

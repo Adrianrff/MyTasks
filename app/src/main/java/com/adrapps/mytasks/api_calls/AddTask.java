@@ -1,10 +1,13 @@
 package com.adrapps.mytasks.api_calls;
 
+import android.Manifest;
+import android.content.Context;
 import android.os.AsyncTask;
 
+import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -16,15 +19,19 @@ import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
     private LocalTask localTask;
+    Context context;
 
-    public AddTask(TaskListPresenter presenter, GoogleAccountCredential credential) {
+    public AddTask(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.mPresenter = presenter;
+        this.context = context;
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.tasks.Tasks.Builder(
@@ -89,17 +96,25 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
 
     private void addTask(LocalTask lTask) throws IOException {
-        Task task = LocalTask.localTaskToApiTask(lTask);
-        Task aTask;
-        try {
-            aTask = mService.tasks().insert(lTask.getList(), task).execute();
-            if (aTask != null) {
-                mPresenter.updateNewlyCreatedTask(aTask,lTask.getList(),
-                        String.valueOf(lTask.getIntId()));
+        if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
+            Task task = LocalTask.localTaskToApiTask(lTask);
+            Task aTask;
+            try {
+                aTask = mService.tasks().insert(lTask.getList(), task).execute();
+                if (aTask != null) {
+                    mPresenter.updateNewlyCreatedTask(aTask, lTask.getList(),
+                            String.valueOf(lTask.getIntId()));
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mPresenter.showToast("Task could not be added to the server.\n" + "Please try again");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            mPresenter.showToast("Task could not be added to the server.\n" + "Please try again");
+        } else {
+            EasyPermissions.requestPermissions(
+                    context, context.getString(R.string.contacts_permissions_rationale),
+                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+                    Manifest.permission.GET_ACCOUNTS);
         }
     }
 }

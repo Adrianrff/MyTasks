@@ -1,12 +1,12 @@
 package com.adrapps.mytasks.views;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +17,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperAdapter;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperViewHolder;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
 
 import java.util.Collections;
 import java.util.List;
@@ -156,11 +156,14 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
     @Override
     public void onItemSwiped(int position, int direction) {
-        removedTask = tasks.remove(position);
-        notifyItemRemoved(position);
-        mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
-        if (tasks.isEmpty()) {
-            mPresenter.showEmptyRecyclerView(true);
+        if (direction == ItemTouchHelper.END){
+        } else {
+            removedTask = tasks.remove(position);
+            notifyItemRemoved(position);
+            mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
+            if (tasks.isEmpty()) {
+                mPresenter.showEmptyRecyclerView(true);
+            }
         }
     }
 
@@ -215,11 +218,15 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onClick(View v) {
-            LocalTask cTask = tasks.get(getAdapterPosition());
-            Intent i = new Intent(context, NewOrDetailActivity.class);
-            i.putExtra(Co.LOCAL_TASK, cTask);
-            i.putExtra(Co.ADAPTER_POSITION, getAdapterPosition());
-            mPresenter.navigateToEditTask(i);
+//            LocalTask cTask = tasks.get(getAdapterPosition());
+//            if (cTask.getId() == null || cTask.getId().trim().isEmpty()){
+//                cTask = mPresenter.getTask(cTask.getIntId());
+//            }
+//            Intent i = new Intent(context, NewOrDetailActivity.class);
+//            i.putExtra(Co.LOCAL_TASK, cTask);
+//            i.putExtra(Co.ADAPTER_POSITION, getAdapterPosition());
+//            mPresenter.navigateToEditTask(i);
+            mPresenter.showBottomSheet(tasks.get(getAdapterPosition()), getAdapterPosition(), true);
         }
 
         @Override
@@ -269,11 +276,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onItemClear() {
-//            Log.d("ItemClear", "new Position " + String.valueOf(getAdapterPosition()));
-//            Log.d("ItemClear", "old Position " + String.valueOf(oldPos));
-//            if (oldPos != getAdapterPosition()) {
-//                Log.d("ItemMoved", "true");
-//            }
+
             itemView.setBackgroundColor(Color.WHITE);
             if (getAdapterPosition() >= 0) {
                 LocalTask movedTask = tasks.get(getAdapterPosition());
