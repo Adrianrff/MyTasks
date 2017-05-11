@@ -37,7 +37,8 @@
         </activity>
 
         <activity
-            android:name=".views.NewOrDetailActivity"
+            android:name=".views.NewTaskOrEditActivity"
+            android:windowSoftInputMode="stateVisible"
             android:label="@string/app_name"
             android:parentActivityName=".views.MainActivity"
             android:theme="@style/AppThemeBurgundy.NoActionBar"

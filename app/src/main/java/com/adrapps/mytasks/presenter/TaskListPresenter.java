@@ -355,5 +355,7 @@ public class TaskListPresenter {
         mModel.deleteList(listId);
     }
 
-
+    public void updateItem(LocalTask syncedLocalTask) {
+        getView().updateItem(syncedLocalTask);
+    }
 }

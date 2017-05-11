@@ -86,6 +86,8 @@ public class Contract {
         void cancelReminder(LocalTask task);
 
         boolean isReminderSet(int reminderId);
+
+        void updateItem(LocalTask syncedLocalTask);
     }
 
 

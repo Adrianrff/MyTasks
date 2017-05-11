@@ -35,7 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class NewOrDetailActivity extends AppCompatActivity
+public class NewTaskOrEditActivity extends AppCompatActivity
         implements View.OnClickListener, DatePickerDialog.OnDateSetListener{
 
     EditText titleTV, notesTv;
@@ -54,12 +54,13 @@ public class NewOrDetailActivity extends AppCompatActivity
     ImageView clearDate, clearReminder;
     private AlertDialog dialog;
     private TextView notTextView;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_task);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (!getIntent().hasExtra(Co.LOCAL_TASK))
             toolbar.setTitle(R.string.new_task_title);
         setSupportActionBar(toolbar);
@@ -83,7 +84,7 @@ public class NewOrDetailActivity extends AppCompatActivity
         dueDateTv.setOnClickListener(this);
 
         if (getIntent().hasExtra(Co.LOCAL_TASK)) {
-            toolbar.setTitle(R.string.task_edit_title);
+            getSupportActionBar().setTitle(R.string.task_edit_title);
             taskToEdit = (LocalTask) getIntent().getExtras().getSerializable(Co.LOCAL_TASK);
             if (taskToEdit != null) {
                 titleTV.setText(taskToEdit.getTitle());
@@ -329,7 +330,7 @@ public class NewOrDetailActivity extends AppCompatActivity
                         c.set(Calendar.MONTH, month);
                         c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                         TimePickerDialog timePicker = new TimePickerDialog(
-                                NewOrDetailActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                                NewTaskOrEditActivity.this, new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                                 c.set(Calendar.HOUR_OF_DAY, hourOfDay);

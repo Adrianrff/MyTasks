@@ -222,7 +222,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 //            if (cTask.getId() == null || cTask.getId().trim().isEmpty()){
 //                cTask = mPresenter.getTask(cTask.getIntId());
 //            }
-//            Intent i = new Intent(context, NewOrDetailActivity.class);
+//            Intent i = new Intent(context, NewTaskOrEditActivity.class);
 //            i.putExtra(Co.LOCAL_TASK, cTask);
 //            i.putExtra(Co.ADAPTER_POSITION, getAdapterPosition());
 //            mPresenter.navigateToEditTask(i);

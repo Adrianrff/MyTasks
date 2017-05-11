@@ -26,7 +26,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
-    private LocalTask localTask;
+    private LocalTask syncedLocalTask;
     Context context;
 
     public AddTask(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
@@ -38,7 +38,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
                 transport, jsonFactory, credential)
                 .setApplicationName("My Tasks")
                 .build();
-        localTask = null;
+        syncedLocalTask = null;
     }
 
     @Override
@@ -69,6 +69,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         mPresenter.showProgress(false);
+        mPresenter.updateItem(syncedLocalTask);
     }
 
     @Override
@@ -99,22 +100,16 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
         if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
             Task task = LocalTask.localTaskToApiTask(lTask);
             Task aTask;
-            try {
-                aTask = mService.tasks().insert(lTask.getList(), task).execute();
-                if (aTask != null) {
-                    mPresenter.updateNewlyCreatedTask(aTask, lTask.getList(),
-                            String.valueOf(lTask.getIntId()));
-
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                mPresenter.showToast("Task could not be added to the server.\n" + "Please try again");
+            aTask = mService.tasks().insert(lTask.getList(), task).execute();
+            if (aTask != null) {
+                syncedLocalTask = mPresenter.updateNewlyCreatedTask(aTask, lTask.getList(),
+                        String.valueOf(lTask.getIntId()));
+            } else {
+                EasyPermissions.requestPermissions(
+                        context, context.getString(R.string.contacts_permissions_rationale),
+                        Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+                        Manifest.permission.GET_ACCOUNTS);
             }
-        } else {
-            EasyPermissions.requestPermissions(
-                    context, context.getString(R.string.contacts_permissions_rationale),
-                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
-                    Manifest.permission.GET_ACCOUNTS);
         }
     }
 }

@@ -60,7 +60,7 @@
     <string name="edit_button">edit</string>
     <string name="edit_list">Edit list</string>
     <string name="delete_list_menu_item">Delete list</string>
-    <string name="confirmation_task_delete_message">Are you sure you want to delete this list? You will lose all the tasks in it.</string>
+    <string name="confirmation_task_delete_message">Are you sure you want to delete this list? You will lose all the tasks in it.\n\n<b>This action can not be undone</b></string>
     <string name="yes">Yes</string>
     <string name="requires_Google_Services_message">This app requires Google Play Services. Please install Google Play Services on your device and relaunch this app."</string>
     <string name="Google_Services_not_available_toast">Google Play Services is not available</string>

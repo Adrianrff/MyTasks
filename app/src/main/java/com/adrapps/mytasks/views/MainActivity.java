@@ -15,6 +15,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity
         setListsData();
         if (getIntent().hasExtra(Co.LOCAL_TASK)) {
             LocalTask task = (LocalTask) getIntent().getSerializableExtra(Co.LOCAL_TASK);
-            Intent i = new Intent(this, NewOrDetailActivity.class);
+            Intent i = new Intent(this, NewTaskOrEditActivity.class);
             i.putExtra(Co.LOCAL_TASK, task);
             startActivityForResult(i, Co.TASK_DATA_REQUEST_CODE);
         }
@@ -190,10 +191,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED){
-//                    fab.setImageResource(R.drawable.edit_white);
+                    fab.setImageResource(R.drawable.edit_white);
                 } else if (newState == BottomSheetBehavior.STATE_HIDDEN ||
-                        newState == BottomSheetBehavior.STATE_COLLAPSED || newState == BottomSheetBehavior.STATE_DRAGGING){
+                        newState == BottomSheetBehavior.STATE_COLLAPSED){
                     fab.setOnClickListener(MainActivity.this);
+                    fab.setImageResource(R.drawable.add_white);
+
                 }
             }
 
@@ -232,7 +235,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showBottomSheet(final LocalTask task, final int position, boolean b){
+    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean b){
         if (b){
             swipeRefresh.setEnabled(false);
             detailTitle.setText(task.getTitle());
@@ -247,7 +250,7 @@ public class MainActivity extends AppCompatActivity
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent i = new Intent(MainActivity.this, NewOrDetailActivity.class);
+                    Intent i = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
                     i.putExtra(Co.LOCAL_TASK, task);
                     i.putExtra(Co.ADAPTER_POSITION, position);
                     navigateToEditTask(i);
@@ -255,6 +258,7 @@ public class MainActivity extends AppCompatActivity
             });
         } else {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            fab.setImageResource(R.drawable.add_white);
             swipeRefresh.setEnabled(true);
         }
     }
@@ -458,7 +462,7 @@ public class MainActivity extends AppCompatActivity
         switch (v.getId()) {
 
             case R.id.fab:
-                Intent i = new Intent(this, NewOrDetailActivity.class);
+                Intent i = new Intent(this, NewTaskOrEditActivity.class);
                 mPresenter.navigateToEditTask(i);
                 break;
 
@@ -637,6 +641,7 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
 
                 // TASK EDITED
+                showBottomSheet(null,-1,false);
                 if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
@@ -775,6 +780,11 @@ public class MainActivity extends AppCompatActivity
                 reminderId,
                 intent,
                 PendingIntent.FLAG_NO_CREATE) != null);
+    }
+
+    @Override
+    public void updateItem(LocalTask syncedLocalTask) {
+        adapter.updateItem(syncedLocalTask, -1);
     }
 }
 
