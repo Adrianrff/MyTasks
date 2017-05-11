@@ -250,6 +250,10 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void deleteList(String listId) {
+        if (listsDb.getListsCount() <= 1){
+            mPresenter.showToast(context.getString(R.string.default_delete_list_message));
+            return;
+        }
         listsDb.deleteList(listId);
         if (mPresenter.isDeviceOnline()){
             GoogleAccountCredential credential = mPresenter.getCredential();

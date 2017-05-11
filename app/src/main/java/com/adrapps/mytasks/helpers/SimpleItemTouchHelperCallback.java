@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -24,12 +23,17 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private Context context;
     Paint p;
     TypedValue typedValue;
+    private TypedArray typedArray;
+    private int color;
 
     public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter, Context context) {
         mAdapter = adapter;
         this.context = context;
         p = new Paint();
         typedValue = new TypedValue();
+        typedArray = context.obtainStyledAttributes(typedValue.data, new int[] { R.attr.colorAccent });
+        color = typedArray.getColor(0, 0);
+        typedArray.recycle();
 
     }
 
@@ -96,9 +100,6 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
         Bitmap icon;
         if(actionState == ItemTouchHelper.ACTION_STATE_SWIPE){
 
-            TypedArray a = context.obtainStyledAttributes(typedValue.data, new int[] { R.attr.colorAccent });
-            int color = a.getColor(0, 0);
-            a.recycle();
             View itemView = viewHolder.itemView;
             float height = (float) itemView.getBottom() - (float) itemView.getTop();
             float width = height / 3;
@@ -130,7 +131,6 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     }
 
-    private int convertDpToPx(int dp){
-        return Math.round(dp * (context.getResources().getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
+
+
 }

@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -109,7 +108,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
     private void syncAll() throws IOException {
         if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
-            long offSet = TimeZone.getDefault().getRawOffset();
 
             List<LocalList> localListsNotInServer = new ArrayList<>();
             List<TaskList> serverListNotInDb = new ArrayList<>();

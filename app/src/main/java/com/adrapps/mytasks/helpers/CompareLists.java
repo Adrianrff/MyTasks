@@ -12,7 +12,7 @@ public class CompareLists {
 
     public static List<LocalTask> localTasksNotInServer(List<LocalTask> localTasks, List<Task> serverTasks) {
         List<LocalTask> tasksNotInServer = new ArrayList<>();
-        if (serverTasks.isEmpty()){
+        if (serverTasks == null || serverTasks.isEmpty()){
             return localTasks;
         }
         if (localTasks != null && !localTasks.isEmpty()) {

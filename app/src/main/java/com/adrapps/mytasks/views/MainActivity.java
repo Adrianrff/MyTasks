@@ -41,6 +41,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -85,10 +86,9 @@ public class MainActivity extends AppCompatActivity
     SwipeRefreshLayout swipeRefresh;
     private LinearLayout emptyDataLayout, noInternetLayout, repeatLayout;
     private View headerView, bottomSheet;
-    private ImageView profilePic;
+    private ImageView profilePic, editIcon;
     private TextView userEmail, userName, detailTitle, detailDate, detailNotification, detailNotes, detailTime;
     private BottomSheetBehavior mBottomSheetBehavior;
-    private float previousSlideOffset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity
         detailTitle = (TextView) findViewById(R.id.detail_title);
         detailDate  = (TextView) findViewById(R.id.detail_date);
         detailNotification = (TextView) findViewById(R.id.detail_notification_tv);
+        editIcon = (ImageView) findViewById(R.id.edit_icon);
         detailNotes = (TextView) findViewById(R.id.detail_notes);
         bottomSheet = findViewById( R.id.bottom_sheet);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity
         userName.setText(getStringShP(Co.USER_NAME));
         userEmail.setText(getStringShP(Co.USER_EMAIL));
         navigationView.setNavigationItemSelectedListener(this);
+        editIcon.setOnClickListener(this);
         progressBar.getIndeterminateDrawable()
                 .setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_IN);
         fab.setOnClickListener(this);
@@ -191,28 +193,22 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED){
-                    fab.setImageResource(R.drawable.edit_white);
+                    fab.hide();
                 } else if (newState == BottomSheetBehavior.STATE_HIDDEN ||
                         newState == BottomSheetBehavior.STATE_COLLAPSED){
-                    fab.setOnClickListener(MainActivity.this);
-                    fab.setImageResource(R.drawable.add_white);
-
+                    fab.show();
                 }
             }
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                fab.setImageAlpha((int) (255*Math.abs(-2*slideOffset + 1)));
-                if (slideOffset < 0.6 && slideOffset > 0.4){
-                    if (previousSlideOffset < slideOffset) {
-                        fab.setImageResource(R.drawable.edit_white);
-                    } else {
-                        fab.setImageResource(R.drawable.add_white);
-                    }
+                if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
+                    fab.show();
+                    fab.animate().scaleX(1 - slideOffset).scaleY(1 - slideOffset).setDuration(0).start();
                 }
-                previousSlideOffset = slideOffset;
             }
         });
+
     }
 
     @Override public boolean dispatchTouchEvent(MotionEvent event){
@@ -247,7 +243,7 @@ public class MainActivity extends AppCompatActivity
                 repeatLayout.setVisibility(View.VISIBLE);
             }
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            fab.setOnClickListener(new View.OnClickListener() {
+            editIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent i = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
@@ -255,10 +251,12 @@ public class MainActivity extends AppCompatActivity
                     i.putExtra(Co.ADAPTER_POSITION, position);
                     navigateToEditTask(i);
                 }
+
             });
+
+
         } else {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            fab.setImageResource(R.drawable.add_white);
             swipeRefresh.setEnabled(true);
         }
     }
@@ -284,7 +282,12 @@ public class MainActivity extends AppCompatActivity
             saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
             mPresenter.setToolbarTitle(currentListTitle);
         } else {
-            String currentListTitle = Co.listTitles.get(0);
+            String currentListTitle = null;
+            try {
+                currentListTitle = Co.listTitles.get(0);
+            } catch (Exception e) {
+                showToast("There");
+            }
             String currentListId = Co.listIds.get(0);
             saveStringShP(Co.CURRENT_LIST_ID, currentListId);
             saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
@@ -372,7 +375,13 @@ public class MainActivity extends AppCompatActivity
                         setOnMenuItemClickListener(this);
             }
         }
-        listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE))).setChecked(true);
+        try {
+            listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE))).setChecked(true);
+        } catch (Exception e) {
+            showToast("error");
+            saveStringShP(Co.CURRENT_LIST_TITLE,Co.listTitles.get(0));
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -512,6 +521,7 @@ public class MainActivity extends AppCompatActivity
         final TextInputEditText newTaskTitle = (TextInputEditText) dialog_layout.findViewById(R.id.newTaskTitle);
         db.setView(dialog_layout);
         db.setTitle(getString(R.string.new_list));
+
         db.setPositiveButton(R.string.add_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -523,8 +533,9 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
-        db.show();
+        AlertDialog dialog = db.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
 
     public void showEditListDialog() {
@@ -547,7 +558,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
         taskTitle.setText(getStringShP(Co.CURRENT_LIST_TITLE));
-        db.show();
+        AlertDialog dialog = db.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
 
     @Override

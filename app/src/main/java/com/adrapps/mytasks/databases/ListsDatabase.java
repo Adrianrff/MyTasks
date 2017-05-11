@@ -273,4 +273,15 @@ public class ListsDatabase extends SQLiteOpenHelper {
         db.close();
         return localLists;
     }
+
+    public int getListsCount() {
+        List<LocalList> localLists = new ArrayList<>();
+        db = this.getReadableDatabase();
+        int listCount;
+        Cursor cursor = db.query(TABLE_NAME,new String[]{COL_ID},null,null,null,null,null);
+        listCount = cursor.getCount();
+        cursor.close();
+        db.close();
+        return listCount;
+    }
 }
