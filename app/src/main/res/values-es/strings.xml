@@ -70,6 +70,12 @@
     <string name="welcome_title">BIENVENIDO A MY TASKS</string>
     <string name="contacts_permissions_rationale">Esta aplicación necesita acceder a tu cuenta para funcionar correctamente. Android agrupa este permiso en específico dentro del grupo de permisos de los contactos.\n\n<b>Tus contactos no serán consultados.</b></string>
     <string name="default_delete_list_message">La lista predeteminada no se puede borrar</string>
+    <string name="daily_repeat_mode">Diario</string>
+    <string name="one_time_repeat_mode">Una vez</string>
+    <string name="weekdays">Días de semana</string>
+    <string name="every">Todos los</string>
+    <string name="of_every_month">de cada mes</string>
+    <string name="on_day">Los</string>
 
 
     <string-array name="notification_options">

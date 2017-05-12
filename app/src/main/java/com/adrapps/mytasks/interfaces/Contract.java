@@ -189,6 +189,12 @@ public class Contract {
         List<LocalList> getLocalLists();
 
         LocalTask getTask(int intId);
+
+        int getTaskReminderRepeatModeByIntId(int intId);
+
+        int getTaskReminderRepeatMode(String taskId);
+
+        long getTaskReminderByIntId(int intId);
     }
 
 

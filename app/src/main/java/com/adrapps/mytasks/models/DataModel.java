@@ -273,6 +273,21 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
+    public int getTaskReminderRepeatModeByIntId(int intId) {
+        return tasksDb.getTaskReminderRepeatModeByIntId(intId);
+    }
+
+    @Override
+    public int getTaskReminderRepeatMode(String taskId) {
+        return tasksDb.getTaskReminderRepeatMode(taskId);
+    }
+
+    @Override
+    public long getTaskReminderByIntId(int intId) {
+        return tasksDb.getTaskReminderByIntId(intId);
+    }
+
+    @Override
     public void deleteListFromDB(int intId){
         listsDb.deleteList(intId);
     }

@@ -355,6 +355,18 @@ public class TaskListPresenter {
         mModel.deleteList(listId);
     }
 
+    public int getTaskReminderRepeatModeByIntId(int intId){
+        return mModel.getTaskReminderRepeatModeByIntId(intId);
+    }
+
+    public int getTaskReminderRepeatMode(String taskId){
+        return mModel.getTaskReminderRepeatMode(taskId);
+    }
+
+    public long getTaskReminderByIntId(int intId){
+        return mModel.getTaskReminderByIntId(intId);
+    }
+
 
     public void updateItem(LocalTask syncedLocalTask) {
         getView().updateItem(syncedLocalTask);

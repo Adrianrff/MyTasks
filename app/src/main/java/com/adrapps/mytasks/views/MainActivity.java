@@ -242,6 +242,9 @@ public class MainActivity extends AppCompatActivity
                     detailNotification.setText(task.getReminder() ==
                             0 ? null : DateHelper.timeInMillsToFullString(task.getReminder()));
                     repeatLayout.setVisibility(View.VISIBLE);
+                    switch (task.getRepeatMode()){
+                        //TODO: Update repeat mode textView with the current repeat mode
+                    }
                 } else {
                     detailNotification.setText(null);
                     repeatLayout.setVisibility(View.GONE);
@@ -674,6 +677,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                         mPresenter.editTask(task);
+                        showToast(String.valueOf(task.getRepeatMode()));
                     }
 
                     // TASK ADDED
@@ -681,8 +685,11 @@ public class MainActivity extends AppCompatActivity
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
                         task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
-                        if (task.getReminder() != 0) setOrUpdateAlarm(task);
+                        if (task.getReminder() != 0) {
+                            setOrUpdateAlarm(task);
+                        }
                         mPresenter.addTask(task);
+                        showToast(String.valueOf(task.getRepeatMode()));
                     }
                 }
             }

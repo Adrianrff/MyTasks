@@ -11,7 +11,7 @@ import java.util.TimeZone;
 public class LocalTask implements Serializable, Comparable {
 
     private String id, title, parent, position, notes, status, taskList;
-    private int moved, localDeleted, intId, localSibling, syncStatus;
+    private int moved, localDeleted, intId, localSibling, syncStatus, repeatMode;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
 
@@ -24,6 +24,7 @@ public class LocalTask implements Serializable, Comparable {
         this.due = dueDate;
         this.reminder = 0;
         this.reminderId = 0;
+        this.repeatMode = 0;
         this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
@@ -35,6 +36,7 @@ public class LocalTask implements Serializable, Comparable {
         this.notes = notes;
         this.reminder = 0;
         this.reminderId = 0;
+        this.repeatMode = 0;
         this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
@@ -47,6 +49,7 @@ public class LocalTask implements Serializable, Comparable {
         this.notes = notes;
         this.reminder = reminder;
         this.reminderId = System.currentTimeMillis();
+        this.repeatMode = 0;
         this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
@@ -68,6 +71,7 @@ public class LocalTask implements Serializable, Comparable {
         this.hidden = (task.getHidden() == null) ? false:task.getHidden();
         this.reminder = 0;
         this.reminderId = 0;
+        this.repeatMode = 0;
         this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
@@ -110,8 +114,9 @@ public class LocalTask implements Serializable, Comparable {
     }
 
 
-    ///-------------------SETTERS ----------------------//
 
+
+    ///-------------------SETTERS ----------------------//
 
     public void setMoved(int moved) {
         this.moved = moved;
@@ -136,6 +141,14 @@ public class LocalTask implements Serializable, Comparable {
     public void setReminder(long reminder) {
         this.reminder = reminder;
         this.reminderId = System.currentTimeMillis();
+    }
+
+    public void setLocalSibling(int localSibling) {
+        this.localSibling = localSibling;
+    }
+
+    public void setRepeatMode(int repeatMode) {
+        this.repeatMode = repeatMode;
     }
 
     public void setReminderNoID(long reminder) {
@@ -199,8 +212,20 @@ public class LocalTask implements Serializable, Comparable {
     }
 
 
+
     ///-------------------GETTERS---------------------///
 
+    public String getTaskList() {
+        return taskList;
+    }
+
+    public int getLocalSibling() {
+        return localSibling;
+    }
+
+    public int getRepeatMode() {
+        return repeatMode;
+    }
 
     public int getSibling() {
         return localSibling;

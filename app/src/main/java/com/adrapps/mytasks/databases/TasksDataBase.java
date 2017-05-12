@@ -37,6 +37,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
     private static final String COL_DELETED = "Deleted";
     private static final String COL_HIDDEN = "Hidden";
     private static final String COL_REMINDER = "Reminder";
+    private static final String COL_REMINDER_REPEAT_MODE = "Reminder_repeat_mode";
     private static final String COL_REMINDER_ID = "ReminderID";
     private static final String COL_SYNC_STATUS = "Sync_status";
     private static final String COL_LOCAL_SIBLING = "local_sibling";
@@ -63,6 +64,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             COL_DELETED,
             COL_HIDDEN,
             COL_REMINDER,
+            COL_REMINDER_REPEAT_MODE,
             COL_REMINDER_ID,
             COL_SYNC_STATUS,
             COL_LOCAL_SIBLING,
@@ -87,6 +89,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
                     COL_DELETED + " int," +
                     COL_HIDDEN + " int," +
                     COL_REMINDER + " bigint," +
+                    COL_REMINDER_REPEAT_MODE + " int default 0," +
                     COL_REMINDER_ID + " bigint," +
                     COL_SYNC_STATUS + " int," +
                     COL_LOCAL_SIBLING + " int default 0," +
@@ -154,6 +157,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
                 task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
                 task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
                 task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+                task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
                 task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
                 task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
                 task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
@@ -192,6 +196,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
                 task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
                 task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
                 task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
+                task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
                 task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
                 task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
                 task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
@@ -230,6 +235,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
                     task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
                     task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
                     task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+                    task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
                     task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
                     task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
                     task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
@@ -261,6 +267,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_DELETED, (localTask.isDeleted()) ? 1 : 0);
         cv.put(COL_HIDDEN, (localTask.isHidden()) ? 1 : 0);
         cv.put(COL_REMINDER, localTask.getReminder());
+        cv.put(COL_REMINDER_REPEAT_MODE, localTask.getRepeatMode());
         cv.put(COL_REMINDER_ID, localTask.getReminderId());
         cv.put(COL_SYNC_STATUS, Co.NOT_SYNCED);
         cv.put(COL_LOCAL_DELETED, localTask.getLocalDeleted());
@@ -314,6 +321,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             cv.put(COL_HIDDEN, (tasks.get(i).isHidden()) ? 1 : 0);
             cv.put(COL_REMINDER, tasks.get(i).getReminder());
             cv.put(COL_REMINDER_ID, tasks.get(i).getReminder());
+            cv.put(COL_REMINDER_REPEAT_MODE, tasks.get(i).getRepeatMode());
             cv.put(COL_SYNC_STATUS, tasks.get(i).getSyncStatus());
             cv.put(COL_LOCAL_UPDATED, tasks.get(i).getLocalModify());
             cv.put(COL_LOCAL_SIBLING, tasks.get(i).getSibling());
@@ -342,6 +350,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             cv.put(COL_DELETED, (tasks.get(i).isDeleted()) ? 1 : 0);
             cv.put(COL_HIDDEN, (tasks.get(i).isHidden()) ? 1 : 0);
             cv.put(COL_REMINDER, tasks.get(i).getReminder());
+            cv.put(COL_REMINDER_REPEAT_MODE, tasks.get(i).getRepeatMode());
             cv.put(COL_REMINDER_ID, tasks.get(i).getReminder());
             cv.put(COL_SYNC_STATUS, tasks.get(i).getSyncStatus());
             cv.put(COL_LOCAL_UPDATED, tasks.get(i).getLocalModify());
@@ -385,6 +394,51 @@ public class TasksDataBase extends SQLiteOpenHelper {
         }
         db.close();
         return taskReminder;
+    }
+
+    public long getTaskReminderByIntId(int intId) {
+        db = getWritableDB();
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(intId)};
+        long taskReminder = 0;
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_REMINDER}, selection, selectionArgs, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            taskReminder = cursor.getLong(cursor.getColumnIndex(COL_REMINDER));
+            cursor.close();
+        }
+        db.close();
+        return taskReminder;
+    }
+
+    public int getTaskReminderRepeatModeByIntId(int intId) {
+        db = getWritableDB();
+        String selection = COL_INT_ID + " = ? ";
+        String[] selectionArgs = {String.valueOf(intId)};
+        int taskReminderMode = 0;
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_REMINDER_REPEAT_MODE}, selection, selectionArgs, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            taskReminderMode = cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE));
+            cursor.close();
+        }
+        db.close();
+        return taskReminderMode;
+    }
+
+    public int getTaskReminderRepeatMode(String taskId) {
+        db = getWritableDB();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {taskId};
+        int taskReminderMode = 0;
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_REMINDER_REPEAT_MODE}, selection, selectionArgs, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            taskReminderMode = cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE));
+            cursor.close();
+        }
+        db.close();
+        return taskReminderMode;
     }
 
     public int updateTaskStatus(int intId, String newStatus) {
@@ -524,6 +578,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
             task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
             task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+            task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
             task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
             task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
             task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
@@ -560,6 +615,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
             task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
             task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+            task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
             task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
             task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
             task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
@@ -693,6 +749,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_HIDDEN, (modifiedTask.isHidden()) ? 1 : 0);
         cv.put(COL_REMINDER, modifiedTask.getReminder());
         cv.put(COL_REMINDER_ID, modifiedTask.getReminder());
+        cv.put(COL_REMINDER_REPEAT_MODE, modifiedTask.getRepeatMode());
         cv.put(COL_SYNC_STATUS, modifiedTask.getSyncStatus());
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
         cv.put(COL_LOCAL_SIBLING, modifiedTask.getSibling());
@@ -840,6 +897,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
             task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
             task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+            task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
             task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
             task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
             task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));

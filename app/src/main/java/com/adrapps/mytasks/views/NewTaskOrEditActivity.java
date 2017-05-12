@@ -54,7 +54,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
     private RadioButton rbAfternoon;
     private RadioButton rbEvening;
     private RadioButton rbCustom;
-    private long reminderInMills;
+    private long selectedReminderInMills;
     private LocalTask taskToEdit;
     private int position;
     private TextView customNotOption;
@@ -63,6 +63,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
     private TextView notTextView;
     private Toolbar toolbar;
     private Spinner repeatSpinner;
+    private int selectedRepeatMode;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,8 +76,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        reminderInMills = 0;
+        selectedReminderInMills = 0;
         selectedDateInMills = 0;
+        selectedRepeatMode = 0;
         titleTV = (EditText) findViewById(R.id.task_title_edit_text);
         dueDateTv = (TextView) findViewById(R.id.dueDateTv);
         notesTv = (EditText) findViewById(R.id.task_notes_edit_text);
@@ -100,6 +102,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                 if (taskToEdit.getDue() != 0) {
                     dueDateTv.setText(DateHelper.timeInMillsToString(taskToEdit.getDue()));
                     selectedDateInMills = taskToEdit.getDue();
+                    selectedReminderInMills = taskToEdit.getRepeatMode();
                     clearDate.setVisibility(View.VISIBLE);
                 } else {
                     clearDate.setVisibility(View.GONE);
@@ -107,11 +110,12 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
                 position = getIntent().getIntExtra(Co.ADAPTER_POSITION, -1);
                 if (taskToEdit.getReminder() != 0) {
-                    reminderInMills = taskToEdit.getReminder();
+                    selectedReminderInMills = taskToEdit.getReminder();
+                    selectedRepeatMode = taskToEdit.getRepeatMode();
                     notTextView.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
                     notifLayout.setVisibility(View.VISIBLE);
-                    //TODO Check repeating alarm mode of the task and select the corresponding item in spinner
-                    setRepeatSpinnerAdapter(reminderInMills);
+                    setRepeatSpinnerAdapter(selectedReminderInMills);
+                    repeatSpinner.setSelection(selectedRepeatMode);
                 } else {
                     notifLayout.setVisibility(View.GONE);
                     clearReminder.setVisibility(View.GONE);
@@ -126,16 +130,14 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
     private void setRepeatSpinnerAdapter(long reminderInMills){
         List<String> categories = new ArrayList<String>();
-        categories.add("Una vez");
-        categories.add("Diario" + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
-        categories.add("Días de semana" + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
-        categories.add("Todos los " + DateHelper.timeInMillsToDay(reminderInMills)
+        categories.add(getString(R.string.one_time_repeat_mode));
+        categories.add(getString(R.string.daily_repeat_mode) + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+        categories.add(getString(R.string.weekdays) + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+        categories.add(getString(R.string.every) + " " + DateHelper.timeInMillsToDay(reminderInMills)
                 + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
-        categories.add("Los " + DateHelper.timeInMillsToDayOfMonth(reminderInMills) + " de cada mes");
-        categories.add("dfgdfg");
+        categories.add(getString(R.string.on_day) + " " + DateHelper.timeInMillsToDayOfMonth(reminderInMills) + " " + getString(R.string.of_every_month));
         ArrayAdapter<String> repeatAdapter =
                 new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
-
         repeatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         repeatSpinner.setAdapter(repeatAdapter);
     }
@@ -165,7 +167,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             @Override
             public void onDismiss(DialogInterface dialog) {
                 if (selectedDateInMills != 0) {
-                    if (reminderInMills == 0) {
+                    if (selectedReminderInMills == 0) {
                     }
                 }
             }
@@ -193,16 +195,18 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                 if (getIntent().hasExtra(Co.LOCAL_TASK)) {
                     Intent i = new Intent();
                     if (taskToEdit.getReminderId() != 0) {
-                        if (reminderInMills == 0) {
+                        if (selectedReminderInMills == 0) {
                             taskToEdit.setReminderNoID(0);
                         } else {
-                            if (reminderInMills != taskToEdit.getReminder()) {
-                                taskToEdit.setReminderNoID(reminderInMills);
+                            if (selectedReminderInMills != taskToEdit.getReminder()) {
+                                taskToEdit.setReminderNoID(selectedReminderInMills);
                             }
+                            taskToEdit.setRepeatMode(selectedRepeatMode);
                         }
                     } else {
-                        if (reminderInMills != 0){
-                            taskToEdit.setReminder(reminderInMills);
+                        if (selectedReminderInMills != 0){
+                            taskToEdit.setReminder(selectedReminderInMills);
+                            taskToEdit.setRepeatMode(selectedRepeatMode);
                         }
                     }
                     taskToEdit.setTitle(titleTV.getText().toString());
@@ -232,8 +236,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                             selectedDateInMills);
                     if (notesTv.getText().toString().trim().length() != 0)
                         task.setNotes(notesTv.getText().toString());
-                    if (reminderInMills != 0) {
-                        task.setReminder(reminderInMills);
+                    if (selectedReminderInMills != 0) {
+                        task.setReminder(selectedReminderInMills);
+                        task.setRepeatMode(selectedRepeatMode);
                     }
                     i.putExtra(Co.LOCAL_TASK, task);
                     i.putExtra(Co.NEW_TASK, true);
@@ -259,7 +264,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
             //Clear reminder click
             case R.id.clearReminder:
-                reminderInMills = 0;
+                selectedReminderInMills = 0;
                 notTextView.setText(null);
                 clearReminder.setVisibility(View.GONE);
                 notifLayout.setVisibility(View.INVISIBLE);
@@ -285,12 +290,12 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                             taskToEdit.getDue() : selectedDateInMills);
                     cal.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
                     cal.set(Calendar.MINUTE, 0);
-                    reminderInMills = cal.getTimeInMillis();
-                    notTextView.setText(DateHelper.timeInMillsToFullString(reminderInMills));
+                    selectedReminderInMills = cal.getTimeInMillis();
+                    notTextView.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                     dialog.dismiss();
                     clearReminder.setVisibility(View.VISIBLE);
                     notifLayout.setVisibility(View.VISIBLE);
-                    setRepeatSpinnerAdapter(reminderInMills);
+                    setRepeatSpinnerAdapter(selectedReminderInMills);
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
@@ -309,12 +314,12 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                             taskToEdit.getDue() : selectedDateInMills);
                     cal.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
                     cal.set(Calendar.MINUTE, 0);
-                    reminderInMills = cal.getTimeInMillis();
-                    notTextView.setText(DateHelper.timeInMillsToFullString(reminderInMills));
+                    selectedReminderInMills = cal.getTimeInMillis();
+                    notTextView.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                     dialog.dismiss();
                     clearReminder.setVisibility(View.VISIBLE);
                     notifLayout.setVisibility(View.VISIBLE);
-                    setRepeatSpinnerAdapter(reminderInMills);
+                    setRepeatSpinnerAdapter(selectedReminderInMills);
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
@@ -334,12 +339,12 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                             taskToEdit.getDue() : selectedDateInMills);
                     cal.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
                     cal.set(Calendar.MINUTE, 0);
-                    reminderInMills = cal.getTimeInMillis();
-                    notTextView.setText(DateHelper.timeInMillsToFullString(reminderInMills));
+                    selectedReminderInMills = cal.getTimeInMillis();
+                    notTextView.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                     dialog.dismiss();
                     clearReminder.setVisibility(View.VISIBLE);
                     notifLayout.setVisibility(View.VISIBLE);
-                    setRepeatSpinnerAdapter(reminderInMills);
+                    setRepeatSpinnerAdapter(selectedReminderInMills);
                     break;
                 } else {
                     showToast(getString(R.string.no_due_date_selected));
@@ -368,9 +373,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                                 c.set(Calendar.HOUR_OF_DAY, hourOfDay);
                                 c.set(Calendar.MINUTE, minute);
-                                reminderInMills = c.getTimeInMillis();
-                                customNotOption.setText(DateHelper.timeInMillsToFullString(reminderInMills));
-                                notTextView.setText(DateHelper.timeInMillsToFullString(reminderInMills));
+                                selectedReminderInMills = c.getTimeInMillis();
+                                customNotOption.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
+                                notTextView.setText(DateHelper.timeInMillsToFullString(selectedReminderInMills));
                                 dialog.dismiss();
                                 notifLayout.setVisibility(View.VISIBLE);
                             }
@@ -380,7 +385,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                 }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
                 clearReminder.setVisibility(View.VISIBLE);
-                setRepeatSpinnerAdapter(reminderInMills);
+                setRepeatSpinnerAdapter(selectedReminderInMills);
                 break;
 
             //Reminder textview click
@@ -402,7 +407,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
         SimpleDateFormat sdfCA = new SimpleDateFormat("d MMM yyyy HH:mm Z", Locale.getDefault());
         dueDateTv.setText(DateHelper.timeInMillsToString(selectedDateInMills));
         if (selectedDateInMills != 0) {
-            setRepeatSpinnerAdapter(reminderInMills);
+            setRepeatSpinnerAdapter(selectedReminderInMills);
             clearDate.setVisibility(View.VISIBLE);
         } else {
             clearDate.setVisibility(View.GONE);
@@ -422,11 +427,31 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch (position){
+            case 0:
+                selectedRepeatMode = Co.REMINDER_ONE_TIME;
+                break;
 
+            case 1:
+                selectedRepeatMode = Co.REMINDER_DAILY;
+                break;
+
+            case 2:
+                selectedRepeatMode = Co.REMINDER_DAILY_WEEKDAYS;
+                break;
+
+            case 3:
+                selectedRepeatMode = Co.REMINDER_SAME_DAY_OF_WEEK;
+                break;
+
+            case 4:
+                selectedRepeatMode = Co.REMINDER_SAME_DAY_OF_MONTH;
+                break;
+        }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-
+        selectedRepeatMode = Co.REMINDER_ONE_TIME;
     }
 }
