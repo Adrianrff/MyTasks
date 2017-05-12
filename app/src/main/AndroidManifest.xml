@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="true"
@@ -38,7 +39,6 @@
 
         <activity
             android:name=".views.NewTaskOrEditActivity"
-            android:windowSoftInputMode="stateVisible"
             android:label="@string/app_name"
             android:parentActivityName=".views.MainActivity"
             android:theme="@style/AppThemeBurgundy.NoActionBar"
@@ -49,6 +49,13 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="WhatEverYouWant" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".OnBootReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
             </intent-filter>
         </receiver>
 

@@ -50,6 +50,33 @@ public class DateHelper {
         return sdf.format(calendar.getTime());
     }
 
+    public static String timeInMillsToSimpleTime(long timeInMills){
+        Calendar calendar = Calendar.getInstance();
+        Calendar calToday = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMills);
+        String format = "h:mm a";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        return sdf.format(calendar.getTime());
+    }
+
+    public static String timeInMillsToDay(long timeInMills){
+        Calendar calendar = Calendar.getInstance();
+        Calendar calToday = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMills);
+        String format = "EEEE";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        return sdf.format(calendar.getTime());
+    }
+
+    public static String timeInMillsToDayOfMonth(long timeInMills){
+        Calendar calendar = Calendar.getInstance();
+        Calendar calToday = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMills);
+        String format = "d";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        return sdf.format(calendar.getTime());
+    }
+
     public static boolean isTomorrow(long timeInMills){
         Calendar ca = Calendar.getInstance();
         Calendar ca1 = Calendar.getInstance();

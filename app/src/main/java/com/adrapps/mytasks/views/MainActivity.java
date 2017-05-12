@@ -234,13 +234,18 @@ public class MainActivity extends AppCompatActivity
     public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean b){
         if (b){
             swipeRefresh.setEnabled(false);
-            detailTitle.setText(task.getTitle());
-            detailDate.setText(task.getDue() == 0 ? getString(R.string.no_due_date) : DateHelper.timeInMillsToString(task.getDue()));
-            detailNotes.setText(task.getNotes());
-            if (task.getReminder() != 0) {
-                detailNotification.setText(task.getReminder() ==
-                        0 ? null : DateHelper.timeInMillsToFullString(task.getReminder()));
-                repeatLayout.setVisibility(View.VISIBLE);
+            if (task != null) {
+                detailTitle.setText(task.getTitle());
+                detailDate.setText(task.getDue() == 0 ? getString(R.string.no_due_date) : DateHelper.timeInMillsToString(task.getDue()));
+                detailNotes.setText(task.getNotes());
+                if (task.getReminder() != 0) {
+                    detailNotification.setText(task.getReminder() ==
+                            0 ? null : DateHelper.timeInMillsToFullString(task.getReminder()));
+                    repeatLayout.setVisibility(View.VISIBLE);
+                } else {
+                    detailNotification.setText(null);
+                    repeatLayout.setVisibility(View.GONE);
+                }
             }
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             editIcon.setOnClickListener(new View.OnClickListener() {
