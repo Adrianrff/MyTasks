@@ -1,7 +1,6 @@
 package com.adrapps.mytasks.views;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -41,6 +40,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,6 +53,7 @@ import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
@@ -63,6 +64,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.util.ExponentialBackOff;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -85,10 +87,12 @@ public class MainActivity extends AppCompatActivity
     CoordinatorLayout coordinatorLayout;
     SwipeRefreshLayout swipeRefresh;
     private LinearLayout emptyDataLayout, noInternetLayout, repeatLayout;
-    private View headerView, bottomSheet;
+    private View bottomSheet;
     private ImageView profilePic, editIcon;
-    private TextView userEmail, userName, detailTitle, detailDate, detailNotification, detailNotes, detailTime;
+    private TextView userEmail, userName, detailTitle, detailDate,
+            detailNotification, detailNotes, detailRepeat;
     private BottomSheetBehavior mBottomSheetBehavior;
+    private AlarmHelper alarmHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,23 +133,24 @@ public class MainActivity extends AppCompatActivity
 
     private void findViews() {
         detailTitle = (TextView) findViewById(R.id.detail_title);
-        detailDate  = (TextView) findViewById(R.id.detail_date);
+        detailDate = (TextView) findViewById(R.id.detail_date);
         detailNotification = (TextView) findViewById(R.id.detail_notification_tv);
         editIcon = (ImageView) findViewById(R.id.edit_icon);
         detailNotes = (TextView) findViewById(R.id.detail_notes);
-        bottomSheet = findViewById( R.id.bottom_sheet);
+        bottomSheet = findViewById(R.id.bottom_sheet);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-        headerView = navigationView.getHeaderView(0);
+        View headerView = navigationView.getHeaderView(0);
         profilePic = (ImageView) headerView.findViewById(R.id.profilePic);
         userName = (TextView) headerView.findViewById(R.id.userName);
         userEmail = (TextView) headerView.findViewById(R.id.userEmail);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
         repeatLayout = (LinearLayout) findViewById(R.id.repeatLayout);
+        detailRepeat = (TextView) findViewById(R.id.detail_repeat);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
         noInternetLayout = (LinearLayout) findViewById(R.id.noInternetLayout);
@@ -192,10 +197,10 @@ public class MainActivity extends AppCompatActivity
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED){
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     fab.hide();
                 } else if (newState == BottomSheetBehavior.STATE_HIDDEN ||
-                        newState == BottomSheetBehavior.STATE_COLLAPSED){
+                        newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     fab.show();
                 }
             }
@@ -211,12 +216,13 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @Override public boolean dispatchTouchEvent(MotionEvent event){
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (mBottomSheetBehavior.getState()==BottomSheetBehavior.STATE_EXPANDED) {
+            if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 Rect outRect = new Rect();
                 bottomSheet.getGlobalVisibleRect(outRect);
-                if(!outRect.contains((int)event.getRawX(), (int)event.getRawY()))
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY()))
                     mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         }
@@ -231,19 +237,54 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean b){
-        if (b){
+    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean b) {
+        if (b) {
             swipeRefresh.setEnabled(false);
             if (task != null) {
                 detailTitle.setText(task.getTitle());
                 detailDate.setText(task.getDue() == 0 ? getString(R.string.no_due_date) : DateHelper.timeInMillsToString(task.getDue()));
                 detailNotes.setText(task.getNotes());
                 if (task.getReminder() != 0) {
-                    detailNotification.setText(task.getReminder() ==
-                            0 ? null : DateHelper.timeInMillsToFullString(task.getReminder()));
+                    detailNotification.setText(
+                            task.getReminder() == 0 ? null :
+                            task.getRepeatMode() == 0 ? DateHelper.timeInMillsToFullString(task.getReminder()) :
+                            DateHelper.timeInMillsToTimeOnly(task.getReminder()));
                     repeatLayout.setVisibility(View.VISIBLE);
-                    switch (task.getRepeatMode()){
-                        //TODO: Update repeat mode textView with the current repeat mode
+
+                    switch (task.getRepeatMode()) {
+
+                        case Co.REMINDER_ONE_TIME:
+                            detailRepeat.setText(getString(R.string.one_time_repeat_mode));
+                            break;
+                        case Co.REMINDER_DAILY:
+                            detailRepeat.setText(
+                                    getString(
+                                            R.string.daily_repeat_mode) +
+                                            " (" + DateHelper.timeInMillsToSimpleTime
+                                            (task.getReminder()) + ")");
+                            break;
+
+                        case Co.REMINDER_DAILY_WEEKDAYS:
+                            detailRepeat.setText(
+                                    getString(R.string.weekdays) + " (" +
+                                            DateHelper.timeInMillsToSimpleTime(task.getReminder()) + ")");
+                            break;
+
+                        case Co.REMINDER_SAME_DAY_OF_WEEK:
+                            detailRepeat.setText(
+                                    getString(R.string.every) + " " +
+                                            DateHelper.timeInMillsToDay(task.getReminder())
+                                            + " (" + DateHelper.timeInMillsToSimpleTime(
+                                            task.getReminder()) + ")");
+                            break;
+
+                        case Co.REMINDER_SAME_DAY_OF_MONTH:
+                            detailRepeat.setText(
+                                    getString(R.string.on_day) + " " +
+                                            DateHelper.timeInMillsToDayOfMonth(task.getReminder()) +
+                                            " " + getString(R.string.of_every_month));
+                            break;
+
                     }
                 } else {
                     detailNotification.setText(null);
@@ -369,8 +410,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setNavDrawerMenu(List<String> taskListsTitles) {
-        Menu menu = navigationView.getMenu();
+    public void setNavDrawerMenu(List<String> taskListsTitles) {        Menu menu = navigationView.getMenu();
         MenuItem item = menu.findItem(R.id.lists_titles_menu);
         SubMenu listsMenu = item.getSubMenu();
         listsMenu.clear();
@@ -387,7 +427,7 @@ public class MainActivity extends AppCompatActivity
             listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE))).setChecked(true);
         } catch (Exception e) {
             showToast("error");
-            saveStringShP(Co.CURRENT_LIST_TITLE,Co.listTitles.get(0));
+            saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(0));
             e.printStackTrace();
         }
     }
@@ -425,7 +465,7 @@ public class MainActivity extends AppCompatActivity
                         mPresenter.deleteTaskFromDataBase(task.getIntId());
                     }
                     mPresenter.deleteTask(taskId, task.getList());
-                    cancelReminder(task);
+                    AlarmHelper.cancelReminder(task, MainActivity.this);
                 }
             }
         });
@@ -523,8 +563,9 @@ public class MainActivity extends AppCompatActivity
 
     public void showNewListDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
+        final ViewGroup nullParent = null;
         View dialog_layout = inflater.inflate(R.layout.new_list_dialog,
-                null);
+                nullParent);
         AlertDialog.Builder db = new AlertDialog.Builder(this);
         final TextInputEditText newTaskTitle = (TextInputEditText) dialog_layout.findViewById(R.id.newTaskTitle);
         db.setView(dialog_layout);
@@ -542,14 +583,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
         AlertDialog dialog = db.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
     }
 
     public void showEditListDialog() {
         LayoutInflater inflater = LayoutInflater.from(this);
+        final ViewGroup nullParent = null;
         View dialog_layout = inflater.inflate(R.layout.new_list_dialog,
-                null);
+                nullParent);
         AlertDialog.Builder db = new AlertDialog.Builder(this);
         final TextInputEditText taskTitle = (TextInputEditText) dialog_layout.findViewById(R.id.newTaskTitle);
         db.setView(dialog_layout);
@@ -567,7 +610,9 @@ public class MainActivity extends AppCompatActivity
         });
         taskTitle.setText(getStringShP(Co.CURRENT_LIST_TITLE));
         AlertDialog dialog = db.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        if (dialog.getWindow()!= null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
         dialog.show();
     }
 
@@ -576,12 +621,11 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(navigationView)) {
             drawer.closeDrawer(GravityCompat.START);
         }
-        if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+        if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             swipeRefresh.setEnabled(true);
             fab.show();
-        }
-        else
+        } else
             super.onBackPressed();
     }
 
@@ -591,8 +635,7 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-                showToast(getStringShP(Co.USER_PIC_URL) + "\n" + getStringShP(Co.USER_EMAIL)
-                        + "\n" + getStringShP(Co.USER_NAME));
+                showToast(isReminderSet((int) 1494712857891L)? "Set":"Not Set");
                 break;
 
             case R.id.refresh:
@@ -662,22 +705,54 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
 
                 // TASK EDITED
-                showBottomSheet(null,-1,false);
+                showBottomSheet(null, -1, false);
                 if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
+                        long reminder = task.getReminder();
                         if (task.getReminderId() != 0) {
-                            if (task.getReminder() != 0) {
-                                setOrUpdateAlarm(task);
-                            } else {
-                                if (isReminderSet((int) task.getReminderId())) {
-                                    cancelReminder(task);
+                            if (reminder != 0) {
+                                Calendar calendar = Calendar.getInstance();
+                                switch (task.getRepeatMode()){
+                                    case Co.REMINDER_DAILY:
+                                        calendar = Calendar.getInstance();
+                                        calendar.setTimeInMillis(reminder);
+                                        if (Calendar.getInstance().getTimeInMillis() > reminder) {
+                                            calendar.add(Calendar.DATE, 1);
+                                        }
+                                        task.setReminderNoID(calendar.getTimeInMillis());
+                                        break;
+
+                                    case Co.REMINDER_DAILY_WEEKDAYS:
+                                        calendar.setTimeInMillis(reminder);
+                                        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+                                        if (DateHelper.isWeekday(reminder)) {
+                                            if (Calendar.getInstance().getTimeInMillis() > reminder) {
+                                                if (DateHelper.isNextDayWeekday(reminder)) {
+                                                    calendar.add(Calendar.DATE, 1);
+                                                } else if (dayOfWeek == Calendar.FRIDAY) {
+                                                    calendar.add(Calendar.DATE, 3);
+                                                } else if (dayOfWeek == Calendar.SATURDAY) {
+                                                    calendar.add(Calendar.DATE, 2);
+                                                }
+                                            }
+                                        } else if (dayOfWeek == Calendar.SATURDAY) {
+                                            calendar.add(Calendar.DATE, 2);
+                                        } else if (dayOfWeek == Calendar.SUNDAY) {
+                                            calendar.add(Calendar.DATE, 1);
+                                        }
+                                        task.setReminderNoID(calendar.getTimeInMillis());
+                                        break;
                                 }
+
+                                AlarmHelper.setOrUpdateAlarm(task, this);
+                                mPresenter.updateReminder(task.getIntId(), calendar.getTimeInMillis());
+                            } else {
+                                AlarmHelper.cancelReminder(task, this);
                             }
                         }
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                         mPresenter.editTask(task);
-                        showToast(String.valueOf(task.getRepeatMode()));
                     }
 
                     // TASK ADDED
@@ -686,10 +761,9 @@ public class MainActivity extends AppCompatActivity
                     if (task != null) {
                         task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
                         if (task.getReminder() != 0) {
-                            setOrUpdateAlarm(task);
+                            AlarmHelper.setOrUpdateAlarm(task, this);
                         }
                         mPresenter.addTask(task);
-                        showToast(String.valueOf(task.getRepeatMode()));
                     }
                 }
             }
@@ -766,37 +840,108 @@ public class MainActivity extends AppCompatActivity
         swipeRefresh.setRefreshing(b);
     }
 
-    @Override
-    public void setOrUpdateAlarm(LocalTask task) {
-        if (task.getReminder() != 0 && task.getReminderId() != 0) {
-            Intent intent = new Intent(this, AlarmReciever.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(Co.LOCAL_TASK, task);
-            intent.putExtra(Co.LOCAL_TASK, bundle);
-            intent.putExtra(Co.TASK_TITLE, task.getTitle());
-            intent.putExtra(Co.TASK_DUE, task.getDue());
-            intent.putExtra(Co.TASK_ID, task.getId());
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    this,
-                    (int) task.getReminderId(),
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            AlarmManager alarmManager =
-                    (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarmManager.set(AlarmManager.RTC_WAKEUP,
-                    task.getReminder(), pendingIntent);
-        }
-    }
+//    @Override
+//    public void setOrUpdateAlarm(LocalTask task) {
+//        //TODO: Test repeating alarms with short interval
+//        if (task.getReminder() != 0 && task.getReminderId() != 0) {
+//            Intent intent = new Intent(this, AlarmReciever.class);
+//            Bundle bundle = new Bundle();
+//            bundle.putSerializable(Co.LOCAL_TASK, task);
+//            intent.putExtra(Co.LOCAL_TASK, bundle);
+//            AlarmManager alarmManager;
+//            PendingIntent pendingIntent;
+//            Calendar calendar;
+//            switch (task.getRepeatMode()) {
+//
+//                case Co.REMINDER_ONE_TIME:
+//                    Log.d("repeatMode", "One time");
+//                    pendingIntent = PendingIntent.getBroadcast(this, (int) task.getReminderId(),
+//                            intent,
+//                            PendingIntent.FLAG_UPDATE_CURRENT);
+//                    alarmManager =
+//                            (AlarmManager) getSystemService(ALARM_SERVICE);
+//                    alarmManager.set(AlarmManager.RTC_WAKEUP,
+//                            task.getReminder(), pendingIntent);
+//                    break;
+//
+//                case Co.REMINDER_DAILY:
+//                    Log.d("repeatMode", "Daily");
+//                    calendar = Calendar.getInstance();
+//                    calendar.setTimeInMillis(task.getReminderId());
+//
+//                    if (Calendar.getInstance().after(calendar)) {
+//                        calendar.add(Calendar.DATE, 1);
+//                    }
+//                    pendingIntent = PendingIntent.getBroadcast(
+//                            this,
+//                            (int) task.getReminderId(),
+//                            intent,
+//                            PendingIntent.FLAG_UPDATE_CURRENT);
+//                    alarmManager =
+//                            (AlarmManager) getSystemService(ALARM_SERVICE);
+//
+//                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+//                            calendar.getTimeInMillis(), 24 * 60 * 60 * 1000, pendingIntent);
+//                    break;
+//
+//                case Co.REMINDER_DAILY_WEEKDAYS:
+//                    Log.d("repeatMode", "Weekdays");
+//                    calendar = Calendar.getInstance();
+//                    calendar.setTimeInMillis(task.getReminderId());
+//
+//                    if (Calendar.getInstance().after(calendar)) {
+//                        calendar.add(Calendar.DATE, 1);
+//                    }
+//                    pendingIntent = PendingIntent.getBroadcast(
+//                            this,
+//                            (int) task.getReminderId(),
+//                            intent,
+//                            PendingIntent.FLAG_UPDATE_CURRENT);
+//                    alarmManager =
+//                            (AlarmManager) getSystemService(ALARM_SERVICE);
+//
+//                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+//                            calendar.getTimeInMillis(), 24 * 60 * 60 * 1000, pendingIntent);
+//                    break;
+//
+//                case Co.REMINDER_SAME_DAY_OF_WEEK:
+////                    Log.d("repeatMode","Daily");
+////                    pendingIntent = PendingIntent.getBroadcast(
+////                            this,
+////                            (int) task.getReminderId(),
+////                            intent,
+////                            PendingIntent.FLAG_UPDATE_CURRENT);
+////                    alarmManager =
+////                            (AlarmManager) getSystemService(ALARM_SERVICE);
+////                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+////                            task.getReminder(), 24*60*60*1000, pendingIntent);
+////                    break;
+//
+//                case Co.REMINDER_SAME_DAY_OF_MONTH:
+////                    Log.d("repeatMode","Daily");
+////                    pendingIntent = PendingIntent.getBroadcast(
+////                            this,
+////                            (int) task.getReminderId(),
+////                            intent,
+////                            PendingIntent.FLAG_UPDATE_CURRENT);
+////                    alarmManager =
+////                            (AlarmManager) getSystemService(ALARM_SERVICE);
+////                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+////                            task.getReminder(), 24*60*60*1000, pendingIntent);
+////                    break;
+//            }
+//        }
+//    }
 
-    @Override
-    public void cancelReminder(LocalTask task) {
-        Intent intent = new Intent(this, AlarmReciever.class);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
-                (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.cancel(pendingIntent);
-        pendingIntent.cancel();
-    }
+//    @Override
+//    public void cancelReminder(LocalTask task) {
+//        Intent intent = new Intent(this, AlarmReciever.class);
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
+//                (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        alarmManager.cancel(pendingIntent);
+//        pendingIntent.cancel();
+//    }
 
     @Override
     public boolean isReminderSet(int reminderId) {

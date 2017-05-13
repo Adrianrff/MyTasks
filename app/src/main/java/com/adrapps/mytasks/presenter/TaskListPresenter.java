@@ -227,6 +227,10 @@ public class TaskListPresenter {
         return mModel.updateReminder(taskId, reminder);
     }
 
+    public long updateReminder(int intId, long reminder){
+        return mModel.updateReminder(intId, reminder);
+    }
+
     public void showBottomSheet(LocalTask task, int position, boolean b){
         getView().showBottomSheet(task, position, b);
     }
@@ -370,5 +374,9 @@ public class TaskListPresenter {
 
     public void updateItem(LocalTask syncedLocalTask) {
         getView().updateItem(syncedLocalTask);
+    }
+
+    public boolean isReminderSet(int reminderId) {
+        return getView().isReminderSet(reminderId);
     }
 }

@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,7 +105,12 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         holder.taskCheckbox.setOnCheckedChangeListener(holder);
 
         if (cTask.getReminder() != 0) {
-            holder.notificationImage.setVisibility(View.VISIBLE);
+            if (mPresenter.isReminderSet((int) cTask.getReminderId())){
+                holder.notificationImage.setVisibility(View.VISIBLE);
+            } else {
+                //TODO: Alert user that the reminder is set in app but not registered in the system
+                holder.notificationImage.setVisibility(View.GONE);
+            }
         } else {
             holder.notificationImage.setVisibility(View.GONE);
         }

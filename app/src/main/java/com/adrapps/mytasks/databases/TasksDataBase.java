@@ -320,7 +320,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             cv.put(COL_DELETED, (tasks.get(i).isDeleted()) ? 1 : 0);
             cv.put(COL_HIDDEN, (tasks.get(i).isHidden()) ? 1 : 0);
             cv.put(COL_REMINDER, tasks.get(i).getReminder());
-            cv.put(COL_REMINDER_ID, tasks.get(i).getReminder());
+            cv.put(COL_REMINDER_ID, tasks.get(i).getReminderId());
             cv.put(COL_REMINDER_REPEAT_MODE, tasks.get(i).getRepeatMode());
             cv.put(COL_SYNC_STATUS, tasks.get(i).getSyncStatus());
             cv.put(COL_LOCAL_UPDATED, tasks.get(i).getLocalModify());
@@ -351,7 +351,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
             cv.put(COL_HIDDEN, (tasks.get(i).isHidden()) ? 1 : 0);
             cv.put(COL_REMINDER, tasks.get(i).getReminder());
             cv.put(COL_REMINDER_REPEAT_MODE, tasks.get(i).getRepeatMode());
-            cv.put(COL_REMINDER_ID, tasks.get(i).getReminder());
+            cv.put(COL_REMINDER_ID, tasks.get(i).getReminderId());
             cv.put(COL_SYNC_STATUS, tasks.get(i).getSyncStatus());
             cv.put(COL_LOCAL_UPDATED, tasks.get(i).getLocalModify());
             cv.put(COL_LOCAL_SIBLING, tasks.get(i).getSibling());
@@ -748,7 +748,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
         cv.put(COL_DELETED, (modifiedTask.isDeleted()) ? 1 : 0);
         cv.put(COL_HIDDEN, (modifiedTask.isHidden()) ? 1 : 0);
         cv.put(COL_REMINDER, modifiedTask.getReminder());
-        cv.put(COL_REMINDER_ID, modifiedTask.getReminder());
+        cv.put(COL_REMINDER_ID, modifiedTask.getReminderId());
         cv.put(COL_REMINDER_REPEAT_MODE, modifiedTask.getRepeatMode());
         cv.put(COL_SYNC_STATUS, modifiedTask.getSyncStatus());
         cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);

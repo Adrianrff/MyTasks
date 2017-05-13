@@ -46,11 +46,14 @@ public class Co {
     public static final int MORNING_ALARM_HOUR = 8;
     public static final int AFTERNOON_ALARM_HOUR = 14;
     public static final int EVENING_ALARM_HOUR = 18;
-    public static int REMINDER_ONE_TIME = 0;
-    public static int REMINDER_DAILY = 1;
-    public static int REMINDER_DAILY_WEEKDAYS = 2;
-    public static int REMINDER_SAME_DAY_OF_WEEK = 3;
-    public static int REMINDER_SAME_DAY_OF_MONTH = 4;
+    public static final int REMINDER_ONE_TIME = 0;
+    public static final int REMINDER_DAILY = 1;
+    public static final int REMINDER_DAILY_WEEKDAYS = 2;
+    public static final int REMINDER_SAME_DAY_OF_WEEK = 3;
+    public static final int REMINDER_SAME_DAY_OF_MONTH = 4;
+    public static final long ONE_DAY_LATER = 24 * 60 * 60 * 1000;
+
+
     public static String REMINDER_REPEAT_MODE = "Repeat mode";
 
     //Sync status

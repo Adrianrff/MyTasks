@@ -65,7 +65,7 @@ public class Contract {
 
         void initRecyclerView(List<LocalTask> tasks);
 
-        void setOrUpdateAlarm(LocalTask task);
+//        void setOrUpdateAlarm(LocalTask task);
 
         void addTaskToAdapter(LocalTask localTask);
 
@@ -83,7 +83,7 @@ public class Contract {
 
         void navigateToEditTask(Intent i);
 
-        void cancelReminder(LocalTask task);
+//        void cancelReminder(LocalTask task);
 
         boolean isReminderSet(int reminderId);
 

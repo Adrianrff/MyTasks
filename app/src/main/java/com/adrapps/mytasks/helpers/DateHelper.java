@@ -42,10 +42,18 @@ public class DateHelper {
         calendar.setTimeInMillis(timeInMills);
         String format;
         if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)){
-            format = "d MMM h:mm a";
+            format = "d MMM, h:mm a";
         } else {
-            format = "d MMM yyyy h:mm a";
+            format = "d MMM yyyy, h:mm a";
         }
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        return sdf.format(calendar.getTime());
+    }
+
+    public static String timeInMillsToTimeOnly(long timeInMills){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMills);
+        String format = "h:mm a";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
         return sdf.format(calendar.getTime());
     }
@@ -106,5 +114,30 @@ public class DateHelper {
     }
 
 
+    public static boolean isTomorrowWeekday() {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, 1);
+        int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
+        return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
+    }
 
+    public static boolean isTodayWeekday() {
+        Calendar c = Calendar.getInstance();
+        int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
+        return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
+    }
+
+    public static boolean isWeekday(long date) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(date);
+        int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
+        return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
+    }
+
+    public static boolean isNextDayWeekday(long date) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(date);
+        int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
+        return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
+    }
 }

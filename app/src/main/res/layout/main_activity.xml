@@ -120,15 +120,17 @@
                         android:id="@+id/edit_icon"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_marginLeft="@dimen/full_margin"
+                        android:padding="8dp"
                         android:layout_marginStart="@dimen/full_margin"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:contentDescription="sd"
-                        android:src="@mipmap/edit_white"
+                        android:src="@drawable/edit_white"
                         android:layout_alignParentRight="true" />
+
                 </RelativeLayout>
 
 
