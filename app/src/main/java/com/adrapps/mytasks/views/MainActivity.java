@@ -34,6 +34,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,10 +60,15 @@ import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bumptech.glide.Glide;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.tasks.model.Task;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -92,7 +98,7 @@ public class MainActivity extends AppCompatActivity
     private TextView userEmail, userName, detailTitle, detailDate,
             detailNotification, detailNotes, detailRepeat;
     private BottomSheetBehavior mBottomSheetBehavior;
-    private AlarmHelper alarmHelper;
+    private JsonBatchCallback<Task> callback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +132,20 @@ public class MainActivity extends AppCompatActivity
         }
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         fab.setImageResource(R.drawable.add_white);
+
+        callback = new JsonBatchCallback<Task>() {
+
+            @Override
+            public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
+//                showToast("Tasks added in batch");
+                Log.d("FInish","FInish");
+            }
+
+            public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) {
+                showToast("failed");
+            }
+        };
+
     }
 
 
@@ -638,7 +658,8 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-                showToast(isReminderSet((int) 1494712857891L) ? "Set" : "Not Set");
+//                BatchTest request = new BatchTest(this, mPresenter, mCredential, callback, callback1);
+//                request.execute();
                 break;
 
             case R.id.refresh:
