@@ -6,63 +6,60 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:backupAgent=".Backup"
         android:fullBackupContent="true"
-        android:name=".MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppThemeBurgundy">
-
         <activity
             android:name=".views.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppThemeBurgundy.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".api_calls.SignInActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppThemeBurgundy.NoActionBar">
-        </activity>
-
+            android:theme="@style/AppThemeBurgundy.NoActionBar" />
         <activity
             android:name=".views.NewTaskOrEditActivity"
             android:label="@string/app_name"
             android:parentActivityName=".views.MainActivity"
-            android:theme="@style/AppThemeBurgundy.NoActionBar"
-            >
-        </activity>
+            android:theme="@style/AppThemeBurgundy.NoActionBar" />
 
-        <receiver android:name="com.adrapps.mytasks.AlarmReciever"
+        <receiver
+            android:name=".AlarmReciever"
             android:exported="false">
             <intent-filter>
                 <action android:name="WhatEverYouWant" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".OnBootReceiver"
+        <receiver
+            android:name=".OnBootReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-
         <meta-data
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAI5RxBc34dSH7m1o8X84T1y1ik137ZZBKMtDG4MQ" />
+
+
     </application>
 
 </manifest>

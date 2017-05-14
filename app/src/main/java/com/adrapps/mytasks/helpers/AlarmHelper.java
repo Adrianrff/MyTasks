@@ -5,15 +5,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.adrapps.mytasks.AlarmReciever;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.models.DataModel;
-
-import java.util.Calendar;
 
 import static android.content.Context.ALARM_SERVICE;
 
@@ -27,55 +24,45 @@ public class AlarmHelper {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(Co.LOCAL_TASK, task);
                 intent.putExtra(Co.LOCAL_TASK, bundle);
+                long reminder = task.getReminder();
                 AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) task.getReminderId(), intent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
-                Calendar calendar = Calendar.getInstance();
+;
 
                 switch (task.getRepeatMode()) {
 
                     case Co.REMINDER_ONE_TIME:
+                        //NO RESET IN RECEIVER
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
-                                task.getReminder(), pendingIntent);
+                                reminder, pendingIntent);
                         break;
 
                     case Co.REMINDER_DAILY:
-                        Log.d("repeatMode", "Daily");
-                            calendar.setTimeInMillis(task.getReminder());
-                        if (Calendar.getInstance().getTimeInMillis() > task.getReminder()) {
-                            calendar.add(Calendar.DATE, 1);
-                        }
+                        //NO RESET IN RECEIVER
+                        //WORKING
                         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                                calendar.getTimeInMillis(), Co.ONE_DAY_LATER, pendingIntent);
-                        mModel.updateReminder(task.getIntId(), calendar.getTimeInMillis());
+                                reminder, Co.ONE_DAY_LATER, pendingIntent);
+                        mModel.updateReminder(task.getIntId(), reminder);
                         break;
 
                     case Co.REMINDER_DAILY_WEEKDAYS:
-                        Log.d("repeatMode", "Weekdays");
-                        alarmManager.set(AlarmManager.RTC_WAKEUP,
-                                task.getReminder(), pendingIntent);
-                        mModel.updateReminder(task.getIntId(), task.getReminder());
+                        //NO RESET IN RECEIVER BUT CHECKS IF ITS WEEKDAY
+                        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                                reminder, Co.ONE_DAY_LATER, pendingIntent);
+                        mModel.updateReminder(task.getIntId(), reminder);
                         break;
 
                     case Co.REMINDER_SAME_DAY_OF_WEEK:
-                        Log.d("repeatMode", "Same day of week");
-                        calendar.setTimeInMillis(task.getReminder());
+                        //RESET IN RECEIVER
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
-                                calendar.getTimeInMillis(), pendingIntent);
+                                reminder, pendingIntent);
                         break;
 
                     case Co.REMINDER_SAME_DAY_OF_MONTH:
-                        Log.d("repeatMode", "Same day of month");
-                        //TODO: set alarm for once a month
-                        calendar = Calendar.getInstance();
-                        calendar.setTimeInMillis(task.getReminder());
-                        if (Calendar.getInstance().getTimeInMillis() > task.getReminder()) {
-                            return;
-                        }
-
+                        //RESET IN RECEIVER
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
-                                calendar.getTimeInMillis(), pendingIntent);
-                        mModel.updateReminder(task.getIntId(), calendar.getTimeInMillis());
+                                reminder, pendingIntent);
                         break;
                 }
             }
