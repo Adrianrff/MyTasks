@@ -8,7 +8,6 @@ import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -224,14 +223,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
         @Override
         public void onClick(View v) {
-//            LocalTask cTask = tasks.get(getAdapterPosition());
-//            if (cTask.getId() == null || cTask.getId().trim().isEmpty()){
-//                cTask = mPresenter.getTask(cTask.getIntId());
-//            }
-//            Intent i = new Intent(context, NewTaskOrEditActivity.class);
-//            i.putExtra(Co.LOCAL_TASK, cTask);
-//            i.putExtra(Co.ADAPTER_POSITION, getAdapterPosition());
-//            mPresenter.navigateToEditTask(i);
             mPresenter.showBottomSheet(tasks.get(getAdapterPosition()), getAdapterPosition(), true);
         }
 

@@ -81,7 +81,6 @@ public class TaskListPresenter {
             SyncTasks syncTasks = new SyncTasks(getView().getContext(), this, getView().getCredential());
             syncTasks.execute();
         } else {
-            showToast(getString(R.string.no_internet_toast));
             showSwipeRefreshProgress(false);
         }
     }

@@ -351,7 +351,6 @@ public class DataModel implements Contract.Model {
             MoveTask move = new MoveTask(context, mPresenter, mPresenter.getCredential());
             move.execute(movedTask.getId(), movedTask.getList(), previousTaskId);
         } else {
-            mPresenter.showToast(mPresenter.getString(R.string.no_internet_toast));
         }
     }
 

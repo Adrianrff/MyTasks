@@ -257,8 +257,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean b) {
-        if (b) {
+    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean shouldShow) {
+        if (shouldShow) {
             swipeRefresh.setEnabled(false);
             if (task != null) {
                 detailTitle.setText(task.getTitle());
@@ -315,7 +315,6 @@ public class MainActivity extends AppCompatActivity
             editIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     Intent i = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
                     i.putExtra(Co.LOCAL_TASK, task);
                     i.putExtra(Co.ADAPTER_POSITION, position);
@@ -356,7 +355,7 @@ public class MainActivity extends AppCompatActivity
             try {
                 currentListTitle = Co.listTitles.get(0);
             } catch (Exception e) {
-                showToast("There");
+                e.printStackTrace();
             }
             String currentListId = Co.listIds.get(0);
             saveStringShP(Co.CURRENT_LIST_ID, currentListId);
@@ -729,7 +728,7 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
 
                 // TASK EDITED
-                showBottomSheet(null, -1, false);
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
@@ -800,6 +799,7 @@ public class MainActivity extends AppCompatActivity
 
                     // TASK ADDED
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
                         task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
@@ -882,7 +882,6 @@ public class MainActivity extends AppCompatActivity
     public void showSwipeRefreshProgress(boolean b) {
         swipeRefresh.setRefreshing(b);
     }
-
 //    @Override
 //    public void setOrUpdateAlarm(LocalTask task) {
 //        //TODO: Test repeating alarms with short interval
