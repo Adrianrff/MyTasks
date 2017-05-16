@@ -9,6 +9,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Contract {
@@ -110,10 +111,6 @@ public class Contract {
 
         void addTaskFirstTimeFromServer(Task task, String listId);
 
-        int deleteTaskFromDatabase(String taskId);
-
-        void deleteListFromDB(int intId);
-
         int addListToDb(String listTitle);
 
         void deleteTask(String taskId, String listId);
@@ -170,7 +167,7 @@ public class Contract {
 
         void setTemporaryPositionByIntId(int intId, String newTaskTempPos);
 
-        void deleteTaskFromDataBase(int intId);
+        void deleteTaskFromDatabase(int intId);
 
         int getIntIdByTaskId(String taskId);
 
@@ -195,6 +192,8 @@ public class Contract {
         int getTaskReminderRepeatMode(String taskId);
 
         long getTaskReminderByIntId(int intId);
+
+        void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
     }
 
 

@@ -33,7 +33,7 @@ import java.util.List;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class SyncTasks extends AsyncTask<Void, Void, Void> {
+public class SyncTasksNew extends AsyncTask<Void, Void, Void> {
 
     private final BatchRequest requests;
     private Tasks mService = null;
@@ -49,7 +49,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
     Context context;
     private JsonBatchCallback<Task> moveCallback;
 
-    public SyncTasks(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
+    public SyncTasksNew(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
         this.context = context;
         this.mPresenter = presenter;
 

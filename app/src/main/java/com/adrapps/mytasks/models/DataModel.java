@@ -23,6 +23,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -88,10 +89,6 @@ public class DataModel implements Contract.Model {
         tasksDb.addTaskFirstTimeFromServer(task, listId);
     }
 
-    @Override
-    public int deleteTaskFromDatabase(String taskId) {
-        return tasksDb.deleteTask(taskId);
-    }
 
     @Override
     public long getTaskReminder(String taskId) {
@@ -199,7 +196,7 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void deleteTaskFromDataBase(int intId) {
+    public void deleteTaskFromDatabase(int intId) {
         tasksDb.deleteTask(intId);
     }
 
@@ -288,8 +285,8 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void deleteListFromDB(int intId){
-        listsDb.deleteList(intId);
+    public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
+        tasksDb.updateNewTasksInBulk(map);
     }
 
     @Override
@@ -356,7 +353,9 @@ public class DataModel implements Contract.Model {
 
     @Override
     public void editTask(LocalTask task) {
-        task.setSyncStatus(Co.EDITED_NOT_SYNCED);
+        if (task.getSyncStatus() != Co.NOT_SYNCED && task.getSyncStatus() != Co.EDITED_NOT_SYNCED){
+            task.setSyncStatus(Co.EDITED_NOT_SYNCED);
+        }
         mPresenter.updateLocalTask(task);
         if (mPresenter.isDeviceOnline()) {
             EditTask edit = new EditTask(context, mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));

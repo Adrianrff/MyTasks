@@ -34,7 +34,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +51,7 @@ import android.widget.Toast;
 import com.adrapps.mytasks.AlarmReciever;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.api_calls.SignInActivity;
+import com.adrapps.mytasks.api_calls.SyncTasksNew;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.AlarmHelper;
@@ -60,15 +60,10 @@ import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bumptech.glide.Glide;
-import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.googleapis.json.GoogleJsonError;
-import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.tasks.model.Task;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -98,7 +93,8 @@ public class MainActivity extends AppCompatActivity
     private TextView userEmail, userName, detailTitle, detailDate,
             detailNotification, detailNotes, detailRepeat;
     private BottomSheetBehavior mBottomSheetBehavior;
-    private JsonBatchCallback<Task> callback;
+    private Intent newOrEditTaskIntent;
+    private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,20 +128,7 @@ public class MainActivity extends AppCompatActivity
         }
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         fab.setImageResource(R.drawable.add_white);
-
-        callback = new JsonBatchCallback<Task>() {
-
-            @Override
-            public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
-//                showToast("Tasks added in batch");
-                Log.d("FInish","FInish");
-            }
-
-            public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) {
-                showToast("failed");
-            }
-        };
-
+        this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
     }
 
 
@@ -214,7 +197,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        bottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
@@ -232,7 +215,9 @@ public class MainActivity extends AppCompatActivity
                     fab.animate().scaleX(1 - slideOffset).scaleY(1 - slideOffset).setDuration(0).start();
                 }
             }
-        });
+        };
+
+        mBottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback);
 
     }
 
@@ -315,10 +300,24 @@ public class MainActivity extends AppCompatActivity
             editIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent i = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
-                    i.putExtra(Co.LOCAL_TASK, task);
-                    i.putExtra(Co.ADAPTER_POSITION, position);
-                    navigateToEditTask(i);
+                    newOrEditTaskIntent.putExtra(Co.LOCAL_TASK, task);
+                    newOrEditTaskIntent.putExtra(Co.ADAPTER_POSITION, position);
+                    mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                        @Override
+                        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                            if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                                navigateToEditTask(newOrEditTaskIntent);
+                                mBottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback);
+                            }
+                        }
+
+                        @Override
+                        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                        }
+                    });
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
                 }
 
             });
@@ -483,7 +482,9 @@ public class MainActivity extends AppCompatActivity
                         taskId = task.getId();
                     }
                     if (taskId == null || taskId.trim().isEmpty()) {
-                        mPresenter.deleteTaskFromDataBase(task.getIntId());
+                        mPresenter.deleteTaskFromDatabase(task.getIntId());
+                        AlarmHelper.cancelReminder(task, MainActivity.this);
+                        return;
                     }
                     mPresenter.deleteTask(taskId, task.getList());
                     AlarmHelper.cancelReminder(task, MainActivity.this);
@@ -657,8 +658,10 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
 
             case R.id.action_settings:
-//                BatchTest request = new BatchTest(this, mPresenter, mCredential, callback, callback1);
-//                request.execute();
+                SyncTasksNew sync = new SyncTasksNew(this, mPresenter, mCredential);
+                sync.execute();
+//                BatchTest batch = new BatchTest(this, mPresenter, mCredential);
+//                batch.execute();
                 break;
 
             case R.id.refresh:
@@ -700,8 +703,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        fab.setImageResource(R.drawable.add_white);
+        if (fab.getVisibility() != View.VISIBLE) {
+            fab.show();
+        }
         toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
     }
 
@@ -728,8 +732,9 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
 
                 // TASK EDITED
-                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                //TODO: Don't change sync status to one if that task is not synced (syncStatus = 0)
                 if (resultIntent.hasExtra(Co.TASK_EDIT)) {
+                    fab.show();
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
 
@@ -786,7 +791,6 @@ public class MainActivity extends AppCompatActivity
                                         task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
                                         break;
                                 }
-
                                 mPresenter.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
                                 AlarmHelper.setOrUpdateAlarm(task, this);
                             } else {
@@ -799,13 +803,13 @@ public class MainActivity extends AppCompatActivity
 
                     // TASK ADDED
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
-                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
                         task.setTaskList(getStringShP(Co.CURRENT_LIST_ID));
                         if (task.getReminder() != 0) {
                             AlarmHelper.setOrUpdateAlarm(task, this);
                         }
+                        task.setSyncStatus(0);
                         mPresenter.addTask(task);
                     }
                 }
@@ -884,7 +888,6 @@ public class MainActivity extends AppCompatActivity
     }
 //    @Override
 //    public void setOrUpdateAlarm(LocalTask task) {
-//        //TODO: Test repeating alarms with short interval
 //        if (task.getReminder() != 0 && task.getReminderId() != 0) {
 //            Intent intent = new Intent(this, AlarmReciever.class);
 //            Bundle bundle = new Bundle();

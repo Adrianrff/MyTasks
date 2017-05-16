@@ -215,9 +215,6 @@ public class LocalTask implements Serializable, Comparable {
 
     ///-------------------GETTERS---------------------///
 
-    public String getTaskList() {
-        return taskList;
-    }
 
     public int getLocalSibling() {
         return localSibling;

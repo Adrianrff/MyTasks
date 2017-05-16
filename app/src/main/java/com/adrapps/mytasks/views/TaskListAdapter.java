@@ -314,6 +314,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                             int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
                             newTaskTempPos = previousTaskServerPos.substring(0,
                                     previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
+                        } else {
+
                         }
 
                     }

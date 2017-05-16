@@ -11,6 +11,7 @@ import com.adrapps.mytasks.domain.LocalTask;
 import com.google.api.services.tasks.model.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -95,7 +96,7 @@ public class TasksDataBase extends SQLiteOpenHelper {
                     COL_LOCAL_SIBLING + " int default 0," +
                     COL_MOVED + " int default 0," +
                     COL_LOCAL_UPDATED + " bigint," +
-                    COL_LOCAL_DELETED + " int)";
+                    COL_LOCAL_DELETED + " int default 0)";
     private long offSet = TimeZone.getDefault().getRawOffset();
 
 
@@ -849,8 +850,22 @@ public class TasksDataBase extends SQLiteOpenHelper {
         return taskId;
     }
 
-    public int getIntIdByTaskId(String taskId) {
-        return 0;
+    public int getIntIdByTaskId(String id) {
+        if (id == null) {
+            return -1;
+        }
+        db = getWritableDB();
+        String selection = COL_ID + " = ? ";
+        String[] selectionArgs = {id};
+        int intId = -1;
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COL_INT_ID}, selection, selectionArgs, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            intId = cursor.getInt(cursor.getColumnIndex(COL_INT_ID));
+            cursor.close();
+        }
+        db.close();
+        return intId;
     }
 
     public void updateMovedByIntId(int intId, int moved) {
@@ -911,4 +926,42 @@ public class TasksDataBase extends SQLiteOpenHelper {
             return null;
         }
     }
+
+    public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
+        db = getWritableDB();
+        db.beginTransaction();
+        LocalTask localTask;
+        List<Task> serverTasks = new ArrayList<>(map.keySet());
+        String selection = COL_INT_ID + " = ? ";
+        try {
+            for (Task task : serverTasks) {
+                localTask = map.get(task);
+                String[] selectionArgs = {String.valueOf(localTask.getIntId())};
+                ContentValues cv = new ContentValues();
+                cv.put(COL_ID, task.getId());
+                cv.put(COL_LIST, localTask.getList());
+                cv.put(COL_TITLE, task.getTitle());
+                cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
+                cv.put(COL_PARENT, task.getParent());
+                cv.put(COL_POSITION, task.getPosition());
+                cv.put(COL_NOTES, task.getNotes());
+                cv.put(COL_STATUS, task.getStatus());
+                cv.put(COL_DUE, task.getDue() != null ? task.getDue().getValue() - offSet : 0);
+                cv.put(COL_COMPLETED, task.getCompleted() != null ? task.getCompleted().getValue() : 0);
+                cv.put(COL_DELETED, task.getDeleted() == null ? 0 : 1);
+                cv.put(COL_HIDDEN, task.getHidden() == null ? 0 : 1);
+                cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis() + 10000);
+                cv.put(COL_SYNC_STATUS, Co.SYNCED);
+                int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
 }
+
+

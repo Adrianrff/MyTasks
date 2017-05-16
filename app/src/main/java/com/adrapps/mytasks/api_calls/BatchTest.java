@@ -13,11 +13,12 @@ import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
-import com.google.api.services.tasks.model.TaskList;
 
 import java.io.IOException;
 
@@ -26,20 +27,27 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class BatchTest extends AsyncTask<Void, Void, Void> {
 
     private final JsonBatchCallback<Task> callback;
-    private final JsonBatchCallback<TaskList> callback1;
     private com.google.api.services.tasks.Tasks mService = null;
     private Exception mLastError = null;
     private TaskListPresenter mPresenter;
     Context context;
 
     public BatchTest(Context context, TaskListPresenter presenter,
-                     GoogleAccountCredential credential,
-                     JsonBatchCallback<Task> callback,
-                     JsonBatchCallback<TaskList> callback1) {
+                     GoogleAccountCredential credential) {
         this.mPresenter = presenter;
         this.context = context;
-        this.callback = callback;
-        this.callback1 = callback1;
+        this.callback = new JsonBatchCallback<Task>() {
+            @Override
+            public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+
+            }
+
+            @Override
+            public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
+
+            }
+        };
+
         HttpTransport transport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         mService = new com.google.api.services.tasks.Tasks.Builder(
@@ -114,10 +122,8 @@ public class BatchTest extends AsyncTask<Void, Void, Void> {
             Task task3 = new Task();
             task3.setTitle("test 3");
             mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID), task3).queue(request, callback);
-            Task task4 = new Task();
-            task4.setTitle("test 4");
-            mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID), task4).queue(request, callback);
             request.execute();
+
         } else {
             EasyPermissions.requestPermissions(
                     context, context.getString(R.string.contacts_permissions_rationale),
