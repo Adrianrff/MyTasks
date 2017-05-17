@@ -45,7 +45,7 @@ public class Co {
     //Reminder
     public static final int MORNING_ALARM_HOUR = 8;
     public static final int AFTERNOON_ALARM_HOUR = 14;
-    public static final int EVENING_ALARM_HOUR = 18;
+    public static final int EVENING_ALARM_HOUR = 19;
     public static final int REMINDER_ONE_TIME = 0;
     public static final int REMINDER_DAILY = 1;
     public static final int REMINDER_DAILY_WEEKDAYS = 2;

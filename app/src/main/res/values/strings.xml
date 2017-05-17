@@ -75,6 +75,8 @@
     <string name="of_every_month">of every month</string>
     <string name="on_day">On day</string>
     <string name="past_reminder_no_effect">Setting a reminder to a past date would have no effect</string>
+    <string name="last_day_of_month">On the last day</string>
+    <string name="next_reminder">Next reminder: </string>
 
     <string-array name="notification_options">
         <item>In the morning</item>

@@ -76,7 +76,8 @@
     <string name="every">Cada</string>
     <string name="of_every_month">de cada mes</string>
     <string name="on_day">Los</string>
-    <string name="past_reminder_no_effect">Setting a reminder to a past date would have no effect</string>
+    <string name="last_day_of_month">El último</string>
+    <string name="next_reminder">Próximo recordatorio: </string>
 
 
     <string-array name="notification_options">

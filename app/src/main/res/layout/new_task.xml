@@ -54,7 +54,7 @@
             android:layout_marginStart="@dimen/full_margin"
             android:contentDescription="Description"
             android:tint="@color/colorPrimary"
-            android:src="@drawable/ic_label" />
+            app:srcCompat="@drawable/ic_label" />
 
         <EditText
             android:id="@+id/task_title_edit_text"
@@ -100,7 +100,7 @@
             android:layout_marginStart="@dimen/full_margin"
             android:contentDescription="sd"
             android:tint="@color/colorPrimary"
-            android:src="@drawable/notes_24dp" />
+            app:srcCompat="@drawable/notes_24dp" />
 
         <EditText
             android:id="@+id/task_notes_edit_text"
@@ -146,7 +146,7 @@
             android:layout_marginStart="@dimen/full_margin"
             android:contentDescription="sd"
             android:tint="@color/colorPrimary"
-            android:src="@drawable/ic_date" />
+            app:srcCompat="@drawable/ic_date" />
 
         <TextView
             android:id="@+id/dueDateTv"
@@ -164,7 +164,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="Description"
-            android:src="@drawable/ic_close_black_24dp" />
+            app:srcCompat="@drawable/ic_close_black_24dp" />
 
     </LinearLayout>
 
@@ -195,7 +195,7 @@
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
             android:contentDescription="sd"
-            android:src="@drawable/notification_small"
+            app:srcCompat="@drawable/notification_small"
             android:tint="@color/colorPrimary" />
 
         <TextView
@@ -215,7 +215,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:contentDescription="Description"
-            android:src="@drawable/ic_close_black_24dp" />
+            app:srcCompat="@drawable/ic_close_black_24dp" />
 
 
     </LinearLayout>
@@ -229,7 +229,7 @@
         android:layout_marginRight="@dimen/full_margin"
         android:layout_marginStart="72dp"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <View
             android:layout_width="match_parent"
@@ -250,7 +250,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_repeat_black_24dp"
+                app:srcCompat="@drawable/ic_repeat_black_24dp"
                 android:tint="@color/colorPrimary"/>
 
 
@@ -265,6 +265,28 @@
 
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="@dimen/full_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/next_reminder"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/next_reminder_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/half_margin"
+                android:layout_marginLeft="@dimen/half_margin" />
+
+        </LinearLayout>
+
 
 
     </LinearLayout>
