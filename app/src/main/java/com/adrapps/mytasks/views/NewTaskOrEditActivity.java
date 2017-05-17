@@ -345,6 +345,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                         notificationTV.setText(DateHelper.timeInMillsToTimeOnly(reminderCalendar.getTimeInMillis()));
                         clearReminder.setVisibility(View.VISIBLE);
                         notifLayout.setVisibility(View.VISIBLE);
+
                         setRepeatSpinnerAdapter(reminderCalendar.getTimeInMillis(), true);
                         repeatSpinner.setSelection(Co.REMINDER_DAILY);
                         dialog.dismiss();
