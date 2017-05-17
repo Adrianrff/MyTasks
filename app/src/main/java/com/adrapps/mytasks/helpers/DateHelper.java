@@ -98,7 +98,7 @@ public class DateHelper {
         return yearToday == yearInput && monthToday == monthInput && dayInput == dayToday + 1;
     }
 
-    public static boolean isInInThePast(long timeInMills){
+    public static boolean isInThePast(long timeInMills){
         Calendar ca = Calendar.getInstance();
         Calendar ca1 = Calendar.getInstance();
         ca1.setTimeInMillis(timeInMills);
@@ -139,5 +139,13 @@ public class DateHelper {
         c.setTimeInMillis(date);
         int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
         return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
+    }
+
+    public static boolean isBeforeByAtLeastDay(Calendar c){
+        Calendar today = Calendar.getInstance();
+        return today.get(Calendar.YEAR) > c.get(Calendar.YEAR) || (today.get(Calendar.YEAR) == c.get(Calendar.YEAR) &&
+                today.get(Calendar.MONTH) > c.get(Calendar.MONTH)) ||
+                (today.get(Calendar.YEAR) == c.get(Calendar.YEAR) && today.get(Calendar.MONTH) == c.get(Calendar.MONTH) &&
+                        today.get(Calendar.DAY_OF_MONTH) > c.get(Calendar.DAY_OF_MONTH));
     }
 }

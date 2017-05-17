@@ -12,7 +12,7 @@ import com.adrapps.mytasks.api_calls.DeleteTask;
 import com.adrapps.mytasks.api_calls.MoveTask;
 import com.adrapps.mytasks.api_calls.UpdateStatus;
 import com.adrapps.mytasks.databases.ListsDatabase;
-import com.adrapps.mytasks.databases.TasksDataBase;
+import com.adrapps.mytasks.databases.TasksDatabase;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.interfaces.Contract;
@@ -31,19 +31,19 @@ public class DataModel implements Contract.Model {
 
 
     private TaskListPresenter mPresenter;
-    private TasksDataBase tasksDb;
+    private TasksDatabase tasksDb;
     private ListsDatabase listsDb;
     private Context context;
 
     public DataModel(TaskListPresenter presenter, Context context) {
         this.mPresenter = presenter;
-        tasksDb = new TasksDataBase(context);
+        tasksDb = new TasksDatabase(context);
         listsDb = new ListsDatabase(context);
         this.context = context;
     }
 
     public DataModel(Context context) {
-        tasksDb = new TasksDataBase(context);
+        tasksDb = new TasksDatabase(context);
         listsDb = new ListsDatabase(context);
     }
 
@@ -55,8 +55,8 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public void updateTasks(List<LocalTask> tasks) {
-        tasksDb.updateTasks(tasks);
+    public void updateTasksFirstTime(List<LocalTask> tasks) {
+        tasksDb.updateTasksFirstTime(tasks);
     }
 
     @Override
@@ -131,8 +131,8 @@ public class DataModel implements Contract.Model {
     }
 
     @Override
-    public int updateLocalTask(LocalTask modifiedTask) {
-        return tasksDb.updateLocalTask(modifiedTask);
+    public int updateLocalTask(LocalTask modifiedTask, boolean updateReminders) {
+        return tasksDb.updateLocalTask(modifiedTask, updateReminders);
     }
 
     @Override
@@ -356,7 +356,7 @@ public class DataModel implements Contract.Model {
         if (task.getSyncStatus() != Co.NOT_SYNCED && task.getSyncStatus() != Co.EDITED_NOT_SYNCED){
             task.setSyncStatus(Co.EDITED_NOT_SYNCED);
         }
-        mPresenter.updateLocalTask(task);
+        mPresenter.updateLocalTask(task, true);
         if (mPresenter.isDeviceOnline()) {
             EditTask edit = new EditTask(context, mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
             edit.execute(task);

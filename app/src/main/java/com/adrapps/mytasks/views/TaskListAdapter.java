@@ -74,7 +74,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                 holder.dueDate.setTextColor(holder.oldDueColors);
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
                 holder.dueDate.setText(R.string.tomorrow);
-            } else if (DateHelper.isInInThePast(cTask.getDue())) {
+            } else if (DateHelper.isInThePast(cTask.getDue())) {
                 holder.dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
                         + " " + context.getString(R.string.overdue_append));
                 holder.dueDate.setTypeface(null, Typeface.NORMAL);
@@ -104,12 +104,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
         holder.taskCheckbox.setOnCheckedChangeListener(holder);
 
         if (cTask.getReminder() != 0) {
-            if (mPresenter.isReminderSet((int) cTask.getReminderId())){
+//            if (mPresenter.isReminderSet((int) cTask.getReminderId())){
                 holder.notificationImage.setVisibility(View.VISIBLE);
-            } else {
-                //TODO: Alert user that the reminder is set in app but not registered in the system
-                holder.notificationImage.setVisibility(View.GONE);
-            }
+//            } else {
+//                holder.notificationImage.setVisibility(View.GONE);
+//            }
         } else {
             holder.notificationImage.setVisibility(View.GONE);
         }
@@ -250,7 +249,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                         } else if (DateHelper.isTomorrow(cTask.getDue())) {
                             dueDate.setTextColor(oldDueColors);
                             dueDate.setTypeface(null, Typeface.NORMAL);
-                        } else if (DateHelper.isInInThePast(cTask.getDue())) {
+                        } else if (DateHelper.isInThePast(cTask.getDue())) {
                             dueDate.setText(DateHelper.timeInMillsToString(cTask.getDue())
                                     + " " + context.getString(R.string.overdue_append));
                             dueDate.setTypeface(null, Typeface.NORMAL);
@@ -324,9 +323,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                     mPresenter.moveTask(movedTask, previousTaskId);
                 }
             }
-
         }
-
     }
-
 }

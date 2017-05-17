@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity
     private BottomSheetBehavior mBottomSheetBehavior;
     private Intent newOrEditTaskIntent;
     private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback;
+    public static final Object sDataLock = new Object();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,19 +123,18 @@ public class MainActivity extends AppCompatActivity
             i.putExtra(Co.LOCAL_TASK, task);
             startActivityForResult(i, Co.TASK_DATA_REQUEST_CODE);
         }
-
         if (!isDeviceOnline()) {
             showNoInternetWarning(true);
         }
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        fab.setImageResource(R.drawable.add_white);
         this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
     }
 
 
     //-------------------------VIEWS AND DATA------------------------///
 
-    private void findViews() {
+    @Override
+    public void findViews() {
         detailTitle = (TextView) findViewById(R.id.detail_title);
         detailDate = (TextView) findViewById(R.id.detail_date);
         detailNotification = (TextView) findViewById(R.id.detail_notification_tv);
@@ -216,9 +216,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-
         mBottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback);
-
     }
 
     @Override
@@ -739,7 +737,6 @@ public class MainActivity extends AppCompatActivity
                     if (task != null) {
 
                         long reminderInMillis = task.getReminder();
-                        if (task.getReminderId() != 0) {
 
                             if (reminderInMillis != 0) {
                                 Calendar reminderCalendarObject = Calendar.getInstance();
@@ -747,18 +744,43 @@ public class MainActivity extends AppCompatActivity
                                 Calendar today = Calendar.getInstance();
                                 switch (task.getRepeatMode()) {
 
-                                    case Co.REMINDER_DAILY:
-                                        //WORKING
+                                    case Co.REMINDER_ONE_TIME:
                                         if (today.getTimeInMillis() > reminderInMillis) {
-                                            reminderCalendarObject.add(Calendar.DATE, 1);
+                                            showToast("Reminder is set to a past date. It will have no effect");
+                                            task.setReminderNoID(0);
+                                            updateItem(task);
+                                            break;
+                                        } else {
+                                            AlarmHelper.setOrUpdateAlarm(task, this);
+                                        }
+                                        break;
+
+                                    case Co.REMINDER_DAILY:
+                                        if (today.getTimeInMillis() > reminderInMillis) {
+                                            if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
+                                                reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
+                                            }
+                                            if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
+                                                reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
+                                            }
+                                            if (reminderCalendarObject.get(Calendar.DAY_OF_MONTH) < today.get(Calendar.DAY_OF_MONTH)) {
+                                                reminderCalendarObject.add(Calendar.DATE, 1);
+                                            }
                                             task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
                                         }
+                                        AlarmHelper.setOrUpdateAlarm(task, this);
                                         break;
 
                                     case Co.REMINDER_DAILY_WEEKDAYS:
                                         int dayOfWeek = reminderCalendarObject.get(Calendar.DAY_OF_WEEK);
                                         if (DateHelper.isWeekday(reminderInMillis)) {
                                             if (today.getTimeInMillis() > reminderInMillis) {
+                                                if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
+                                                    reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
+                                                }
+                                                if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
+                                                    reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
+                                                }
                                                 if (DateHelper.isNextDayWeekday(reminderInMillis)) {
                                                     reminderCalendarObject.add(Calendar.DATE, 1);
                                                 } else if (dayOfWeek == Calendar.FRIDAY) {
@@ -773,30 +795,45 @@ public class MainActivity extends AppCompatActivity
                                             reminderCalendarObject.add(Calendar.DATE, 1);
                                         }
                                         task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
+                                        AlarmHelper.setOrUpdateAlarm(task, this);
                                         break;
 
                                     case Co.REMINDER_SAME_DAY_OF_WEEK:
                                         if (today.getTimeInMillis() > reminderInMillis) {
-                                            reminderCalendarObject.add(Calendar.DATE, 7);
+                                            if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
+                                                reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
+                                            }
+                                            if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
+                                                reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
+                                            }
+                                            if (reminderCalendarObject.get(Calendar.DAY_OF_WEEK) <= today.get(Calendar.DAY_OF_WEEK)) {
+                                                reminderCalendarObject.add(Calendar.DATE, 7);
+                                            }
                                         }
                                         task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
+                                        AlarmHelper.setOrUpdateAlarm(task, this);
                                         break;
 
                                     case Co.REMINDER_SAME_DAY_OF_MONTH:
-                                        if (reminderCalendarObject.get(Calendar.DAY_OF_MONTH) ==
-                                                today.get(Calendar.DAY_OF_MONTH) &&
-                                                today.getTimeInMillis() > reminderInMillis) {
-                                            reminderCalendarObject.add(Calendar.MONTH, 1);
+                                        if (today.getTimeInMillis() > reminderInMillis) {
+                                            if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
+                                                reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
+                                            }
+                                            if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
+                                                reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
+                                            }
+                                            if (reminderCalendarObject.get(Calendar.MONTH) <= today.get(Calendar.MONTH)) {
+                                                reminderCalendarObject.add(Calendar.MONTH, 1);
+                                            }
                                         }
                                         task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
+                                        AlarmHelper.setOrUpdateAlarm(task, this);
                                         break;
                                 }
                                 mPresenter.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
-                                AlarmHelper.setOrUpdateAlarm(task, this);
                             } else {
                                 AlarmHelper.cancelReminder(task, this);
                             }
-                        }
                         adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                         mPresenter.editTask(task);
                     }

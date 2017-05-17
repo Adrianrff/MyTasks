@@ -109,8 +109,8 @@ public class TaskListPresenter {
         return mModel.getTaskFromListForAdapter(listId);
     }
 
-    public void updateTasks(List<LocalTask> tasks) {
-        mModel.updateTasks(tasks);
+    public void updateTasksFirstTime(List<LocalTask> tasks) {
+        mModel.updateTasksFirstTime(tasks);
     }
 
 
@@ -210,8 +210,8 @@ public class TaskListPresenter {
         mModel.updateSyncStatus(synced, intId);
     }
 
-    public int updateLocalTask(LocalTask modifiedTask) {
-        return mModel.updateLocalTask(modifiedTask);
+    public int updateLocalTask(LocalTask modifiedTask, boolean updateReminder) {
+        return mModel.updateLocalTask(modifiedTask, updateReminder);
     }
 
     public void updateLocalTask(Task task, String listId) {
@@ -299,5 +299,9 @@ public class TaskListPresenter {
 
     public void deleteList(String listId) {
         mModel.deleteList(listId);
+    }
+
+    public List<LocalTask> getAllTasks() {
+        return mModel.getLocalTasksFromDB();
     }
 }

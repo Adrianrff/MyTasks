@@ -20,6 +20,8 @@ public class Contract {
 
         //-----------VIEWS AND WIDGETS------------////
 
+        void findViews();
+
         void setUpViews();
 
         void showToast(String msg);
@@ -97,7 +99,7 @@ public class Contract {
 
         void updateLists(List<TaskList> lists);
 
-        void updateTasks(List<LocalTask> tasks);
+        void updateTasksFirstTime(List<LocalTask> tasks);
 
         List<LocalTask> getTasksFromList(String listId);
 
@@ -141,7 +143,7 @@ public class Contract {
 
         LocalTask getTask(String id);
 
-        int updateLocalTask(LocalTask modifiedTask);
+        int updateLocalTask(LocalTask modifiedTask, boolean updateReminders);
 
         void updateSibling(String taskId, String previousTaskId);
 

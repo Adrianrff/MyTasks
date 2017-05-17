@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -139,7 +140,12 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
                     }
                 }
             }
-            mPresenter.updateTasks(localTasks);
+            mPresenter.updateTasksFirstTime(localTasks);
+            localTasks = mPresenter.getAllTasks();
+            for (LocalTask task : localTasks){
+                if (task.getReminder() != 0)
+                AlarmHelper.setOrUpdateAlarmFirstTime(task, context);
+            }
         } else {
             EasyPermissions.requestPermissions(
                     context,context.getString(R.string.contacts_permissions_rationale),

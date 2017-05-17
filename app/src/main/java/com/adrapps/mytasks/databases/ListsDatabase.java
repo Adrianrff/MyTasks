@@ -1,5 +1,6 @@
 package com.adrapps.mytasks.databases;
 
+import android.app.backup.BackupManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,16 +10,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalList;
 import com.google.api.services.tasks.model.TaskList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
 public class ListsDatabase extends SQLiteOpenHelper {
 
+    private final BackupManager bm;
     private SQLiteDatabase db;
 
     //---------DATABASE AND TABLE NAMES----------//
-    private static final String DATABASE_NAME = "ListsDataBase.db";
+    private static final String DATABASE_NAME = "ListsDataBase";
     private static final String TABLE_NAME = "ListsTable";
     private static final int DATABASE_VERSION = 1;
 
@@ -53,6 +56,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
     //----------CONSTRUCTOR--------------//
     public ListsDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        bm = new BackupManager(context);
     }
 
 
@@ -124,6 +128,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         cv.put(COL_SYNC_STATUS, Co.SYNCED);
         long insertedRow = db.insert(TABLE_NAME,null,cv);
         db.close();
+        bm.dataChanged();
         return insertedRow;
     }
 
@@ -134,6 +139,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         cv.put(COL_SYNC_STATUS,Co.NOT_SYNCED);
         int insertedRow = (int) db.insert(TABLE_NAME,null,cv);
         db.close();
+        bm.dataChanged();
         return insertedRow;
     }
 
@@ -149,6 +155,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
             cv.put(COL_SYNC_STATUS,Co.SYNCED);
             db.insert(TABLE_NAME,null,cv);
         }
+        bm.dataChanged();
         db.close();
     }
 
@@ -180,6 +187,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         cv.put(COL_SYNC_STATUS,Co.SYNCED);
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
+        bm.dataChanged();
     }
 
     public void updateList(TaskList list) {
@@ -193,6 +201,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         cv.put(COL_SYNC_STATUS,Co.SYNCED);
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
+        bm.dataChanged();
     }
 
     public void editListTitle(String listId, String title) {
@@ -203,6 +212,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         cv.put(COL_TITLE,title);
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
+        bm.dataChanged();
     }
 
     public int getIntItByListId (String listId){
@@ -243,6 +253,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         String[] selectionArgs = {listId};
         db.delete(TABLE_NAME,selection, selectionArgs);
         db.close();
+        bm.dataChanged();
     }
 
     public void deleteList(int intId) {
@@ -251,6 +262,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         String[] selectionArgs = {String.valueOf(intId)};
         db.delete(TABLE_NAME,selection, selectionArgs);
         db.close();
+        bm.dataChanged();
     }
 
     public List<LocalList> getLocalLists() {
