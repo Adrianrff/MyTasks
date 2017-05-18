@@ -53,7 +53,7 @@ public class AlarmReciever extends BroadcastReceiver {
                     break;
 
                 case Co.REMINDER_DAILY_WEEKDAYS:
-                    if (DateHelper.isWeekday(now.getTimeInMillis())) {
+                    if (DateHelper.isTodayWeekday()) {
                         setAndShowNotification();
                         c.add(Calendar.DATE, 1);
                         mModel.updateReminder(task.getId(), c.getTimeInMillis());

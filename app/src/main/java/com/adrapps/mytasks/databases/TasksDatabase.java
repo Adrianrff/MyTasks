@@ -91,7 +91,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
                     COL_COMPLETED + " text," +
                     COL_DELETED + " int," +
                     COL_HIDDEN + " int," +
-                    COL_REMINDER + " bigint," +
+                    COL_REMINDER + " bigint default 0," +
                     COL_REMINDER_REPEAT_MODE + " int default 0," +
                     COL_REMINDER_ID + " bigint," +
                     COL_SYNC_STATUS + " int," +

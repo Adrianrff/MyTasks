@@ -773,7 +773,7 @@ public class MainActivity extends AppCompatActivity
 
                                     case Co.REMINDER_DAILY_WEEKDAYS:
                                         int dayOfWeek = reminderCalendarObject.get(Calendar.DAY_OF_WEEK);
-                                        if (DateHelper.isWeekday(reminderInMillis)) {
+                                        if (DateHelper.isWeekday(reminderCalendarObject)) {
                                             if (today.getTimeInMillis() > reminderInMillis) {
                                                 if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
                                                     reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));

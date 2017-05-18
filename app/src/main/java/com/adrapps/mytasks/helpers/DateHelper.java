@@ -121,15 +121,19 @@ public class DateHelper {
         return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
     }
 
+    public static boolean isNextDayWeekday(Calendar c) {
+        c.add(Calendar.DATE, 1);
+        int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
+        return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
+    }
+
     public static boolean isTodayWeekday() {
         Calendar c = Calendar.getInstance();
         int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
         return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
     }
 
-    public static boolean isWeekday(long date) {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(date);
+    public static boolean isWeekday(Calendar c) {
         int dayOfWeek = c.get (Calendar.DAY_OF_WEEK);
         return ((dayOfWeek >= Calendar.MONDAY) && (dayOfWeek <= Calendar.FRIDAY));
     }
