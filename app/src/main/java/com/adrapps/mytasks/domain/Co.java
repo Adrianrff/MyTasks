@@ -57,6 +57,7 @@ public class Co {
 
     public static String REMINDER_REPEAT_MODE = "Repeat mode";
 
+
     //Sync status
     public static final int NOT_SYNCED = 0;
     public static final int EDITED_NOT_SYNCED = 1;
