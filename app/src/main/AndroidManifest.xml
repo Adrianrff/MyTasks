@@ -39,6 +39,9 @@
             android:label="@string/app_name"
             android:parentActivityName=".views.MainActivity"
             android:theme="@style/AppThemeBurgundy.NoActionBar" />
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".views.MainActivity"/>
 
         <receiver
             android:name=".AlarmReciever"

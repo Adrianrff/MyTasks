@@ -735,110 +735,20 @@ public class MainActivity extends AppCompatActivity
                     fab.show();
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
-
                         long reminderInMillis = task.getReminder();
-
-                            if (reminderInMillis != 0) {
-                                Calendar reminderCalendarObject = Calendar.getInstance();
-                                reminderCalendarObject.setTimeInMillis(reminderInMillis);
-                                Calendar today = Calendar.getInstance();
-                                switch (task.getRepeatMode()) {
-
-                                    case Co.REMINDER_ONE_TIME:
-                                        if (today.getTimeInMillis() > reminderInMillis) {
-                                            showToast("Reminder is set to a past date. It will have no effect");
-                                            task.setReminderNoID(0);
-                                            updateItem(task);
-                                            break;
-                                        } else {
-                                            AlarmHelper.setOrUpdateAlarm(task, this);
-                                        }
-                                        break;
-
-                                    case Co.REMINDER_DAILY:
-                                        if (today.getTimeInMillis() > reminderInMillis) {
-                                            if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
-                                                reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
-                                            }
-                                            if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
-                                                reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
-                                            }
-                                            if (reminderCalendarObject.get(Calendar.DAY_OF_MONTH) < today.get(Calendar.DAY_OF_MONTH)) {
-                                                reminderCalendarObject.add(Calendar.DATE, 1);
-                                            }
-                                            task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
-                                        }
-                                        AlarmHelper.setOrUpdateAlarm(task, this);
-                                        break;
-
-                                    case Co.REMINDER_DAILY_WEEKDAYS:
-                                        int dayOfWeek = reminderCalendarObject.get(Calendar.DAY_OF_WEEK);
-                                        if (DateHelper.isWeekday(reminderCalendarObject)) {
-                                            if (today.getTimeInMillis() > reminderInMillis) {
-                                                if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
-                                                    reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
-                                                }
-                                                if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
-                                                    reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
-                                                }
-                                                if (DateHelper.isNextDayWeekday(reminderInMillis)) {
-                                                    reminderCalendarObject.add(Calendar.DATE, 1);
-                                                } else if (dayOfWeek == Calendar.FRIDAY) {
-                                                    reminderCalendarObject.add(Calendar.DATE, 3);
-                                                } else if (dayOfWeek == Calendar.SATURDAY) {
-                                                    reminderCalendarObject.add(Calendar.DATE, 2);
-                                                }
-                                            }
-                                        } else if (dayOfWeek == Calendar.SATURDAY) {
-                                            reminderCalendarObject.add(Calendar.DATE, 2);
-                                        } else if (dayOfWeek == Calendar.SUNDAY) {
-                                            reminderCalendarObject.add(Calendar.DATE, 1);
-                                        }
-                                        task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
-                                        AlarmHelper.setOrUpdateAlarm(task, this);
-                                        break;
-
-                                    case Co.REMINDER_SAME_DAY_OF_WEEK:
-                                        if (today.getTimeInMillis() > reminderInMillis) {
-                                            if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
-                                                reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
-                                            }
-                                            if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
-                                                reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
-                                            }
-                                            if (reminderCalendarObject.get(Calendar.DAY_OF_WEEK) <= today.get(Calendar.DAY_OF_WEEK)) {
-                                                reminderCalendarObject.add(Calendar.DATE, 7);
-                                            }
-                                        }
-                                        task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
-                                        AlarmHelper.setOrUpdateAlarm(task, this);
-                                        break;
-
-                                    case Co.REMINDER_SAME_DAY_OF_MONTH:
-                                        if (today.getTimeInMillis() > reminderInMillis) {
-                                            if (reminderCalendarObject.get(Calendar.YEAR) < today.get(Calendar.YEAR)) {
-                                                reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
-                                            }
-                                            if (reminderCalendarObject.get(Calendar.MONTH) < today.get(Calendar.MONTH)) {
-                                                reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
-                                            }
-                                            if (reminderCalendarObject.get(Calendar.MONTH) <= today.get(Calendar.MONTH)) {
-                                                reminderCalendarObject.add(Calendar.MONTH, 1);
-                                            }
-                                        }
-                                        task.setReminderNoID(reminderCalendarObject.getTimeInMillis());
-                                        AlarmHelper.setOrUpdateAlarm(task, this);
-                                        break;
-                                }
-                                mPresenter.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
-                            } else {
-                                AlarmHelper.cancelReminder(task, this);
-                            }
-                        adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
-                        mPresenter.editTask(task);
+                        if (reminderInMillis != 0) {
+                            Calendar reminderCalendarObject = Calendar.getInstance();
+                            reminderCalendarObject.setTimeInMillis(reminderInMillis);
+                            AlarmHelper.setOrUpdateAlarm(task, this);
+                        } else {
+                            AlarmHelper.cancelReminder(task, this);
+                        }
+                        mPresenter.updateReminder(task.getIntId(), task.getReminder());
                     }
+                    adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
+                    mPresenter.editTask(task);
 
-                    // TASK ADDED
+                 // TASK ADDED
                 } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                     LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                     if (task != null) {
@@ -850,9 +760,11 @@ public class MainActivity extends AppCompatActivity
                         mPresenter.addTask(task);
                     }
                 }
+
             }
         }
     }
+
 
     ///----------------------------OTHER--------------------------//
 

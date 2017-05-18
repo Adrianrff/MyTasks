@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.TaskStackBuilder;
 
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
@@ -80,8 +81,13 @@ public class AlarmReciever extends BroadcastReceiver {
     void setAndShowNotification() {
         Intent detailIntent = new Intent(context, MainActivity.class);
         detailIntent.putExtra(Co.LOCAL_TASK, task);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,
-                (int) System.currentTimeMillis(), detailIntent, PendingIntent.FLAG_ONE_SHOT);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(detailIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(Co.NOT_ID_SUFIX + task.getIntId(), PendingIntent.FLAG_UPDATE_CURRENT);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(context,
+//                (int) System.currentTimeMillis(), detailIntent, PendingIntent.FLAG_ONE_SHOT);
         Notification.Builder notifyBuilder = new Notification.Builder(context)
                 .setSmallIcon(R.drawable.ic_assignment_late_black_24dp)
                 .setContentTitle(context.getString(R.string.task_reminder_notification_title))
@@ -90,7 +96,7 @@ public class AlarmReciever extends BroadcastReceiver {
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setStyle(new Notification.BigTextStyle().bigText((title + "\n" +
                         notes)))
-                .setContentIntent(pendingIntent)
+                .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true);
         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).
                 notify((int) System.currentTimeMillis(), notifyBuilder.build());
