@@ -141,29 +141,32 @@ public class NewTaskOrEditActivity extends AppCompatActivity
     }
 
 
-    //TODO: Don't allow "one time" if selected date is in the past
-    //TODO: Update reminder field (if set) if date is deleted (keep time only if "one time" is not set, delete otherwise)
-    //TODO: If reminder (morning, evening or afternoon) is selected while a past date is set, then show time only and set selectedReminder to to the next date
-    //TODO: when saving "selectedReminderInMillis" make sure it's not a past date
     private void setRepeatSpinnerAdapter(long reminderInMills, final boolean disableOneTime) {
         List<String> categories = new ArrayList<>();
         categories.add(getString(R.string.one_time_repeat_mode));
         categories.add(getString(R.string.daily_repeat_mode) + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
         categories.add(getString(R.string.weekdays) + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
         if (dateSet == null) {
-            categories.add(getString(R.string.on_day) + " " + DateHelper.timeInMillsToDay(reminderInMills) + " " + getString(R.string.of_every_month));
+            categories.add(getString(R.string.every) + " " +
+                    DateHelper.timeInMillsToDay(reminderInMills) +
+                    " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
         } else {
-            categories.add(getString(R.string.every) + " " + DateHelper.timeInMillsToDay(dateSet.getTimeInMillis())
-                    + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+            categories.add(getString(R.string.every) + " " +
+                    DateHelper.timeInMillsToDay(dateSet.getTimeInMillis()) +
+                    " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
         }
         if (dateSet == null) {
-            categories.add(getString(R.string.on_day) + " " + DateHelper.timeInMillsToDayOfMonth(reminderInMills) + " " + getString(R.string.of_every_month));
+            categories.add(getString(R.string.on_day) + " " + DateHelper.timeInMillsToDayOfMonth(reminderInMills) +
+                    " " + getString(R.string.of_every_month)  +
+                    " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
         } else {
             int dayOfMonth = dateSet.get(Calendar.DAY_OF_MONTH);
             if (dayOfMonth == dateSet.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-                categories.add(getString(R.string.last_day_of_month) + " " + getString(R.string.of_every_month));
+                categories.add(getString(R.string.last_day_of_month) + " " + getString(R.string.of_every_month)  +
+                        " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
             } else {
-                categories.add(getString(R.string.on_day) + " " + dateSet.get(Calendar.DAY_OF_MONTH) + " " + getString(R.string.of_every_month));
+                categories.add(getString(R.string.on_day) + " " + dateSet.get(Calendar.DAY_OF_MONTH) + " " + getString(R.string.of_every_month)  +
+                        " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
             }
         }
         ArrayAdapter<String> repeatAdapter =
@@ -171,13 +174,11 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                     @Override
                     public boolean isEnabled(int position) {
                         if (position == 0 && disableOneTime) {
-
                             return false;
                         } else {
                             return true;
                         }
                     }
-
                     @Override
                     public View getDropDownView(int position, View convertView,
                                                 ViewGroup parent) {
@@ -195,7 +196,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
         repeatSpinner.setAdapter(repeatAdapter);
     }
 
-    private void showNotificationDialog() {
+    private void showReminderDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final ViewGroup nullParent = null;
@@ -596,6 +597,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                         NewTaskOrEditActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        //TODO: allow setting a date in custom reminder
                         if (dateSet == null) {
                             reminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
                             reminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
@@ -608,7 +610,6 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                             reminder.set(Calendar.MINUTE, minute);
                         }
                         if (reminder.before(today)) {
-
                             notificationTV.setText(DateHelper.timeInMillsToTimeOnly(reminder.getTimeInMillis()));
                             setRepeatSpinnerAdapter(reminder.getTimeInMillis(), true);
                             repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
@@ -619,8 +620,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                             dialog.dismiss();
                             notificationDetailsLayout.setVisibility(View.VISIBLE);
                             customNotification = true;
-                            repeatSpinner.setSelection(repeatMode);
                             setRepeatSpinnerAdapter(reminder.getTimeInMillis(), false);
+                            repeatSpinner.setSelection(repeatMode);
                         }
                     }
                 }, today.get(Calendar.HOUR_OF_DAY), today.get(Calendar.MINUTE), false);
@@ -631,7 +632,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
             //Reminder textview click
             case R.id.notificationTextView:
-                showNotificationDialog();
+                showReminderDialog();
                 break;
         }
     }
@@ -774,7 +775,6 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                 } else {
                     reminderClone.set(Calendar.DAY_OF_MONTH, dateSet.get(Calendar.DAY_OF_MONTH));
                 }
-                showToast(DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()));
                 if (reminderClone.before(today)) {
                     reminderClone.add(Calendar.MONTH, 1);
                 }
