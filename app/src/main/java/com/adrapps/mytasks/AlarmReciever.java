@@ -86,9 +86,7 @@ public class AlarmReciever extends BroadcastReceiver {
         stackBuilder.addNextIntent(detailIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(Co.NOT_ID_SUFIX + task.getIntId(), PendingIntent.FLAG_UPDATE_CURRENT);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(context,
-//                (int) System.currentTimeMillis(), detailIntent, PendingIntent.FLAG_ONE_SHOT);
-        Notification.Builder notifyBuilder = new Notification.Builder(context)
+        Notification.Builder notifyBuilder = new Notification.Builder (context)
                 .setSmallIcon(R.drawable.ic_assignment_late_black_24dp)
                 .setContentTitle(context.getString(R.string.task_reminder_notification_title))
                 .setContentText(title +
@@ -99,7 +97,7 @@ public class AlarmReciever extends BroadcastReceiver {
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true);
         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).
-                notify((int) System.currentTimeMillis(), notifyBuilder.build());
+                notify(Co.NOT_ID_SUFIX + task.getIntId(), notifyBuilder.build());
     }
 
 }

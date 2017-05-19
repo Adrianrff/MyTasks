@@ -10,7 +10,7 @@ import java.util.TimeZone;
 
 public class LocalTask implements Serializable, Comparable {
 
-    private String id, title, parent, position, notes, status, taskList;
+    private String id, title, parent, position, notes, status, list, when;
     private int moved, localDeleted, intId, localSibling, syncStatus, repeatMode;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
@@ -63,7 +63,7 @@ public class LocalTask implements Serializable, Comparable {
         this.position = task.getPosition();
         this.notes = task.getNotes();
         this.status = task.getStatus();
-        this.taskList = listId;
+        this.list = listId;
         this.serverModify = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
         this.due = (task.getDue() == null) ? 0:task.getDue().getValue() - offSet;
         this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
@@ -118,7 +118,12 @@ public class LocalTask implements Serializable, Comparable {
 
     ///-------------------SETTERS ----------------------//
 
-    public void setMoved(int moved) {
+
+   public void setWhen(String when) {
+      this.when = when;
+   }
+
+   public void setMoved(int moved) {
         this.moved = moved;
     }
 
@@ -159,8 +164,8 @@ public class LocalTask implements Serializable, Comparable {
         this.reminderId = reminderId;
     }
 
-    public void setTaskList(String taskList) {
-        this.taskList = taskList;
+    public void setList(String list) {
+        this.list = list;
     }
 
     public void setIntId(int intId) {
@@ -216,7 +221,11 @@ public class LocalTask implements Serializable, Comparable {
     ///-------------------GETTERS---------------------///
 
 
-    public int getLocalSibling() {
+   public String getWhen() {
+      return when;
+   }
+
+   public int getLocalSibling() {
         return localSibling;
     }
 
@@ -257,7 +266,7 @@ public class LocalTask implements Serializable, Comparable {
     }
 
     public String getList() {
-        return taskList;
+        return list;
     }
 
     public int getIntId() {

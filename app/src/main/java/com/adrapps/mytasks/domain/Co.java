@@ -9,7 +9,6 @@ import java.util.List;
 public class Co {
 
     //API and authorization
-    public static final int REQUEST_ACCOUNT_PICKER = 1000;
     public static final int REQUEST_AUTHORIZATION = 1001;
     public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     public static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
@@ -53,10 +52,11 @@ public class Co {
     public static final int REMINDER_SAME_DAY_OF_MONTH = 4;
     public static final long ONE_DAY_LATER = 24 * 60 * 60 * 1000;
     public static final int NOT_ID_SUFIX = 1000;
-
-
-    public static String REMINDER_REPEAT_MODE = "Repeat mode";
-
+    public static final String MODE_SEP = ";";
+    public static final String MODE_DAILY = "DAILY";
+    public static final String MODE_WEEKDAYS = "WEEKDAYS";
+    public static final String MODE_WEEKLY = "WEEKLY";
+    public static final String MODE_MONTHLY = "MONTHLY";
 
     //Sync status
     public static final int NOT_SYNCED = 0;
