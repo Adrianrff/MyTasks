@@ -60,7 +60,6 @@ public class DateHelper {
 
     public static String timeInMillsToSimpleTime(long timeInMills){
         Calendar calendar = Calendar.getInstance();
-        Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         String format = "h:mm a";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
@@ -69,7 +68,6 @@ public class DateHelper {
 
     public static String timeInMillsToDay(long timeInMills){
         Calendar calendar = Calendar.getInstance();
-        Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         String format = "EEEE";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
@@ -78,7 +76,6 @@ public class DateHelper {
 
     public static String timeInMillsToDayOfMonth(long timeInMills){
         Calendar calendar = Calendar.getInstance();
-        Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         String format = "d";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());

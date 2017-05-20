@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -59,10 +60,15 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    private int repeatMode;
    private boolean customNotification;
    final private Calendar today = Calendar.getInstance();
-   private Calendar taskReminder;
+   private Calendar originalReminder;
    private Calendar dateSet;
-   private Calendar reminderClone;
-   private String when;
+   private Calendar editedReminder;
+   private boolean isFirstLaunch;
+
+   @Override
+   protected void onNewIntent(Intent intent) {
+      super.onNewIntent(intent);
+   }
 
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +82,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       }
 
-      taskReminder = null;
+      originalReminder = null;
       selectedDateInMills = 0;
       repeatMode = 0;
       customNotification = false;
@@ -96,6 +102,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       repeatSpinner.setOnItemSelectedListener(this);
 
       if (getIntent().hasExtra(Co.LOCAL_TASK)) {
+         isFirstLaunch = true;
          getSupportActionBar().setTitle(R.string.task_edit_title);
          taskToEdit = (LocalTask) getIntent().getExtras().getSerializable(Co.LOCAL_TASK);
          if (taskToEdit != null) {
@@ -113,23 +120,22 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
             position = getIntent().getIntExtra(Co.ADAPTER_POSITION, -1);
             if (taskToEdit.getReminder() != 0) {
-               //TODO: Inconsistency in tasks with taskReminder set and
+               //TODO: Inconsistency in tasks with originalReminder set and
                repeatMode = taskToEdit.getRepeatMode();
-               when = taskToEdit.getWhen();
-               taskReminder = Calendar.getInstance();
-               taskReminder.setTimeInMillis(taskToEdit.getReminder());
-               reminderClone = Calendar.getInstance();
-               reminderClone.setTimeInMillis(taskToEdit.getReminder());
-               if (repeatMode == 0 && taskReminder.before(today)) {
-                  taskReminder = null;
-                  reminderClone = null;
+               originalReminder = Calendar.getInstance();
+               originalReminder.setTimeInMillis(taskToEdit.getReminder());
+               editedReminder = Calendar.getInstance();
+               editedReminder.setTimeInMillis(taskToEdit.getReminder());
+               if (repeatMode == 0 && originalReminder.before(today)) {
+                  originalReminder = null;
+                  editedReminder = null;
                   notificationDetailsLayout.setVisibility(View.GONE);
                   clearReminder.setVisibility(View.GONE);
                   return;
                }
                notificationTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
                notificationDetailsLayout.setVisibility(View.VISIBLE);
-               setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+               setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                repeatSpinner.setSelection(repeatMode);
                nextReminderTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
             } else {
@@ -148,45 +154,36 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    private void setRepeatSpinnerAdapter(long reminderInMills, final boolean disableOneTime) {
       List<String> categories = new ArrayList<>();
       categories.add(getString(R.string.one_time_repeat_mode));
-      categories.add(getString(R.string.daily_repeat_mode) + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
-      categories.add(getString(R.string.weekdays) + " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+      categories.add(getString(R.string.daily_repeat_mode));
+      categories.add(getString(R.string.weekdays));
       if (dateSet == null) {
          categories.add(getString(R.string.every) + " " +
-               DateHelper.timeInMillsToDay(reminderInMills) +
-               " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+               DateHelper.timeInMillsToDay(reminderInMills));
       } else {
          categories.add(getString(R.string.every) + " " +
-               DateHelper.timeInMillsToDay(dateSet.getTimeInMillis()) +
-               " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+               DateHelper.timeInMillsToDay(dateSet.getTimeInMillis()));
       }
       if (dateSet == null) {
          categories.add(getString(R.string.on_day) + " " + DateHelper.timeInMillsToDayOfMonth(reminderInMills) +
-               " " + getString(R.string.of_every_month) +
-               " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+               " " + getString(R.string.of_every_month));
       } else {
          int dayOfMonth = dateSet.get(Calendar.DAY_OF_MONTH);
          if (dayOfMonth == dateSet.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-            categories.add(getString(R.string.last_day_of_month) + " " + getString(R.string.of_every_month) +
-                  " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+            categories.add(getString(R.string.last_day_of_month) + " " + getString(R.string.of_every_month));
          } else {
-            categories.add(getString(R.string.on_day) + " " + dateSet.get(Calendar.DAY_OF_MONTH) + " " + getString(R.string.of_every_month) +
-                  " (" + DateHelper.timeInMillsToSimpleTime(reminderInMills) + ")");
+            categories.add(getString(R.string.on_day) + " " + dateSet.get(Calendar.DAY_OF_MONTH) + " " + getString(R.string.of_every_month));
          }
       }
       ArrayAdapter<String> repeatAdapter =
             new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories) {
                @Override
                public boolean isEnabled(int position) {
-                  if (position == 0 && disableOneTime) {
-                     return false;
-                  } else {
-                     return true;
-                  }
+                  return !(position == 0 && disableOneTime);
                }
 
                @Override
                public View getDropDownView(int position, View convertView,
-                                           ViewGroup parent) {
+                                           @NonNull ViewGroup parent) {
                   View mView = super.getDropDownView(position, convertView, parent);
                   TextView mTextView = (TextView) mView;
                   if (position == 0 && disableOneTime) {
@@ -248,34 +245,24 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             now.set(Calendar.DAY_OF_WEEK, c.get(Calendar.DAY_OF_WEEK));
 
             showToast(DateUtils.formatDateTime(this, now.getTimeInMillis(), 0));
-//                    if (dateSet != null) {
-//                        showToast("Reminder Calendar: " + DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()) + "\n" +
-//                                "Reminder Clone: " + DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()) +
-//                                "\n" + String.valueOf(repeatMode));
-//                    } else {
-//                        showToast("Reminder Calendar: " + DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()) + "\n" +
-//                                "Reminder Clone: " + DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()) +
-//                                "\n" + String.valueOf(repeatMode) + "\n" + "Date null");
-//                    }
+
             break;
 
          case R.id.save_task:
 
             //TASK EDITED
             if (getIntent().hasExtra(Co.LOCAL_TASK)) {
-//                    Calendar taskReminder = Calendar.getInstance();
-//                    taskReminder.setTimeInMillis(selectedReminderInMills);
                Intent i = new Intent();
                if (taskToEdit.getReminderId() != 0) {
-                  if (reminderClone == null) {
+                  if (editedReminder == null) {
                      taskToEdit.setReminderNoID(0);
                   } else {
-                     taskToEdit.setReminderNoID(reminderClone.getTimeInMillis());
+                     taskToEdit.setReminderNoID(editedReminder.getTimeInMillis());
                      taskToEdit.setRepeatMode(repeatMode);
                   }
                } else {
-                  if (reminderClone != null) {
-                     taskToEdit.setReminder(reminderClone.getTimeInMillis());
+                  if (editedReminder != null) {
+                     taskToEdit.setReminder(editedReminder.getTimeInMillis());
                      taskToEdit.setRepeatMode(repeatMode);
                   }
                }
@@ -302,12 +289,15 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                   break;
                }
                Intent i = new Intent();
-               LocalTask task = new LocalTask(titleTV.getText().toString(),
-                     dateSet.getTimeInMillis());
+               LocalTask task = new LocalTask();
+               task.setTitle(titleTV.getText().toString());
+               if (dateSet != null) {
+                  task.setDue(dateSet.getTimeInMillis());
+               }
                if (notesTv.getText().toString().trim().length() != 0)
                   task.setNotes(notesTv.getText().toString());
-               if (reminderClone != null) {
-                  task.setReminder(reminderClone.getTimeInMillis());
+               if (editedReminder != null) {
+                  task.setReminder(editedReminder.getTimeInMillis());
                   task.setRepeatMode(repeatMode);
                }
                i.putExtra(Co.LOCAL_TASK, task);
@@ -331,20 +321,20 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             dateSet = null;
             dueDateTv.setText(null);
             clearDate.setVisibility(View.GONE);
-            if (taskReminder != null) {
-               taskReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
-               taskReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
-               taskReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
-               notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
-               setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+            if (originalReminder != null) {
+               originalReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
+               originalReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
+               originalReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+               notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
+               setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                repeatSpinner.setSelection(Co.REMINDER_DAILY);
             }
             break;
 
-         //Clear taskReminder click
+         //Clear originalReminder click
          case R.id.clearReminder:
-            taskReminder = null;
-            reminderClone = null;
+            originalReminder = null;
+            editedReminder = null;
             repeatMode = 0;
             notificationTV.setText(null);
             clearReminder.setVisibility(View.GONE);
@@ -360,7 +350,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             datePicker.show();
             break;
 
-         //Morning taskReminder click
+         //Morning originalReminder click
          case R.id.layout_morning:
             customNotification = false;
             rbMorning.setChecked(true);
@@ -369,65 +359,65 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             rbAfternoon.setChecked(false);
             if (dateSet != null) {
                if (DateHelper.isBeforeByAtLeastDay(dateSet)) {
-                  taskReminder = Calendar.getInstance();
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+                  originalReminder = Calendar.getInstance();
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                   repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                   dialog.dismiss();
                   break;
                } else if (DateUtils.isToday(dateSet.getTimeInMillis())) {
-                  taskReminder = Calendar.getInstance();
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  if (taskReminder.before(Calendar.getInstance())) {
+                  originalReminder = Calendar.getInstance();
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  if (originalReminder.before(Calendar.getInstance())) {
                      clearReminder.setVisibility(View.VISIBLE);
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
-                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
+                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                      repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                      dialog.dismiss();
                   } else {
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                      repeatSpinner.setSelection(repeatMode);
                      clearReminder.setVisibility(View.VISIBLE);
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
-                     notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                     notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                      dialog.dismiss();
                   }
                   break;
                } else {
-                  taskReminder = dateSet;
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                  originalReminder = dateSet;
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
                   dialog.dismiss();
                   break;
                }
             } else {
-               taskReminder = Calendar.getInstance();
-               taskReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
-               taskReminder.set(Calendar.MINUTE, 0);
-               if (taskReminder.before(today)) {
-                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+               originalReminder = Calendar.getInstance();
+               originalReminder.set(Calendar.HOUR_OF_DAY, Co.MORNING_ALARM_HOUR);
+               originalReminder.set(Calendar.MINUTE, 0);
+               if (originalReminder.before(today)) {
+                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                   repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                   dialog.dismiss();
                   break;
                } else {
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
                   dialog.dismiss();
                   break;
@@ -435,7 +425,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
             }
 
-            //Afternoon taskReminder click
+            //Afternoon originalReminder click
          case R.id.layout_afternoon:
             customNotification = false;
             rbAfternoon.setChecked(true);
@@ -444,65 +434,65 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             rbEvening.setChecked(false);
             if (dateSet != null) {
                if (DateHelper.isBeforeByAtLeastDay(dateSet)) {
-                  taskReminder = Calendar.getInstance();
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+                  originalReminder = Calendar.getInstance();
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                   repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                   dialog.dismiss();
                   break;
                } else if (DateUtils.isToday(dateSet.getTimeInMillis())) {
-                  taskReminder = Calendar.getInstance();
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  if (taskReminder.before(Calendar.getInstance())) {
+                  originalReminder = Calendar.getInstance();
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  if (originalReminder.before(Calendar.getInstance())) {
                      clearReminder.setVisibility(View.VISIBLE);
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
-                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
+                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                      repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                      dialog.dismiss();
                   } else {
                      clearReminder.setVisibility(View.VISIBLE);
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
-                     notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
+                     notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                      repeatSpinner.setSelection(repeatMode);
                      dialog.dismiss();
                   }
                   break;
                } else {
-                  taskReminder = dateSet;
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                  originalReminder = dateSet;
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
                   dialog.dismiss();
                   break;
                }
             } else {
-               taskReminder = Calendar.getInstance();
-               taskReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
-               taskReminder.set(Calendar.MINUTE, 0);
-               if (taskReminder.before(today)) {
-                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+               originalReminder = Calendar.getInstance();
+               originalReminder.set(Calendar.HOUR_OF_DAY, Co.AFTERNOON_ALARM_HOUR);
+               originalReminder.set(Calendar.MINUTE, 0);
+               if (originalReminder.before(today)) {
+                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                   repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                   dialog.dismiss();
                   break;
                } else {
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
                   dialog.dismiss();
                   break;
@@ -518,72 +508,72 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             rbAfternoon.setChecked(false);
             if (dateSet != null) {
                if (DateHelper.isBeforeByAtLeastDay(dateSet)) {
-                  taskReminder = Calendar.getInstance();
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+                  originalReminder = Calendar.getInstance();
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                   repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                   dialog.dismiss();
                   break;
                } else if (DateUtils.isToday(dateSet.getTimeInMillis())) {
-                  taskReminder = Calendar.getInstance();
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  if (taskReminder.before(Calendar.getInstance())) {
+                  originalReminder = Calendar.getInstance();
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  if (originalReminder.before(Calendar.getInstance())) {
                      clearReminder.setVisibility(View.VISIBLE);
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
-                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
+                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                      repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                      dialog.dismiss();
                   } else {
                      clearReminder.setVisibility(View.VISIBLE);
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
-                     notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
+                     notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                      repeatSpinner.setSelection(repeatMode);
                      dialog.dismiss();
                   }
                   break;
                } else {
-                  taskReminder = dateSet;
-                  taskReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
-                  taskReminder.set(Calendar.MINUTE, 0);
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                  originalReminder = dateSet;
+                  originalReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
+                  originalReminder.set(Calendar.MINUTE, 0);
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
                   dialog.dismiss();
                   break;
                }
             } else {
-               taskReminder = Calendar.getInstance();
-               taskReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
-               taskReminder.set(Calendar.MINUTE, 0);
-               if (taskReminder.before(today)) {
-                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+               originalReminder = Calendar.getInstance();
+               originalReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
+               originalReminder.set(Calendar.MINUTE, 0);
+               if (originalReminder.before(today)) {
+                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                   repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                   dialog.dismiss();
                   break;
                } else {
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                   clearReminder.setVisibility(View.VISIBLE);
                   notificationDetailsLayout.setVisibility(View.VISIBLE);
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
                   dialog.dismiss();
                   break;
                }
             }
 
-            //Custom taskReminder click
+            //Custom originalReminder click
          case R.id.layout_custom:
             rbCustom.setChecked(true);
             rbMorning.setChecked(false);
@@ -593,30 +583,31 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                   NewTaskOrEditActivity.this, new TimePickerDialog.OnTimeSetListener() {
                @Override
                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                  //TODO: allow setting a date in custom taskReminder
+                  //TODO: allow setting a date in custom originalReminder
                   if (dateSet == null) {
-                     taskReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
-                     taskReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
-                     taskReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
-                     taskReminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                     taskReminder.set(Calendar.MINUTE, minute);
+                     originalReminder = Calendar.getInstance();
+                     originalReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
+                     originalReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
+                     originalReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+                     originalReminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                     originalReminder.set(Calendar.MINUTE, minute);
                   } else {
-                     taskReminder = dateSet;
-                     taskReminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                     taskReminder.set(Calendar.MINUTE, minute);
+                     originalReminder = dateSet;
+                     originalReminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                     originalReminder.set(Calendar.MINUTE, minute);
                   }
-                  if (taskReminder.before(today)) {
-                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+                  if (originalReminder.before(today)) {
+                     notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                      repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
                      dialog.dismiss();
                   } else {
-                     notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                     notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                      dialog.dismiss();
                      notificationDetailsLayout.setVisibility(View.VISIBLE);
                      customNotification = true;
-                     setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                     setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                      repeatSpinner.setSelection(repeatMode);
                   }
                }
@@ -645,36 +636,34 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       dueDateTv.setText(DateHelper.timeInMillsToString(selectedDateInMills));
       if (selectedDateInMills != 0) {
          if (DateHelper.isBeforeByAtLeastDay(dateSet)) {
-            if (taskReminder != null) {
-               taskReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
-               taskReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
-               taskReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
-               setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
+            if (originalReminder != null) {
+               originalReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
+               originalReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
+               originalReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+               setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
                repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
-               notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+               notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
             }
          } else if (DateUtils.isToday(selectedDateInMills)) {
-            if (taskReminder != null) {
-               if (taskReminder.before(Calendar.getInstance())) {
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), true);
-                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(taskReminder.getTimeInMillis()));
+            if (originalReminder != null) {
+               if (originalReminder.before(Calendar.getInstance())) {
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), true);
+                  notificationTV.setText(DateHelper.timeInMillsToTimeOnly(originalReminder.getTimeInMillis()));
                   repeatSpinner.setSelection(repeatMode != 0 ? repeatMode : Co.REMINDER_DAILY);
                } else {
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
                }
             }
          } else {
-            if (taskReminder != null) {
-               if (!customNotification) {
-                  taskReminder.set(Calendar.DAY_OF_MONTH, dateSet.get(Calendar.DAY_OF_MONTH));
-                  taskReminder.set(Calendar.YEAR, dateSet.get(Calendar.YEAR));
-                  taskReminder.set(Calendar.MONTH, dateSet.get(Calendar.MONTH));
-                  notificationTV.setText(DateHelper.timeInMillsToFullString(taskReminder.getTimeInMillis()));
-                  setRepeatSpinnerAdapter(taskReminder.getTimeInMillis(), false);
+            if (originalReminder != null) {
+                  originalReminder.set(Calendar.DAY_OF_MONTH, dateSet.get(Calendar.DAY_OF_MONTH));
+                  originalReminder.set(Calendar.YEAR, dateSet.get(Calendar.YEAR));
+                  originalReminder.set(Calendar.MONTH, dateSet.get(Calendar.MONTH));
+                  notificationTV.setText(DateHelper.timeInMillsToFullString(originalReminder.getTimeInMillis()));
+                  setRepeatSpinnerAdapter(originalReminder.getTimeInMillis(), false);
                   repeatSpinner.setSelection(repeatMode);
-               }
             }
          }
          clearDate.setVisibility(View.VISIBLE);
@@ -689,93 +678,115 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
    @Override
    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-      reminderClone = (Calendar) taskReminder.clone();
+      editedReminder = (Calendar) originalReminder.clone();
       switch (position) {
 
-         case 0:
+         case Co.REMINDER_ONE_TIME:
             repeatMode = Co.REMINDER_ONE_TIME;
-            nextReminderTV.setText(DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()));
-            notificationTV.setText(DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()));
-            break;
-
-         case 1:
-            repeatMode = Co.REMINDER_DAILY;
-            reminderClone.set(Calendar.YEAR, today.get(Calendar.YEAR));
-            reminderClone.set(Calendar.MONTH, today.get(Calendar.MONTH));
-            reminderClone.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
-            if (reminderClone.before(today)) {
-               reminderClone.add(Calendar.DATE, 1);
+            if (isFirstLaunch && taskToEdit.getReminder() != 0){
+               nextReminderTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               notificationTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               isFirstLaunch = false;
+               break;
             }
-            nextReminderTV.setText(DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()));
-            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(reminderClone.getTimeInMillis()));
+            nextReminderTV.setText(DateHelper.timeInMillsToFullString(editedReminder.getTimeInMillis()));
+            notificationTV.setText(DateHelper.timeInMillsToFullString(editedReminder.getTimeInMillis()));
             break;
 
-         case 2:
+         case Co.REMINDER_DAILY:
+            repeatMode = Co.REMINDER_DAILY;
+            if (isFirstLaunch && taskToEdit.getReminder() != 0){
+               nextReminderTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               notificationTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               isFirstLaunch = false;
+               break;
+            }
+            editedReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
+            editedReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
+            editedReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+            if (editedReminder.before(today)) {
+               editedReminder.add(Calendar.DATE, 1);
+            }
+            nextReminderTV.setText(DateHelper.timeInMillsToFullString(editedReminder.getTimeInMillis()));
+            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(editedReminder.getTimeInMillis()));
+            break;
+
+         case Co.REMINDER_DAILY_WEEKDAYS:
             repeatMode = Co.REMINDER_DAILY_WEEKDAYS;
-            reminderClone.set(Calendar.YEAR, today.get(Calendar.YEAR));
-            reminderClone.set(Calendar.MONTH, today.get(Calendar.MONTH));
-            reminderClone.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
-            if (reminderClone.before(today)) {
-               reminderClone.add(Calendar.DATE, 1);
-               if (!DateHelper.isWeekday(reminderClone)) {
-                  if (reminderClone.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                     reminderClone.add(Calendar.DATE, 2);
+            if (isFirstLaunch && taskToEdit.getReminder() != 0){
+               nextReminderTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               notificationTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               isFirstLaunch = false;
+               break;
+            }
+            editedReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
+            editedReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
+            editedReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+            if (editedReminder.before(today)) {
+               editedReminder.add(Calendar.DATE, 1);
+               if (!DateHelper.isWeekday(editedReminder)) {
+                  if (editedReminder.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+                     editedReminder.add(Calendar.DATE, 2);
                   } else {
-                     reminderClone.add(Calendar.DATE, 1);
+                     editedReminder.add(Calendar.DATE, 1);
                   }
                }
             }
-            nextReminderTV.setText(DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()));
-            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(reminderClone.getTimeInMillis()));
+            nextReminderTV.setText(DateHelper.timeInMillsToFullString(editedReminder.getTimeInMillis()));
+            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(editedReminder.getTimeInMillis()));
             break;
 
-         case 3:
+         case Co.REMINDER_SAME_DAY_OF_WEEK:
             repeatMode = Co.REMINDER_SAME_DAY_OF_WEEK;
-            reminderClone.set(Calendar.YEAR, today.get(Calendar.YEAR));
-            reminderClone.set(Calendar.MONTH, today.get(Calendar.MONTH));
-            reminderClone.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+            if (isFirstLaunch && taskToEdit.getReminder() != 0){
+               nextReminderTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               notificationTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               isFirstLaunch = false;
+               break;
+            }
+            editedReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
+            editedReminder.set(Calendar.MONTH, today.get(Calendar.MONTH));
+            editedReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
             if (dateSet == null) {
-               if (reminderClone.before(today)) {
-                  reminderClone.add(Calendar.DATE, 7);
+               if (editedReminder.before(today)) {
+                  editedReminder.add(Calendar.DATE, 7);
                }
             } else {
                int dateSetDayOfWeek = dateSet.get(Calendar.DAY_OF_WEEK);
                if (today.get(Calendar.DAY_OF_WEEK) == dateSetDayOfWeek) {
-                  if (reminderClone.before(today)) {
-                     reminderClone.add(Calendar.DATE, 7);
+                  if (editedReminder.before(today)) {
+                     editedReminder.add(Calendar.DATE, 7);
                   }
-//                    } else {
-//                        int diff = dateSetDayOfWeek - today.get(Calendar.DAY_OF_WEEK);
-//                        if (diff > 0){
-//                            reminderClone.add(Calendar.DATE, diff);
-//                        } else {
-//                            reminderClone.add(Calendar.DATE, 7 + diff);
-//                        }
                } else {
-                  reminderClone.add(Calendar.DATE, (dateSetDayOfWeek + 7 - today.get(Calendar.DAY_OF_WEEK)) % 7);
-                  if (reminderClone.before(today)) {
-                     reminderClone.add(Calendar.DATE, 7);
+                  editedReminder.add(Calendar.DATE, (dateSetDayOfWeek + 7 - today.get(Calendar.DAY_OF_WEEK)) % 7);
+                  if (editedReminder.before(today)) {
+                     editedReminder.add(Calendar.DATE, 7);
                   }
                }
             }
-            nextReminderTV.setText(DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()));
-            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(reminderClone.getTimeInMillis()));
+            nextReminderTV.setText(DateHelper.timeInMillsToFullString(editedReminder.getTimeInMillis()));
+            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(editedReminder.getTimeInMillis()));
             break;
 
-         case 4:
+         case Co.REMINDER_SAME_DAY_OF_MONTH:
             repeatMode = Co.REMINDER_SAME_DAY_OF_MONTH;
-            reminderClone.set(Calendar.YEAR, today.get(Calendar.YEAR));
-            reminderClone.set(Calendar.MONTH, today.get(Calendar.MONTH));
+            if (isFirstLaunch && taskToEdit.getReminder() != 0){
+               nextReminderTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               notificationTV.setText(DateHelper.timeInMillsToFullString(taskToEdit.getReminder()));
+               isFirstLaunch = false;
+               break;
+            }
             if (dateSet == null) {
-               reminderClone.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+               editedReminder.set(Calendar.YEAR, today.get(Calendar.YEAR));
+               editedReminder.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
             } else {
-               reminderClone.set(Calendar.DAY_OF_MONTH, dateSet.get(Calendar.DAY_OF_MONTH));
+               editedReminder.set(Calendar.DAY_OF_MONTH, dateSet.get(Calendar.DAY_OF_MONTH));
             }
-            if (reminderClone.before(today)) {
-               reminderClone.add(Calendar.MONTH, 1);
+            if (editedReminder.before(today)) {
+               editedReminder.add(Calendar.MONTH, 1);
             }
-            nextReminderTV.setText(DateHelper.timeInMillsToFullString(reminderClone.getTimeInMillis()));
-            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(reminderClone.getTimeInMillis()));
+            nextReminderTV.setText(DateHelper.timeInMillsToFullString(editedReminder.getTimeInMillis()));
+            notificationTV.setText(DateHelper.timeInMillsToTimeOnly(editedReminder.getTimeInMillis()));
             break;
 
 

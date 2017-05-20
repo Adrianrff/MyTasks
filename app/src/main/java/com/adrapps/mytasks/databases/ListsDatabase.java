@@ -17,6 +17,7 @@ import java.util.TimeZone;
 
 public class ListsDatabase extends SQLiteOpenHelper {
 
+    private static ListsDatabase listsDb;
     private final BackupManager bm;
     private SQLiteDatabase db;
 
@@ -52,9 +53,15 @@ public class ListsDatabase extends SQLiteOpenHelper {
                     COL_LOCAL_UPDATED + " bigint," +
                     COL_SYNC_STATUS + " int)";
 
-
+    public static synchronized ListsDatabase getInstance(Context context){
+        // Use the application context, which will ensure that you don't accidentally leak an Activity's context.
+        if (listsDb == null) {
+            listsDb = new ListsDatabase(context.getApplicationContext());
+        }
+        return listsDb;
+    }
     //----------CONSTRUCTOR--------------//
-    public ListsDatabase(Context context) {
+    private ListsDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         bm = new BackupManager(context);
     }

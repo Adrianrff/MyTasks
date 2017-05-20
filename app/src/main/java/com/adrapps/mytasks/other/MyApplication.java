@@ -1,10 +1,12 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.other;
 
 import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+
+import com.adrapps.mytasks.R;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

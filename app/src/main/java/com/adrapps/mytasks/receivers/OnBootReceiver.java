@@ -1,12 +1,8 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-/**
- * Created by adria on 11/5/2017.
- */
 
 public class OnBootReceiver extends BroadcastReceiver {
 

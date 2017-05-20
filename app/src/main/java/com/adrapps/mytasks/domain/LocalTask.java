@@ -10,7 +10,7 @@ import java.util.TimeZone;
 
 public class LocalTask implements Serializable, Comparable {
 
-    private String id, title, parent, position, notes, status, list, when;
+    private String id, title, parent, position, notes, status, list;
     private int moved, localDeleted, intId, localSibling, syncStatus, repeatMode;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
@@ -119,10 +119,6 @@ public class LocalTask implements Serializable, Comparable {
     ///-------------------SETTERS ----------------------//
 
 
-   public void setWhen(String when) {
-      this.when = when;
-   }
-
    public void setMoved(int moved) {
         this.moved = moved;
     }
@@ -220,10 +216,6 @@ public class LocalTask implements Serializable, Comparable {
 
     ///-------------------GETTERS---------------------///
 
-
-   public String getWhen() {
-      return when;
-   }
 
    public int getLocalSibling() {
         return localSibling;

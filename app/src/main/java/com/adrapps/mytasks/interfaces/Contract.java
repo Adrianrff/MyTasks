@@ -97,6 +97,8 @@ public class Contract {
     //-------------------------MODEL OPS----------------------//
     public interface Model{
 
+        void closeDatabases();
+
         void updateLists(List<TaskList> lists);
 
         void updateTasksFirstTime(List<LocalTask> tasks);

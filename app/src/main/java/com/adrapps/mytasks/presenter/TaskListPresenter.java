@@ -12,11 +12,12 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 
-public class TaskListPresenter {
+public class TaskListPresenter implements Serializable{
 
 
     private WeakReference<Contract.MainActivityViewOps> mView;
@@ -94,6 +95,10 @@ public class TaskListPresenter {
 
 
     //-----------------DATABASE OPERATIONS------------///
+
+    public void closeDatabases(){
+        mModel.closeDatabases();
+    }
 
 
     public List<LocalTask> getTasksFromList(String listId) {

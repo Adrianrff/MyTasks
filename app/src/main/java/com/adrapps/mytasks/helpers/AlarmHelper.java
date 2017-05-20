@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.AlarmReciever;
+import com.adrapps.mytasks.receivers.AlarmReciever;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.models.DataModel;

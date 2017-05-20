@@ -78,6 +78,9 @@
     <string name="on_day">Los</string>
     <string name="last_day_of_month">El último</string>
     <string name="next_reminder">Próximo recordatorio: </string>
+    <string name="same_day">El mismo día</string>
+    <string name="day_before">Un día antes</string>
+    <string name="week_before">Una semana antes</string>
 
 
     <string-array name="notification_options">

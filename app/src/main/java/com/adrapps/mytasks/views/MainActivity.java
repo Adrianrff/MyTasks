@@ -48,7 +48,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.AlarmReciever;
+import com.adrapps.mytasks.receivers.AlarmReciever;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
@@ -63,9 +63,11 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
       implements NavigationView.OnNavigationItemSelectedListener,
@@ -86,10 +88,10 @@ public class MainActivity extends AppCompatActivity
    ActionBarDrawerToggle toggle;
    CoordinatorLayout coordinatorLayout;
    SwipeRefreshLayout swipeRefresh;
-   private LinearLayout emptyDataLayout, noInternetLayout, repeatLayout;
+   private LinearLayout emptyDataLayout, noInternetLayout, notificationDetailLayout;
    private View bottomSheet;
    private ImageView profilePic, editIcon;
-   private TextView userEmail, userName, detailTitle, detailDate,
+   private TextView userEmail, userName, detailTitle, detailDate, nextReminderTV,
          detailNotification, detailNotes, detailRepeat;
    private BottomSheetBehavior mBottomSheetBehavior;
    private Intent newOrEditTaskIntent;
@@ -135,10 +137,11 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void findViews() {
       detailTitle = (TextView) findViewById(R.id.detail_title);
+      detailNotes = (TextView) findViewById(R.id.detail_notes);
       detailDate = (TextView) findViewById(R.id.detail_date);
       detailNotification = (TextView) findViewById(R.id.detail_notification_tv);
       editIcon = (ImageView) findViewById(R.id.edit_icon);
-      detailNotes = (TextView) findViewById(R.id.detail_notes);
+      nextReminderTV = (TextView) findViewById(R.id.next_reminder_label_bs);
       bottomSheet = findViewById(R.id.bottom_sheet);
       toolbar = (Toolbar) findViewById(R.id.toolbar);
       fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity
       userEmail = (TextView) headerView.findViewById(R.id.userEmail);
       recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
       emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
-      repeatLayout = (LinearLayout) findViewById(R.id.repeatLayout);
+      notificationDetailLayout = (LinearLayout) findViewById(R.id.notification_layout_detail);
       detailRepeat = (TextView) findViewById(R.id.detail_repeat);
       progressBar = (ProgressBar) findViewById(R.id.progressBar);
       swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
@@ -251,7 +254,8 @@ public class MainActivity extends AppCompatActivity
                      task.getReminder() == 0 ? null :
                            task.getRepeatMode() == 0 ? DateHelper.timeInMillsToFullString(task.getReminder()) :
                                  DateHelper.timeInMillsToTimeOnly(task.getReminder()));
-               repeatLayout.setVisibility(View.VISIBLE);
+               notificationDetailLayout.setVisibility(View.VISIBLE);
+               nextReminderTV.setText(DateHelper.timeInMillsToFullString(task.getReminder()));
 
                switch (task.getRepeatMode()) {
 
@@ -290,7 +294,7 @@ public class MainActivity extends AppCompatActivity
                }
             } else {
                detailNotification.setText(null);
-               repeatLayout.setVisibility(View.GONE);
+               notificationDetailLayout.setVisibility(View.GONE);
             }
          }
          mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -655,10 +659,17 @@ public class MainActivity extends AppCompatActivity
       switch (item.getItemId()) {
 
          case R.id.action_settings:
-            LocalTask task = new LocalTask();
-            showToast(task.getWhen().concat("sdfsd"));
-
-            break;
+            Calendar calendar = Calendar.getInstance();
+            Calendar calToday = Calendar.getInstance();
+            calendar.add(Calendar.DATE, 1);
+            String format;
+            if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)) {
+               format = "d MMM, h:mm a";
+            } else {
+               format = "d MMM yyyy, h:mm a";
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+         break;
 
          case R.id.refresh:
             refresh();
@@ -703,6 +714,12 @@ public class MainActivity extends AppCompatActivity
          fab.show();
       }
       toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
+   }
+
+   @Override
+   protected void onPause() {
+      super.onPause();
+      mPresenter.closeDatabases();
    }
 
    @Override
@@ -833,107 +850,6 @@ public class MainActivity extends AppCompatActivity
    public void showSwipeRefreshProgress(boolean b) {
       swipeRefresh.setRefreshing(b);
    }
-//    @Override
-//    public void setOrUpdateAlarm(LocalTask task) {
-//        if (task.getReminder() != 0 && task.getReminderId() != 0) {
-//            Intent intent = new Intent(this, AlarmReciever.class);
-//            Bundle bundle = new Bundle();
-//            bundle.putSerializable(Co.LOCAL_TASK, task);
-//            intent.putExtra(Co.LOCAL_TASK, bundle);
-//            AlarmManager alarmManager;
-//            PendingIntent pendingIntent;
-//            Calendar calendar;
-//            switch (task.getRepeatMode()) {
-//
-//                case Co.REMINDER_ONE_TIME:
-//                    Log.d("repeatMode", "One time");
-//                    pendingIntent = PendingIntent.getBroadcast(this, (int) task.getReminderId(),
-//                            intent,
-//                            PendingIntent.FLAG_UPDATE_CURRENT);
-//                    alarmManager =
-//                            (AlarmManager) getSystemService(ALARM_SERVICE);
-//                    alarmManager.set(AlarmManager.RTC_WAKEUP,
-//                            task.getReminder(), pendingIntent);
-//                    break;
-//
-//                case Co.REMINDER_DAILY:
-//                    Log.d("repeatMode", "Daily");
-//                    calendar = Calendar.getInstance();
-//                    calendar.setTimeInMillis(task.getReminderId());
-//
-//                    if (Calendar.getInstance().after(calendar)) {
-//                        calendar.add(Calendar.DATE, 1);
-//                    }
-//                    pendingIntent = PendingIntent.getBroadcast(
-//                            this,
-//                            (int) task.getReminderId(),
-//                            intent,
-//                            PendingIntent.FLAG_UPDATE_CURRENT);
-//                    alarmManager =
-//                            (AlarmManager) getSystemService(ALARM_SERVICE);
-//
-//                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-//                            calendar.getTimeInMillis(), 24 * 60 * 60 * 1000, pendingIntent);
-//                    break;
-//
-//                case Co.REMINDER_DAILY_WEEKDAYS:
-//                    Log.d("repeatMode", "Weekdays");
-//                    calendar = Calendar.getInstance();
-//                    calendar.setTimeInMillis(task.getReminderId());
-//
-//                    if (Calendar.getInstance().after(calendar)) {
-//                        calendar.add(Calendar.DATE, 1);
-//                    }
-//                    pendingIntent = PendingIntent.getBroadcast(
-//                            this,
-//                            (int) task.getReminderId(),
-//                            intent,
-//                            PendingIntent.FLAG_UPDATE_CURRENT);
-//                    alarmManager =
-//                            (AlarmManager) getSystemService(ALARM_SERVICE);
-//
-//                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-//                            calendar.getTimeInMillis(), 24 * 60 * 60 * 1000, pendingIntent);
-//                    break;
-//
-//                case Co.REMINDER_SAME_DAY_OF_WEEK:
-////                    Log.d("repeatMode","Daily");
-////                    pendingIntent = PendingIntent.getBroadcast(
-////                            this,
-////                            (int) task.getReminderId(),
-////                            intent,
-////                            PendingIntent.FLAG_UPDATE_CURRENT);
-////                    alarmManager =
-////                            (AlarmManager) getSystemService(ALARM_SERVICE);
-////                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-////                            task.getReminder(), 24*60*60*1000, pendingIntent);
-////                    break;
-//
-//                case Co.REMINDER_SAME_DAY_OF_MONTH:
-////                    Log.d("repeatMode","Daily");
-////                    pendingIntent = PendingIntent.getBroadcast(
-////                            this,
-////                            (int) task.getReminderId(),
-////                            intent,
-////                            PendingIntent.FLAG_UPDATE_CURRENT);
-////                    alarmManager =
-////                            (AlarmManager) getSystemService(ALARM_SERVICE);
-////                    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-////                            task.getReminder(), 24*60*60*1000, pendingIntent);
-////                    break;
-//            }
-//        }
-//    }
-
-//    @Override
-//    public void cancelReminder(LocalTask task) {
-//        Intent intent = new Intent(this, AlarmReciever.class);
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
-//                (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        alarmManager.cancel(pendingIntent);
-//        pendingIntent.cancel();
-//    }
 
    @Override
    public boolean isReminderSet(int reminderId) {

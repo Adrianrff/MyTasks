@@ -32,7 +32,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                android:title="App"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
 
                 <ProgressBar
@@ -41,6 +40,8 @@
                     android:layout_height="30dp"
                     android:paddingLeft="8dp"
                     android:paddingStart="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingEnd="8dp"
                     android:visibility="gone" />
 
             </android.support.v7.widget.Toolbar>
@@ -105,7 +106,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="56dp"
                         android:layout_marginRight="56dp"
-                        android:text="Task title"
                         android:textAppearance="@style/TextAppearance.AppCompat.Large"
                         android:textSize="20sp" />
 
@@ -113,8 +113,7 @@
                         android:id="@+id/detail_date"
                         android:layout_width="wrap_content"
                         android:layout_below="@id/detail_title"
-                        android:layout_height="wrap_content"
-                        android:text="24 jan, 2017" />
+                        android:layout_height="wrap_content" />
 
                     <ImageView
                         android:id="@+id/edit_icon"
@@ -127,8 +126,7 @@
                         android:layout_marginStart="@dimen/full_margin"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:contentDescription="sd"
-                        android:src="@drawable/edit_white"
+                        app:srcCompat="@drawable/edit_white"
                         android:layout_alignParentRight="true" />
 
                 </RelativeLayout>
@@ -159,9 +157,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/full_margin"
                             android:layout_marginStart="@dimen/full_margin"
-                            android:contentDescription="sd"
                             android:tint="@color/colorPrimary"
-                            android:src="@drawable/notes_24dp" />
+                            app:srcCompat="@drawable/notes_24dp" />
 
                         <TextView
                             android:id="@+id/detail_notes"
@@ -174,7 +171,6 @@
                             android:layout_marginStart="28dp"
                             android:background="@null"
                             android:hint="@string/task_notes_hint"
-                            android:text="dssdf fv dfvkdf kdfk kdfk kdfkv kdfk kdfk dkfvk dkfvk dfkv kdfkv kdfk kdfk vkdf vkdfk vd"
                             android:textSize="18sp" />
 
                     </LinearLayout>
@@ -205,13 +201,12 @@
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="@dimen/full_margin"
                             android:layout_marginStart="@dimen/full_margin"
-                            android:contentDescription="sd"
-                            android:src="@drawable/notification_small"
+                            app:srcCompat="@drawable/notification_small"
                             android:tint="@color/colorPrimary" />
 
                         <TextView
                             android:id="@+id/detail_notification_tv"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="28dp"
                             android:layout_marginStart="28dp"
@@ -238,7 +233,7 @@
                             android:layout_width="match_parent"
                             android:layout_marginTop="@dimen/half_margin"
                             android:layout_height="wrap_content"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             android:orientation="horizontal">
 
                             <ImageView
@@ -247,7 +242,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
                                 android:tint="@color/colorPrimary"
-                                android:src="@drawable/ic_repeat_black_24dp" />
+                                app:srcCompat="@drawable/ic_repeat_black_24dp" />
 
                             <TextView
                                 android:id="@+id/detail_repeat"
@@ -260,9 +255,29 @@
                                 android:hint="@string/repeat_hint"
                                 android:textSize="16sp" />
 
-
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:id="@+id/next_reminder_layout"
+                            android:layout_marginTop="12dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/next_reminder"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/next_reminder_label_bs"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/half_margin"
+                                android:layout_marginLeft="@dimen/half_margin" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -281,7 +296,7 @@
             app:layout_anchor="@id/fab_anchor"
             app:layout_anchorGravity="top|end|right"
             android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/add_white" />
+            app:srcCompat="@drawable/add_white" />
 
     </android.support.design.widget.CoordinatorLayout>
 

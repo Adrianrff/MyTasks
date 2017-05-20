@@ -1,14 +1,10 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.other;
 
-/**
- * Created by Adrian Flores on 14/4/2017.
- */
-
-public class UncaughtExceptionFilter  {
+class UncaughtExceptionFilter  {
 
     private static Thread.UncaughtExceptionHandler defaultUEH;
 
-    public static void setUncaughtExceptionHandler(final Action<Throwable> notifyException) {
+    static void setUncaughtExceptionHandler(final Action<Throwable> notifyException) {
         if (defaultUEH == null) {
             defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
             Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -22,7 +18,7 @@ public class UncaughtExceptionFilter  {
         }
     }
 
-    public interface Action<T> {
+    interface Action<T> {
         void   run(T arg0);
     }
 }

@@ -52,7 +52,6 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
-            android:contentDescription="Description"
             android:tint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_label" />
 
@@ -98,7 +97,6 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
-            android:contentDescription="sd"
             android:tint="@color/colorPrimary"
             app:srcCompat="@drawable/notes_24dp" />
 
@@ -144,7 +142,6 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
-            android:contentDescription="sd"
             android:tint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_date" />
 
@@ -163,7 +160,6 @@
             android:id="@+id/clearDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="Description"
             app:srcCompat="@drawable/ic_close_black_24dp" />
 
     </LinearLayout>
@@ -194,7 +190,6 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
-            android:contentDescription="sd"
             app:srcCompat="@drawable/notification_small"
             android:tint="@color/colorPrimary" />
 
@@ -214,7 +209,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:contentDescription="Description"
             app:srcCompat="@drawable/ic_close_black_24dp" />
 
 
@@ -229,7 +223,7 @@
         android:layout_marginRight="@dimen/full_margin"
         android:layout_marginStart="72dp"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <View
             android:layout_width="match_parent"
