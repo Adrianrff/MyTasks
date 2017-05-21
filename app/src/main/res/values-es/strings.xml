@@ -81,12 +81,20 @@
     <string name="same_day">El mismo día</string>
     <string name="day_before">Un día antes</string>
     <string name="week_before">Una semana antes</string>
+    <string name="date">Fecha</string>
 
 
-    <string-array name="notification_options">
+    <string-array name="notification_when_options">
         <item>En la mañana</item>
         <item>En la tarde</item>
         <item>En la noche</item>
+        <item>Personalizar…</item>
+    </string-array>
+
+    <string-array name="notification_time_options">
+        <item>El mismo día</item>
+        <item>Un día antes</item>
+        <item>Una semana antes</item>
         <item>Personalizar…</item>
     </string-array>
 

@@ -1,6 +1,5 @@
 package com.adrapps.mytasks.domain;
 
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.tasks.TasksScopes;
 
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ public class Co {
    public static final String USER_EMAIL = "accountName";
    public static final String TASK_STATUS = "Task status";
    public static final String BUNDLED_EXTRA = "Bundled extra";
+   public static final String NO_API_EDIT = "No api edit";
    public static String OP_UPDATE_STATUS;
 
    //Lists

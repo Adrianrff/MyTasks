@@ -36,7 +36,7 @@ public class DateHelper {
         return sdf.format(calendar.getTime());
     }
 
-    public static String timeInMillsToFullString(long timeInMills){
+    public static String millsToFull(long timeInMills){
         Calendar calendar = Calendar.getInstance();
         Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
@@ -50,7 +50,7 @@ public class DateHelper {
         return sdf.format(calendar.getTime());
     }
 
-    public static String timeInMillsToTimeOnly(long timeInMills){
+    public static String millsToTimeOnly(long timeInMills){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         String format = "h:mm a";

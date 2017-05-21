@@ -75,7 +75,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/layout_custom"
+        android:id="@+id/layout_custom_time"
         android:layout_width="match_parent"
         android:clickable="true"
         android:layout_height="wrap_content">

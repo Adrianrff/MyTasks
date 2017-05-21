@@ -252,10 +252,10 @@ public class MainActivity extends AppCompatActivity
             if (task.getReminder() != 0) {
                detailNotification.setText(
                      task.getReminder() == 0 ? null :
-                           task.getRepeatMode() == 0 ? DateHelper.timeInMillsToFullString(task.getReminder()) :
-                                 DateHelper.timeInMillsToTimeOnly(task.getReminder()));
+                           task.getRepeatMode() == 0 ? DateHelper.millsToFull(task.getReminder()) :
+                                 DateHelper.millsToTimeOnly(task.getReminder()));
                notificationDetailLayout.setVisibility(View.VISIBLE);
-               nextReminderTV.setText(DateHelper.timeInMillsToFullString(task.getReminder()));
+               nextReminderTV.setText(DateHelper.millsToFull(task.getReminder()));
 
                switch (task.getRepeatMode()) {
 
@@ -745,7 +745,6 @@ public class MainActivity extends AppCompatActivity
          if (resultCode == Activity.RESULT_OK) {
 
             // TASK EDITED
-            //TODO: Don't change sync status to one if that task is not synced (syncStatus = 0)
             if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                fab.show();
                LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
@@ -761,7 +760,9 @@ public class MainActivity extends AppCompatActivity
                   mPresenter.updateReminder(task.getIntId(), task.getReminder());
                }
                adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
-               mPresenter.editTask(task);
+               if (!resultIntent.hasExtra(Co.NO_API_EDIT)){
+                  mPresenter.editTask(task);
+               }
 
                // TASK ADDED
             } else if (resultIntent.hasExtra(Co.NEW_TASK)) {

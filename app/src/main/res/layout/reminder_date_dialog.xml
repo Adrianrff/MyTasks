@@ -6,23 +6,19 @@
     android:padding="@dimen/full_margin">
 
     <LinearLayout
-        android:id="@+id/same_day"
+        android:id="@+id/layout_same_day"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="24dp"
         android:clickable="true"
+        android:background="?android:attr/selectableItemBackground"
         android:layout_marginBottom="@dimen/full_margin">
-
-        <RadioButton
-            android:id="@+id/rb_same_day"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
+            android:layout_gravity="center_vertical"
             android:text="@string/same_day"
             android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
 
@@ -31,21 +27,17 @@
     <LinearLayout
         android:id="@+id/layout_day_before"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="24dp"
+        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:layout_marginBottom="@dimen/full_margin">
-
-        <RadioButton
-            android:id="@+id/rb_day_before"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
+            android:layout_gravity="center_vertical"
             android:text="@string/day_before"
             android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
 
@@ -54,20 +46,16 @@
     <LinearLayout
         android:id="@+id/layout_week_before"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="24dp"
+        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:layout_marginBottom="@dimen/full_margin">
-
-        <RadioButton
-            android:id="@+id/rb_week_before"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
+            android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/full_margin"
             android:text="@string/week_before"
             android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
@@ -77,23 +65,19 @@
     <LinearLayout
         android:id="@+id/layout_custom_date"
         android:layout_width="match_parent"
-        android:clickable="true"
-        android:layout_height="wrap_content">
-
-        <RadioButton
-            android:id="@+id/rb_custom_date"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:layout_height="24dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true">
 
         <TextView
             android:id="@+id/custom_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
             android:text="@string/custom"
-            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
 
     </LinearLayout>
 
