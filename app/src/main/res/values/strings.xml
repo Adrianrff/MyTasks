@@ -22,7 +22,7 @@
     <string name="task_due_date_hint">No due date</string>
     <string name="new_task_title">New task</string>
     <string name="empty_title_error">The title can not be empty</string>
-    <string name="notification_select">Reminders</string>
+    <string name="notification_select">No reminders</string>
     <string name="task_notes_hint">No notes</string>
     <string name="no_internet_toast">No network connection available.</string>
     <string name="task_edit_title">Edit task</string>
@@ -80,21 +80,12 @@
     <string name="same_day">The same day</string>
     <string name="day_before">The day before</string>
     <string name="week_before">The week before</string>
+    <string name="custom_time">Custom…</string>
     <string name="date">Date</string>
+    <string name="custom_suffix">Custom</string>
+    <string name="select_date">Select the date</string>
+    <string name="select_time">Select the time</string>
 
-    <string-array name="notification_when_options">
-        <item>In the morning</item>
-        <item>In the afternoon</item>
-        <item>At night</item>
-        <item>Custom…</item>
-    </string-array>
-
-    <string-array name="notification_time_options">
-        <item>The same day</item>
-        <item>The day before</item>
-        <item>The week before</item>
-        <item>Custom…</item>
-    </string-array>
 
 
 

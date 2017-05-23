@@ -247,15 +247,15 @@ public class MainActivity extends AppCompatActivity
          swipeRefresh.setEnabled(false);
          if (task != null) {
             detailTitle.setText(task.getTitle());
-            detailDate.setText(task.getDue() == 0 ? getString(R.string.no_due_date) : DateHelper.timeInMillsToString(task.getDue()));
+            detailDate.setText(task.getDue() == 0 ? getString(R.string.no_due_date) : DateHelper.millisToDateOnly(task.getDue()));
             detailNotes.setText(task.getNotes());
             if (task.getReminder() != 0) {
                detailNotification.setText(
                      task.getReminder() == 0 ? null :
-                           task.getRepeatMode() == 0 ? DateHelper.millsToFull(task.getReminder()) :
+                           task.getRepeatMode() == 0 ? DateHelper.millisToFull(task.getReminder()) :
                                  DateHelper.millsToTimeOnly(task.getReminder()));
                notificationDetailLayout.setVisibility(View.VISIBLE);
-               nextReminderTV.setText(DateHelper.millsToFull(task.getReminder()));
+               nextReminderTV.setText(DateHelper.millisToFull(task.getReminder()));
 
                switch (task.getRepeatMode()) {
 
@@ -266,28 +266,28 @@ public class MainActivity extends AppCompatActivity
                      detailRepeat.setText(
                            getString(
                                  R.string.daily_repeat_mode) +
-                                 " (" + DateHelper.timeInMillsToSimpleTime
-                                 (task.getReminder()) + ")");
+                                 " (" + DateHelper.millsToTimeOnly(
+                                 task.getReminder()) + ")");
                      break;
 
                   case Co.REMINDER_DAILY_WEEKDAYS:
                      detailRepeat.setText(
                            getString(R.string.weekdays) + " (" +
-                                 DateHelper.timeInMillsToSimpleTime(task.getReminder()) + ")");
+                                 DateHelper.millsToTimeOnly(task.getReminder()) + ")");
                      break;
 
                   case Co.REMINDER_SAME_DAY_OF_WEEK:
                      detailRepeat.setText(
                            getString(R.string.every) + " " +
                                  DateHelper.timeInMillsToDay(task.getReminder())
-                                 + " (" + DateHelper.timeInMillsToSimpleTime(
+                                 + " (" + DateHelper.millsToTimeOnly(
                                  task.getReminder()) + ")");
                      break;
 
                   case Co.REMINDER_SAME_DAY_OF_MONTH:
                      detailRepeat.setText(
                            getString(R.string.on_day) + " " +
-                                 DateHelper.timeInMillsToDayOfMonth(task.getReminder()) +
+                                 DateHelper.millsToTimeOnly(task.getReminder()) +
                                  " " + getString(R.string.of_every_month));
                      break;
 

@@ -23,7 +23,7 @@
     <string name="task_due_date_hint">Sin fecha</string>
     <string name="new_task_title">Nueva Tarea</string>
     <string name="empty_title_error">El título no puede estar vacío</string>
-    <string name="notification_select">Recordatorios</string>
+    <string name="notification_select">Sin recordatorio</string>
     <string name="task_notes_hint">Sin notas</string>
     <string name="no_internet_toast">No hay connexión a internet</string>
     <string name="task_edit_title">Editar tarea</string>
@@ -43,7 +43,7 @@
     <string name="morning">En la mañana</string>
     <string name="afternoon">En la tarde</string>
     <string name="evening">En la noche</string>
-    <string name="custom">Personalizar…</string>
+    <string name="custom">Personalizado</string>
     <string name="ok">Ok</string>
     <string name="no_due_date_selected">Fecha no seleccionada</string>
     <string name="nothing_selected">No se ha seleccionado nada</string>
@@ -78,24 +78,14 @@
     <string name="on_day">Los</string>
     <string name="last_day_of_month">El último</string>
     <string name="next_reminder">Próximo recordatorio: </string>
+    <string name="custom_date">Otro…</string>
+    <string name="date">Date</string>
+    <string name="custom_suffix">Otro</string>
+    <string name="select_date">Seleccione la fecha</string>
     <string name="same_day">El mismo día</string>
     <string name="day_before">Un día antes</string>
     <string name="week_before">Una semana antes</string>
-    <string name="date">Fecha</string>
+    <string name="select_time">Seleccione la hora</string>
 
-
-    <string-array name="notification_when_options">
-        <item>En la mañana</item>
-        <item>En la tarde</item>
-        <item>En la noche</item>
-        <item>Personalizar…</item>
-    </string-array>
-
-    <string-array name="notification_time_options">
-        <item>El mismo día</item>
-        <item>Un día antes</item>
-        <item>Una semana antes</item>
-        <item>Personalizar…</item>
-    </string-array>
 
 </resources>

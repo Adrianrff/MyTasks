@@ -22,7 +22,7 @@ public class DateHelper {
 //        return new DateTime(timeInMills, offSet/60000);
     }
 
-    public static String timeInMillsToString(long timeInMills){
+    public static String millisToDateOnly(long timeInMills){
         Calendar calendar = Calendar.getInstance();
         Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
@@ -36,7 +36,7 @@ public class DateHelper {
         return sdf.format(calendar.getTime());
     }
 
-    public static String millsToFull(long timeInMills){
+    public static String millisToFull(long timeInMills){
         Calendar calendar = Calendar.getInstance();
         Calendar calToday = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
@@ -51,14 +51,6 @@ public class DateHelper {
     }
 
     public static String millsToTimeOnly(long timeInMills){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timeInMills);
-        String format = "h:mm a";
-        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
-        return sdf.format(calendar.getTime());
-    }
-
-    public static String timeInMillsToSimpleTime(long timeInMills){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         String format = "h:mm a";

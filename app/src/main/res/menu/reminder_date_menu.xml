@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/same_day"
+        android:title="@string/same_day"/>
+
+    <item
+        android:id="@+id/day_before"
+        android:title="@string/day_before"/>
+
+    <item
+        android:id="@+id/week_before"
+        android:title="@string/week_before"/>
+
+    <item
+        android:id="@+id/custom_date"
+        android:title="@string/custom"/>
+
+</menu>

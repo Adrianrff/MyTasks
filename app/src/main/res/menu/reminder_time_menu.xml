@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/morning"
+        android:title="@string/morning"/>
+
+    <item
+        android:id="@+id/afternoon"
+        android:title="@string/afternoon"/>
+
+    <item
+        android:id="@+id/evening"
+        android:title="@string/evening"/>
+
+    <item
+        android:id="@+id/custom_time"
+        android:title="@string/custom"/>
+
+</menu>
