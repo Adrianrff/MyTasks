@@ -83,7 +83,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       if (getSupportActionBar() != null) {
          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       }
-      //TODO set new reminder approach
+      //TODO Replace repeat spinner with popop
+      //TODO Disable time and repeat options if before now
       taskReminder = null;
       repeatMode = 0;
       dueDate = null;
@@ -635,6 +636,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
    @Override
    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
       editedReminder = (Calendar) taskReminder.clone();
       int dayOfWeek;
       switch (position) {
