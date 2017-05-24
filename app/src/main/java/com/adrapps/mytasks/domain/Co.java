@@ -53,6 +53,7 @@ public class Co {
    public static final int REMINDER_DAILY_WEEKDAYS = 2;
    public static final int REMINDER_SAME_DAY_OF_WEEK = 3;
    public static final int REMINDER_SAME_DAY_OF_MONTH = 4;
+   public static int REMINDER_CUSTOM_REPEAT = 5;
    public static final long ONE_DAY_LATER = 24 * 60 * 60 * 1000;
    public static final int NOT_ID_SUFIX = 1000;
    public static final String MODE_SEP = ";";

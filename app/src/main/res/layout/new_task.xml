@@ -243,7 +243,7 @@
             android:id="@+id/reminder_time_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -286,7 +286,6 @@
                 app:srcCompat="@drawable/ic_time_24dp"
                 />
 
-
             <TextView
                 android:id="@+id/reminder_time_tv"
                 android:layout_width="0dp"
@@ -303,8 +302,6 @@
 
         </LinearLayout>
 
-
-
         <LinearLayout
             android:id="@+id/repeatLayout"
             android:layout_width="match_parent"
@@ -313,22 +310,24 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/repeatIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:tint="@color/colorPrimary"
                 app:srcCompat="@drawable/ic_repeat_black_24dp"/>
 
-
-            <Spinner
-                android:id="@+id/reminder_repeat_spinner"
+            <TextView
+                android:id="@+id/repeat_tv"
                 android:layout_width="0dp"
+                android:hint="@string/select_repeat_mode"
+                android:layout_gravity="center_vertical"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
-                android:layout_marginStart="12dp"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="16sp"
+                android:layout_marginLeft="@dimen/full_margin"
+                android:layout_marginStart="@dimen/full_margin"
                 android:layout_weight="1">
-            </Spinner>
+            </TextView>
 
 
         </LinearLayout>

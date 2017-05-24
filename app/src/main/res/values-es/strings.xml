@@ -86,6 +86,7 @@
     <string name="day_before">Un día antes</string>
     <string name="week_before">Una semana antes</string>
     <string name="select_time">Seleccione la hora</string>
+    <string name="select_repeat_mode">Select repeat mode</string>
 
 
 </resources>

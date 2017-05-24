@@ -85,8 +85,7 @@
     <string name="custom_suffix">Custom</string>
     <string name="select_date">Select the date</string>
     <string name="select_time">Select the time</string>
-
-
+    <string name="select_repeat_mode">Select repeat mode</string>
 
 
 </resources>

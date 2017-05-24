@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/one_time"
+        android:title="@string/one_time_repeat_mode"/>
+
+    <item
+        android:id="@+id/daily"
+        android:title="@string/daily_repeat_mode"/>
+
+    <item
+        android:id="@+id/weekdays"
+        android:title="@string/weekdays"/>
+
+    <item
+        android:id="@+id/same_day_of_week"
+        android:title=""/>
+
+    <item
+        android:id="@+id/same_day_of_month"
+        android:title=""/>
+
+    <item
+        android:id="@+id/custom_repeat"
+        android:title="@string/custom"/>
+
+</menu>
