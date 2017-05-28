@@ -366,7 +366,7 @@ public class SyncTasksNew extends AsyncTask<Void, Void, Void> {
                         if (currentLocalTask.getMoved() == Co.MOVED) {
                             Tasks.TasksOperations.Move moveOperation = mService.tasks().
                                     move(currentListId, taskId);
-                            int localSiblingIntId = currentLocalTask.getSibling();
+                            int localSiblingIntId = currentLocalTask.getPreviousTask();
                             if (localSiblingIntId != 0) {
                                 String siblingServerId = mPresenter.getTaskIdByIntId(localSiblingIntId);
                                 moveOperation.setPrevious(siblingServerId).queue(requests, moveCallback);

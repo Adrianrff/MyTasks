@@ -305,27 +305,38 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                      taskToEdit.setReminder(0);
                   }
                }
-
-               if (taskToEdit.getTitle().trim().equals(titleTV.getText().toString().trim()) &&
-                     (taskToEdit.getDue() == 0 && dueDate == null) || (dueDate != null &&
-                     dueDate.getTimeInMillis() == taskToEdit.getDue())) {
-
-                  if (notesTv.getText().toString().isEmpty() && taskToEdit.getNotes() == null) {
-                     i.putExtra(Co.NO_API_EDIT, true);
-                  }
-                  if (taskToEdit.getNotes() != null && !notesTv.getText().toString().isEmpty()) {
-                     if (notesTv.getText().toString().trim().equals(taskToEdit.getNotes())) {
-                        i.putExtra(Co.NO_API_EDIT, true);
-                     }
-                  }
-                  if (taskToEdit.getNotes() != null && notesTv.getText().toString().isEmpty()) {
-                     taskToEdit.setNotes(null);
-                  }
-                  if (taskToEdit.getNotes() == null && !notesTv.getText().toString().isEmpty()) {
-                     taskToEdit.setNotes(notesTv.getText().toString());
-                  }
-
+               boolean noTitleChange = taskToEdit.getTitle().trim().equals(titleTV.getText().toString().trim());
+               boolean noDueDateChange = ((dueDate == null && taskToEdit.getDue() == 0) ||
+                     (dueDate != null && (dueDate.getTimeInMillis() == taskToEdit.getDue())));
+               boolean noNotesChange = (notesTv.getText().toString().isEmpty() &&
+                     taskToEdit.getNotes() == null) ||
+                     (taskToEdit.getNotes() != null && !notesTv.getText().toString().isEmpty() &&
+                           notesTv.getText().toString().trim().equals(taskToEdit.getNotes()));
+               if (noTitleChange && noDueDateChange && noNotesChange){
+                  i.putExtra(Co.NO_API_EDIT, true);
                } else {
+
+//               if (taskToEdit.getTitle().trim().equals(titleTV.getText().toString().trim())) {
+//                  if ((taskToEdit.getDue() == 0 && dueDate == null) || (dueDate != null &&
+//                        dueDate.getTimeInMillis() == taskToEdit.getDue())) {
+//                     if ((taskToEdit.getDue() == 0 && dueDate == null) || (dueDate != null &&
+//                           dueDate.getTimeInMillis() == taskToEdit.getDue())) {
+//                        String titleTV = this.titleTV.getText().toString().trim();
+//                        if (notesTv.getText().toString().isEmpty() && taskToEdit.getNotes() == null) {
+//                        }
+//                        if (taskToEdit.getNotes() != null && !notesTv.getText().toString().isEmpty()) {
+//                           if (notesTv.getText().toString().trim().equals(taskToEdit.getNotes())) {
+//                              i.putExtra(Co.NO_API_EDIT, true);
+//                           }
+//                        }
+//                        if (taskToEdit.getNotes() != null && notesTv.getText().toString().isEmpty()) {
+//                           taskToEdit.setNotes(null);
+//                        }
+//                        if (taskToEdit.getNotes() == null && !notesTv.getText().toString().isEmpty()) {
+//                           taskToEdit.setNotes(notesTv.getText().toString());
+//                        }
+//                     }
+//                  }
                   taskToEdit.setTitle(titleTV.getText().toString());
                   if (notesTv.getText().toString().trim().length() != 0)
                      taskToEdit.setNotes(notesTv.getText().toString());
@@ -368,7 +379,10 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                break;
             }
       }
-      return super.onOptionsItemSelected(item);
+      return super.
+
+            onOptionsItemSelected(item);
+
    }
 
    @Override
@@ -620,9 +634,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                   DateHelper.millsToTimeOnly(taskReminder.getTimeInMillis()) :
                   DateHelper.millisToFull(taskReminder.getTimeInMillis()));
             setRepeatMenu(taskReminder);
-            if (isReminderBeforeNow){
+            if (isReminderBeforeNow) {
                repeatMenu.findItem(R.id.one_time).setEnabled(false);
-               if (repeatMode == Co.REMINDER_ONE_TIME){
+               if (repeatMode == Co.REMINDER_ONE_TIME) {
                   repeatMode = Co.REMINDER_DAILY;
                   repeatTV.setText(getString(R.string.daily_repeat_mode));
                } else {

@@ -11,7 +11,7 @@ import java.util.TimeZone;
 public class LocalTask implements Serializable, Comparable {
 
     private String id, title, parent, position, notes, status, list;
-    private int moved, localDeleted, intId, localSibling, syncStatus, repeatMode;
+    private int moved, localDeleted, intId, previousTask, syncStatus, repeatMode, adapterPos;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
 
@@ -119,6 +119,10 @@ public class LocalTask implements Serializable, Comparable {
     ///-------------------SETTERS ----------------------//
 
 
+   public void setAdapterPos(int adapterPos) {
+      this.adapterPos = adapterPos;
+   }
+
    public void setMoved(int moved) {
         this.moved = moved;
     }
@@ -144,9 +148,6 @@ public class LocalTask implements Serializable, Comparable {
         this.reminderId = System.currentTimeMillis();
     }
 
-    public void setLocalSibling(int localSibling) {
-        this.localSibling = localSibling;
-    }
 
     public void setRepeatMode(int repeatMode) {
         this.repeatMode = repeatMode;
@@ -217,16 +218,16 @@ public class LocalTask implements Serializable, Comparable {
     ///-------------------GETTERS---------------------///
 
 
-   public int getLocalSibling() {
-        return localSibling;
-    }
+   public int getAdapterPos() {
+      return adapterPos;
+   }
 
-    public int getRepeatMode() {
+   public int getRepeatMode() {
         return repeatMode;
     }
 
-    public int getSibling() {
-        return localSibling;
+    public int getPreviousTask() {
+        return previousTask;
     }
 
     public int getMoved() {
@@ -241,8 +242,8 @@ public class LocalTask implements Serializable, Comparable {
         return localDeleted;
     }
 
-    public void setSibling(int localSibling) {
-        this.localSibling = localSibling;
+    public void setPreviousTask(int localSibling) {
+        this.previousTask = localSibling;
     }
 
     public int getSyncStatus() {

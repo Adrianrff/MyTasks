@@ -86,7 +86,6 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
                 mLastError.printStackTrace();
             }
         } else {
-
             mPresenter.showToast(mPresenter.getString(R.string.request_canceled));
 
         }
@@ -95,7 +94,7 @@ public class MoveTask extends AsyncTask<String, Void, Void> {
     private void moveTask(String taskId, String listId, String previousTaskId) throws IOException {
         if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
             Tasks.TasksOperations.Move move = mService.tasks().move(listId, taskId);
-            if (!previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
+            if (previousTaskId != null && !previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
                 move.setPrevious(previousTaskId);
             }
             Task task = move.execute();

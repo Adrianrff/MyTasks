@@ -67,7 +67,7 @@ public class Co {
    public static final int EDITED_NOT_SYNCED = 1;
    public static final int SYNCED = 2;
    public static final int NOT_MOVED = 0;
-   public static final int MOVED_TO_FIRST = -2;
+   public static final int IS_FIRST = -2;
    public static int LOCAL_DELETED = 1;
    public static int MOVED = 1;
    public static final String TASK_MOVED_TO_FIRST = "first";
