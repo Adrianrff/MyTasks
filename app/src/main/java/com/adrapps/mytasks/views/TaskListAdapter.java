@@ -311,6 +311,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                         mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(),
                               prevTask.getPosition() + "1");
                         movedTask.setPosition(prevTask.getPosition() + "1");
+
                      }
 
                   } else {
