@@ -318,7 +318,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             for (int k = 0; k < localTasks.size(); k++) {
                LocalTask currentLocalTask = localTasks.get(k);
                Task sameServerTask = serverTasksMap.get(currentLocalTask.getId());
-               long sameServerTaskUpdated = sameServerTask.getUpdated().getValue();
+               if (sameServerTask != null && sameServerTask.getUpdated() !=null) {
+                  long sameServerTaskUpdated = sameServerTask.getUpdated().getValue();
+               }
                String taskId = currentLocalTask.getId();
                boolean taskChanged = false;
                if (currentLocalTask.getLocalModify() > sameServerTask.getUpdated().getValue()) {

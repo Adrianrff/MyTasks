@@ -16,7 +16,7 @@
     <string name="notifications_settings_title">Notificaciones</string>
     <string name="undo">DESHACER</string>
     <string name="task_deleted">Tarea eliminada</string>
-    <string name="task_restored">Tarea restaurada</string>
+    <string name="task_restored">Tareas restauradas</string>
     <string name="request_canceled">Petición cancelada</string>
     <string name="g_services_not_available">Servicios de Google Play no está disponible</string>
     <string name="task_not_found">No se encontró la tarea</string>
@@ -87,6 +87,8 @@
     <string name="week_before">Una semana antes</string>
     <string name="select_time">Seleccione la hora</string>
     <string name="select_repeat_mode">Select repeat mode</string>
+    <string name="selected">seleccionado</string>
+    <string name="selected_plural">seleccionados</string>
 
 
 </resources>

@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.presenter;
 
 import android.content.Intent;
+import android.util.SparseArray;
 
 import com.adrapps.mytasks.api_calls.SyncTasks;
 import com.adrapps.mytasks.domain.Co;
@@ -68,8 +69,8 @@ public class TaskListPresenter implements Serializable{
         getView().dismissProgressDialog();
     }
 
-    public void showUndoSnackBar(String message, int position, LocalTask removedTask) {
-        getView().showTaskDeleteUndoSnackBar(message, position, removedTask);
+    public void showUndoSnackBar(String message, SparseArray map) {
+        getView().showTaskDeleteUndoSnackBar(message, map);
     }
 
     public void showProgress(boolean b) {
@@ -141,10 +142,6 @@ public class TaskListPresenter implements Serializable{
 
     public void deleteTaskFromDatabase(int intId) {
         mModel.deleteTaskFromDatabase(intId);
-    }
-
-    public void deleteTask(String taskId, String listId) {
-        mModel.deleteTask(taskId, listId);
     }
 
     public GoogleAccountCredential getCredential() {
@@ -308,5 +305,9 @@ public class TaskListPresenter implements Serializable{
 
     public List<LocalTask> getAllTasks() {
         return mModel.getLocalTasksFromDB();
+    }
+
+    public void deleteTasks(List<LocalTask> tasks) {
+        mModel.deleteTasks(tasks);
     }
 }

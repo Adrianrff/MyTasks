@@ -407,21 +407,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             break;
 
          case R.id.notificationTextView:
-            if (notificationSwitch.isChecked()) {
-               notificationSwitch.setChecked(false);
-            } else {
-               Calendar today = Calendar.getInstance();
-               notificationSwitch.setChecked(true);
-               if (dueDate != null) {
-                  if (taskReminder == null) {
-                     showReminderDatePicker();
-                     timeSet = false;
-                  } else {
-                     setReminderInfo(taskReminder.getTimeInMillis());
-                  }
-               }
-            }
-
+            notificationSwitch.setChecked(!notificationSwitch.isChecked());
             break;
 
 ////         //Morning taskReminder click
@@ -799,13 +785,17 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    @Override
    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
       if (isChecked) {
+         notificationDetailsLayout.setVisibility(View.VISIBLE);
          if (taskReminder == null) {
-            notificationTV.setText(null);
             timeSet = false;
+            if (dueDate != null){
+               reminderDateMenu.show();
+            } else {
+               showReminderDatePicker();
+            }
          } else {
             notificationTV.setText(DateHelper.millisToFull(taskReminder.getTimeInMillis()));
          }
-         notificationDetailsLayout.setVisibility(View.VISIBLE);
 
 //         ValueAnimator va = ValueAnimator.ofInt(0, 500);
 //         va.setDuration(300);
@@ -832,6 +822,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 //
 //         va.start();
       } else {
+         taskReminder = null;
          notificationTV.setText(null);
          notificationDetailsLayout.setVisibility(View.GONE);
 //         ValueAnimator va = ValueAnimator.ofInt(500, 0);
@@ -885,6 +876,12 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             break;
 
          case R.id.same_day:
+            if (taskReminder == null) {
+               taskReminder = Calendar.getInstance();
+            }
+            if (!timeSet){
+               reminderTimeMenu.show();
+            }
             taskReminder.set(Calendar.YEAR, dueDate.get(Calendar.YEAR));
             taskReminder.set(Calendar.MONTH, dueDate.get(Calendar.MONTH));
             taskReminder.set(Calendar.DAY_OF_MONTH, dueDate.get(Calendar.DAY_OF_MONTH));
@@ -895,6 +892,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             break;
 
          case R.id.day_before:
+            if (taskReminder == null) {
+               taskReminder = Calendar.getInstance();
+            }
             taskReminder.set(Calendar.YEAR, dueDate.get(Calendar.YEAR));
             taskReminder.set(Calendar.MONTH, dueDate.get(Calendar.MONTH));
             taskReminder.set(Calendar.DAY_OF_MONTH, dueDate.get(Calendar.DAY_OF_MONTH));
@@ -905,6 +905,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             break;
 
          case R.id.week_before:
+            if (taskReminder == null) {
+               taskReminder = Calendar.getInstance();
+            }
             taskReminder.set(Calendar.YEAR, dueDate.get(Calendar.YEAR));
             taskReminder.set(Calendar.MONTH, dueDate.get(Calendar.MONTH));
             taskReminder.set(Calendar.DAY_OF_MONTH, dueDate.get(Calendar.DAY_OF_MONTH));

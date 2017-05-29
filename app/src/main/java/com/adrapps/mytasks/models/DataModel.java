@@ -2,23 +2,24 @@ package com.adrapps.mytasks.models;
 
 import android.content.Context;
 
+import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.api_calls.AddTask;
 import com.adrapps.mytasks.api_calls.CreateList;
 import com.adrapps.mytasks.api_calls.DeleteList;
+import com.adrapps.mytasks.api_calls.DeleteTask;
 import com.adrapps.mytasks.api_calls.EditList;
 import com.adrapps.mytasks.api_calls.EditTask;
 import com.adrapps.mytasks.api_calls.FirstRefreshAsync;
-import com.adrapps.mytasks.api_calls.DeleteTask;
 import com.adrapps.mytasks.api_calls.MoveTask;
 import com.adrapps.mytasks.api_calls.UpdateStatus;
 import com.adrapps.mytasks.databases.ListsDatabase;
 import com.adrapps.mytasks.databases.TasksDatabase;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalList;
-import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.helpers.AlarmHelper;
+import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.R;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -293,6 +294,8 @@ public class DataModel implements Contract.Model {
       tasksDb.updateNewTasksInBulk(map);
    }
 
+
+
    @Override
    public int addListToDb(String listTitle) {
       return listsDb.addList(listTitle);
@@ -300,13 +303,24 @@ public class DataModel implements Contract.Model {
 
 
    //------------------------API OPERATIONS----------------------///
+
    @Override
-   public void deleteTask(String taskId, String listId) {
-      tasksDb.markDeleted(taskId);
-      if (mPresenter.isDeviceOnline()) {
-         GoogleAccountCredential credential = mPresenter.getCredential();
-         DeleteTask remove = new DeleteTask(context, mPresenter, credential, listId);
-         remove.execute(taskId);
+   public void deleteTasks(List<LocalTask> tasks) {
+      for (int i = 0; i < tasks.size(); i++){
+         LocalTask currentTask = tasks.get(i);
+         String currentTaskId = currentTask.getId();
+         AlarmHelper.cancelReminder(tasks.get(i), context);
+         if (currentTaskId == null || currentTaskId.trim().isEmpty()){
+            tasks.remove(i);
+            deleteTaskFromDatabase(currentTask.getIntId());
+         } else {
+            tasksDb.markDeleted(currentTaskId);
+         }
+         if (mPresenter.isDeviceOnline()) {
+            GoogleAccountCredential credential = mPresenter.getCredential();
+            DeleteTask remove = new DeleteTask(context, mPresenter, credential, tasks);
+            remove.execute();
+         }
       }
    }
 

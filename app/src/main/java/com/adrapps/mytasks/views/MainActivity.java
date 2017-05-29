@@ -34,6 +34,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,7 +49,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.adrapps.mytasks.receivers.AlarmReciever;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
@@ -57,13 +57,16 @@ import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
+import com.adrapps.mytasks.interfaces.OnStartDragListener;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
+import com.adrapps.mytasks.receivers.AlarmReciever;
 import com.bumptech.glide.Glide;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -72,7 +75,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity
       implements NavigationView.OnNavigationItemSelectedListener,
       Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
-      View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+      View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, OnStartDragListener {
 
    Toolbar toolbar;
    DrawerLayout drawer;
@@ -97,6 +100,7 @@ public class MainActivity extends AppCompatActivity
    private Intent newOrEditTaskIntent;
    private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback;
    public static final Object sDataLock = new Object();
+   private ItemTouchHelper touchHelper;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -380,13 +384,18 @@ public class MainActivity extends AppCompatActivity
       recyclerView.setAdapter(adapter);
       ItemTouchHelper.Callback callback =
             new SimpleItemTouchHelperCallback(adapter, this);
-      ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+      touchHelper = new ItemTouchHelper(callback);
       touchHelper.attachToRecyclerView(recyclerView);
       if (tasks == null || tasks.isEmpty()) {
          showEmptyRecyclerView(true);
       } else {
          showEmptyRecyclerView(false);
       }
+   }
+
+   @Override
+   public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+      touchHelper.startDrag(viewHolder);
    }
 
    @Override
@@ -459,13 +468,13 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public void showTaskDeleteUndoSnackBar(String message, final int position, final LocalTask task) {
+   public void showTaskDeleteUndoSnackBar(String message, final SparseArray map) {
 
       Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Co.SNACKBAR_DURATION);
       snackbar.setAction(R.string.undo, new View.OnClickListener() {
          @Override
          public void onClick(View v) {
-            adapter.restoreDeletedItem(position);
+            adapter.restoreDeletedItems(map);
          }
       });
       snackbar.setActionTextColor(ContextCompat.getColor(this, R.color.colorLightPrimary));
@@ -476,19 +485,26 @@ public class MainActivity extends AppCompatActivity
             if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT ||
                   event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
                   event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE) {
-               String taskId;
-               if (task.getId() == null || task.getId().trim().isEmpty()) {
-                  taskId = mPresenter.getTaskIdByIntId(task.getIntId());
-               } else {
-                  taskId = task.getId();
+//               List<String> taskIds = new ArrayList<>();
+//               String currentId = null;
+//               for (int i = 0; i < tasks.size(); i++) {
+//                  LocalTask currentTask = tasks.get(i);
+//                  taskIds.add(currentTask.getId());
+//                  currentId = currentTask.getId();
+//                  int currentIntId = currentTask.getIntId();
+//                  if (currentId == null || currentId.trim().isEmpty()) {
+//                     currentId = mPresenter.getTaskIdByIntId(currentIntId);
+//                  }
+//                  if (currentId == null || currentId.trim().isEmpty()) {
+//                     mPresenter.deleteTaskFromDatabase(currentIntId);
+//                     AlarmHelper.cancelReminder(currentTask, MainActivity.this);
+//                  }
+//               }
+               List<LocalTask> tasks = new ArrayList<>();
+               for (int i = 0; i < map.size(); i++){
+                  tasks.add((LocalTask) map.valueAt(i));
                }
-               if (taskId == null || taskId.trim().isEmpty()) {
-                  mPresenter.deleteTaskFromDatabase(task.getIntId());
-                  AlarmHelper.cancelReminder(task, MainActivity.this);
-                  return;
-               }
-               mPresenter.deleteTask(taskId, task.getList());
-               AlarmHelper.cancelReminder(task, MainActivity.this);
+               mPresenter.deleteTasks(tasks);
             }
          }
       });
@@ -649,6 +665,9 @@ public class MainActivity extends AppCompatActivity
          mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
          swipeRefresh.setEnabled(true);
          fab.show();
+      }
+      if (adapter.isSelectableMode()) {
+         adapter.leaveSelectMode();
       } else
          super.onBackPressed();
    }
@@ -669,7 +688,7 @@ public class MainActivity extends AppCompatActivity
                format = "d MMM yyyy, h:mm a";
             }
             SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
-         break;
+            break;
 
          case R.id.refresh:
             refresh();
@@ -760,7 +779,7 @@ public class MainActivity extends AppCompatActivity
                   mPresenter.updateReminder(task.getIntId(), task.getReminder());
                }
                adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
-               if (!resultIntent.hasExtra(Co.NO_API_EDIT)){
+               if (!resultIntent.hasExtra(Co.NO_API_EDIT)) {
                   mPresenter.editTask(task);
                }
 
@@ -865,6 +884,8 @@ public class MainActivity extends AppCompatActivity
    public void updateItem(LocalTask syncedLocalTask) {
       adapter.updateItem(syncedLocalTask, -1);
    }
+
+
 }
 
 

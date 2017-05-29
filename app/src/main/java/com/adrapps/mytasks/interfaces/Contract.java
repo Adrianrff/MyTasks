@@ -2,6 +2,7 @@ package com.adrapps.mytasks.interfaces;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.SparseArray;
 
 import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.domain.LocalTask;
@@ -40,7 +41,7 @@ public class Contract {
 
         void updateCurrentView();
 
-        void showTaskDeleteUndoSnackBar(String message, int position, LocalTask task);
+        void showTaskDeleteUndoSnackBar(String message, SparseArray map);
 
         void showBottomSheet(LocalTask task, int position, boolean b);
 
@@ -116,8 +117,6 @@ public class Contract {
         void addTaskFirstTimeFromServer(Task task, String listId);
 
         int addListToDb(String listTitle);
-
-        void deleteTask(String taskId, String listId);
 
         void updateTaskStatus(int intId, String listId, String newStatus);
 
@@ -198,6 +197,8 @@ public class Contract {
         long getTaskReminderByIntId(int intId);
 
         void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
+
+        void deleteTasks(List<LocalTask> tasks);
     }
 
 

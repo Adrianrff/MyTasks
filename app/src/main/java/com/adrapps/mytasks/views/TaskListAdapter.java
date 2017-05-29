@@ -1,14 +1,24 @@
 package com.adrapps.mytasks.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
+import android.util.SparseArray;
+import android.util.StateSet;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -23,7 +33,12 @@ import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperAdapter;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperViewHolder;
+import com.adrapps.mytasks.interfaces.OnStartDragListener;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
+import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
+import com.bignerdranch.android.multiselector.MultiSelector;
+import com.bignerdranch.android.multiselector.SelectableHolder;
+import com.bignerdranch.android.multiselector.SwappingHolder;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,13 +52,78 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    private LocalTask removedTask;
    private int newPos;
    private int oldPos;
+   ActionMode mActionMode;
+   private MultiSelector mMultiSelector;
+   private OnStartDragListener mDragStartListener;
+   private ModalMultiSelectorCallback mActionModeCallback;
 
 
-   TaskListAdapter(Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
+   TaskListAdapter(final Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
       this.mPresenter = presenter;
       this.context = context;
       this.tasks = sortTasksBySibling(tasks);
-//        setHasStableIds(true);
+      mMultiSelector = new MultiSelector();
+      mDragStartListener = new OnStartDragListener() {
+         @Override
+         public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+
+         }
+      };
+      mActionModeCallback
+            = new ModalMultiSelectorCallback(mMultiSelector) {
+
+         @Override
+         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            super.onCreateActionMode(actionMode, menu);
+            setActionMode(actionMode);
+            ((Activity) context).getMenuInflater().inflate(R.menu.list_context_menu, menu);
+            return true;
+         }
+
+
+         @Override
+         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            if (menuItem.getItemId() == R.id.delete_items) {
+               actionMode.finish();
+               deleteItems();
+               mMultiSelector.clearSelections(); // (2)
+               return true;
+            }
+            return false;
+         }
+
+         @Override
+         public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            return super.onPrepareActionMode(actionMode, menu);
+         }
+
+         @Override
+         public void onDestroyActionMode(ActionMode actionMode) {
+            super.onDestroyActionMode(actionMode);
+
+         }
+      };
+   }
+
+   private void setActionMode(ActionMode actionMode) {
+      mActionMode = actionMode;
+   }
+
+   private void deleteItems() {
+
+      SparseArray<LocalTask> map = new SparseArray<>();
+      for (int i = tasks.size(); i >= 0; i--) {
+         if (mMultiSelector.isSelected(i, 0)) {
+            map.put(i, tasks.get(i));
+            tasks.remove(i);
+            notifyItemRemoved(i);
+            if (tasks.isEmpty()) {
+               mPresenter.showEmptyRecyclerView(true);
+            }
+         }
+      }
+      mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), map);
+
    }
 
    @Override
@@ -58,8 +138,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    }
 
    @Override
-   public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
+   public void onBindViewHolder(final TaskListAdapter.TaskListViewHolder holder, int position) {
       LocalTask cTask = tasks.get(position);
+      holder.setSelectionModeBackgroundDrawable(getHighlightedBackground());
       if (!cTask.getTitle().equals("")) {
          holder.taskName.setText(cTask.getTitle());
       } else {
@@ -106,7 +187,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          holder.taskCheckbox.setChecked(false);
       }
       holder.taskCheckbox.setOnCheckedChangeListener(holder);
-
       if (cTask.getReminder() != 0) {
 //            if (mPresenter.isReminderSet((int) cTask.getReminderId())){
          holder.notificationImage.setVisibility(View.VISIBLE);
@@ -117,6 +197,14 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          holder.notificationImage.setVisibility(View.GONE);
       }
 
+   }
+
+   private StateListDrawable getHighlightedBackground() {
+      ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(context, R.color.colorLightGray));
+      StateListDrawable stateListDrawable = new StateListDrawable();
+      stateListDrawable.addState(new int[]{16843518}, colorDrawable);
+      stateListDrawable.addState(StateSet.WILD_CARD, (Drawable) null);
+      return stateListDrawable;
    }
 
    @Override
@@ -145,6 +233,15 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       Toast.makeText(context, message, Toast.LENGTH_LONG).show();
    }
 
+   boolean isSelectableMode() {
+      return mMultiSelector.isSelectable();
+   }
+
+   void leaveSelectMode() {
+      mMultiSelector.clearSelections();
+      mMultiSelector.setSelectable(false);
+   }
+
    @Override
    public boolean onItemMove(int fromPosition, int toPosition) {
 
@@ -158,26 +255,34 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          }
       }
       newPos = toPosition;
+      mMultiSelector.setSelected(newPos, (long) tasks.get(newPos).getIntId(),true);
+      mMultiSelector.setSelected(fromPosition, (long) tasks.get(fromPosition).getIntId(),false);
       notifyItemMoved(fromPosition, toPosition);
       return true;
    }
 
    @Override
    public void onItemSwiped(int position, int direction) {
-      if (direction == ItemTouchHelper.END) {
-      } else {
-         removedTask = tasks.remove(position);
-         notifyItemRemoved(position);
-         mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
-         if (tasks.isEmpty()) {
-            mPresenter.showEmptyRecyclerView(true);
-         }
-      }
+//      if (direction == ItemTouchHelper.END) {
+//      } else {
+//         removedTask = tasks.remove(position);
+//         notifyItemRemoved(position);
+//         mPresenter.showUndoSnackBar(context.getString(R.string.task_deleted), position, removedTask);
+//         if (tasks.isEmpty()) {
+//            mPresenter.showEmptyRecyclerView(true);
+//         }
+//      }
    }
-
-   void restoreDeletedItem(int position) {
-      tasks.add(position, removedTask);
-      notifyItemInserted(position);
+   void restoreDeletedItems(SparseArray map) {
+      for (int i = 0; i< map.size(); i++ ){
+         tasks.add((LocalTask) map.valueAt(i));
+      }
+      for (int i = 0; i < map.size(); i++ ){
+         LocalTask task = (LocalTask) map.valueAt(i);
+         tasks.remove(tasks.indexOf(task));
+         tasks.add(map.keyAt(i), task);
+      }
+      notifyDataSetChanged();
       mPresenter.showEmptyRecyclerView(false);
       showToast(context.getString(R.string.task_restored));
    }
@@ -197,10 +302,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       }
    }
 
-
    //------------------------VIEW HOLDER-------------------------------///
-   class TaskListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
-         ItemTouchHelperViewHolder, CompoundButton.OnCheckedChangeListener {
+   class TaskListViewHolder extends SwappingHolder implements View.OnClickListener,
+         CompoundButton.OnCheckedChangeListener, View.OnLongClickListener, SelectableHolder,
+         ItemTouchHelperViewHolder {
 
       TextView taskName, dueDate;
       ImageView notificationImage;
@@ -211,10 +316,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       ColorStateList oldDueColors;
 
       TaskListViewHolder(View v, Context context, TaskListPresenter presenter) {
-         super(v);
+         super(v, mMultiSelector);
          this.context = context;
          this.mPresenter = presenter;
          v.setOnClickListener(this);
+         v.setOnLongClickListener(this);
          dueDate = (TextView) v.findViewById(R.id.textViewDate);
          taskName = (TextView) v.findViewById(R.id.textViewName);
          notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
@@ -226,7 +332,26 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
       @Override
       public void onClick(View v) {
-         mPresenter.showBottomSheet(tasks.get(getAdapterPosition()), getAdapterPosition(), true);
+         if (!mMultiSelector.tapSelection(TaskListViewHolder.this)) {
+            mPresenter.showBottomSheet(tasks.get(getAdapterPosition()), getAdapterPosition(), true);
+         }
+         if (mActionMode != null) {
+            int selectedQty = mMultiSelector.getSelectedPositions().size();
+            String text = selectedQty > 1 ? context.getString(R.string.selected_plural) :
+                  context.getString(R.string.selected);
+            mActionMode.setTitle(String.valueOf(selectedQty) + " " + text);
+            if (selectedQty == 0) {
+               mMultiSelector.setSelectable(false);
+               mActionMode.finish();
+            }
+
+         }
+//
+//         if (mMultiSelector.getSelectedPositions().isEmpty()) {
+//            mMultiSelector.clearSelections();
+//            mMultiSelector.setSelectable(false);
+//            mMultiSelector.setSelected(TaskListViewHolder.this, false);
+//         }
       }
 
       @Override
@@ -271,101 +396,123 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       @Override
       public void onItemSelected() {
          oldPos = getAdapterPosition();
-         itemView.setBackgroundColor(Color.LTGRAY);
       }
 
       @Override
       public void onItemClear() {
-         //TODO: sort tasks by comparing siblings
-         itemView.setBackgroundColor(Color.WHITE);
-         if (getAdapterPosition() >= 0) {
-            newPos = getAdapterPosition();
-            if (oldPos != newPos) {
-               LocalTask movedTask, prevToMovedTask;
+
+      }
+//
+//      @Override
+//      public void onItemClear() {
+//         //TODO: sort tasks by comparing siblings
+//         itemView.setBackgroundColor(Color.WHITE);
+//         if (getAdapterPosition() >= 0) {
+//            newPos = getAdapterPosition();
+//            if (oldPos != newPos) {
+//               LocalTask movedTask, prevToMovedTask;
+////               movedTask = tasks.get(newPos);
 //               movedTask = tasks.get(newPos);
-               movedTask = tasks.get(newPos);
-               movedTask.setMoved(Co.MOVED);
-               mPresenter.updateMovedByIntId(movedTask.getIntId(), Co.MOVED);
-
-               //Update previous task of task in old position (old position + 1). 0 if was last item
-               mPresenter.updateSiblingByIntId(tasks.get(oldPos).getIntId(), oldPos - 1 < 0 ?
-                     Co.IS_FIRST : tasks.get(oldPos - 1).getIntId());
-
-               //Update prev task of task following the moved task if not moved to last
-               if (newPos <= tasks.size()) {
-                  mPresenter.updateSiblingByIntId(tasks.get(newPos + 1).getIntId(), movedTask.getIntId());
-               }
-
-               String previousTaskId;
-               if (newPos > 0){
-                  LocalTask prevTask = tasks.get(newPos - 1);
-                  previousTaskId = prevTask.getId();
-
-                  //set previous task of moved task (in position newPos - 1)
-                  mPresenter.updateSiblingByIntId(movedTask.getIntId(), prevTask.getIntId());
-                  if (prevTask.getPosition() != null) {
-                     if (prevTask.getPosition().matches("0+")){
-                        mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(),
-                              prevTask.getPosition() + "0000");
-                     } else {
-                        mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(),
-                              prevTask.getPosition() + "1");
-                        movedTask.setPosition(prevTask.getPosition() + "1");
-
-                     }
-
-                  } else {
-                     mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(), "0000");
-                     movedTask.setPosition(prevTask.getPosition() + "0000");
-                  }
-               } else {
-
-                  //set previous task of moved task to Co.IS_FIRST
-                  previousTaskId = Co.TASK_MOVED_TO_FIRST;
-                  mPresenter.updateSiblingByIntId(movedTask.getIntId(), Co.IS_FIRST);
-                  mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(), "0");
-               }
-
-               if (mPresenter.isDeviceOnline()) {
-                  //TODO check if previousTaskId is not null, handle if it is
-                  mPresenter.moveTask(movedTask, previousTaskId);
-               }
-//               String newTaskTempPos = null;
-//               if (getAdapterPosition() == 0) {
-//                  previousTaskId = Co.TASK_MOVED_TO_FIRST;
-//                  if (tasks.size() >= 2 && !mPresenter.isDeviceOnline()) {
-//                     if (tasks.get(getAdapterPosition() + 1).getPosition() != null){
-//                        String nextTaskServerPos = tasks.get(getAdapterPosition() + 1).getPosition();
-//                        String nextTaskServerPositionLastTwoChar =
-//                              nextTaskServerPos.substring(nextTaskServerPos.length() - 2);
-//                        int lastTwoCharNewPos = Integer.parseInt(nextTaskServerPositionLastTwoChar) - 1;
-//                        newTaskTempPos = nextTaskServerPos.substring(0,
-//                              nextTaskServerPos.length() - 2) + lastTwoCharNewPos;
+//               movedTask.setMoved(Co.MOVED);
+//               mPresenter.updateMovedByIntId(movedTask.getIntId(), Co.MOVED);
+//
+//               //Update previous task of task in old position (old position + 1). 0 if was last item
+//               mPresenter.updateSiblingByIntId(tasks.get(oldPos).getIntId(), oldPos - 1 < 0 ?
+//                     Co.IS_FIRST : tasks.get(oldPos - 1).getIntId());
+//
+//               //Update prev task of task following the moved task if not moved to last
+//               if (newPos <= tasks.size()) {
+//                  mPresenter.updateSiblingByIntId(tasks.get(newPos + 1).getIntId(), movedTask.getIntId());
+//               }
+//
+//               String previousTaskId;
+//               if (newPos > 0){
+//                  LocalTask prevTask = tasks.get(newPos - 1);
+//                  previousTaskId = prevTask.getId();
+//
+//                  //set previous task of moved task (in position newPos - 1)
+//                  mPresenter.updateSiblingByIntId(movedTask.getIntId(), prevTask.getIntId());
+//                  if (prevTask.getPosition() != null) {
+//                     if (prevTask.getPosition().matches("0+")){
+//                        mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(),
+//                              prevTask.getPosition() + "0000");
 //                     } else {
-//                        newTaskTempPos = "0";
+//                        mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(),
+//                              prevTask.getPosition() + "1");
+//                        movedTask.setPosition(prevTask.getPosition() + "1");
+//
 //                     }
 //
+//                  } else {
+//                     mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(), "0000");
+//                     movedTask.setPosition(prevTask.getPosition() + "0000");
 //                  }
 //               } else {
-//                  previousTaskId = tasks.get(getAdapterPosition() - 1).getId();
-//                  String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
-//                        getPosition();
-//                  if (previousTaskServerPos != null) {
-//                     String previousTaskServerPositionLastTwoChar =
-//                           previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
-//                     int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
-//                     newTaskTempPos = previousTaskServerPos.substring(0,
-//                           previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
-//                  } else {
 //
-//                  }
+//                  //set previous task of moved task to Co.IS_FIRST
+//                  previousTaskId = Co.TASK_MOVED_TO_FIRST;
+//                  mPresenter.updateSiblingByIntId(movedTask.getIntId(), Co.IS_FIRST);
+//                  mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(), "0");
+//               }
 //
-////               }
-//               if (newTaskTempPos != null)
-//                  mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(), newTaskTempPos);
-//               mPresenter.moveTask(movedTask, previousTaskId);
+//               if (mPresenter.isDeviceOnline()) {
+//                  //TODO check if previousTaskId is not null, handle if it is
+//                  mPresenter.moveTask(movedTask, previousTaskId);
+//               }
+////               String newTaskTempPos = null;
+////               if (getAdapterPosition() == 0) {
+////                  previousTaskId = Co.TASK_MOVED_TO_FIRST;
+////                  if (tasks.size() >= 2 && !mPresenter.isDeviceOnline()) {
+////                     if (tasks.get(getAdapterPosition() + 1).getPosition() != null){
+////                        String nextTaskServerPos = tasks.get(getAdapterPosition() + 1).getPosition();
+////                        String nextTaskServerPositionLastTwoChar =
+////                              nextTaskServerPos.substring(nextTaskServerPos.length() - 2);
+////                        int lastTwoCharNewPos = Integer.parseInt(nextTaskServerPositionLastTwoChar) - 1;
+////                        newTaskTempPos = nextTaskServerPos.substring(0,
+////                              nextTaskServerPos.length() - 2) + lastTwoCharNewPos;
+////                     } else {
+////                        newTaskTempPos = "0";
+////                     }
+////
+////                  }
+////               } else {
+////                  previousTaskId = tasks.get(getAdapterPosition() - 1).getId();
+////                  String previousTaskServerPos = tasks.get(getAdapterPosition() - 1).
+////                        getPosition();
+////                  if (previousTaskServerPos != null) {
+////                     String previousTaskServerPositionLastTwoChar =
+////                           previousTaskServerPos.substring(previousTaskServerPos.length() - 1);
+////                     int lastTwoCharNewPos = Integer.parseInt(previousTaskServerPositionLastTwoChar) + 1;
+////                     newTaskTempPos = previousTaskServerPos.substring(0,
+////                           previousTaskServerPos.length() - 1) + lastTwoCharNewPos;
+////                  } else {
+////
+////                  }
+////
+//////               }
+////               if (newTaskTempPos != null)
+////                  mPresenter.setTemporaryPositionByIntId(movedTask.getIntId(), newTaskTempPos);
+////               mPresenter.moveTask(movedTask, previousTaskId);
+//            }
+//         }
+//      }
+
+      @Override
+      public boolean onLongClick(View v) {
+         if (!mMultiSelector.isSelectable()) {
+            ((AppCompatActivity) context).startSupportActionMode(mActionModeCallback); // (2)
+            mMultiSelector.setSelectable(true);
+            mMultiSelector.setSelected(TaskListViewHolder.this, true);
+            if (mActionMode != null) {
+               mActionMode.setTitle(String.valueOf(1) + " " + context.getString(R.string.selected));
             }
+            return true;
+         } else {
+            mMultiSelector.clearSelections();
+            mMultiSelector.setSelected(TaskListViewHolder.this, true);
          }
+         return false;
       }
+
    }
 }
