@@ -84,5 +84,6 @@ public class Co {
       Co.listTitles = listTitles;
    }
 
+   public static boolean IS_MULTISELECT_ENABLED;
 
 }

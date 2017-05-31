@@ -55,7 +55,9 @@ public class Contract {
 
         void setNavDrawerMenu(List<String> taskListsTitles);
 
-        void setListsData();
+       void setSwipeRefreshEnabled(boolean b);
+
+       void setListsData();
 
         void setToolbarTitle(String title);
 
@@ -92,6 +94,8 @@ public class Contract {
         boolean isReminderSet(int reminderId);
 
         void updateItem(LocalTask syncedLocalTask);
+
+       void showFab(boolean b);
     }
 
 

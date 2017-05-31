@@ -6,20 +6,32 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarPopupTheme">@style/ActionModeOverflowMenu</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="actionModeStyle">@style/ActionMode</item>
-        <item name="android:actionModeBackground">@color/colorPrimary</item>
     </style>
 
-    <style name="ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="android:background">@color/colorPrimary</item>
-        <item name="android:actionModeBackground">@color/colorPrimary</item>
+    <style name="ActionModeOverflowMenu" parent="Widget.AppCompat.ListPopupWindow">
+        <!--<item name="android:textColor">@color/colorPrimary</item>-->
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="android:actionModeBackground">@android:color/white</item>
+        <item name="background">@android:color/white</item>
+        <item name="android:textColorSecondary">@color/colorPrimary</item>
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="titleTextStyle">@style/ActionModeTitleTextStyle</item>
+    </style>
+
+    <style name="ActionModeTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
 
 
     <style name="AppTheme.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">

@@ -193,13 +193,15 @@ public class MainActivity extends AppCompatActivity
 
          @Override
          public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-               if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                  fab.show();
-                  swipeRefresh.setEnabled(true);
+            if (!Co.IS_MULTISELECT_ENABLED) {
+               if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                  if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                     fab.show();
+                     swipeRefresh.setEnabled(true);
+                  }
                }
+               super.onScrollStateChanged(recyclerView, newState);
             }
-            super.onScrollStateChanged(recyclerView, newState);
          }
       });
       mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
@@ -223,6 +225,11 @@ public class MainActivity extends AppCompatActivity
          }
       };
       mBottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback);
+   }
+
+   @Override
+   public void setSwipeRefreshEnabled(boolean b){
+      swipeRefresh.setEnabled(b);
    }
 
    @Override
@@ -423,6 +430,15 @@ public class MainActivity extends AppCompatActivity
    public void showProgressDialog() {
       mProgress.setMessage(getString(R.string.please_wait));
       mProgress.show();
+   }
+
+   @Override
+   public void showFab(boolean b) {
+      if (b){
+         fab.show();
+      } else {
+         fab.hide();
+      }
    }
 
    @Override
@@ -672,38 +688,6 @@ public class MainActivity extends AppCompatActivity
          super.onBackPressed();
    }
 
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item) {
-
-      switch (item.getItemId()) {
-
-         case R.id.action_settings:
-            Calendar calendar = Calendar.getInstance();
-            Calendar calToday = Calendar.getInstance();
-            calendar.add(Calendar.DATE, 1);
-            String format;
-            if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)) {
-               format = "d MMM, h:mm a";
-            } else {
-               format = "d MMM yyyy, h:mm a";
-            }
-            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
-            break;
-
-         case R.id.refresh:
-            refresh();
-            break;
-
-         case R.id.editList:
-            showEditListDialog();
-            break;
-
-         case R.id.deleteList:
-            showConfirmationDialog();
-            break;
-      }
-      return super.onOptionsItemSelected(item);
-   }
 
    private void showConfirmationDialog() {
       AlertDialog.Builder db = new AlertDialog.Builder(this);
@@ -800,7 +784,38 @@ public class MainActivity extends AppCompatActivity
       }
    }
 
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
 
+      switch (item.getItemId()) {
+
+         case R.id.action_settings:
+            Calendar calendar = Calendar.getInstance();
+            Calendar calToday = Calendar.getInstance();
+            calendar.add(Calendar.DATE, 1);
+            String format;
+            if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)) {
+               format = "d MMM, h:mm a";
+            } else {
+               format = "d MMM yyyy, h:mm a";
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+            break;
+
+         case R.id.refresh:
+            refresh();
+            break;
+
+         case R.id.editList:
+            showEditListDialog();
+            break;
+
+         case R.id.deleteList:
+            showConfirmationDialog();
+            break;
+      }
+      return super.onOptionsItemSelected(item);
+   }
    ///----------------------------OTHER--------------------------//
 
 
@@ -884,6 +899,8 @@ public class MainActivity extends AppCompatActivity
    public void updateItem(LocalTask syncedLocalTask) {
       adapter.updateItem(syncedLocalTask, -1);
    }
+
+
 
 
 }

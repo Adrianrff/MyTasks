@@ -33,7 +33,6 @@ import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperAdapter;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperViewHolder;
-import com.adrapps.mytasks.interfaces.OnStartDragListener;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
@@ -49,12 +48,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    private Context context;
    private List<LocalTask> tasks;
    private TaskListPresenter mPresenter;
-   private LocalTask removedTask;
    private int newPos;
    private int oldPos;
    ActionMode mActionMode;
    private MultiSelector mMultiSelector;
-   private OnStartDragListener mDragStartListener;
    private ModalMultiSelectorCallback mActionModeCallback;
 
 
@@ -63,12 +60,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       this.context = context;
       this.tasks = sortTasksBySibling(tasks);
       mMultiSelector = new MultiSelector();
-      mDragStartListener = new OnStartDragListener() {
-         @Override
-         public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
 
-         }
-      };
       mActionModeCallback
             = new ModalMultiSelectorCallback(mMultiSelector) {
 
@@ -77,6 +69,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             super.onCreateActionMode(actionMode, menu);
             setActionMode(actionMode);
             ((Activity) context).getMenuInflater().inflate(R.menu.list_context_menu, menu);
+            mPresenter.swipeRefreshSetEnabled(false);
+            mPresenter.showFab(false);
+            Co.IS_MULTISELECT_ENABLED = true;
             return true;
          }
 
@@ -100,7 +95,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          @Override
          public void onDestroyActionMode(ActionMode actionMode) {
             super.onDestroyActionMode(actionMode);
-
+            mPresenter.swipeRefreshSetEnabled(true);
+            mPresenter.showFab(true);
+            Co.IS_MULTISELECT_ENABLED = false;
          }
       };
    }
@@ -240,6 +237,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    void leaveSelectMode() {
       mMultiSelector.clearSelections();
       mMultiSelector.setSelectable(false);
+//      mPresenter.showFab(true);
    }
 
    @Override
@@ -330,29 +328,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          oldDueColors = dueDate.getTextColors();
       }
 
-      @Override
-      public void onClick(View v) {
-         if (!mMultiSelector.tapSelection(TaskListViewHolder.this)) {
-            mPresenter.showBottomSheet(tasks.get(getAdapterPosition()), getAdapterPosition(), true);
-         }
-         if (mActionMode != null) {
-            int selectedQty = mMultiSelector.getSelectedPositions().size();
-            String text = selectedQty > 1 ? context.getString(R.string.selected_plural) :
-                  context.getString(R.string.selected);
-            mActionMode.setTitle(String.valueOf(selectedQty) + " " + text);
-            if (selectedQty == 0) {
-               mMultiSelector.setSelectable(false);
-               mActionMode.finish();
-            }
 
-         }
-//
-//         if (mMultiSelector.getSelectedPositions().isEmpty()) {
-//            mMultiSelector.clearSelections();
-//            mMultiSelector.setSelectable(false);
-//            mMultiSelector.setSelected(TaskListViewHolder.this, false);
-//         }
-      }
 
       @Override
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -395,12 +371,13 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
       @Override
       public void onItemSelected() {
+//         showToast(String.valueOf(getAdapterPosition()));
          oldPos = getAdapterPosition();
       }
 
       @Override
       public void onItemClear() {
-
+//         showToast(String.valueOf(getAdapterPosition()));
       }
 //
 //      @Override
@@ -498,20 +475,59 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 //      }
 
       @Override
-      public boolean onLongClick(View v) {
-         if (!mMultiSelector.isSelectable()) {
-            ((AppCompatActivity) context).startSupportActionMode(mActionModeCallback); // (2)
-            mMultiSelector.setSelectable(true);
-            mMultiSelector.setSelected(TaskListViewHolder.this, true);
-            if (mActionMode != null) {
-               mActionMode.setTitle(String.valueOf(1) + " " + context.getString(R.string.selected));
-            }
-            return true;
-         } else {
-            mMultiSelector.clearSelections();
-            mMultiSelector.setSelected(TaskListViewHolder.this, true);
+      public void onClick(View v) {
+
+         if (!mMultiSelector.tapSelection(TaskListViewHolder.this)) {
+            mPresenter.showBottomSheet(tasks.get(getAdapterPosition()), getAdapterPosition(), true);
          }
-         return false;
+         if (mActionMode != null) {
+            int selectedQty = mMultiSelector.getSelectedPositions().size();
+            String text = selectedQty > 1 ? context.getString(R.string.selected_plural) :
+                  context.getString(R.string.selected);
+            if (selectedQty == 0) {
+               mMultiSelector.setSelectable(false);
+               mActionMode.finish();
+//               mPresenter.showFab(true);
+               return;
+            }
+            mActionMode.setTitle(String.valueOf(selectedQty) + " " + text);
+         }
+//
+//         if (mMultiSelector.getSelectedPositions().isEmpty()) {
+//            mMultiSelector.clearSelections();
+//            mMultiSelector.setSelectable(false);
+//            mMultiSelector.setSelected(TaskListViewHolder.this, false);
+//         }
+      }
+      @Override
+      public boolean onLongClick(View v) {
+//         if (swipeLayout.isClosed()) {
+//            showToast("closed");
+//         } else {
+//            showToast("open");
+//         }
+            if (!mMultiSelector.isSelectable()) {
+               ((AppCompatActivity) context).startSupportActionMode(mActionModeCallback); // (2)
+               mMultiSelector.setSelectable(true);
+               mMultiSelector.setSelected(TaskListViewHolder.this, true);
+               if (mActionMode != null) {
+                  mActionMode.setTitle(String.valueOf(1) + " " + context.getString(R.string.selected));
+               }
+//            mPresenter.showFab(false);
+               return true;
+            } else {
+               mMultiSelector.clearSelections();
+               mMultiSelector.setSelected(TaskListViewHolder.this, true);
+               if (mActionMode != null) {
+                  int selectedQty = mMultiSelector.getSelectedPositions().size();
+                  String text = selectedQty > 1 ? context.getString(R.string.selected_plural) :
+                        context.getString(R.string.selected);
+                  mActionMode.setTitle(String.valueOf(selectedQty) + " " + text);
+               }
+               return false;
+            }
+//         }
+//         return false;
       }
 
    }
