@@ -5,9 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -17,7 +15,6 @@ import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
@@ -34,9 +31,7 @@ import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.DateHelper;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import static com.adrapps.mytasks.R.string.afternoon;
 import static com.adrapps.mytasks.R.string.custom;
@@ -212,53 +207,6 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       }
       nextReminderTV.setText(DateHelper.millisToFull(reminderInMillis));
       setRepeatMenu(taskReminder);
-   }
-
-
-   private void setRepeatSpinnerAdapter(long reminderInMills, final boolean disableOneTime) {
-      List<String> categories = new ArrayList<>();
-      categories.add(getString(R.string.one_time_repeat_mode));
-      categories.add(getString(R.string.daily_repeat_mode));
-      categories.add(getString(R.string.weekdays));
-      if (dueDate == null) {
-         categories.add(getString(R.string.every) + " " +
-               DateHelper.timeInMillsToDay(reminderInMills));
-      } else {
-         categories.add(getString(R.string.every) + " " +
-               DateHelper.timeInMillsToDay(dueDate.getTimeInMillis()));
-      }
-      if (dueDate == null) {
-         categories.add(getString(R.string.on_day) + " " + DateHelper.timeInMillsToDayOfMonth(reminderInMills) +
-               " " + getString(R.string.of_every_month));
-      } else {
-         int dayOfMonth = dueDate.get(Calendar.DAY_OF_MONTH);
-         if (dayOfMonth == dueDate.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-            categories.add(getString(R.string.last_day_of_month) + " " + getString(R.string.of_every_month));
-         } else {
-            categories.add(getString(R.string.on_day) + " " + dueDate.get(Calendar.DAY_OF_MONTH) + " " + getString(R.string.of_every_month));
-         }
-      }
-      ArrayAdapter<String> repeatAdapter =
-            new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories) {
-               @Override
-               public boolean isEnabled(int position) {
-                  return !(position == 0 && disableOneTime);
-               }
-
-               @Override
-               public View getDropDownView(int position, View convertView,
-                                           @NonNull ViewGroup parent) {
-                  View mView = super.getDropDownView(position, convertView, parent);
-                  TextView mTextView = (TextView) mView;
-                  if (position == 0 && disableOneTime) {
-                     mTextView.setTextColor(Color.GRAY);
-                  } else {
-                     mTextView.setTextColor(Color.BLACK);
-                  }
-                  return mView;
-               }
-            };
-      repeatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
    }
 
    @Override

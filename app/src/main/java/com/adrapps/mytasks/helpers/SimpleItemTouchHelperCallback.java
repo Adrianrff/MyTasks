@@ -39,7 +39,6 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
    @Override
    public boolean isLongPressDragEnabled() {
-      //TODO changed
       return true;
    }
 

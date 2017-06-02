@@ -15,7 +15,7 @@
     <string name="notifications_settings_title">Notifications</string>
     <string name="undo">UNDO</string>
     <string name="task_deleted">Task deleted</string>
-    <string name="task_restored">Task restored</string>
+    <string name="tasks_restored">Tasks restored</string>
     <string name="request_canceled">Request cancelled</string>
     <string name="g_services_not_available">Google Play Services is not available</string>
     <string name="task_not_found">Task not found</string>

@@ -16,7 +16,7 @@
     <string name="notifications_settings_title">Notificaciones</string>
     <string name="undo">DESHACER</string>
     <string name="task_deleted">Tarea eliminada</string>
-    <string name="task_restored">Tareas restauradas</string>
+    <string name="tasks_restored">Tareas restauradas</string>
     <string name="request_canceled">Petición cancelada</string>
     <string name="g_services_not_available">Servicios de Google Play no está disponible</string>
     <string name="task_not_found">No se encontró la tarea</string>

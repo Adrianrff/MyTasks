@@ -16,6 +16,7 @@ import com.google.api.services.tasks.model.TaskList;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class TaskListPresenter implements Serializable {
@@ -120,8 +121,8 @@ public class TaskListPresenter implements Serializable {
    }
 
 
-   public void saveStringSharedPreference(String currentListTitle, String title) {
-      getView().saveStringShP(currentListTitle, title);
+   public void saveStringSharedPreference(String key, String value) {
+      getView().saveStringShP(key, value);
    }
 
    public String getStringShP(String key) {
@@ -176,8 +177,12 @@ public class TaskListPresenter implements Serializable {
       getView().showEmptyRecyclerView(b);
    }
 
-   public void moveTask(LocalTask movedTask, String previousTaskId) {
-      mModel.moveTask(movedTask, previousTaskId);
+//   public void moveTask(LocalTask movedTask, String previousTaskId) {
+//      mModel.moveTask(movedTask, previousTaskId);
+//   }
+
+   public void moveTasks(LinkedHashMap<LocalTask, String> moveMap){
+      mModel.moveTasks(moveMap);
    }
 
    public void editTask(LocalTask task) {
@@ -316,5 +321,9 @@ public class TaskListPresenter implements Serializable {
 
    public void showFab(boolean b) {
       getView().showFab(b);
+   }
+
+   public void updatePositions(List<Task> tasks) {
+      mModel.updatePositions(tasks);
    }
 }

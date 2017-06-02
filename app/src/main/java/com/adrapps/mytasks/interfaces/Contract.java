@@ -11,6 +11,7 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Contract {
@@ -128,7 +129,9 @@ public class Contract {
 
         int addTask(LocalTask task);
 
-        void moveTask(LocalTask movedTask, String previousTaskId);
+//        void moveTask(LocalTask movedTask, String previousTaskId);
+
+        void moveTasks(LinkedHashMap<LocalTask, String> moveMap);
 
         void editTask(LocalTask task);
 
@@ -203,6 +206,8 @@ public class Contract {
         void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
 
         void deleteTasks(List<LocalTask> tasks);
+
+       void updatePositions(List<Task> tasks);
     }
 
 

@@ -34,6 +34,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -101,10 +102,13 @@ public class MainActivity extends AppCompatActivity
    private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback;
    public static final Object sDataLock = new Object();
    private ItemTouchHelper touchHelper;
+   private LocalTask taskShownInBottomSheet;
+   private int taskShownInBottomSheetPos;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+
       if (getBooleanShP(Co.IS_FIRST_LAUNCH)) {
          Intent i = new Intent(this, SignInActivity.class);
          startActivity(i);
@@ -131,7 +135,14 @@ public class MainActivity extends AppCompatActivity
       if (!isDeviceOnline()) {
          showNoInternetWarning(true);
       }
-      mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//      mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+      if (savedInstanceState != null){
+            taskShownInBottomSheet = (LocalTask) savedInstanceState.getSerializable(Co.STATE_SHOWN_TASK);
+            taskShownInBottomSheetPos = savedInstanceState.getInt(Co.STATE_SHOWN_TASK_POSITION);
+            if (taskShownInBottomSheet != null && taskShownInBottomSheetPos > 0){
+               showBottomSheet(taskShownInBottomSheet, taskShownInBottomSheetPos, true);
+            }
+      }
       this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
    }
 
@@ -212,12 +223,15 @@ public class MainActivity extends AppCompatActivity
                fab.hide();
             } else if (newState == BottomSheetBehavior.STATE_HIDDEN ||
                   newState == BottomSheetBehavior.STATE_COLLAPSED) {
+               taskShownInBottomSheet = null;
+               taskShownInBottomSheetPos = -1;
                fab.show();
             }
          }
 
          @Override
          public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            Log.d("onSlide", "called");
             if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
                fab.show();
                fab.animate().scaleX(1 - slideOffset).scaleY(1 - slideOffset).setDuration(0).start();
@@ -255,6 +269,8 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean shouldShow) {
       if (shouldShow) {
+         taskShownInBottomSheet = task;
+         taskShownInBottomSheetPos = position;
          swipeRefresh.setEnabled(false);
          if (task != null) {
             detailTitle.setText(task.getTitle());
@@ -309,6 +325,7 @@ public class MainActivity extends AppCompatActivity
             }
          }
          mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+         fab.hide();
          editIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -338,6 +355,7 @@ public class MainActivity extends AppCompatActivity
       } else {
          mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
          swipeRefresh.setEnabled(true);
+         Log.d("showBottomSheet", "called");
       }
    }
 
@@ -360,7 +378,7 @@ public class MainActivity extends AppCompatActivity
          String currentListTitle = mPresenter.getListTitleById(
                getStringShP(Co.CURRENT_LIST_ID));
          saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
-         mPresenter.setToolbarTitle(currentListTitle);
+         setToolbarTitle(currentListTitle);
       } else {
          String currentListTitle = null;
          try {
@@ -572,12 +590,10 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void onClick(View v) {
       switch (v.getId()) {
-
          case R.id.fab:
             Intent i = new Intent(this, NewTaskOrEditActivity.class);
             mPresenter.navigateToEditTask(i);
             break;
-
       }
    }
 
@@ -681,11 +697,13 @@ public class MainActivity extends AppCompatActivity
          mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
          swipeRefresh.setEnabled(true);
          fab.show();
+         return;
       }
       if (adapter.isSelectableMode()) {
          adapter.leaveSelectMode();
-      } else
+      } else {
          super.onBackPressed();
+      }
    }
 
 
@@ -710,10 +728,23 @@ public class MainActivity extends AppCompatActivity
 
    //-------------------------ACTIVITY METHODS---------------------------//
 
+
+   @Override
+   protected void onSaveInstanceState(Bundle outState) {
+      if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+         if (taskShownInBottomSheet != null) {
+            outState.putSerializable(Co.STATE_SHOWN_TASK, taskShownInBottomSheet);
+            outState.putInt(Co.STATE_SHOWN_TASK_POSITION, taskShownInBottomSheetPos);
+         }
+      }
+      super.onSaveInstanceState(outState);
+   }
+
    @Override
    protected void onResume() {
       super.onResume();
-      if (fab.getVisibility() != View.VISIBLE) {
+      if (fab.getVisibility() != View.VISIBLE &&
+            mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
          fab.show();
       }
       toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
@@ -899,9 +930,6 @@ public class MainActivity extends AppCompatActivity
    public void updateItem(LocalTask syncedLocalTask) {
       adapter.updateItem(syncedLocalTask, -1);
    }
-
-
-
 
 }
 

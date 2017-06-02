@@ -12,13 +12,12 @@
     </style>
 
     <style name="ActionModeOverflowMenu" parent="Widget.AppCompat.ListPopupWindow">
-        <!--<item name="android:textColor">@color/colorPrimary</item>-->
         <item name="android:background">@color/white</item>
     </style>
 
     <style name="ActionMode" parent="Widget.AppCompat.ActionMode">
         <item name="android:actionModeBackground">@android:color/white</item>
-        <item name="background">@android:color/white</item>
+        <item name="background">@color/colorLightGray</item>
         <item name="android:textColorSecondary">@color/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="titleTextStyle">@style/ActionModeTitleTextStyle</item>

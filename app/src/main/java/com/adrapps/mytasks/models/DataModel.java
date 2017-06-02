@@ -25,6 +25,7 @@ import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 
@@ -183,6 +184,11 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public void updatePositions(List<Task> tasks) {
+      tasksDb.updatePositions(tasks);
+   }
+
+   @Override
    public void updateSiblingByIntId(int id, int sibling) {
       tasksDb.updateSibling(id, sibling);
    }
@@ -324,6 +330,8 @@ public class DataModel implements Contract.Model {
       }
    }
 
+
+
    @Override
    public void updateTaskStatus(int intId, String listId, String newStatus) {
       tasksDb.updateTaskStatus(intId, newStatus);
@@ -363,11 +371,19 @@ public class DataModel implements Contract.Model {
       return newTaskId;
    }
 
+//   @Override
+//   public void moveTask(LocalTask movedTask, String previousTaskId) {
+//      if (mPresenter.isDeviceOnline()) {
+//         MoveTask move = new MoveTask(context, mPresenter, mPresenter.getCredential());
+//         move.execute(movedTask.getId(), movedTask.getList(), previousTaskId);
+//      }
+//   }
+
    @Override
-   public void moveTask(LocalTask movedTask, String previousTaskId) {
+   public void moveTasks(LinkedHashMap<LocalTask, String> moveMap) {
       if (mPresenter.isDeviceOnline()) {
-         MoveTask move = new MoveTask(context, mPresenter, mPresenter.getCredential());
-         move.execute(movedTask.getId(), movedTask.getList(), previousTaskId);
+         MoveTask move = new MoveTask(context, mPresenter, mPresenter.getCredential(), moveMap);
+         move.execute();
       }
    }
 

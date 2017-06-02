@@ -1019,6 +1019,29 @@ public class TasksDatabase extends SQLiteOpenHelper {
          bm.dataChanged();
       }
    }
+
+   public void updatePositions(List<Task> tasks) {
+      db = getWritableDB();
+      db.beginTransaction();
+      String selection = COL_ID + " = ? ";
+      try {
+         for (Task task : tasks) {
+            String[] selectionArgs = {task.getId()};
+            ContentValues cv = new ContentValues();
+            cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
+            cv.put(COL_POSITION, task.getPosition());
+            cv.put(COL_MOVED, Co.NOT_MOVED);
+            cv.put(COL_STATUS, Co.SYNCED);
+            int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
+         }
+         db.setTransactionSuccessful();
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         db.endTransaction();
+         bm.dataChanged();
+      }
+   }
 }
 
 

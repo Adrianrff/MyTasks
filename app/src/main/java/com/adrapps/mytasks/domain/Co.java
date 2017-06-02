@@ -19,6 +19,8 @@ public class Co {
    public static final String TASK_STATUS = "Task status";
    public static final String BUNDLED_EXTRA = "Bundled extra";
    public static final String NO_API_EDIT = "No api edit";
+   public static final String STATE_SHOWN_TASK = "Task shown in Bottom sheet";
+   public static final String STATE_SHOWN_TASK_POSITION = "Task shown in Bottom sheet position";
    public static String OP_UPDATE_STATUS;
 
    //Lists
@@ -43,6 +45,8 @@ public class Co {
    public static final String TASK_EDIT = "Task edit";
    public static final String NEW_TASK = "New task";
    public static final String TASK_ID = "task id";
+   public static final String TASK_ID_ORDERED_LIST = "Task_ordered_list";
+
 
    //Reminder
    public static final int MORNING_ALARM_HOUR = 8;

@@ -6,11 +6,16 @@ import android.os.AsyncTask;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
+import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.batch.BatchRequest;
+import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -18,93 +23,146 @@ import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class MoveTask extends AsyncTask<String, Void, Void> {
+public class MoveTask extends AsyncTask<Void, Void, Void> {
 
-    private com.google.api.services.tasks.Tasks mService = null;
-    private Exception mLastError = null;
-    private final TaskListPresenter mPresenter;
-    Context context;
+   private final LinkedHashMap<LocalTask, String> moveMap;
+   private com.google.api.services.tasks.Tasks mService = null;
+   private Exception mLastError = null;
+   private final TaskListPresenter mPresenter;
+   Context context;
+   private JsonBatchCallback<Task> callBack;
 
-    public MoveTask(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
-        this.context = context;
-        this.mPresenter = presenter;
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        mService = new com.google.api.services.tasks.Tasks.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("My Tasks")
-                .build();
-    }
+   public MoveTask(Context context, TaskListPresenter presenter,
+                   GoogleAccountCredential credential, LinkedHashMap<LocalTask, String> moveMap) {
+      this.context = context;
+      this.mPresenter = presenter;
+      this.moveMap = moveMap;
+      HttpTransport transport = AndroidHttp.newCompatibleTransport();
+      JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+      mService = new com.google.api.services.tasks.Tasks.Builder(
+            transport, jsonFactory, credential)
+            .setApplicationName("My Tasks")
+            .build();
+      callBack = new JsonBatchCallback<Task>() {
+         @Override
+         public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
 
-    @Override
-    protected Void doInBackground(String... params) {
+         }
 
-        try {
-            moveTask(params[0], params[1], params[2]);
-        } catch (Exception e) {
-            mLastError = e;
-            cancel(true);
+         @Override
+         public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
+         }
+      };
+   }
+
+   @Override
+   protected Void doInBackground(Void... params) {
+
+      try {
+         moveTask(moveMap);
+      } catch (Exception e) {
+         mLastError = e;
+         cancel(true);
 //            FirebaseCrash.report(e);
-            return null;
-        }
-        return null;
-    }
+         return null;
+      }
+      return null;
+   }
 
-    @Override
-    protected void onProgressUpdate(Void... values) {
-        super.onProgressUpdate(values);
-    }
+   @Override
+   protected void onProgressUpdate(Void... values) {
+      super.onProgressUpdate(values);
+   }
 
 
-    @Override
-    protected void onPreExecute() {
-        mPresenter.showProgress(true);
-    }
+   @Override
+   protected void onPreExecute() {
+      mPresenter.showProgress(true);
+   }
 
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        mPresenter.showProgress(false);
-    }
+   @Override
+   protected void onPostExecute(Void aVoid) {
+      mPresenter.showProgress(false);
+   }
 
-    @Override
-    protected void onCancelled(Void aVoid) {
-        mPresenter.dismissProgressDialog();
-        mPresenter.showProgress(false);
-        if (mLastError != null) {
-            if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
-            } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                mPresenter.showToast("The API has no authorization");
-                mPresenter.requestApiPermission(mLastError);
+   @Override
+   protected void onCancelled(Void aVoid) {
+      mPresenter.dismissProgressDialog();
+      mPresenter.showProgress(false);
+      if (mLastError != null) {
+         if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
+            mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
+         } else if (mLastError instanceof UserRecoverableAuthIOException) {
+            mPresenter.showToast("The API has no authorization");
+            mPresenter.requestApiPermission(mLastError);
 
-            } else {
-                mPresenter.showToast("The following error occurred:\n"
-                        + mLastError.getMessage());
-                mLastError.printStackTrace();
+         } else {
+            mPresenter.showToast("The following error occurred:\n"
+                  + mLastError.getMessage());
+            mLastError.printStackTrace();
+         }
+      } else {
+         mPresenter.showToast(mPresenter.getString(R.string.request_canceled));
+
+      }
+   }
+
+   private void moveTask(LinkedHashMap<LocalTask, String> moveMap) throws IOException {
+      if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
+         Iterator it = moveMap.entrySet().iterator();
+         BatchRequest request = mService.batch();
+         String prevTaskId;
+         String listId = null;
+         LocalTask movedTask;
+         while (it.hasNext()) {
+            prevTaskId = null;
+            movedTask = null;
+            Map.Entry pair = (Map.Entry) it.next();
+            if (pair.getKey() instanceof LocalTask) {
+               movedTask = (LocalTask) pair.getKey();
             }
-        } else {
-            mPresenter.showToast(mPresenter.getString(R.string.request_canceled));
-
-        }
-    }
-
-    private void moveTask(String taskId, String listId, String previousTaskId) throws IOException {
-        if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
-            Tasks.TasksOperations.Move move = mService.tasks().move(listId, taskId);
-            if (previousTaskId != null && !previousTaskId.equals(Co.TASK_MOVED_TO_FIRST)) {
-                move.setPrevious(previousTaskId);
+            if (pair.getValue() instanceof String) {
+               prevTaskId = (String) pair.getValue();
             }
-            Task task = move.execute();
-            mPresenter.updateMoved(taskId, Co.NOT_MOVED);
-            mPresenter.updatePosition(task);
-        } else {
-            EasyPermissions.requestPermissions(
-                    context, context.getString(R.string.contacts_permissions_rationale),
-                    Co.REQUEST_PERMISSION_GET_ACCOUNTS,
-                    Manifest.permission.GET_ACCOUNTS);
-        }
-    }
+            if (movedTask != null) {
+               listId = movedTask.getList();
+               if (movedTask.getId() == null) {
+                  Task task = mService.tasks().insert(movedTask.getList(),
+                        LocalTask.localTaskToApiTask(movedTask)).execute();
+                  mPresenter.updateNewlyCreatedTask(task, movedTask.getList(),
+                        String.valueOf(movedTask.getIntId()));
+                  movedTask.setId(task.getId());
+               }
+               Tasks.TasksOperations.Move move = mService.tasks().move(movedTask.getList(),
+                     movedTask.getId());
+               if (prevTaskId != null) {
+                  move.setPrevious(prevTaskId);
+               }
+               move.queue(request, callBack);
+
+            }
+            it.remove();
+         }
+         if (request.size() > 0) {
+            request.execute();
+         }
+         List<Task> tasks = null;
+         if (listId != null) {
+            tasks = mService.tasks().list(listId).execute().getItems();
+            mPresenter.updatePositions(tasks);
+         }
+      } else {
+         EasyPermissions.requestPermissions(
+               context, context.getString(R.string.contacts_permissions_rationale),
+               Co.REQUEST_PERMISSION_GET_ACCOUNTS,
+               Manifest.permission.GET_ACCOUNTS);
+      }
+   }
 }
