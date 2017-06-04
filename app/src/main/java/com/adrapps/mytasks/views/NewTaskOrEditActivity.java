@@ -122,6 +122,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                clearDate.setVisibility(View.GONE);
             }
 
+
             if (taskToEdit.getReminder() != 0 || taskReminder != null) {
                if (taskReminder == null) {
                   taskReminder = Calendar.getInstance();
