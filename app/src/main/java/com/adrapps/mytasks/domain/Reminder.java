@@ -41,7 +41,7 @@ public class Reminder implements Serializable {
 
    public long getTimeInMillis(){
       if (date != null){
-         return date.getTimeInMillis()
+         return date.getTimeInMillis();
       } else {
          return -1;
       }
