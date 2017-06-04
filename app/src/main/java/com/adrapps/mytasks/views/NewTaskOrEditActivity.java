@@ -132,6 +132,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                if (repeatMode == 0 && taskReminder.before(now)) {
                   taskReminder = null;
                   return;
+
                }
                notificationDetailsLayout.setVisibility(View.VISIBLE);
                notificationSwitch.setChecked(true);
