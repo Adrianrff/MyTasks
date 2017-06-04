@@ -19,8 +19,7 @@ public class Co {
    public static final String TASK_STATUS = "Task status";
    public static final String BUNDLED_EXTRA = "Bundled extra";
    public static final String NO_API_EDIT = "No api edit";
-   public static final String STATE_SHOWN_TASK = "Task shown in Bottom sheet";
-   public static final String STATE_SHOWN_TASK_POSITION = "Task shown in Bottom sheet position";
+
    public static String OP_UPDATE_STATUS;
 
    //Lists
@@ -44,8 +43,9 @@ public class Co {
    public static final String ADAPTER_POSITION = "Adapter position";
    public static final String TASK_EDIT = "Task edit";
    public static final String NEW_TASK = "New task";
-   public static final String TASK_ID = "task id";
    public static final String TASK_ID_ORDERED_LIST = "Task_ordered_list";
+   public static final String STATE_SHOWN_TASK = "Task shown in Bottom sheet";
+   public static final String STATE_SHOWN_TASK_POSITION = "Task shown in Bottom sheet position";
 
 
    //Reminder
@@ -60,11 +60,10 @@ public class Co {
    public static int REMINDER_CUSTOM_REPEAT = 5;
    public static final long ONE_DAY_LATER = 24 * 60 * 60 * 1000;
    public static final int NOT_ID_SUFIX = 1000;
-   public static final String MODE_SEP = ";";
-   public static final String MODE_DAILY = "DAILY";
-   public static final String MODE_WEEKDAYS = "WEEKDAYS";
-   public static final String MODE_WEEKLY = "WEEKLY";
-   public static final String MODE_MONTHLY = "MONTHLY";
+   public static final String STATE_TASK_REMINDER = "State task reminder";
+   public static final String STATE_REPEAT_MODE = "State repeat mode";
+
+
 
    //Sync status
    public static final int NOT_SYNCED = 0;
@@ -79,6 +78,7 @@ public class Co {
 
    public static final int SNACKBAR_DURATION = 6000;
    public static final String NO_VALUE = "no value";
+   public static final String STATE_DUE_DATE = "State due date in millis";
 
    public static void setListIds(List<String> listIds) {
       Co.listIds = listIds;

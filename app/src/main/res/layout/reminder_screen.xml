@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="@dimen/full_margin">
+
+    <CalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:alpha="0.50"
+        android:background="@android:color/darker_gray"/>
+
+    <LinearLayout
+        android:id="@+id/reminder_date_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/full_margin"
+        android:layout_marginStart="@dimen/full_margin"
+        android:layout_marginTop="@dimen/full_margin"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_time_24dp"
+            />
+
+        <TextView
+            android:id="@+id/reminder_time_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:layout_weight="1"
+            android:hint="@string/select_time"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textSize="16sp">
+        </TextView>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/repeatLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/full_margin"
+        android:layout_marginStart="@dimen/full_margin"
+
+        android:layout_marginTop="@dimen/full_margin"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_repeat_black_24dp"/>
+
+        <TextView
+            android:id="@+id/repeat_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:layout_weight="1"
+            android:hint="@string/select_repeat_mode"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textSize="16sp">
+        </TextView>
+
+
+    </LinearLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_marginTop="@dimen/full_margin"
+        android:alpha="0.50"
+        android:background="@android:color/darker_gray"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/btReminderOk"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="@string/ok"/>
+
+        <Button
+            android:id="@+id/btReminderCancel"
+            style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="@dimen/half_margin"
+            android:layout_marginRight="@dimen/half_margin"
+            android:layout_toLeftOf="@id/btReminderOk"
+            android:layout_toStartOf="@id/btReminderOk"
+            android:text="@string/cancelar"/>
+    </RelativeLayout>
+</LinearLayout>

@@ -90,6 +90,7 @@
     <string name="selected">seleccionado</string>
     <string name="selected_plural">seleccionados</string>
     <string name="change_lists">Cambiar de lista</string>
+    <string name="cancelar">Cancelar</string>
 
 
 </resources>
