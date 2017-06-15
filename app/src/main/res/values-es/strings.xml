@@ -92,6 +92,8 @@
     <string name="selected_plural">seleccionados</string>
     <string name="change_lists">Cambiar de lista</string>
     <string name="cancelar">Cancelar</string>
+    <string name="weekly">Semanal</string>
+    <string name="monthly">Mensual</string>
 
 
 </resources>

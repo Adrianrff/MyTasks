@@ -115,8 +115,8 @@
     </LinearLayout>
 
 
-    <com.nex3z.togglebuttongroup.MultiSelectToggleGroup
-        android:id="@+id/group_weekdays"
+    <com.nex3z.togglebuttongroup.SingleSelectToggleGroup
+        android:id="@+id/weekdays_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tbgFlow="false"
@@ -174,7 +174,7 @@
             app:tbgMarkerColor="@color/colorPrimary"
             android:text="Su"/>
 
-    </com.nex3z.togglebuttongroup.MultiSelectToggleGroup>
+    </com.nex3z.togglebuttongroup.SingleSelectToggleGroup>
 
 
     <LinearLayout

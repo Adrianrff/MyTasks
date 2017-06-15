@@ -14,12 +14,12 @@
         android:title="@string/weekdays"/>
 
     <item
-        android:id="@+id/same_day_of_week"
-        android:title=""/>
+        android:id="@+id/weekly"
+        android:title="@string/weekly"/>
 
     <item
-        android:id="@+id/same_day_of_month"
-        android:title=""/>
+        android:id="@+id/monthly"
+        android:title="@string/monthly"/>
 
     <item
         android:id="@+id/custom_repeat"
