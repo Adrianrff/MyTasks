@@ -114,8 +114,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public long updateReminder(int intId, long reminder) {
-      return tasksDb.updateTaskReminder(intId, reminder);
+   public long updateReminder(int intId, long reminder, int repeatMode) {
+      return tasksDb.updateTaskReminder(intId, reminder, repeatMode);
    }
 
    @Override

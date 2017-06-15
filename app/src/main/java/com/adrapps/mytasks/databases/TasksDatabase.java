@@ -692,13 +692,14 @@ public class TasksDatabase extends SQLiteOpenHelper {
       return updatedRow;
    }
 
-   public long updateTaskReminder(int intId, long reminder) {
+   public long updateTaskReminder(int intId, long reminder, int repeatMode) {
       db = getWritableDB();
       String selection = COL_INT_ID + " = ? ";
       String[] selectionArgs = {String.valueOf(intId)};
       ContentValues cv = new ContentValues();
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_REMINDER, reminder);
+      cv.put(COL_REMINDER_REPEAT_MODE, repeatMode);
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       //db.close();
       bm.dataChanged();

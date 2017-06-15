@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/full_margin">
+    android:layout_margin="@dimen/full_margin">
 
     <LinearLayout
         android:id="@+id/layout_same_day"
         android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:clickable="true"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/half_margin"
+        android:padding="@dimen/half_margin"
         android:background="?android:attr/selectableItemBackground"
-        android:layout_marginBottom="@dimen/full_margin">
+        android:clickable="true">
 
         <TextView
+            android:id="@+id/sameDayTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
@@ -27,12 +30,13 @@
     <LinearLayout
         android:id="@+id/layout_day_before"
         android:layout_width="match_parent"
-        android:layout_height="24dp"
+        android:layout_height="48dp"
+        android:padding="@dimen/half_margin"
         android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:layout_marginBottom="@dimen/full_margin">
+        android:clickable="true">
 
         <TextView
+            android:id="@+id/dayBeforeTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
@@ -46,12 +50,13 @@
     <LinearLayout
         android:id="@+id/layout_week_before"
         android:layout_width="match_parent"
-        android:layout_height="24dp"
+        android:layout_height="48dp"
+        android:padding="@dimen/half_margin"
         android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:layout_marginBottom="@dimen/full_margin">
+        android:clickable="true">
 
         <TextView
+            android:id="@+id/weekBeforeTV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
@@ -65,7 +70,9 @@
     <LinearLayout
         android:id="@+id/layout_custom_date"
         android:layout_width="match_parent"
-        android:layout_height="24dp"
+        android:layout_height="48dp"
+        android:padding="@dimen/half_margin"
+        android:layout_marginBottom="@dimen/half_margin"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true">
 

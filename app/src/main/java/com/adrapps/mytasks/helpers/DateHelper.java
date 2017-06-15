@@ -50,7 +50,7 @@ public class DateHelper {
         return sdf.format(calendar.getTime());
     }
 
-    public static String millsToTimeOnly(long timeInMills){
+    public static String millisToTimeOnly(long timeInMills){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMills);
         String format = "h:mm a";

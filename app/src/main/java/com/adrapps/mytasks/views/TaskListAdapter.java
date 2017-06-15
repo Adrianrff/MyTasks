@@ -466,17 +466,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             if (selectedQty == 0) {
                mMultiSelector.setSelectable(false);
                mActionMode.finish();
-//               mPresenter.showFab(true);
                return;
             }
             mActionMode.setTitle(String.valueOf(selectedQty) + " " + text);
          }
-//
-//         if (mMultiSelector.getSelectedPositions().isEmpty()) {
-//            mMultiSelector.clearSelections();
-//            mMultiSelector.setSelectable(false);
-//            mMultiSelector.setSelected(TaskListViewHolder.this, false);
-//         }
       }
 
       @Override

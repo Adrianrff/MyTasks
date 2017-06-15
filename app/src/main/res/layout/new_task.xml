@@ -174,6 +174,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="Description"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_close_black_24dp"/>
 
         </LinearLayout>
@@ -219,151 +220,19 @@
                 android:textColor="@color/common_google_signin_btn_text_dark_focused"
                 android:textSize="18sp"/>
 
-            <android.support.v7.widget.SwitchCompat
-                android:id="@+id/notification_switch"
+            <ImageView
+                android:id="@+id/clearReminder"
                 android:layout_width="wrap_content"
-                android:saveEnabled="true"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:contentDescription="Description"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_close_black_24dp"/>
 
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/notification_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/full_margin"
-            android:layout_marginLeft="72dp"
-            android:layout_marginRight="@dimen/full_margin"
-            android:layout_marginStart="72dp"
-            android:paddingBottom="@dimen/full_margin"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            android:visibility="visible">
+        <include layout="@layout/reminder_detail_layout"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:alpha="0.50"
-                android:background="@android:color/darker_gray"/>
-
-            <LinearLayout
-                android:id="@+id/reminder_time_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:tint="@color/colorPrimary"
-                    app:srcCompat="@drawable/ic_date"/>
-
-
-                <TextView
-                    android:id="@+id/reminder_date_tv"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/full_margin"
-                    android:layout_marginStart="@dimen/full_margin"
-                    android:layout_weight="1"
-                    android:hint="@string/select_date"
-                    android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                    android:textSize="16sp">
-                </TextView>
-
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/reminder_date_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:tint="@color/colorPrimary"
-                    app:srcCompat="@drawable/ic_time_24dp"
-                    />
-
-                <TextView
-                    android:id="@+id/reminder_time_tv"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/full_margin"
-                    android:layout_marginStart="@dimen/full_margin"
-                    android:layout_weight="1"
-                    android:hint="@string/select_time"
-                    android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                    android:textSize="16sp">
-                </TextView>
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/repeatLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/full_margin"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:tint="@color/colorPrimary"
-                    app:srcCompat="@drawable/ic_repeat_black_24dp"/>
-
-                <TextView
-                    android:id="@+id/repeat_tv"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/full_margin"
-                    android:layout_marginStart="@dimen/full_margin"
-                    android:layout_weight="1"
-                    android:hint="@string/select_repeat_mode"
-                    android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                    android:textSize="16sp">
-                </TextView>
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/next_reminder_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/next_reminder"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/next_reminder_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/half_margin"
-                    android:layout_marginStart="@dimen/half_margin"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

@@ -189,8 +189,8 @@ public class TaskListPresenter implements Serializable {
       mModel.editTask(task);
    }
 
-   public long updateReminder(int intId, long reminder) {
-      return mModel.updateReminder(intId, reminder);
+   public long updateReminder(int intId, long reminder, int repeatMode) {
+      return mModel.updateReminder(intId, reminder, repeatMode);
    }
 
    public void showBottomSheet(LocalTask task, int position, boolean b) {

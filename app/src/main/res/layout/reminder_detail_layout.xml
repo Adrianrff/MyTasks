@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/notification_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/full_margin"
+    android:layout_marginLeft="64dp"
+    android:layout_marginRight="@dimen/full_margin"
+    android:layout_marginStart="64dp"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/full_margin"
+    android:visibility="visible">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="10dp"
+        android:alpha="0.50"
+        android:background="@android:color/darker_gray"/>
+
+    <LinearLayout
+        android:id="@+id/reminder_date_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_date"/>
+
+
+        <TextView
+            android:id="@+id/reminder_date_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:layout_weight="1"
+            android:hint="@string/select_date"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textSize="16sp">
+        </TextView>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/reminder_time_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_time_24dp"
+            />
+
+        <TextView
+            android:id="@+id/reminder_time_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:layout_weight="1"
+            android:hint="@string/select_time"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textSize="16sp">
+        </TextView>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/repeatLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/full_margin"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_repeat_black_24dp"/>
+
+        <TextView
+            android:id="@+id/repeat_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/full_margin"
+            android:layout_marginStart="@dimen/full_margin"
+            android:layout_weight="1"
+            android:hint="@string/select_repeat_mode"
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textSize="16sp">
+        </TextView>
+
+
+    </LinearLayout>
+
+
+    <com.nex3z.togglebuttongroup.MultiSelectToggleGroup
+        android:id="@+id/group_weekdays"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tbgFlow="false"
+        android:layout_marginTop="@dimen/half_margin"
+        android:visibility="gone"
+        app:tbgChildSpacing="0dp">
+
+        <com.nex3z.togglebuttongroup.button.CircularToggle
+            android:id="@+id/mon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="M"/>
+
+        <com.nex3z.togglebuttongroup.button.CircularToggle
+            android:id="@+id/tue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="Tu"/>
+
+        <com.nex3z.togglebuttongroup.button.CircularToggle
+            android:id="@+id/wed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="W"/>
+
+        <com.nex3z.togglebuttongroup.button.CircularToggle
+            android:id="@+id/thu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="Th"/>
+
+        <com.nex3z.togglebuttongroup.button.CircularToggle
+            android:id="@+id/fri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="F"/>
+
+        <com.nex3z.togglebuttongroup.button.CircularToggle
+            android:id="@+id/sat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="Sa"/>
+
+        <com.nex3z.togglebuttongroup.button.CircularToggle
+            android:id="@+id/sun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="Su"/>
+
+    </com.nex3z.togglebuttongroup.MultiSelectToggleGroup>
+
+
+    <LinearLayout
+        android:id="@+id/next_reminder_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/next_reminder"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/next_reminder_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/half_margin"
+            android:layout_marginStart="@dimen/half_margin"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+

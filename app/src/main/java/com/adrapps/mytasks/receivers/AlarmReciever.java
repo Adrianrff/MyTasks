@@ -46,7 +46,7 @@ public class AlarmReciever extends BroadcastReceiver {
          switch (task.getRepeatMode()) {
             case Co.REMINDER_ONE_TIME:
                task.setReminderNoID(0);
-               mModel.updateReminder(task.getIntId(), 0);
+               mModel.updateReminder(task.getIntId(), 0, task.getRepeatMode());
                setAndShowNotification();
                break;
 

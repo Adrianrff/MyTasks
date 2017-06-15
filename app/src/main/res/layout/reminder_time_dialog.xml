@@ -1,90 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/full_margin">
+    android:layout_margin="@dimen/full_margin">
 
     <LinearLayout
         android:id="@+id/layout_morning"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:layout_marginBottom="@dimen/full_margin">
-
-        <RadioButton
-            android:id="@+id/rb_morning"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/half_margin"
+        android:padding="@dimen/half_margin"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true">
 
         <TextView
+            android:id="@+id/morningTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
+            android:layout_gravity="center"
             android:text="@string/morning"
-            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/layout_afternoon"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:layout_marginBottom="@dimen/full_margin">
-
-        <RadioButton
-            android:id="@+id/rb_afternoon"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:layout_height="48dp"
+        android:padding="@dimen/half_margin"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true">
 
         <TextView
+            android:id="@+id/afternoonTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
+            android:layout_gravity="center"
             android:text="@string/afternoon"
-            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/layout_evening"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:layout_marginBottom="@dimen/full_margin">
-
-        <RadioButton
-            android:id="@+id/rb_evening"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:layout_height="48dp"
+        android:padding="@dimen/half_margin"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true">
 
         <TextView
+            android:id="@+id/eveningTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
+            android:layout_gravity="center"
             android:text="@string/evening"
-            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/layout_custom_time"
         android:layout_width="match_parent"
-        android:clickable="true"
-        android:layout_height="wrap_content">
-
-        <RadioButton
-            android:id="@+id/rb_custom"
-            android:clickable="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        android:layout_height="48dp"
+        android:padding="@dimen/half_margin"
+        android:layout_marginBottom="@dimen/half_margin"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true">
 
         <TextView
             android:id="@+id/custom_notification_option"
@@ -92,8 +82,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/full_margin"
             android:layout_marginStart="@dimen/full_margin"
+            android:layout_gravity="center"
             android:text="@string/custom"
-            android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
 
     </LinearLayout>
 

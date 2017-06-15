@@ -44,14 +44,14 @@ public class AlarmHelper {
                         //WORKING
                         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                                 reminder, Co.ONE_DAY_LATER, pendingIntent);
-                        mModel.updateReminder(task.getIntId(), reminder);
+                        mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
                         break;
 
                     case Co.REMINDER_DAILY_WEEKDAYS:
                         //NO RESET IN RECEIVER BUT CHECKS IF ITS WEEKDAY
                         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                                 reminder, Co.ONE_DAY_LATER, pendingIntent);
-                        mModel.updateReminder(task.getIntId(), reminder);
+                        mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
                         break;
 
                     case Co.REMINDER_SAME_DAY_OF_WEEK:
@@ -126,11 +126,11 @@ public class AlarmHelper {
                             reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
                             reminderCalendarObject.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
                             reminderCalendarObject.add(Calendar.DATE, 1);
-                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
+                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis(), task.getRepeatMode());
                         }
                         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                                 reminderCalendarObject.getTimeInMillis(), Co.ONE_DAY_LATER, pendingIntent);
-                        mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
+                        mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis(), task.getRepeatMode());
                         break;
 
                     case Co.REMINDER_DAILY_WEEKDAYS:
@@ -139,11 +139,11 @@ public class AlarmHelper {
                             reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
                             reminderCalendarObject.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
                             reminderCalendarObject.add(Calendar.DATE, 1);
-                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
+                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis(), task.getRepeatMode());
                         }
                         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                                 reminderCalendarObject.getTimeInMillis(), Co.ONE_DAY_LATER, pendingIntent);
-                        mModel.updateReminder(task.getIntId(), reminder);
+                        mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
                         break;
 
                     case Co.REMINDER_SAME_DAY_OF_WEEK:
@@ -152,7 +152,7 @@ public class AlarmHelper {
                             reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
                             reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
                             reminderCalendarObject.add(Calendar.DATE, 7);
-                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
+                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis(), task.getRepeatMode());
                         }
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
                                 reminderCalendarObject.getTimeInMillis(), pendingIntent);
@@ -163,7 +163,7 @@ public class AlarmHelper {
                             reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
                             reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));
                             reminderCalendarObject.add(Calendar.MONTH, 1);
-                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis());
+                            mModel.updateReminder(task.getIntId(), reminderCalendarObject.getTimeInMillis(), task.getRepeatMode());
                         }
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
                                 reminderCalendarObject.getTimeInMillis(), pendingIntent);

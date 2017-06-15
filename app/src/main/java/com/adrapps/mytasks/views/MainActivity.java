@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity
       findViews();
       setUpViews();
       setCredentials();
+      this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
       if (getBooleanShP(Co.IS_FIRST_INIT)) {
          refreshFirstTime();
          return;
@@ -135,7 +136,6 @@ public class MainActivity extends AppCompatActivity
       if (!isDeviceOnline()) {
          showNoInternetWarning(true);
       }
-//      mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
       if (savedInstanceState != null){
             taskShownInBottomSheet = (LocalTask) savedInstanceState.getSerializable(Co.STATE_SHOWN_TASK);
             taskShownInBottomSheetPos = savedInstanceState.getInt(Co.STATE_SHOWN_TASK_POSITION);
@@ -143,7 +143,6 @@ public class MainActivity extends AppCompatActivity
                showBottomSheet(taskShownInBottomSheet, taskShownInBottomSheetPos, true);
             }
       }
-      this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
    }
 
 
@@ -197,6 +196,7 @@ public class MainActivity extends AppCompatActivity
          @Override
          public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             if (dy > 0 || dy < 0 && fab.isShown()) {
+               fab.setOnClickListener(null);
                fab.hide();
                swipeRefresh.setEnabled(false);
             }
@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity
             if (!Co.IS_MULTISELECT_ENABLED) {
                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                   if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                     fab.setOnClickListener(MainActivity.this);
                      fab.show();
                      swipeRefresh.setEnabled(true);
                   }
@@ -226,14 +227,15 @@ public class MainActivity extends AppCompatActivity
                taskShownInBottomSheet = null;
                taskShownInBottomSheetPos = -1;
                fab.show();
+               fab.setOnClickListener(MainActivity.this);
             }
          }
 
          @Override
          public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            Log.d("onSlide", "called");
             if (mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
                fab.show();
+               fab.setOnClickListener(null);
                fab.animate().scaleX(1 - slideOffset).scaleY(1 - slideOffset).setDuration(0).start();
             }
          }
@@ -280,7 +282,7 @@ public class MainActivity extends AppCompatActivity
                detailNotification.setText(
                      task.getReminder() == 0 ? null :
                            task.getRepeatMode() == 0 ? DateHelper.millisToFull(task.getReminder()) :
-                                 DateHelper.millsToTimeOnly(task.getReminder()));
+                                 DateHelper.millisToTimeOnly(task.getReminder()));
                notificationDetailLayout.setVisibility(View.VISIBLE);
                nextReminderTV.setText(DateHelper.millisToFull(task.getReminder()));
 
@@ -293,28 +295,28 @@ public class MainActivity extends AppCompatActivity
                      detailRepeat.setText(
                            getString(
                                  R.string.daily_repeat_mode) +
-                                 " (" + DateHelper.millsToTimeOnly(
+                                 " (" + DateHelper.millisToTimeOnly(
                                  task.getReminder()) + ")");
                      break;
 
                   case Co.REMINDER_DAILY_WEEKDAYS:
                      detailRepeat.setText(
                            getString(R.string.weekdays) + " (" +
-                                 DateHelper.millsToTimeOnly(task.getReminder()) + ")");
+                                 DateHelper.millisToTimeOnly(task.getReminder()) + ")");
                      break;
 
                   case Co.REMINDER_SAME_DAY_OF_WEEK:
                      detailRepeat.setText(
                            getString(R.string.every) + " " +
                                  DateHelper.timeInMillsToDay(task.getReminder())
-                                 + " (" + DateHelper.millsToTimeOnly(
+                                 + " (" + DateHelper.millisToTimeOnly(
                                  task.getReminder()) + ")");
                      break;
 
                   case Co.REMINDER_SAME_DAY_OF_MONTH:
                      detailRepeat.setText(
                            getString(R.string.on_day) + " " +
-                                 DateHelper.millsToTimeOnly(task.getReminder()) +
+                                 DateHelper.timeInMillsToDayOfMonth(task.getReminder()) +
                                  " " + getString(R.string.of_every_month));
                      break;
 
@@ -454,6 +456,7 @@ public class MainActivity extends AppCompatActivity
    public void showFab(boolean b) {
       if (b){
          fab.show();
+         fab.setOnClickListener(MainActivity.this);
       } else {
          fab.hide();
       }
@@ -697,6 +700,7 @@ public class MainActivity extends AppCompatActivity
          mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
          swipeRefresh.setEnabled(true);
          fab.show();
+         fab.setOnClickListener(MainActivity.this);
          return;
       }
       if (adapter.isSelectableMode()) {
@@ -746,6 +750,7 @@ public class MainActivity extends AppCompatActivity
       if (fab.getVisibility() != View.VISIBLE &&
             mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
          fab.show();
+         fab.setOnClickListener(MainActivity.this);
       }
       toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
    }
@@ -781,6 +786,7 @@ public class MainActivity extends AppCompatActivity
             // TASK EDITED
             if (resultIntent.hasExtra(Co.TASK_EDIT)) {
                fab.show();
+               fab.setOnClickListener(MainActivity.this);
                LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                if (task != null) {
                   long reminderInMillis = task.getReminder();
@@ -791,7 +797,7 @@ public class MainActivity extends AppCompatActivity
                   } else {
                      AlarmHelper.cancelReminder(task, this);
                   }
-                  mPresenter.updateReminder(task.getIntId(), task.getReminder());
+                  mPresenter.updateReminder(task.getIntId(), task.getReminder(), task.getRepeatMode());
                }
                adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                if (!resultIntent.hasExtra(Co.NO_API_EDIT)) {

@@ -47,6 +47,7 @@ dependencies {
     compile 'com.android.support:preference-v7:25.3.1'
     compile 'com.bignerdranch.android:recyclerview-multiselect:0.2'
     compile 'com.google.code.gson:gson:2.7'
+    compile 'com.nex3z:toggle-button-group:1.0.1'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'

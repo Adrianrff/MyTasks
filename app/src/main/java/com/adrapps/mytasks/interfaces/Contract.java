@@ -141,7 +141,7 @@ public class Contract {
 
         long updateReminder(String taskId, long reminder);
 
-        long updateReminder(int intId, long reminder);
+        long updateReminder(int intId, long reminder, int repeatMode);
 
         void updateSyncStatus(int synced, int intId);
 
