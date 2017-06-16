@@ -35,7 +35,6 @@
             android:tint="@color/colorPrimary"
             app:srcCompat="@drawable/ic_date"/>
 
-
         <TextView
             android:id="@+id/reminder_date_tv"
             android:layout_width="0dp"
