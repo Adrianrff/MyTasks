@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginEnd="@dimen/full_margin"
-    android:layout_marginLeft="64dp"
+    android:layout_marginLeft="40dp"
     android:layout_marginRight="@dimen/full_margin"
-    android:layout_marginStart="64dp"
+    android:layout_marginStart="40dp"
     android:animateLayoutChanges="true"
     android:orientation="vertical"
     android:paddingBottom="@dimen/full_margin"
@@ -48,9 +48,7 @@
             android:textSize="16sp">
         </TextView>
 
-
     </LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/reminder_time_layout"
@@ -64,8 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:tint="@color/colorPrimary"
-            app:srcCompat="@drawable/ic_time_24dp"
-            />
+            app:srcCompat="@drawable/ic_time_24dp"/>
 
         <TextView
             android:id="@+id/reminder_time_tv"
@@ -79,7 +76,6 @@
             android:textColor="@color/common_google_signin_btn_text_dark_focused"
             android:textSize="16sp">
         </TextView>
-
 
     </LinearLayout>
 
@@ -110,9 +106,7 @@
             android:textSize="16sp">
         </TextView>
 
-
     </LinearLayout>
-
 
     <com.nex3z.togglebuttongroup.SingleSelectToggleGroup
         android:id="@+id/weekdays_group"
@@ -120,7 +114,7 @@
         android:layout_height="wrap_content"
         app:tbgFlow="true"
         android:layout_marginTop="@dimen/half_margin"
-        android:visibility="gone"
+        android:visibility="visible"
         app:tbgChildSpacing="0dp">
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
@@ -175,7 +169,6 @@
             android:text="@string/sundayToggle"/>
 
     </com.nex3z.togglebuttongroup.SingleSelectToggleGroup>
-
 
     <LinearLayout
         android:id="@+id/next_reminder_layout"
