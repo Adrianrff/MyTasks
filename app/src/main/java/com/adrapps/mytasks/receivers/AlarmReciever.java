@@ -72,7 +72,7 @@ public class AlarmReciever extends BroadcastReceiver {
                }
                break;
 
-            case Co.REMINDER_SAME_DAY_OF_WEEK:
+            case Co.REMINDER_WEEKLY:
                c.add(Calendar.DATE, 7);
                task.setReminderNoID(c.getTimeInMillis());
                mModel.updateReminder(task.getId(), c.getTimeInMillis());
@@ -80,7 +80,7 @@ public class AlarmReciever extends BroadcastReceiver {
                setAndShowNotification();
                break;
 
-            case Co.REMINDER_SAME_DAY_OF_MONTH:
+            case Co.REMINDER_MONTHLY:
                c.add(Calendar.MONTH, 1);
                task.setReminderNoID(c.getTimeInMillis());
                mModel.updateReminder(task.getId(), c.getTimeInMillis());

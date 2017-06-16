@@ -94,6 +94,20 @@
     <string name="cancelar">Cancelar</string>
     <string name="weekly">Semanal</string>
     <string name="monthly">Mensual</string>
+    <string name="mondays">Lunes</string>
+    <string name="tuesdays">Martes</string>
+    <string name="wednesdays">Miércoles</string>
+    <string name="thursdays">Jueves</string>
+    <string name="fridays">Viernes</string>
+    <string name="saturdays">Sábados</string>
+    <string name="sundays">Domingos</string>
+    <string name="mondayToggle">L</string>
+    <string name="tuesdayToggle">Ma</string>
+    <string name="wednesdayToggle">Mi</string>
+    <string name="thursdayToggle">J</string>
+    <string name="fridayToggle">V</string>
+    <string name="saturdayToggle">S</string>
+    <string name="sundayToggle">D</string>
 
 
 </resources>

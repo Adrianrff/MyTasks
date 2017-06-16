@@ -72,8 +72,6 @@ public class Contract {
 
         void initRecyclerView(List<LocalTask> tasks);
 
-//        void setOrUpdateAlarm(LocalTask task);
-
         void addTaskToAdapter(LocalTask localTask);
 
         //-------DATA RETRIEVE-------------///
@@ -89,10 +87,6 @@ public class Contract {
         boolean isDeviceOnline();
 
         void navigateToEditTask(Intent i);
-
-//        void cancelReminder(LocalTask task);
-
-        boolean isReminderSet(int reminderId);
 
         void updateItem(LocalTask syncedLocalTask);
 
@@ -129,15 +123,9 @@ public class Contract {
 
         int addTask(LocalTask task);
 
-//        void moveTask(LocalTask movedTask, String previousTaskId);
-
         void moveTasks(LinkedHashMap<LocalTask, String> moveMap);
 
         void editTask(LocalTask task);
-
-        long getTaskReminder(String taskId);
-
-        boolean taskExistsInDB(String taskId);
 
         long updateReminder(String taskId, long reminder);
 
@@ -145,45 +133,25 @@ public class Contract {
 
         void updateSyncStatus(int synced, int intId);
 
-        long getTaskReminderId(String taskId);
-
         List<LocalTask> getLocalTasksFromDB();
 
-        LocalTask getTask(String id);
-
         int updateLocalTask(LocalTask modifiedTask, boolean updateReminders);
-
-        void updateSibling(String taskId, String previousTaskId);
 
         List<LocalTask> getTaskFromListForAdapter(String listId);
 
         void updateLocalTask(Task task, String listId);
 
-        void markDeleted(String taskId);
-
         LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId);
-
-        void setTemporaryPosition(String taskId, String newTaskTempPos);
-
-        void updateMoved(String id, int moved);
 
         void updatePosition(Task task);
 
-        void updateSiblingByIntId(int id, int sibling);
-
         String getTaskIdByIntId(int id);
-
-        void updateMovedByIntId(int intId, int moved);
-
-        void setTemporaryPositionByIntId(int intId, String newTaskTempPos);
 
         void deleteTaskFromDatabase(int intId);
 
         int getIntIdByTaskId(String taskId);
 
         void addList(String listTitle);
-
-        void addList(TaskList list);
 
         void updateList(LocalList localList);
 
@@ -193,21 +161,13 @@ public class Contract {
 
         void deleteList(String listId);
 
-        List<LocalList> getLocalLists();
-
-        LocalTask getTask(int intId);
-
-        int getTaskReminderRepeatModeByIntId(int intId);
-
-        int getTaskReminderRepeatMode(String taskId);
-
-        long getTaskReminderByIntId(int intId);
-
         void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
 
         void deleteTasks(List<LocalTask> tasks);
 
        void updatePositions(List<Task> tasks);
+
+       void updateExistingTaskFromLocalTask(LocalTask task, String listId);
     }
 
 

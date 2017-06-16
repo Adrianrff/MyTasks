@@ -14,6 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,7 +49,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    EditText titleTV, notesTv;
    private LinearLayout reminderDetailsLayout, reminderDateLayout;
    private LocalTask taskToEdit;
-   private int position, repeatMode;
+   private int position, repeatMode, repeatDay;
    private ImageView clearDate, clearReminder;
    private TextView reminderTv, dueDateTv, nextReminderTV, reminderDateTV, reminderTimeTV, repeatTV;
    private Calendar taskReminder, dueDate, tempReminder;
@@ -59,6 +61,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    private String WEEK_BEFORE;
    private SingleSelectToggleGroup weekdaysGroup;
    private CircularToggle mon, tue, wed, thu, fri, sat, sun;
+   private SparseIntArray calendarDaysMap;
+   private SparseArray<CircularToggle> daysToggleMap;
 
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -118,6 +122,17 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                repeatMode = taskToEdit.getRepeatMode();
                if (repeatMode != 0) {
                   reminderDateLayout.setVisibility(View.GONE);
+                  if (repeatMode == Co.REMINDER_WEEKLY) {
+                     weekdaysGroup.setVisibility(View.VISIBLE);
+                     repeatDay = taskToEdit.getRepeatDay();
+
+                     CircularToggle selectedToggle = daysToggleMap.get(taskToEdit.getRepeatDay());
+                     if (selectedToggle != null) {
+                        selectedToggle.setChecked(true);
+                     }
+                  } else {
+                     weekdaysGroup.setVisibility(View.GONE);
+                  }
                } else {
                   reminderDateLayout.setVisibility(View.VISIBLE);
                }
@@ -130,6 +145,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       } else {
          toolbar.setTitle(getString(R.string.new_task_title));
          getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+         reminderDetailsLayout.setVisibility(View.GONE);
       }
    }
 
@@ -175,6 +191,23 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       fri = (CircularToggle) findViewById(R.id.fri);
       sat = (CircularToggle) findViewById(R.id.sat);
       sun = (CircularToggle) findViewById(R.id.sun);
+      daysToggleMap = new SparseArray<>();
+      daysToggleMap.put(Co.MONDAY, mon);
+      daysToggleMap.put(Co.TUESDAY, tue);
+      daysToggleMap.put(Co.WEDNESDAY, wed);
+      daysToggleMap.put(Co.THURSDAY, thu);
+      daysToggleMap.put(Co.FRIDAY, fri);
+      daysToggleMap.put(Co.SATURDAY, sat);
+      daysToggleMap.put(Co.SUNDAY, sun);
+      calendarDaysMap = new SparseIntArray();
+      calendarDaysMap.put(Co.MONDAY, Calendar.MONDAY);
+      calendarDaysMap.put(Co.TUESDAY, Calendar.TUESDAY);
+      calendarDaysMap.put(Co.WEDNESDAY, Calendar.WEDNESDAY);
+      calendarDaysMap.put(Co.THURSDAY, Calendar.THURSDAY);
+      calendarDaysMap.put(Co.FRIDAY, Calendar.FRIDAY);
+      calendarDaysMap.put(Co.SATURDAY, Calendar.SATURDAY);
+      calendarDaysMap.put(Co.SUNDAY, Calendar.SUNDAY);
+
       nextReminderTV = (TextView) findViewById(R.id.next_reminder_label);
       reminderDetailsLayout = (LinearLayout) findViewById(R.id.notification_layout);
       reminderDateLayout = (LinearLayout) findViewById(R.id.reminder_date_layout);
@@ -226,12 +259,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       switch (item.getItemId()) {
 
          case R.id.settings:
-            Calendar c = Calendar.getInstance();
-            c.add(Calendar.DATE, 14);
-            Calendar now = Calendar.getInstance();
-            now.set(Calendar.DAY_OF_WEEK, c.get(Calendar.DAY_OF_WEEK));
-
-            showToast(DateUtils.formatDateTime(this, now.getTimeInMillis(), 0));
+            showToast(String.valueOf(repeatDay));
 
             break;
 
@@ -248,6 +276,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                      taskToEdit.setReminderNoID(taskReminder.getTimeInMillis());
                   } else {
                      taskToEdit.setReminder(taskReminder.getTimeInMillis());
+                  }
+                  if (repeatMode == Co.REMINDER_WEEKLY && repeatDay > 0) {
+                     taskToEdit.setRepeatDay(repeatDay);
                   }
                }
 
@@ -295,6 +326,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                if (taskReminder != null) {
                   task.setReminder(taskReminder.getTimeInMillis());
                   task.setRepeatMode(repeatMode);
+                  if (repeatMode == Co.REMINDER_WEEKLY && repeatDay != 0) {
+                     task.setRepeatDay(repeatDay);
+                  }
                }
                i.putExtra(Co.LOCAL_TASK, task);
                i.putExtra(Co.NEW_TASK, true);
@@ -303,15 +337,13 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                break;
             }
       }
-      return super.
-
-            onOptionsItemSelected(item);
+      return super.onOptionsItemSelected(item);
 
    }
 
    @Override
    public void onClick(View v) {
-      boolean reminderNotSet = false;
+      boolean reminderNotSet;
       switch (v.getId()) {
 
          //Clear date click
@@ -333,6 +365,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             reminderDateTV.setText(null);
             reminderTimeTV.setText(null);
             repeatMode = 0;
+            repeatDay = 0;
+            weekdaysGroup.setVisibility(View.GONE);
             repeatTV.setText(null);
             clearReminder.setVisibility(View.GONE);
             reminderDetailsLayout.setVisibility(View.GONE);
@@ -490,9 +524,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                taskReminder.set(Calendar.HOUR_OF_DAY, Co.EVENING_ALARM_HOUR);
                reminderTimeTV.setText(getString(R.string.evening));
             }
-            if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
-               onReminderChange();
-            }
+//            if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
+            onReminderChange();
+//            }
             break;
 
          case R.id.layout_custom_time:
@@ -579,26 +613,22 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       builder.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_time_18dp));
       reminderTimeDialog = builder.create();
       if (taskReminder != null) {
-         if (isReminderDateToday()) {
+         if (isReminderDateToday() && repeatMode == Co.REMINDER_ONE_TIME) {
             Calendar now = now();
             int hour = now.get(Calendar.HOUR_OF_DAY);
             if (hour >= Co.EVENING_ALARM_HOUR) {
                showReminderTimePicker();
                return;
-            } else if (hour > Co.AFTERNOON_ALARM_HOUR) {
-               morningTv.setTextColor(Color.GRAY);
-               afternoonTv.setTextColor(Color.GRAY);
-               eveningLayout.setOnClickListener(this);
-            } else if (hour > Co.MORNING_ALARM_HOUR) {
-               morningTv.setTextColor(Color.GRAY);
-               eveningLayout.setOnClickListener(this);
-               afternoonLayout.setOnClickListener(this);
-            } else {
-               morningLayout.setOnClickListener(this);
-               afternoonLayout.setOnClickListener(this);
-               eveningLayout.setOnClickListener(this);
-               customTimeLayout.setOnClickListener(this);
             }
+            if (hour > Co.MORNING_ALARM_HOUR) {
+               morningTv.setTextColor(Color.GRAY);
+               morningLayout.setOnClickListener(null);
+            }
+            if (hour > Co.AFTERNOON_ALARM_HOUR) {
+               afternoonTv.setTextColor(Color.GRAY);
+               afternoonLayout.setOnClickListener(null);
+            }
+
          }
       }
       reminderTimeDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -664,8 +694,6 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       reminderDatePicker.setOnDismissListener(new DialogInterface.OnDismissListener() {
          @Override
          public void onDismiss(DialogInterface dialog) {
-            if (taskReminder == null) {
-            }
          }
       });
       reminderDatePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -777,33 +805,37 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
    public void onReminderChange() {
       Calendar now = now();
+      if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
+         reminderDetailsLayout.setVisibility(View.VISIBLE);
+      }
+      clearReminder.setVisibility(View.VISIBLE);
+      if (repeatMode == Co.REMINDER_ONE_TIME) {
+         reminderDateLayout.setVisibility(View.VISIBLE);
+      } else {
+         setRelativeReminder();
+         if (repeatMode == Co.REMINDER_WEEKLY) {
+            weekdaysGroup.setVisibility(View.VISIBLE);
+//            if (repeatDay > 0) {
+//               daysToggleMap.get(repeatDay).setChecked(true);
+//               setWeeklyReminder();
+//            }
+         } else {
+            weekdaysGroup.setVisibility(View.GONE);
+         }
+         reminderDateLayout.setVisibility(View.GONE);
+      }
+      setReminderDateTv();
+      setReminderTimeTv();
+      setReminderTextView();
+      setRepeatMenuItems();
+      nextReminderTV.setText(DateHelper.millisToFull(taskReminder.getTimeInMillis()));
+      repeatTV.setText(repeatMenu.getItem(repeatMode).getTitle());
       if (taskReminder == null || taskReminder.before(now)) {
-         reminderDetailsLayout.setVisibility(View.GONE);
          if (taskReminder != null && taskReminder.before(now)) {
-            taskReminder = null;
             showToast(getString(R.string.past_reminder_no_effect));
          }
-         clearReminder.setVisibility(View.GONE);
-         reminderTv.setText(null);
-      } else {
-         if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
-            reminderDetailsLayout.setVisibility(View.VISIBLE);
-         }
-         clearReminder.setVisibility(View.VISIBLE);
-
-         if (repeatMode == 0) {
-            reminderDateLayout.setVisibility(View.VISIBLE);
-         } else {
-            reminderDateLayout.setVisibility(View.GONE);
-//            taskReminder = setNextReminder();
-         }
-         setReminderDateTv();
-         setReminderTimeTv();
-         setReminderTextView();
-         setRepeatMenuItems();
-         nextReminderTV.setText(DateHelper.millisToFull(taskReminder.getTimeInMillis()));
-         repeatTV.setText(repeatMenu.getItem(repeatMode).getTitle());
       }
+
    }
 
    private void setReminderTimeTv() {
@@ -895,8 +927,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 //            reminderTv.setText(DateHelper.millisToTimeOnly(editedReminder.getTimeInMillis()));
 //            break;
 //
-//         case Co.REMINDER_SAME_DAY_OF_WEEK:
-//            repeatMode = Co.REMINDER_SAME_DAY_OF_WEEK;
+//         case Co.REMINDER_WEEKLY:
+//            repeatMode = Co.REMINDER_WEEKLY;
 //            if (isFirstLaunch && !customReminderDateSet) {
 ////               setOriginalReminderFirstLaunch();
 //               break;
@@ -923,8 +955,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 //            reminderTv.setText(DateHelper.millisToTimeOnly(editedReminder.getTimeInMillis()));
 //            break;
 //
-//         case Co.REMINDER_SAME_DAY_OF_MONTH:
-//            repeatMode = Co.REMINDER_SAME_DAY_OF_MONTH;
+//         case Co.REMINDER_MONTHLY:
+//            repeatMode = Co.REMINDER_MONTHLY;
 //            if (isFirstLaunch && !customReminderDateSet) {
 ////               setOriginalReminderFirstLaunch();
 //               break;
@@ -1020,92 +1052,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 //
 //   }
 
-   public Calendar setNextReminder() {
-      tempReminder = Calendar.getInstance();
-      tempReminder.set(Calendar.HOUR_OF_DAY, taskReminder.get(Calendar.HOUR_OF_DAY));
-      tempReminder.set(Calendar.MINUTE, taskReminder.get(Calendar.MINUTE));
-      tempReminder.set(Calendar.SECOND, 0);
-      tempReminder.set(Calendar.MILLISECOND, 0);
-      Calendar now = now();
-      if (tempReminder.before(now)) {
-         this.repeatMode = 1;
-         tempReminder.add(Calendar.DATE, 1);
-         if (repeatMenu != null) {
-            repeatTV.setText(repeatMenu.findItem(R.id.daily).getTitle());
-         }
-      }
-      if (repeatMode == Co.REMINDER_DAILY) {
-         if (repeatMenu != null) {
-            repeatTV.setText(repeatMenu.findItem(R.id.daily).getTitle());
-         }
-         if (tempReminder.before(now)) {
-            tempReminder.add(Calendar.DATE, 1);
-         }
-      }
-
-      if (repeatMode == Co.REMINDER_DAILY_WEEKDAYS) {
-         if (repeatMenu != null) {
-            repeatTV.setText(repeatMenu.findItem(R.id.weekdays).getTitle());
-         }
-         if (tempReminder.before(now)) {
-            tempReminder.add(Calendar.DATE, 1);
-         }
-         if (!DateHelper.isWeekday(tempReminder)) {
-            if (tempReminder.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-               tempReminder.add(Calendar.DATE, 2);
-            } else {
-               tempReminder.add(Calendar.DATE, 1);
-            }
-         }
-      }
-
-      if (repeatMode == Co.REMINDER_SAME_DAY_OF_WEEK) {
-         if (repeatMenu != null) {
-            repeatTV.setText(repeatMenu.findItem(R.id.weekly).getTitle());
-         }
-         int dayOfWeek = taskReminder.get(Calendar.DAY_OF_WEEK);
-         if (dayOfWeek != now.get(Calendar.DAY_OF_WEEK)) {
-            while (tempReminder.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-               tempReminder.add(Calendar.DATE, 1);
-            }
-            if (tempReminder.before(now)) {
-               tempReminder.add(Calendar.DATE, 7);
-            }
-         } else if (tempReminder.before(now)) {
-            tempReminder.add(Calendar.DATE, 7);
-         }
-      }
-
-      if (repeatMode == Co.REMINDER_SAME_DAY_OF_MONTH) {
-         if (repeatMenu != null) {
-            repeatTV.setText(repeatMenu.findItem(R.id.monthly).getTitle());
-         }
-         tempReminder.set(Calendar.HOUR_OF_DAY, taskReminder.get(Calendar.HOUR_OF_DAY));
-         tempReminder.set(Calendar.MINUTE, taskReminder.get(Calendar.MINUTE));
-         tempReminder.set(Calendar.SECOND, 0);
-         tempReminder.set(Calendar.MILLISECOND, 0);
-         int dayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
-
-         if (dayOfMonth != now.get(Calendar.DAY_OF_MONTH)) {
-            tempReminder.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-         }
-         if (tempReminder.before(now)) {
-            tempReminder.add(Calendar.MONTH, 1);
-         }
-      }
-      nextReminderTV.setText(DateHelper.millisToFull(tempReminder.getTimeInMillis()));
-      if (repeatMode != 0) {
-         reminderTv.setText(DateHelper.millisToTimeOnly(tempReminder.getTimeInMillis()));
-      } else {
-         reminderTv.setText(DateHelper.millisToFull(tempReminder.getTimeInMillis()));
-      }
-      return tempReminder;
-   }
-
-
    @Override
    public boolean onMenuItemClick(MenuItem item) {
-      Calendar now = Calendar.getInstance();
       switch (item.getItemId()) {
 
          case R.id.one_time:
@@ -1126,112 +1074,29 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
          case R.id.daily:
             repeatMode = Co.REMINDER_DAILY;
-            weekdaysGroup.setVisibility(View.GONE);
-            repeatTV.setText(getString(R.string.daily_repeat_mode));
-            taskReminder.set(Calendar.YEAR, now().get(Calendar.YEAR));
-            taskReminder.set(Calendar.MONTH, now().get(Calendar.MONTH));
-            taskReminder.set(Calendar.DAY_OF_MONTH, now().get(Calendar.DAY_OF_MONTH));
-
-            if (taskReminder.before(now())) {
-               taskReminder.add(Calendar.DATE, 1);
-            }
             onReminderChange();
             break;
 
          case R.id.weekdays:
             repeatMode = Co.REMINDER_DAILY_WEEKDAYS;
-            weekdaysGroup.setVisibility(View.GONE);
-            taskReminder.set(Calendar.YEAR, now().get(Calendar.YEAR));
-            taskReminder.set(Calendar.MONTH, now().get(Calendar.MONTH));
-            taskReminder.set(Calendar.DAY_OF_MONTH, now().get(Calendar.DAY_OF_MONTH));
-            if (taskReminder.before(now)) {
-               taskReminder.add(Calendar.DATE, 1);
-            }
-            if (!DateHelper.isWeekday(taskReminder)) {
-               if (taskReminder.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
-                  taskReminder.add(Calendar.DATE, 2);
-               } else {
-                  taskReminder.add(Calendar.DATE, 1);
-               }
-            }
             onReminderChange();
-//            nextReminderTV.setText(DateHelper.millisToFull(taskReminder.getTimeInMillis()));
-//            reminderTv.setText(DateHelper.millisToTimeOnly(tempReminder.getTimeInMillis()));
-//            reminderDateLayout.setVisibility(View.GONE);
-
-//            if (repeatMenu != null) {
-//               repeatTV.setText(repeatMenu.findItem(R.id.weekdays).getTitle());
-//            }
-//            tempReminder.set(Calendar.HOUR_OF_DAY, taskReminder.get(Calendar.HOUR_OF_DAY));
-//            tempReminder.set(Calendar.MINUTE, taskReminder.get(Calendar.MINUTE));
-//            tempReminder.set(Calendar.SECOND, 0);
-//            tempReminder.set(Calendar.MILLISECOND, 0);
-
-//            nextReminderTV.setText(DateHelper.millisToFull(tempReminder.getTimeInMillis()));
-//            reminderTv.setText(DateHelper.millisToTimeOnly(tempReminder.getTimeInMillis()));
             break;
 
          case R.id.weekly:
-            repeatMode = Co.REMINDER_SAME_DAY_OF_WEEK;
-            weekdaysGroup.setVisibility(View.VISIBLE);
-            switch (now().get(Calendar.DAY_OF_WEEK)) {
-               case Calendar.MONDAY:
-                  mon.setChecked(true);
-                  break;
-               case Calendar.TUESDAY:
-                  tue.setChecked(true);
-                  break;
-               case Calendar.WEDNESDAY:
-                  wed.setChecked(true);
-                  break;
-               case Calendar.THURSDAY:
-                  thu.setChecked(true);
-                  break;
-               case Calendar.FRIDAY:
-                  fri.setChecked(true);
-                  break;
-               case Calendar.SATURDAY:
-                  sat.setChecked(true);
-                  break;
-               case Calendar.SUNDAY:
-                  sun.setChecked(true);
-                  break;
-            }
-            nextReminderTV.setText(DateHelper.millisToFull(taskReminder.getTimeInMillis()));
-            taskReminder.set(Calendar.YEAR, now().get(Calendar.YEAR));
-            taskReminder.set(Calendar.MONTH, now().get(Calendar.MONTH));
-            taskReminder.set(Calendar.DAY_OF_MONTH, now().get(Calendar.DAY_OF_MONTH));
-            int dayOfWeek = taskReminder.get(Calendar.DAY_OF_WEEK);
-            if (dayOfWeek != now.get(Calendar.DAY_OF_WEEK)) {
-               while (taskReminder.get(Calendar.DAY_OF_WEEK) != dayOfWeek) {
-                  taskReminder.add(Calendar.DATE, 1);
+            if (repeatMode != Co.REMINDER_WEEKLY) {
+               repeatMode = Co.REMINDER_WEEKLY;
+               CircularToggle toggle = daysToggleMap.get(now().get(Calendar.DAY_OF_WEEK));
+               if (weekdaysGroup.getCheckedId() == toggle.getId()){
+                  setWeeklyReminder();
+               } else {
+                  toggle.setChecked(true);
                }
-            } else if (taskReminder.before(now)) {
-               taskReminder.add(Calendar.DATE, 7);
             }
-            onReminderChange();
             break;
 
          case R.id.monthly:
-            repeatMode = Co.REMINDER_SAME_DAY_OF_MONTH;
-            weekdaysGroup.setVisibility(View.GONE);
-            reminderDateLayout.setVisibility(View.GONE);
-            int dayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
-            if (dayOfMonth != now.get(Calendar.DAY_OF_MONTH)) {
-               taskReminder.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            }
-            if (taskReminder.before(now)) {
-               taskReminder.add(Calendar.MONTH, 1);
-            }
+            repeatMode = Co.REMINDER_MONTHLY;
             onReminderChange();
-
-            break;
-
-         case R.id.custom_repeat:
-            repeatMode = Co.REMINDER_CUSTOM_REPEAT;
-            if (repeatMenu != null) {
-               repeatTV.setText(repeatMenu.findItem(R.id.custom_repeat).getTitle());
-            }
             break;
 
       }
@@ -1285,32 +1150,99 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
    @Override
    public void onCheckedChanged(SingleSelectToggleGroup group, int checkedId) {
-      if (mon.isChecked()){
-         showToast("Monday");
-      }
-      if (tue.isChecked()){
-         showToast("Tuesday");
+      setWeeklyReminder();
+      onReminderChange();
+   }
 
-      }
-      if (wed.isChecked()){
-         showToast("Wednesday");
+   public void setRelativeReminder() {
+      Calendar now = now();
+      switch (repeatMode) {
+         case Co.REMINDER_DAILY:
+            weekdaysGroup.setVisibility(View.GONE);
+            repeatTV.setText(getString(R.string.daily_repeat_mode));
+            taskReminder.set(Calendar.YEAR, now().get(Calendar.YEAR));
+            taskReminder.set(Calendar.MONTH, now().get(Calendar.MONTH));
+            taskReminder.set(Calendar.DAY_OF_MONTH, now().get(Calendar.DAY_OF_MONTH));
 
-      }
-      if (thu.isChecked()){
-         showToast("Thursday");
+            if (taskReminder.before(now())) {
+               taskReminder.add(Calendar.DATE, 1);
+            }
+            break;
 
-      }
-      if (fri.isChecked()){
-         showToast("Monday");
+         case Co.REMINDER_DAILY_WEEKDAYS:
+            weekdaysGroup.setVisibility(View.GONE);
+            taskReminder.set(Calendar.YEAR, now().get(Calendar.YEAR));
+            taskReminder.set(Calendar.MONTH, now().get(Calendar.MONTH));
+            taskReminder.set(Calendar.DAY_OF_MONTH, now().get(Calendar.DAY_OF_MONTH));
+            if (taskReminder.before(now)) {
+               taskReminder.add(Calendar.DATE, 1);
+            }
+            if (!DateHelper.isWeekday(taskReminder)) {
+               if (taskReminder.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+                  taskReminder.add(Calendar.DATE, 2);
+               } else {
+                  taskReminder.add(Calendar.DATE, 1);
+               }
+            }
+            break;
 
-      }
-      if (sat.isChecked()){
-         showToast("Monday");
+         case Co.REMINDER_WEEKLY:
+            weekdaysGroup.setVisibility(View.VISIBLE);
+            CircularToggle toggle = daysToggleMap.get(repeatDay);
+            if (weekdaysGroup.getCheckedId() == toggle.getId()){
+               setWeeklyReminder();
+            } else {
+               toggle.setChecked(true);
+            }
+            break;
 
+         case Co.REMINDER_MONTHLY:
+            repeatMode = Co.REMINDER_MONTHLY;
+            weekdaysGroup.setVisibility(View.GONE);
+            reminderDateLayout.setVisibility(View.GONE);
+            int dayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
+            if (dayOfMonth != now.get(Calendar.DAY_OF_MONTH)) {
+               taskReminder.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            }
+            if (taskReminder.before(now)) {
+               taskReminder.add(Calendar.MONTH, 1);
+            }
+            break;
       }
-      if (sun.isChecked()){
-         showToast("Monday");
+   }
 
+   public void setWeeklyReminder() {
+      Calendar now = now();
+      taskReminder.set(Calendar.YEAR, now.get(Calendar.YEAR));
+      taskReminder.set(Calendar.MONTH, now.get(Calendar.MONTH));
+      taskReminder.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
+      if (mon.isChecked()) {
+         repeatDay = Calendar.MONDAY;
+      }
+      if (tue.isChecked()) {
+         repeatDay = Calendar.TUESDAY;
+      }
+      if (wed.isChecked()) {
+         repeatDay = Calendar.WEDNESDAY;
+      }
+      if (thu.isChecked()) {
+         repeatDay = Calendar.THURSDAY;
+      }
+      if (fri.isChecked()) {
+         repeatDay = Calendar.FRIDAY;
+      }
+      if (sat.isChecked()) {
+         repeatDay = Calendar.SATURDAY;
+      }
+      if (sun.isChecked()) {
+         repeatDay = Calendar.SUNDAY;
+      }
+      if (repeatDay != taskReminder.get(Calendar.DAY_OF_WEEK)) {
+         while (taskReminder.get(Calendar.DAY_OF_WEEK) != repeatDay) {
+            taskReminder.add(Calendar.DATE, 1);
+         }
+      } else if (taskReminder.before(now)) {
+         taskReminder.add(Calendar.DATE, 7);
       }
    }
 }

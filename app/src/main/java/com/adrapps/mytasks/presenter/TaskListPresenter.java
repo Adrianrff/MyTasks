@@ -62,10 +62,6 @@ public class TaskListPresenter implements Serializable {
       getView().initRecyclerView(tasks);
    }
 
-   public void setToolbarTitle(String title) {
-      getView().setToolbarTitle(title);
-   }
-
    public void dismissProgressDialog() {
       getView().dismissProgressDialog();
    }
@@ -177,20 +173,12 @@ public class TaskListPresenter implements Serializable {
       getView().showEmptyRecyclerView(b);
    }
 
-//   public void moveTask(LocalTask movedTask, String previousTaskId) {
-//      mModel.moveTask(movedTask, previousTaskId);
-//   }
-
    public void moveTasks(LinkedHashMap<LocalTask, String> moveMap){
       mModel.moveTasks(moveMap);
    }
 
    public void editTask(LocalTask task) {
       mModel.editTask(task);
-   }
-
-   public long updateReminder(int intId, long reminder, int repeatMode) {
-      return mModel.updateReminder(intId, reminder, repeatMode);
    }
 
    public void showBottomSheet(LocalTask task, int position, boolean b) {
@@ -229,41 +217,20 @@ public class TaskListPresenter implements Serializable {
       return mModel.updateNewlyCreatedTask(aTask, listId, intId);
    }
 
-   public void updateMoved(String id, int moved) {
-      mModel.updateMoved(id, moved);
-   }
-
    public void updatePosition(Task task) {
       mModel.updatePosition(task);
-   }
-
-   public void updateSiblingByIntId(int id, int sibling) {
-      mModel.updateSiblingByIntId(id, sibling);
    }
 
    public String getTaskIdByIntId(int id) {
       return mModel.getTaskIdByIntId(id);
    }
 
-   public void updateMovedByIntId(int intId, int moved) {
-      mModel.updateMovedByIntId(intId, moved);
-   }
-
-   public void setTemporaryPositionByIntId(int intId, String newTaskTempPos) {
-      mModel.setTemporaryPositionByIntId(intId, newTaskTempPos);
-   }
-
    public int getIntIdByTaskId(String taskId) {
       return mModel.getIntIdByTaskId(taskId);
    }
 
-
    public void updateItem(LocalTask syncedLocalTask) {
       getView().updateItem(syncedLocalTask);
-   }
-
-   public boolean isReminderSet(int reminderId) {
-      return getView().isReminderSet(reminderId);
    }
 
    public List<String> getListsTitles() {
@@ -272,10 +239,6 @@ public class TaskListPresenter implements Serializable {
 
    public List<String> getListsIds() {
       return mModel.getListsIds();
-   }
-
-   public List<LocalList> getLocalLists() {
-      return mModel.getLocalLists();
    }
 
    private void setListsInfo(List<TaskList> lists) {
@@ -325,5 +288,10 @@ public class TaskListPresenter implements Serializable {
 
    public void updatePositions(List<Task> tasks) {
       mModel.updatePositions(tasks);
+   }
+
+
+   public void updateExistingTaskFromLocalTask(LocalTask task, String listId) {
+      mModel.updateExistingTaskFromLocalTask(task, listId);
    }
 }

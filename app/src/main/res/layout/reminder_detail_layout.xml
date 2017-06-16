@@ -119,7 +119,7 @@
         android:id="@+id/weekdays_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tbgFlow="false"
+        app:tbgFlow="true"
         android:layout_marginTop="@dimen/half_margin"
         android:visibility="gone"
         app:tbgChildSpacing="0dp">
@@ -130,49 +130,50 @@
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
             app:tbgMarkerColor="@color/colorPrimary"
-            android:text="M"/>
+            android:text="@string/mondayToggle"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/tue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:tbgMarkerColor="@color/colorPrimary"
-            android:text="Tu"/>
+            android:text="@string/tuesdayToggle"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/wed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:tbgMarkerColor="@color/colorPrimary"
-            android:text="W"/>
+            android:text="@string/wednesdayToggle"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/thu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:tbgMarkerColor="@color/colorPrimary"
-            android:text="Th"/>
+            android:text="@string/thursdayToggle"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/fri"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clipChildren="true"
             app:tbgMarkerColor="@color/colorPrimary"
-            android:text="F"/>
+            android:text="@string/fridayToggle"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/sat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:tbgMarkerColor="@color/colorPrimary"
-            android:text="Sa"/>
+            android:text="@string/saturdayToggle"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/sun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:tbgMarkerColor="@color/colorPrimary"
-            android:text="Su"/>
+            android:text="@string/sundayToggle"/>
 
     </com.nex3z.togglebuttongroup.SingleSelectToggleGroup>
 

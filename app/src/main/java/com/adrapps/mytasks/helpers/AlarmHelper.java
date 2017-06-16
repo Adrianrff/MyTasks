@@ -54,13 +54,13 @@ public class AlarmHelper {
                         mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
                         break;
 
-                    case Co.REMINDER_SAME_DAY_OF_WEEK:
+                    case Co.REMINDER_WEEKLY:
                         //RESET IN RECEIVER
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
                                 reminder, pendingIntent);
                         break;
 
-                    case Co.REMINDER_SAME_DAY_OF_MONTH:
+                    case Co.REMINDER_MONTHLY:
                         //RESET IN RECEIVER
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
                                 reminder, pendingIntent);
@@ -146,7 +146,7 @@ public class AlarmHelper {
                         mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
                         break;
 
-                    case Co.REMINDER_SAME_DAY_OF_WEEK:
+                    case Co.REMINDER_WEEKLY:
                         //RESET IN RECEIVER
                         if (today.getTimeInMillis() > reminder) {
                             reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
@@ -158,7 +158,7 @@ public class AlarmHelper {
                                 reminderCalendarObject.getTimeInMillis(), pendingIntent);
                         break;
 
-                    case Co.REMINDER_SAME_DAY_OF_MONTH:
+                    case Co.REMINDER_MONTHLY:
                         if (today.getTimeInMillis() > reminder) {
                             reminderCalendarObject.set(Calendar.YEAR, today.get(Calendar.YEAR));
                             reminderCalendarObject.set(Calendar.MONTH, today.get(Calendar.MONTH));

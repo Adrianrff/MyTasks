@@ -11,7 +11,7 @@ import java.util.TimeZone;
 public class LocalTask implements Serializable, Comparable {
 
     private String id, title, parent, position, notes, status, list;
-    private int moved, localDeleted, intId, previousTask, syncStatus, repeatMode, adapterPos;
+    private int moved, localDeleted, intId, previousTask, syncStatus, repeatMode, adapterPos, repeatDay;
     private long serverModify,due,completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
 
@@ -119,6 +119,10 @@ public class LocalTask implements Serializable, Comparable {
     ///-------------------SETTERS ----------------------//
 
 
+   public void setRepeatDay(int repeatDay) {
+      this.repeatDay = repeatDay;
+   }
+
    public void setAdapterPos(int adapterPos) {
       this.adapterPos = adapterPos;
    }
@@ -217,6 +221,10 @@ public class LocalTask implements Serializable, Comparable {
 
     ///-------------------GETTERS---------------------///
 
+
+   public int getRepeatDay() {
+      return repeatDay;
+   }
 
    public int getAdapterPos() {
       return adapterPos;

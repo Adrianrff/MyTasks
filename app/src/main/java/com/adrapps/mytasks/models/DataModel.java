@@ -99,16 +99,6 @@ public class DataModel implements Contract.Model {
 
 
    @Override
-   public long getTaskReminder(String taskId) {
-      return tasksDb.getTaskReminder(taskId);
-   }
-
-   @Override
-   public boolean taskExistsInDB(String taskId) {
-      return tasksDb.taskExistsInDB(taskId);
-   }
-
-   @Override
    public long updateReminder(String taskId, long reminder) {
       return tasksDb.updateTaskReminder(taskId, reminder);
    }
@@ -118,14 +108,11 @@ public class DataModel implements Contract.Model {
       return tasksDb.updateTaskReminder(intId, reminder, repeatMode);
    }
 
+
+
    @Override
    public void updateSyncStatus(int synced, int intId) {
       tasksDb.updateSyncStatus(synced, intId);
-   }
-
-   @Override
-   public long getTaskReminderId(String taskId) {
-      return tasksDb.getTaskReminderId(taskId);
    }
 
    @Override
@@ -134,18 +121,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public LocalTask getTask(String id) {
-      return tasksDb.getTaskByTaskId(id);
-   }
-
-   @Override
    public int updateLocalTask(LocalTask modifiedTask, boolean updateReminders) {
       return tasksDb.updateLocalTask(modifiedTask, updateReminders);
-   }
-
-   @Override
-   public void updateSibling(String taskId, String previousTaskId) {
-      tasksDb.updateLocalSibling(taskId, previousTaskId);
    }
 
    @Override
@@ -155,27 +132,12 @@ public class DataModel implements Contract.Model {
 
    @Override
    public void updateLocalTask(Task task, String listId) {
-      tasksDb.updateTask(task, listId);
-   }
-
-   @Override
-   public void markDeleted(String taskId) {
-      tasksDb.markDeleted(taskId);
+      tasksDb.updateExistingTaskFromServerTask(task, listId);
    }
 
    @Override
    public LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId) {
       return tasksDb.updateNewlyCreatedTask(aTask, listId, intId);
-   }
-
-   @Override
-   public void setTemporaryPosition(String taskId, String newTaskTempPos) {
-      tasksDb.setTemporaryPosition(taskId, newTaskTempPos);
-   }
-
-   @Override
-   public void updateMoved(String id, int moved) {
-      tasksDb.updateMoved(moved, id);
    }
 
    @Override
@@ -189,23 +151,13 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void updateSiblingByIntId(int id, int sibling) {
-      tasksDb.updateSibling(id, sibling);
+   public void updateExistingTaskFromLocalTask(LocalTask task, String listId) {
+      tasksDb.updateExistingTaskFromLocalTask(task, listId);
    }
 
    @Override
    public String getTaskIdByIntId(int id) {
       return tasksDb.getTaskIdByIntId(id);
-   }
-
-   @Override
-   public void updateMovedByIntId(int intId, int moved) {
-      tasksDb.updateMovedByIntId(intId, moved);
-   }
-
-   @Override
-   public void setTemporaryPositionByIntId(int intId, String newTaskTempPos) {
-      tasksDb.setTemporaryPositionByIntId(intId, newTaskTempPos);
    }
 
    @Override
@@ -228,11 +180,6 @@ public class DataModel implements Contract.Model {
          CreateList createList = new CreateList(context, mPresenter, credential);
          createList.execute(list);
       }
-   }
-
-   @Override
-   public void addList(TaskList list) {
-      listsDb.addList(list);
    }
 
    @Override
@@ -271,36 +218,9 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public List<LocalList> getLocalLists() {
-      return listsDb.getLocalLists();
-   }
-
-   @Override
-   public LocalTask getTask(int intId) {
-      return tasksDb.getTask(intId);
-   }
-
-   @Override
-   public int getTaskReminderRepeatModeByIntId(int intId) {
-      return tasksDb.getTaskReminderRepeatModeByIntId(intId);
-   }
-
-   @Override
-   public int getTaskReminderRepeatMode(String taskId) {
-      return tasksDb.getTaskReminderRepeatMode(taskId);
-   }
-
-   @Override
-   public long getTaskReminderByIntId(int intId) {
-      return tasksDb.getTaskReminderByIntId(intId);
-   }
-
-   @Override
    public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
       tasksDb.updateNewTasksInBulk(map);
    }
-
-
 
    @Override
    public int addListToDb(String listTitle) {

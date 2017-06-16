@@ -3,6 +3,7 @@ package com.adrapps.mytasks.domain;
 import com.google.api.services.tasks.TasksScopes;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class Co {
@@ -57,13 +58,21 @@ public class Co {
    public static final int REMINDER_ONE_TIME = 0;
    public static final int REMINDER_DAILY = 1;
    public static final int REMINDER_DAILY_WEEKDAYS = 2;
-   public static final int REMINDER_SAME_DAY_OF_WEEK = 3;
-   public static final int REMINDER_SAME_DAY_OF_MONTH = 4;
+   public static final int REMINDER_WEEKLY = 3;
+   public static final int REMINDER_MONTHLY = 4;
+   public static final int MONDAY = Calendar.MONDAY;
+   public static final int TUESDAY = Calendar.TUESDAY;
+   public static final int WEDNESDAY = Calendar.WEDNESDAY;
+   public static final int THURSDAY = Calendar.THURSDAY;
+   public static final int FRIDAY = Calendar.FRIDAY;
+   public static final int SATURDAY = Calendar.SATURDAY;
+   public static final int SUNDAY = Calendar.SUNDAY;
    public static int REMINDER_CUSTOM_REPEAT = 5;
    public static final long ONE_DAY_LATER = 24 * 60 * 60 * 1000;
    public static final int NOT_ID_SUFIX = 1000;
    public static final String STATE_TASK_REMINDER = "State task reminder";
    public static final String STATE_REPEAT_MODE = "State repeat mode";
+
 
 
 

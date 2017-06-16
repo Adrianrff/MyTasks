@@ -1,7 +1,6 @@
 package com.adrapps.mytasks.views;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -60,7 +59,6 @@ import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.interfaces.OnStartDragListener;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.adrapps.mytasks.receivers.AlarmReciever;
 import com.bumptech.glide.Glide;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -271,6 +269,8 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean shouldShow) {
       if (shouldShow) {
+
+
          taskShownInBottomSheet = task;
          taskShownInBottomSheetPos = position;
          swipeRefresh.setEnabled(false);
@@ -294,30 +294,30 @@ public class MainActivity extends AppCompatActivity
                   case Co.REMINDER_DAILY:
                      detailRepeat.setText(
                            getString(
-                                 R.string.daily_repeat_mode) +
-                                 " (" + DateHelper.millisToTimeOnly(
-                                 task.getReminder()) + ")");
+                                 R.string.daily_repeat_mode));
                      break;
 
                   case Co.REMINDER_DAILY_WEEKDAYS:
                      detailRepeat.setText(
-                           getString(R.string.weekdays) + " (" +
-                                 DateHelper.millisToTimeOnly(task.getReminder()) + ")");
+                           getString(R.string.weekdays));
                      break;
 
-                  case Co.REMINDER_SAME_DAY_OF_WEEK:
+                  case Co.REMINDER_WEEKLY:
+                     SparseArray<String> daysMap = new SparseArray<>();
+                     daysMap.put(Co.MONDAY,getString(R.string.mondays));
+                     daysMap.put(Co.TUESDAY,getString(R.string.tuesdays));
+                     daysMap.put(Co.WEDNESDAY,getString(R.string.wednesdays));
+                     daysMap.put(Co.THURSDAY,getString(R.string.thursdays));
+                     daysMap.put(Co.FRIDAY,getString(R.string.fridays));
+                     daysMap.put(Co.SATURDAY,getString(R.string.saturdays));
+                     daysMap.put(Co.SUNDAY,getString(R.string.sundays));
                      detailRepeat.setText(
-                           getString(R.string.every) + " " +
-                                 DateHelper.timeInMillsToDay(task.getReminder())
-                                 + " (" + DateHelper.millisToTimeOnly(
-                                 task.getReminder()) + ")");
+                           getString(R.string.weekly) + " (" + daysMap.get(task.getRepeatDay()) + ")");
                      break;
 
-                  case Co.REMINDER_SAME_DAY_OF_MONTH:
+                  case Co.REMINDER_MONTHLY:
                      detailRepeat.setText(
-                           getString(R.string.on_day) + " " +
-                                 DateHelper.timeInMillsToDayOfMonth(task.getReminder()) +
-                                 " " + getString(R.string.of_every_month));
+                           getString(R.string.monthly));
                      break;
 
                }
@@ -797,7 +797,7 @@ public class MainActivity extends AppCompatActivity
                   } else {
                      AlarmHelper.cancelReminder(task, this);
                   }
-                  mPresenter.updateReminder(task.getIntId(), task.getReminder(), task.getRepeatMode());
+                  mPresenter.updateExistingTaskFromLocalTask(task, getStringShP(Co.CURRENT_LIST_ID));
                }
                adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                if (!resultIntent.hasExtra(Co.NO_API_EDIT)) {
@@ -921,15 +921,6 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void showSwipeRefreshProgress(boolean b) {
       swipeRefresh.setRefreshing(b);
-   }
-
-   @Override
-   public boolean isReminderSet(int reminderId) {
-      Intent intent = new Intent(this, AlarmReciever.class);
-      return (PendingIntent.getBroadcast(this,
-            reminderId,
-            intent,
-            PendingIntent.FLAG_NO_CREATE) != null);
    }
 
    @Override

@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +29,7 @@ import android.widget.Toast;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperAdapter;
 import com.adrapps.mytasks.interfaces.ItemTouchHelperViewHolder;
@@ -54,11 +54,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    private TaskListPresenter mPresenter;
    private int newPos;
    private int oldPos;
-   ActionMode mActionMode;
+   private ActionMode mActionMode;
    private MultiSelector mMultiSelector;
    private ModalMultiSelectorCallback mActionModeCallback;
    private LinkedHashMap<LocalTask, String> moveMap;
-   private LocalTask movedTask;
    private boolean moved;
 
 
@@ -260,7 +259,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(context, R.color.colorLightGray));
       StateListDrawable stateListDrawable = new StateListDrawable();
       stateListDrawable.addState(new int[]{16843518}, colorDrawable);
-      stateListDrawable.addState(StateSet.WILD_CARD, (Drawable) null);
+      stateListDrawable.addState(StateSet.WILD_CARD, null);
       return stateListDrawable;
    }
 
@@ -400,12 +399,19 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             dueDate.setPaintFlags(dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             dueDate.setTextColor(Color.GRAY);
             taskName.setTextColor(Color.GRAY);
+            cTask.setStatus(Co.TASK_COMPLETED);
+            cTask.setReminderNoID(0);
+            mPresenter.updateExistingTaskFromLocalTask(cTask, cTask.getList());
             mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_COMPLETED);
+            AlarmHelper.cancelReminder(cTask,context);
+            notifyItemChanged(getAdapterPosition());
          } else {
             dueDate.setTextColor(oldDueColors);
             dueDate.setPaintFlags(0);
             taskName.setTextColor(oldTaskColors);
             taskName.setPaintFlags(0);
+            cTask.setStatus(Co.TASK_NEEDS_ACTION);
+
             if (cTask.getDue() == 0) {
                dueDate.setText(R.string.no_due_date);
             } else {
@@ -426,7 +432,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                }
             }
             mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_NEEDS_ACTION);
-
          }
       }
 
@@ -443,7 +448,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             moved = true;
             newPos = getAdapterPosition();
             String prevTaskId = null;
-            movedTask = tasks.get(newPos);
+            LocalTask movedTask = tasks.get(newPos);
             if (newPos > 0){
                prevTaskId = tasks.get(newPos - 1).getId();
             }

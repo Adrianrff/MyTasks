@@ -93,6 +93,20 @@
     <string name="cancelar">Cancelar</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
+    <string name="mondays">Mondays</string>
+    <string name="tuesdays">Tuesdays</string>
+    <string name="wednesdays">Wednesdays</string>
+    <string name="thursdays">Thursdays</string>
+    <string name="fridays">Fridays</string>
+    <string name="saturdays">Saturdays</string>
+    <string name="sundays">Sundays</string>
+    <string name="mondayToggle">M</string>
+    <string name="tuesdayToggle">Tu</string>
+    <string name="wednesdayToggle">W</string>
+    <string name="thursdayToggle">Th</string>
+    <string name="fridayToggle">F</string>
+    <string name="saturdayToggle">Sa</string>
+    <string name="sundayToggle">Su</string>
 
 
 </resources>
