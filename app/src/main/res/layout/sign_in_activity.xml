@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="100dp"
-            app:srcCompat="@drawable/ic_assignment_turned_in_black_24dp" />
+            app:srcCompat="@drawable/ic_assignment_big" />
 
         <TextView
             android:layout_width="wrap_content"

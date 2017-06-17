@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalList;
@@ -14,6 +15,8 @@ import com.google.api.services.tasks.model.TaskList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+
+import static android.content.ContentValues.TAG;
 
 public class ListsDatabase extends SQLiteOpenHelper {
 
@@ -107,6 +110,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
+        Log.d(TAG, "getListsTitles: run");
         return listsTitles;
     }
 
@@ -121,6 +125,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
+        Log.d(TAG, "getListsIds: run");
         return listsTitles;
     }
 
@@ -163,6 +168,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
             db.insert(TABLE_NAME,null,cv);
         }
         bm.dataChanged();
+        Log.d(TAG, "updateLists: run");
         db.close();
     }
 
@@ -179,6 +185,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
+        Log.d(TAG, "getListTitleFromId: run");
         return listTitle;
     }
 
@@ -195,6 +202,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
         bm.dataChanged();
+        Log.d(TAG, "updateList: run");
     }
 
     public void updateList(TaskList list) {
@@ -209,6 +217,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
         bm.dataChanged();
+        Log.d(TAG, "updateList: run");
     }
 
     public void editListTitle(String listId, String title) {
@@ -220,6 +229,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
         bm.dataChanged();
+        Log.d(TAG, "editListTitle: run");
     }
 
     public int getIntItByListId (String listId){
@@ -235,6 +245,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
+        Log.d(TAG, "getIntItByListId: run");
         return intId;
     }
 
@@ -251,6 +262,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
+       Log.d(TAG, "getListIdByIntId: run");
         return listId;
     }
 
@@ -294,13 +306,13 @@ public class ListsDatabase extends SQLiteOpenHelper {
     }
 
     public int getListsCount() {
-        List<LocalList> localLists = new ArrayList<>();
         db = this.getReadableDatabase();
         int listCount;
         Cursor cursor = db.query(TABLE_NAME,new String[]{COL_ID},null,null,null,null,null);
         listCount = cursor.getCount();
         cursor.close();
         db.close();
+       Log.d(TAG, "getListsCount: run");
         return listCount;
     }
 }

@@ -1,6 +1,7 @@
 package com.adrapps.mytasks.presenter;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import com.adrapps.mytasks.api_calls.SyncTasks;
@@ -121,8 +122,8 @@ public class TaskListPresenter implements Serializable {
       getView().saveStringShP(key, value);
    }
 
-   public String getStringShP(String key) {
-      return getView().getStringShP(key);
+   public String getStringShP(String key, @Nullable String defaultValue) {
+      return getView().getStringShP(key, null);
    }
 
    public void requestApiPermission(Exception mLastError) {

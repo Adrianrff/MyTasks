@@ -8,9 +8,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
@@ -48,12 +48,12 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       PopupMenu.OnMenuItemClickListener, SingleSelectToggleGroup.OnCheckedChangeListener {
 
    EditText titleTV, notesTv;
-   private LinearLayout reminderDetailsLayout, reminderDateLayout;
+   private LinearLayout reminderDetailsLayout, reminderDateLayout, warningLayout;
    private LocalTask taskToEdit;
    private int position, repeatMode, repeatDay;
    private ImageView clearDate, clearReminder;
    private TextView reminderTv, dueDateTv, nextReminderTV, reminderDateTV, reminderTimeTV, repeatTV;
-   private Calendar taskReminder, dueDate, tempReminder;
+   private Calendar taskReminder, dueDate;
    private Menu repeatMenu;
    private PopupMenu repeatPopupMenu;
    private AlertDialog reminderDateDialog, reminderTimeDialog;
@@ -208,10 +208,10 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       calendarDaysMap.put(Co.FRIDAY, Calendar.FRIDAY);
       calendarDaysMap.put(Co.SATURDAY, Calendar.SATURDAY);
       calendarDaysMap.put(Co.SUNDAY, Calendar.SUNDAY);
-
       nextReminderTV = (TextView) findViewById(R.id.next_reminder_label);
       reminderDetailsLayout = (LinearLayout) findViewById(R.id.notification_layout);
       reminderDateLayout = (LinearLayout) findViewById(R.id.reminder_date_layout);
+      warningLayout = (LinearLayout) findViewById(R.id.warningLayout);
       reminderTv = (TextView) findViewById(R.id.notificationTextView);
       clearDate = (ImageView) findViewById(R.id.clearDate);
       clearReminder = (ImageView) findViewById(R.id.clearReminder);
@@ -269,7 +269,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             //TASK EDITED
             if (getIntent().hasExtra(Co.LOCAL_TASK)) {
                Intent i = new Intent();
-               if (taskReminder == null) {
+               if (!isReminderValid()) {
                   taskToEdit.setReminderNoID(0);
                } else {
                   taskToEdit.setRepeatMode(repeatMode);
@@ -324,6 +324,9 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                }
                if (notesTv.getText().toString().trim().length() != 0)
                   task.setNotes(notesTv.getText().toString());
+               if (!isReminderValid()) {
+                  taskReminder = null;
+               }
                if (taskReminder != null) {
                   task.setReminder(taskReminder.getTimeInMillis());
                   task.setRepeatMode(repeatMode);
@@ -357,7 +360,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                      matches(SAME_DAY + "|" + DAY_BEFORE + "|" + WEEK_BEFORE)) {
                   reminderDateTV.setText(DateHelper.millisToDateOnly(taskReminder.getTimeInMillis()));
                }
-            }
+            } onReminderChange();
             break;
 
          case R.id.clearReminder:
@@ -613,7 +616,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       customTimeLayout.setOnClickListener(this);
       builder.setView(dialogView);
       builder.setTitle("A qué hora...");
-      builder.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_time_18dp));
+      builder.setIcon(AppCompatDrawableManager.get().getDrawable(this, R.drawable.ic_time_18dp));
+      //NOTE: AppCompatDrawableManager.get().getDrawable because action fails in API 19 with AppCompat.getDrawable
       reminderTimeDialog = builder.create();
       if (taskReminder != null) {
          if (isReminderDateToday() && repeatMode == Co.REMINDER_ONE_TIME) {
@@ -659,7 +663,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       customLayout.setOnClickListener(this);
       builder.setView(dialogView);
       builder.setTitle("Cuándo...");
-      builder.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_date));
+      builder.setIcon(AppCompatDrawableManager.get().getDrawable(this, R.drawable.ic_date));
+      //NOTE: We use AppCompatDrawableManager.get().getDrawable because action fails in API 19 with AppCompat.getDrawable
       Calendar weekBeforeDueDate = (Calendar) dueDate.clone();
       weekBeforeDueDate.add(Calendar.DATE, -7);
       Calendar now = Calendar.getInstance();
@@ -692,23 +697,26 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       DatePickerDialog reminderDatePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
          @Override
          public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-            boolean reminderSet = true;
-            if (taskReminder == null) {
-               taskReminder = now();
-               taskReminder.add(Calendar.HOUR_OF_DAY, 1);
-               taskReminder.set(Calendar.MINUTE, 0);
-               taskReminder.set(Calendar.SECOND, 0);
-               reminderSet = false;
+            if (view.isShown()) {
+               boolean reminderSet = true;
+               if (taskReminder == null) {
+                  taskReminder = now();
+                  taskReminder.add(Calendar.HOUR_OF_DAY, 1);
+                  taskReminder.set(Calendar.MINUTE, 0);
+                  taskReminder.set(Calendar.SECOND, 0);
+                  reminderSet = false;
+               }
+               taskReminder.set(Calendar.YEAR, year);
+               taskReminder.set(Calendar.MONTH, month);
+               taskReminder.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+               if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
+                  showReminderTimeDialog();
+               }
+               if (reminderSet) {
+                  onReminderChange();
+               }
             }
-            taskReminder.set(Calendar.YEAR, year);
-            taskReminder.set(Calendar.MONTH, month);
-            taskReminder.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
-               showReminderTimeDialog();
-            }
-            if (reminderSet) {
-               onReminderChange();
-            }
+
          }
       },
             now.get(Calendar.YEAR),
@@ -776,15 +784,18 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       TimePickerDialog timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
          @Override
          public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            taskReminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            taskReminder.set(Calendar.MINUTE, minute);
-            taskReminder.set(Calendar.SECOND, 0);
-            taskReminder.set(Calendar.MILLISECOND, 0);
-            if (repeatMode == Co.REMINDER_ONE_TIME) {
-               onReminderChange();
-            } else {
-               setRelativeReminder();
+            if (view.isShown()) {
+               taskReminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
+               taskReminder.set(Calendar.MINUTE, minute);
+               taskReminder.set(Calendar.SECOND, 0);
+               taskReminder.set(Calendar.MILLISECOND, 0);
+               if (repeatMode == Co.REMINDER_ONE_TIME) {
+                  onReminderChange();
+               } else {
+                  setRelativeReminder();
+               }
             }
+
          }
       }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false);
       timePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -811,7 +822,6 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    }
 
    public void onReminderChange() {
-      Log.d("ReminderChange", "run");
       Calendar now = now();
       if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
          reminderDetailsLayout.setVisibility(View.VISIBLE);
@@ -833,13 +843,12 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       setRepeatMenuItems();
       nextReminderTV.setText(DateHelper.millisToFull(taskReminder.getTimeInMillis()));
       repeatTV.setText(repeatMenu.getItem(repeatMode).getTitle());
-      if (taskReminder == null || taskReminder.before(now)) {
-         if (taskReminder != null && taskReminder.before(now)) {
-            showToast(getString(R.string.past_reminder_no_effect));
-         }
+      if (!isReminderValid()) {
+         warningLayout.setVisibility(View.VISIBLE);
+      } else {
+         warningLayout.setVisibility(View.GONE);
       }
-
-   }
+}
 
    private void setReminderTimeTv() {
       if (taskReminder != null) {
@@ -1258,5 +1267,15 @@ public class NewTaskOrEditActivity extends AppCompatActivity
          taskReminder.add(Calendar.DATE, 7);
       }
       onReminderChange();
+   }
+
+   public boolean isReminderValid(){
+      boolean isReminderPastDueDate = false;
+      if (dueDate != null && taskReminder != null){
+         Calendar dayAfterDueDate = (Calendar) dueDate.clone();
+         dayAfterDueDate.add(Calendar.DATE, 1);
+         isReminderPastDueDate = dayAfterDueDate.before(taskReminder);
+      }
+      return (taskReminder != null && !taskReminder.before(now()) && !isReminderPastDueDate);
    }
 }

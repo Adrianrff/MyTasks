@@ -314,7 +314,8 @@ public class DataModel implements Contract.Model {
       }
       mPresenter.updateLocalTask(task, true);
       if (mPresenter.isDeviceOnline()) {
-         EditTask edit = new EditTask(context, mPresenter, mPresenter.getCredential(), mPresenter.getStringShP(Co.CURRENT_LIST_ID));
+         EditTask edit = new EditTask(context, mPresenter, mPresenter.getCredential(),
+               mPresenter.getStringShP(Co.CURRENT_LIST_ID, null));
          edit.execute(task);
       }
    }

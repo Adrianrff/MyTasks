@@ -101,13 +101,14 @@
     <string name="fridays">Viernes</string>
     <string name="saturdays">Sábados</string>
     <string name="sundays">Domingos</string>
-    <string name="mondayToggle">L</string>
-    <string name="tuesdayToggle">Ma</string>
-    <string name="wednesdayToggle">Mi</string>
-    <string name="thursdayToggle">J</string>
-    <string name="fridayToggle">V</string>
-    <string name="saturdayToggle">S</string>
-    <string name="sundayToggle">D</string>
+    <string name="mondayToggle">Lun</string>
+    <string name="tuesdayToggle">Mar</string>
+    <string name="wednesdayToggle">Mie</string>
+    <string name="thursdayToggle">Jue</string>
+    <string name="fridayToggle">Vie</string>
+    <string name="saturdayToggle">Sab</string>
+    <string name="sundayToggle">Dom</string>
+    <string name="past_reminder_warning">Los recordatarios establecidos en fechas pasadas o posteriores a la fecha de vencimiento no serán registrados</string>
 
 
 </resources>

@@ -2,6 +2,7 @@ package com.adrapps.mytasks.interfaces;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import com.adrapps.mytasks.domain.LocalList;
@@ -80,7 +81,7 @@ public class Contract {
 
         boolean getBooleanShP(String key);
 
-        String getStringShP(String key);
+        String getStringShP(String key, @Nullable String defaultValue);
 
         Context getContext();
 

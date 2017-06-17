@@ -115,13 +115,13 @@ public class BatchTest extends AsyncTask<Void, Void, Void> {
             BatchRequest request = mService.batch();
             Task task1 = new Task();
             task1.setTitle("test 1");
-            mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID), task1).queue(request, callback);
+            mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID, null), task1).queue(request, callback);
             Task task2 = new Task();
             task2.setTitle("test 2");
-            mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID), task2).queue(request, callback);
+            mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID, null), task2).queue(request, callback);
             Task task3 = new Task();
             task3.setTitle("test 3");
-            mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID), task3).queue(request, callback);
+            mService.tasks().insert(mPresenter.getStringShP(Co.CURRENT_LIST_ID, null), task3).queue(request, callback);
             request.execute();
 
         } else {

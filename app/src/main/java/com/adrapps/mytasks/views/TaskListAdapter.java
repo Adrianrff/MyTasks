@@ -160,7 +160,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    }
 
    private List<LocalTask> getSortedTasks(List<LocalTask> tasks) {
-      String jsonListOfSortedTaskIds = mPresenter.getStringShP(Co.TASK_ID_ORDERED_LIST);
+      String jsonListOfSortedTaskIds = mPresenter.getStringShP(Co.TASK_ID_ORDERED_LIST, null);
       List<LocalTask> tasksCopy = new ArrayList<>(tasks);
       List<LocalTask> sortedTasks = new ArrayList<>();
       if (!jsonListOfSortedTaskIds.isEmpty() && !jsonListOfSortedTaskIds.equals(Co.NO_VALUE)) {

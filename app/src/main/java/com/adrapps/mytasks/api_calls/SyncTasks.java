@@ -79,10 +79,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                task.setDue(currentLocalTask.getDue() == 0 ? null :
                      DateHelper.millisecondsToDateTime(currentLocalTask.getDue()));
                if (currentLocalTask.getStatus().equals(Co.TASK_COMPLETED)) {
-//                        task.setCompleted(DateHelper.millisecondsToDateTime(currentLocalTask.getLocalModify()));
                   task.setStatus(Co.TASK_COMPLETED);
                } else {
-//                        task.setStatus(Co.TASK_NEEDS_ACTION);
+                  task.setStatus(Co.TASK_NEEDS_ACTION);
                   task.setCompleted(null);
                }
                mService.tasks().update(currentLocalTask.getList(),

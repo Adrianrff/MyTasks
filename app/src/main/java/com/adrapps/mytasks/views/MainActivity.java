@@ -1,6 +1,8 @@
 package com.adrapps.mytasks.views;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -64,12 +66,10 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
       implements NavigationView.OnNavigationItemSelectedListener,
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity
          refreshFirstTime();
          return;
       }
-      initRecyclerView(mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID)));
+      initRecyclerView(mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID, null)));
       setListsData();
       if (getIntent().hasExtra(Co.LOCAL_TASK)) {
          LocalTask task = (LocalTask) getIntent().getSerializableExtra(Co.LOCAL_TASK);
@@ -181,9 +181,9 @@ public class MainActivity extends AppCompatActivity
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
       toggle.setToolbarNavigationClickListener(this);
       toggle.syncState();
-      Glide.with(this).load(getStringShP(Co.USER_PIC_URL)).into(profilePic);
-      userName.setText(getStringShP(Co.USER_NAME));
-      userEmail.setText(getStringShP(Co.USER_EMAIL));
+      Glide.with(this).load(getStringShP(Co.USER_PIC_URL, null)).into(profilePic);
+      userName.setText(getStringShP(Co.USER_NAME, null));
+      userEmail.setText(getStringShP(Co.USER_EMAIL, null));
       navigationView.setNavigationItemSelectedListener(this);
       editIcon.setOnClickListener(this);
       progressBar.getIndeterminateDrawable()
@@ -375,10 +375,10 @@ public class MainActivity extends AppCompatActivity
    public void updateCurrentView() {
       Co.setListIds(mPresenter.getListsIds());
       Co.setListTitles(mPresenter.getListsTitles());
-      boolean listStillExists = Co.listIds.contains(getStringShP(Co.CURRENT_LIST_ID));
+      boolean listStillExists = Co.listIds.contains(getStringShP(Co.CURRENT_LIST_ID, null));
       if (listStillExists) {
          String currentListTitle = mPresenter.getListTitleById(
-               getStringShP(Co.CURRENT_LIST_ID));
+               getStringShP(Co.CURRENT_LIST_ID, null));
          saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
          setToolbarTitle(currentListTitle);
       } else {
@@ -394,7 +394,7 @@ public class MainActivity extends AppCompatActivity
          toolbar.setTitle(currentListTitle);
       }
       setNavDrawerMenu(Co.listTitles);
-      List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID));
+      List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID, null));
       showEmptyRecyclerView(tasks == null || tasks.isEmpty());
       adapter.updateItems(tasks);
 
@@ -491,7 +491,7 @@ public class MainActivity extends AppCompatActivity
          }
       }
       try {
-         listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE))).setChecked(true);
+         listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE, null))).setChecked(true);
       } catch (Exception e) {
          showToast("error");
          saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(0));
@@ -555,7 +555,7 @@ public class MainActivity extends AppCompatActivity
       mCredential = GoogleAccountCredential.usingOAuth2(
             getApplicationContext(), Arrays.asList(Co.SCOPES))
             .setBackOff(new ExponentialBackOff());
-      accountName = getStringShP(Co.USER_EMAIL);
+      accountName = getStringShP(Co.USER_EMAIL, null);
       if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
          mCredential.setSelectedAccountName(accountName);
       }
@@ -675,14 +675,14 @@ public class MainActivity extends AppCompatActivity
          @Override
          public void onClick(DialogInterface dialog, int which) {
             if (!taskTitle.getText().toString().trim().isEmpty()) {
-               mPresenter.editList(getStringShP(Co.CURRENT_LIST_ID), taskTitle.getText().toString());
+               mPresenter.editList(getStringShP(Co.CURRENT_LIST_ID, null), taskTitle.getText().toString());
                dialog.dismiss();
             } else {
                showToast(getString(R.string.list_title_empty_toast));
             }
          }
       });
-      taskTitle.setText(getStringShP(Co.CURRENT_LIST_TITLE));
+      taskTitle.setText(getStringShP(Co.CURRENT_LIST_TITLE, null));
       AlertDialog dialog = db.create();
       if (dialog.getWindow() != null) {
          dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
@@ -717,7 +717,7 @@ public class MainActivity extends AppCompatActivity
       db.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          @Override
          public void onClick(DialogInterface dialog, int which) {
-            mPresenter.deleteList(getStringShP(Co.CURRENT_LIST_ID));
+            mPresenter.deleteList(getStringShP(Co.CURRENT_LIST_ID, null));
          }
       });
 
@@ -752,7 +752,7 @@ public class MainActivity extends AppCompatActivity
          fab.show();
          fab.setOnClickListener(MainActivity.this);
       }
-      toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE));
+      toolbar.setTitle(getStringShP(Co.CURRENT_LIST_TITLE, null));
    }
 
    @Override
@@ -797,7 +797,7 @@ public class MainActivity extends AppCompatActivity
                   } else {
                      AlarmHelper.cancelReminder(task, this);
                   }
-                  mPresenter.updateExistingTaskFromLocalTask(task, getStringShP(Co.CURRENT_LIST_ID));
+                  mPresenter.updateExistingTaskFromLocalTask(task, getStringShP(Co.CURRENT_LIST_ID, null));
                }
                adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                if (!resultIntent.hasExtra(Co.NO_API_EDIT)) {
@@ -808,7 +808,7 @@ public class MainActivity extends AppCompatActivity
             } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                if (task != null) {
-                  task.setList(getStringShP(Co.CURRENT_LIST_ID));
+                  task.setList(getStringShP(Co.CURRENT_LIST_ID, null));
                   if (task.getReminder() != 0) {
                      AlarmHelper.setOrUpdateAlarm(task, this);
                   }
@@ -827,16 +827,16 @@ public class MainActivity extends AppCompatActivity
       switch (item.getItemId()) {
 
          case R.id.action_settings:
-            Calendar calendar = Calendar.getInstance();
-            Calendar calToday = Calendar.getInstance();
-            calendar.add(Calendar.DATE, 1);
-            String format;
-            if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)) {
-               format = "d MMM, h:mm a";
-            } else {
-               format = "d MMM yyyy, h:mm a";
-            }
-            SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+            FragmentManager mFragmentManager = getFragmentManager();
+            FragmentTransaction mFragmentTransaction = mFragmentManager
+                  .beginTransaction();
+            Preferences mPrefsFragment = new Preferences();
+            mFragmentTransaction.replace(android.R.id.list_container, mPrefsFragment);
+            mFragmentTransaction.commit();
+            break;
+
+         case R.id.test_pref:
+            showToast(getStringShP("edit_text_preference_1", null));
             break;
 
          case R.id.refresh:
@@ -867,7 +867,7 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public String getStringShP(String key) {
+   public String getStringShP(String key, @Nullable String defaultValue) {
       SharedPreferences prefs = PreferenceManager
             .getDefaultSharedPreferences(getApplicationContext());
 
@@ -884,7 +884,7 @@ public class MainActivity extends AppCompatActivity
          }
       }
 
-      return prefs.getString(key, Co.NO_VALUE);
+      return prefs.getString(key, defaultValue == null ? Co.NO_VALUE : defaultValue);
    }
 
    @Override
