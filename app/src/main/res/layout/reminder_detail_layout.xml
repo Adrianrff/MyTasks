@@ -25,9 +25,9 @@
         android:id="@+id/reminder_date_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal">
 
         <ImageView
@@ -56,9 +56,9 @@
         android:id="@+id/reminder_time_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal">
 
         <ImageView
@@ -87,9 +87,9 @@
         android:id="@+id/repeatLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/full_margin"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="@dimen/full_margin"
         android:orientation="horizontal">
 
         <ImageView
@@ -118,78 +118,105 @@
         android:id="@+id/weekdays_group"
         android:layout_width="wrap_content"
         android:layout_height="34dp"
-        app:tbgFlow="false"
         android:layout_marginTop="@dimen/half_margin"
-        android:visibility="visible"
-        app:tbgChildSpacing="auto">
+        android:visibility="gone"
+        app:tbgChildSpacing="auto"
+        app:tbgFlow="false">
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/mon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
+            android:text="@string/mondayToggle"
             android:textSize="12sp"
-            app:tbgMarkerColor="@color/colorPrimary"
-            android:text="@string/mondayToggle"/>
+            app:tbgMarkerColor="@color/colorPrimary"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/tue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="@string/tuesdayToggle"
             android:textSize="12sp"
-            android:text="@string/tuesdayToggle"/>
+            app:tbgMarkerColor="@color/colorPrimary"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/wed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="@string/wednesdayToggle"
             android:textSize="12sp"
-            android:text="@string/wednesdayToggle"/>
+            app:tbgMarkerColor="@color/colorPrimary"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/thu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="@string/thursdayToggle"
             android:textSize="12sp"
-            android:text="@string/thursdayToggle"/>
+            app:tbgMarkerColor="@color/colorPrimary"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/fri"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clipChildren="true"
-            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="@string/fridayToggle"
             android:textSize="12sp"
-            android:text="@string/fridayToggle"/>
+            app:tbgMarkerColor="@color/colorPrimary"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/sat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="@string/saturdayToggle"
             android:textSize="12sp"
-            android:text="@string/saturdayToggle"/>
+            app:tbgMarkerColor="@color/colorPrimary"/>
 
         <com.nex3z.togglebuttongroup.button.CircularToggle
             android:id="@+id/sun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tbgMarkerColor="@color/colorPrimary"
+            android:text="@string/sundayToggle"
             android:textSize="12sp"
-            android:text="@string/sundayToggle"/>
+            app:tbgMarkerColor="@color/colorPrimary"/>
 
     </com.nex3z.togglebuttongroup.SingleSelectToggleGroup>
+
+    <LinearLayout
+        android:id="@+id/month_repeat_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Día del mes"
+            />
+
+        <Spinner
+            android:id="@+id/monthDaySpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:entries="@array/days_of_month">
+
+        </Spinner>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/next_reminder_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal">
 
         <TextView
@@ -207,15 +234,17 @@
 
     </LinearLayout>
 
+
+
     <LinearLayout
         android:id="@+id/warningLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
-        android:visibility="gone"
-        android:orientation="horizontal">
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="wrap_content"

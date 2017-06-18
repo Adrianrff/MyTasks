@@ -6,8 +6,6 @@ import android.app.backup.BackupDataOutput;
 import android.app.backup.FileBackupHelper;
 import android.os.ParcelFileDescriptor;
 
-import com.adrapps.mytasks.views.MainActivity;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -31,17 +29,17 @@ public class Backup extends BackupAgentHelper {
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data, ParcelFileDescriptor newState) throws IOException {
         // Hold the lock while the FileBackupHelper performs backup
-        synchronized (MainActivity.sDataLock) {
+//        synchronized (MainActivity.sDataLock) {
             super.onBackup(oldState, data, newState);
-        }
+//        }
     }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState) throws IOException {
         // Hold the lock while the FileBackupHelper restores the file
-        synchronized (MainActivity.sDataLock) {
+//        synchronized (MainActivity.sDataLock) {
             super.onRestore(data, appVersionCode, newState);
-        }
+//        }
 
     }
 

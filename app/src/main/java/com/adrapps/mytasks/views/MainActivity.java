@@ -1,8 +1,6 @@
 package com.adrapps.mytasks.views;
 
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.SettingsActivity;
 import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
@@ -60,11 +59,13 @@ import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.interfaces.OnStartDragListener;
+import com.adrapps.mytasks.other.MyApplication;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bumptech.glide.Glide;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +99,6 @@ public class MainActivity extends AppCompatActivity
    private BottomSheetBehavior mBottomSheetBehavior;
    private Intent newOrEditTaskIntent;
    private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback;
-   public static final Object sDataLock = new Object();
    private ItemTouchHelper touchHelper;
    private LocalTask taskShownInBottomSheet;
    private int taskShownInBottomSheetPos;
@@ -143,6 +143,12 @@ public class MainActivity extends AppCompatActivity
       }
    }
 
+   @Override
+   protected void onDestroy() {
+      super.onDestroy();
+      RefWatcher refWatcher = MyApplication.getRefWatcher(this);
+      refWatcher.watch(this);
+   }
 
    //-------------------------VIEWS AND DATA------------------------///
 
@@ -167,6 +173,7 @@ public class MainActivity extends AppCompatActivity
       recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
       emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
       notificationDetailLayout = (LinearLayout) findViewById(R.id.notification_layout_detail);
+
       detailRepeat = (TextView) findViewById(R.id.detail_repeat);
       progressBar = (ProgressBar) findViewById(R.id.progressBar);
       swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
@@ -269,8 +276,6 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean shouldShow) {
       if (shouldShow) {
-
-
          taskShownInBottomSheet = task;
          taskShownInBottomSheetPos = position;
          swipeRefresh.setEnabled(false);
@@ -827,12 +832,16 @@ public class MainActivity extends AppCompatActivity
       switch (item.getItemId()) {
 
          case R.id.action_settings:
-            FragmentManager mFragmentManager = getFragmentManager();
-            FragmentTransaction mFragmentTransaction = mFragmentManager
-                  .beginTransaction();
-            Preferences mPrefsFragment = new Preferences();
-            mFragmentTransaction.replace(android.R.id.list_container, mPrefsFragment);
-            mFragmentTransaction.commit();
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+
+//            container.removeView(findViewById(R.id.task_list_view));
+//            FragmentManager mFragmentManager = getFragmentManager();
+//            FragmentTransaction mFragmentTransaction = mFragmentManager
+//                  .beginTransaction();
+//            Preferences mPrefsFragment = new Preferences();
+//            mFragmentTransaction.replace(R.id.container, mPrefsFragment);
+//            mFragmentTransaction.commit();
             break;
 
          case R.id.test_pref:

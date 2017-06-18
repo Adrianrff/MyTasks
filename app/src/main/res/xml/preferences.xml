@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:title="Account">
 
-    <PreferenceScreen
+    <ListPreference
         android:defaultValue="true"
-        android:key="notifications_new_message"
-        android:title="adrianrff@gmail.com"
-        android:summary="Account connected"/>
+        android:key="account_pref"
+        android:title="fgdfgdfg"
+        android:summary="Account connected"
+        android:dialogMessage="Connected with "
+        android:positiveButtonText="Disconnect"
+
+        android:negativeButtonText="Disconnect">
+
+
+    </ListPreference>
+
 
     </PreferenceCategory>
 

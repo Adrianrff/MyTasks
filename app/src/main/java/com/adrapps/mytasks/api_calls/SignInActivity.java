@@ -127,22 +127,7 @@ public class SignInActivity extends AppCompatActivity
                             Toast.LENGTH_SHORT).show();
                 }
                 break;
-//            case Co.REQUEST_ACCOUNT_PICKER:
-//                if (resultCode == RESULT_OK && data != null &&
-//                        data.getExtras() != null) {
-//                    String accountName =
-//                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-//                    if (accountName != null) {
-//                        SharedPreferences prefs =
-//                                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//                        SharedPreferences.Editor editor = prefs.edit();
-//                        editor.putString(Co.USER_EMAIL, accountName);
-//                        editor.apply();
-//                        mCredential.setSelectedAccountName(accountName);
-//                        signIn();
-//                    }
-//                }
-//                break;
+
             case Co.REQUEST_AUTHORIZATION:
                 if (resultCode == RESULT_OK) {
                     SharedPreferences prefs =

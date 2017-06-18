@@ -22,22 +22,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.adrapps.mytasks.R;
+import com.adrapps.mytasks.SettingsActivity;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.nex3z.togglebuttongroup.SingleSelectToggleGroup;
 import com.nex3z.togglebuttongroup.button.CircularToggle;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import static com.adrapps.mytasks.R.string.afternoon;
 import static com.adrapps.mytasks.R.string.evening;
@@ -45,10 +51,10 @@ import static com.adrapps.mytasks.R.string.morning;
 
 public class NewTaskOrEditActivity extends AppCompatActivity
       implements View.OnClickListener, DatePickerDialog.OnDateSetListener,
-      PopupMenu.OnMenuItemClickListener, SingleSelectToggleGroup.OnCheckedChangeListener {
+      PopupMenu.OnMenuItemClickListener, SingleSelectToggleGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 
    EditText titleTV, notesTv;
-   private LinearLayout reminderDetailsLayout, reminderDateLayout, warningLayout;
+   private LinearLayout reminderDetailsLayout, reminderDateLayout, warningLayout, monthRepeatLayout;
    private LocalTask taskToEdit;
    private int position, repeatMode, repeatDay;
    private ImageView clearDate, clearReminder;
@@ -64,6 +70,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    private CircularToggle mon, tue, wed, thu, fri, sat, sun;
    private SparseIntArray calendarDaysMap;
    private SparseArray<CircularToggle> daysToggleMap;
+   Spinner monthDaySpinner;
+   private List<String> daysOfMonth;
 
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -133,6 +141,10 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                   } else {
                      weekdaysGroup.setVisibility(View.GONE);
                      onReminderChange();
+                  }
+                  if (repeatMode == Co.REMINDER_MONTHLY){
+                     monthRepeatLayout.setVisibility(View.VISIBLE);
+                     monthDaySpinner.setSelection(taskReminder.get(Calendar.DAY_OF_MONTH)-1);
                   }
                } else {
                   reminderDateLayout.setVisibility(View.VISIBLE);
@@ -208,13 +220,25 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       calendarDaysMap.put(Co.FRIDAY, Calendar.FRIDAY);
       calendarDaysMap.put(Co.SATURDAY, Calendar.SATURDAY);
       calendarDaysMap.put(Co.SUNDAY, Calendar.SUNDAY);
+      daysOfMonth = new ArrayList<>();
+      for (int i = 1; i <= 31; i++) {
+         daysOfMonth.add(String.valueOf(i));
+      }
+
       nextReminderTV = (TextView) findViewById(R.id.next_reminder_label);
       reminderDetailsLayout = (LinearLayout) findViewById(R.id.notification_layout);
+      monthRepeatLayout = (LinearLayout) findViewById(R.id.month_repeat_layout);
       reminderDateLayout = (LinearLayout) findViewById(R.id.reminder_date_layout);
       warningLayout = (LinearLayout) findViewById(R.id.warningLayout);
       reminderTv = (TextView) findViewById(R.id.notificationTextView);
       clearDate = (ImageView) findViewById(R.id.clearDate);
       clearReminder = (ImageView) findViewById(R.id.clearReminder);
+      monthDaySpinner = (Spinner) findViewById(R.id.monthDaySpinner);
+      monthDaySpinner.setOnItemSelectedListener(this);
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+            R.array.days_of_month, android.R.layout.simple_spinner_item);
+      adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      monthDaySpinner.setAdapter(adapter);
       repeatTV = (TextView) findViewById(R.id.repeat_tv);
       reminderDateTV = (TextView) findViewById(R.id.reminder_date_tv);
       reminderTimeTV = (TextView) findViewById(R.id.reminder_time_tv);
@@ -260,8 +284,8 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       switch (item.getItemId()) {
 
          case R.id.settings:
-            showToast(String.valueOf(repeatDay));
-
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
             break;
 
          case R.id.save_task:
@@ -360,7 +384,11 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                      matches(SAME_DAY + "|" + DAY_BEFORE + "|" + WEEK_BEFORE)) {
                   reminderDateTV.setText(DateHelper.millisToDateOnly(taskReminder.getTimeInMillis()));
                }
-            } onReminderChange();
+            }
+            if (repeatMode == Co.REMINDER_MONTHLY){
+               monthDaySpinner.setSelection(now().get(Calendar.DAY_OF_MONTH)-1);
+            }
+            onReminderChange();
             break;
 
          case R.id.clearReminder:
@@ -841,6 +869,15 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       setReminderTimeTv();
       setReminderTextView();
       setRepeatMenuItems();
+      //TODO Make this work
+      if (repeatMode == Co.REMINDER_MONTHLY){
+         int max = taskReminder.getActualMaximum(Calendar.DAY_OF_MONTH);
+         int reminderDayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
+         if (max == reminderDayOfMonth){
+            nextReminderTV.setText(R.string.last_day_of_month + " " + getString(R.string.at) +
+                  DateHelper.millisToTimeOnly(taskReminder.getTimeInMillis()));
+         }
+      }
       nextReminderTV.setText(DateHelper.millisToFull(taskReminder.getTimeInMillis()));
       repeatTV.setText(repeatMenu.getItem(repeatMode).getTitle());
       if (!isReminderValid()) {
@@ -1083,16 +1120,19 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                showReminderDatePicker();
             }
             onReminderChange();
+            monthRepeatLayout.setVisibility(View.GONE);
             break;
 
          case R.id.daily:
             repeatMode = Co.REMINDER_DAILY;
             setRelativeReminder();
+            monthRepeatLayout.setVisibility(View.GONE);
             break;
 
          case R.id.weekdays:
             repeatMode = Co.REMINDER_DAILY_WEEKDAYS;
             setRelativeReminder();
+            monthRepeatLayout.setVisibility(View.GONE);
             break;
 
          case R.id.weekly:
@@ -1105,11 +1145,20 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                   toggle.setChecked(true);
                }
             }
+            monthRepeatLayout.setVisibility(View.GONE);
             break;
 
          case R.id.monthly:
             repeatMode = Co.REMINDER_MONTHLY;
             setRelativeReminder();
+            monthRepeatLayout.setVisibility(View.VISIBLE);
+            int dayOfMonth;
+            if (dueDate != null){
+               dayOfMonth = dueDate.get(Calendar.DAY_OF_MONTH);
+            } else {
+               dayOfMonth = now().get(Calendar.DAY_OF_MONTH);
+            }
+            monthDaySpinner.setSelection(dayOfMonth-1);
             break;
 
       }
@@ -1204,13 +1253,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             break;
 
          case Co.REMINDER_WEEKLY:
-//            weekdaysGroup.setVisibility(View.VISIBLE);
-//            CircularToggle toggle = daysToggleMap.get(repeatDay);
-//            if (weekdaysGroup.getCheckedId() == toggle.getId()){
             setWeeklyReminder();
-//            } else {
-//               toggle.setChecked(true);
-//            }
             break;
 
          case Co.REMINDER_MONTHLY:
@@ -1278,4 +1321,34 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       }
       return (taskReminder != null && !taskReminder.before(now()) && !isReminderPastDueDate);
    }
+
+   @Override
+   public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+      Calendar now = now();
+      int monthMax;
+      int selectedDayOfMonth = Integer.parseInt(monthDaySpinner.getSelectedItem().toString());
+      taskReminder.set(Calendar.YEAR, now.get(Calendar.YEAR));
+      taskReminder.set(Calendar.MONTH, now.get(Calendar.MONTH));
+      if (taskReminder != null){
+         monthMax = taskReminder.getActualMaximum(Calendar.DAY_OF_MONTH);
+         if (monthMax != 0 && monthMax < selectedDayOfMonth){
+            taskReminder.set(Calendar.DAY_OF_MONTH, monthMax);
+            monthDaySpinner.setSelection(monthMax-1);
+         } else {
+            taskReminder.set(Calendar.DAY_OF_MONTH,selectedDayOfMonth);
+         }
+      }
+      if (taskReminder.before(now)){
+         taskReminder.add(Calendar.MONTH, 1);
+      }
+
+      onReminderChange();
+   }
+
+   @Override
+   public void onNothingSelected(AdapterView<?> parent) {
+
+   }
+
+
 }

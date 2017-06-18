@@ -3,10 +3,13 @@ package com.adrapps.mytasks.other;
 import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.adrapps.mytasks.R;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -15,10 +18,24 @@ import java.io.StringWriter;
 public class MyApplication extends Application {
 
 
+
+   public static RefWatcher getRefWatcher(Context context) {
+      MyApplication application = (MyApplication) context.getApplicationContext();
+      return application.refWatcher;
+   }
+
+   private RefWatcher refWatcher;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        setupDebugNotification();
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return;
+        }
+       refWatcher = LeakCanary.install(this);
+       setupDebugNotification();
     }
 
 
@@ -53,4 +70,6 @@ public class MyApplication extends Application {
         printWriter.flush();
         return writer.toString();
     }
+
+
 }

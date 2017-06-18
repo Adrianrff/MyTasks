@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout
+    android:id="@+id/task_list_view"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:animateLayoutChanges="true"
