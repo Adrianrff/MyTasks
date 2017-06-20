@@ -284,12 +284,15 @@ public class MainActivity extends AppCompatActivity
             detailDate.setText(task.getDue() == 0 ? getString(R.string.no_due_date) : DateHelper.millisToDateOnly(task.getDue()));
             detailNotes.setText(task.getNotes());
             if (task.getReminder() != 0) {
+               String nextRem;
+               nextRem = DateHelper.millisToFull(task.getReminder());
+               Calendar taskReminder = Calendar.getInstance();
+               taskReminder.setTimeInMillis(task.getReminder());
                detailNotification.setText(
                      task.getReminder() == 0 ? null :
                            task.getRepeatMode() == 0 ? DateHelper.millisToFull(task.getReminder()) :
                                  DateHelper.millisToTimeOnly(task.getReminder()));
                notificationDetailLayout.setVisibility(View.VISIBLE);
-               nextReminderTV.setText(DateHelper.millisToFull(task.getReminder()));
 
                switch (task.getRepeatMode()) {
 
@@ -322,10 +325,19 @@ public class MainActivity extends AppCompatActivity
 
                   case Co.REMINDER_MONTHLY:
                      detailRepeat.setText(
-                           getString(R.string.monthly));
+                           getString(R.string.monthly) + " (" + taskReminder.get(Calendar.DAY_OF_MONTH) + ")");
+                     int max = taskReminder.getActualMaximum(Calendar.DAY_OF_MONTH);
+                     int reminderDayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
+                     if (max == reminderDayOfMonth){
+                        nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis()) + " (" +
+                              getString(R.string.last_day_of_month) + ")";
+                     } else {
+                        nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis());
+                     }
                      break;
 
                }
+               nextReminderTV.setText(nextRem);
             } else {
                detailNotification.setText(null);
                notificationDetailLayout.setVisibility(View.GONE);

@@ -77,7 +77,7 @@
     <string name="every">Cada</string>
     <string name="of_every_month">de cada mes</string>
     <string name="on_day">Los</string>
-    <string name="last_day_of_month">El último</string>
+    <string name="last_day_of_month">El último de cada mes</string>
     <string name="next_reminder">Próximo recordatorio: </string>
     <string name="custom_date">Otro…</string>
     <string name="date">Date</string>
