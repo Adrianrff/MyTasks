@@ -115,6 +115,7 @@ public class AlarmReciever extends BroadcastReceiver {
             .setContentTitle(context.getString(R.string.task_reminder_notification_title))
             .setContentText(title +
                   " - " + context.getString(R.string.touch_for_details))
+
             .setDefaults(Notification.DEFAULT_VIBRATE)
             .setLights(ContextCompat.getColor(context, R.color.colorPrimary), 700, 4000);
       if (task.getNotes() != null) {
