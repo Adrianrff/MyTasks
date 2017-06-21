@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-import static android.content.ContentValues.TAG;
-
 public class ListsDatabase extends SQLiteOpenHelper {
 
     private static ListsDatabase listsDb;
@@ -110,7 +108,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
-        Log.d(TAG, "getListsTitles: run");
         return listsTitles;
     }
 
@@ -125,7 +122,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
-        Log.d(TAG, "getListsIds: run");
         return listsTitles;
     }
 
@@ -168,7 +164,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
             db.insert(TABLE_NAME,null,cv);
         }
         bm.dataChanged();
-        Log.d(TAG, "updateLists: run");
         db.close();
     }
 
@@ -185,7 +180,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
-        Log.d(TAG, "getListTitleFromId: run");
         return listTitle;
     }
 
@@ -202,7 +196,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
         bm.dataChanged();
-        Log.d(TAG, "updateList: run");
     }
 
     public void updateList(TaskList list) {
@@ -217,7 +210,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
         bm.dataChanged();
-        Log.d(TAG, "updateList: run");
     }
 
     public void editListTitle(String listId, String title) {
@@ -229,7 +221,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         db.update(TABLE_NAME,cv,selection, selectionArgs);
         db.close();
         bm.dataChanged();
-        Log.d(TAG, "editListTitle: run");
     }
 
     public int getIntItByListId (String listId){
@@ -245,7 +236,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
-        Log.d(TAG, "getIntItByListId: run");
         return intId;
     }
 
@@ -262,7 +252,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         }
         cursor.close();
         db.close();
-       Log.d(TAG, "getListIdByIntId: run");
         return listId;
     }
 
@@ -312,7 +301,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
         listCount = cursor.getCount();
         cursor.close();
         db.close();
-       Log.d(TAG, "getListsCount: run");
         return listCount;
     }
 }

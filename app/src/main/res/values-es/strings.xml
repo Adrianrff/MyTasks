@@ -5,7 +5,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Configuración</string>
+    <string name="action_settings">Ajustes</string>
     <string name="refresh">Actualizar</string>
     <string name="no_due_date"><![CDATA[<Sin fecha>]]></string>
     <string name="request_api_authorization">Solicitando autorización</string>
@@ -111,6 +111,19 @@
     <string name="past_reminder_warning">Los recordatarios establecidos en fechas pasadas o posteriores a la fecha de vencimiento no serán registrados</string>
     <string name="pref_ringtone_silent">ring tone silent</string>
     <string name="at">a las</string>
+    <string name="connected_account_pref_title">Cuenta conectada</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="day_of_month_label">Día del mes</string>
+    <string name="reminder_set_past_due_date">La fecha del recordatorio es posterior a la fecha de vencimiento de la tarea</string>
+    <string name="reminder_in_the_past">Los recordatorios fijados en fechas en el pasado no serán registrados</string>
+    <string name="morning_reminder_pref_title">Hora de recordatorios en la mañana</string>
+    <string name="afternoon_reminder_pref_title">Hora de recordatorios en la tarde</string>
+    <string name="evening_reminder_pref_title">Hora de recordatorios en la noche</string>
+    <string name="save_task_on_back_pressed_pref_title">Guardar cambios al presionar "atrás"</string>
+    <string name="dont_save_task_on_back_pressed_summary">Al editar o crear una tarea, se descartarán los cambios realizados al presionar el botón "atrás"</string>
+    <string name="save_task_on_back_pressed_summary">Al editar o crear una tarea, se guardarán los cambios realizados al presionar el botón atrás</string>
+    <string name="reminders">Recordatorios</string>
+    <string name="tone">Tono</string>
 
     <string-array name="days_of_month">
         <item>1</item>

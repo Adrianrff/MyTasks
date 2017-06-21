@@ -1,4 +1,4 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.preferences;
 
 
 import android.annotation.TargetApi;
@@ -17,11 +17,15 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
+
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -39,11 +43,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     * A preference value change listener that updates the preference's summary
     * to reflect its new value.
     */
+   private static final String TAG = "SettingsActivity";
    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
       @Override
       public boolean onPreferenceChange(Preference preference, Object value) {
          String stringValue = value.toString();
-
+         String key = preference.getKey();
          if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
             // the preference's 'entries' list.
@@ -75,15 +80,36 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                   // name.
                   String name = ringtone.getTitle(preference.getContext());
                   preference.setSummary(name);
+                  Log.d(TAG, "onPreferenceChange: " + stringValue);
                }
             }
 
+         } else if (preference instanceof NumberPickerPreference) {
+            int hour = (int) value;
+            if (hour >= 12) {
+               if (hour != 12) {
+                  hour = hour - 12;
+               }
+               preference.setSummary(String.valueOf(hour) + " p.m");
+
+            } else {
+               if (hour == 0) {
+                  preference.setSummary(String.valueOf(12) + " a.m");
+               } else {
+                  preference.setSummary(String.valueOf(hour) + " a.m");
+               }
+            }
+
+         } else if (preference instanceof SwitchPreference){
+            if ((boolean) value){
+               preference.setSummary(preference.getContext().getString(R.string.save_task_on_back_pressed_summary));
+            } else {
+               preference.setSummary(preference.getContext().getString(R.string.dont_save_task_on_back_pressed_summary));
+            }
+
          } else {
-            // For all other preferences, set the summary to the value's
-            // simple string representation.
             preference.setSummary(stringValue);
          }
-
 
          return true;
       }
@@ -113,10 +139,23 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
       // Trigger the listener immediately with the preference's
       // current value.
-      sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-            PreferenceManager
-                  .getDefaultSharedPreferences(preference.getContext())
-                  .getString(preference.getKey(), ""));
+      if (preference instanceof SwitchPreference) {
+         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+               PreferenceManager
+                     .getDefaultSharedPreferences(preference.getContext())
+                     .getBoolean(preference.getKey(), false));
+      } else if (preference instanceof NumberPickerPreference) {
+         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+               PreferenceManager
+                     .getDefaultSharedPreferences(preference.getContext())
+                     .getInt(preference.getKey(), 0));
+
+      } else {
+         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+               PreferenceManager
+                     .getDefaultSharedPreferences(preference.getContext())
+                     .getString(preference.getKey(), ""));
+      }
    }
 
    @Override
@@ -135,6 +174,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
       if (actionBar != null) {
          // Show the Up button in the action bar.
          actionBar.setDisplayHomeAsUpEnabled(true);
+         actionBar.setTitle(getString(R.string.settings_title));
       }
    }
 
@@ -180,6 +220,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     */
    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
    public static class Preferences extends PreferenceFragment {
+
       private String accountName;
 
       @Override
@@ -187,19 +228,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          super.onCreate(savedInstanceState);
          addPreferencesFromResource(R.xml.preferences);
          setHasOptionsMenu(true);
-         ListPreference accountPref = (ListPreference) findPreference("account_pref");
-         accountPref.setTitle(accountName);
-         accountPref.setEntries(new String[]{accountName, "fsjslsd", "sdfsdfsd"});
-         accountPref.setEntryValues(new String[]{accountName, "fsjslsd", "sdfsdfsd"});
-         accountPref.setDialogMessage("Connected with " + accountName);
-         accountPref.setDialogTitle("Account");
-
-// Bind the summaries of EditText/List/Dialog/Ringtone preferences
-         // to their values. When their values change, their summaries are
-         // updated to reflect the new value, per the Android Design
-         // guidelines.
-//         bindPreferenceSummaryToValue(findPreference("example_text"));
-//         bindPreferenceSummaryToValue(findPreference("example_list"));
+         Preference accountPref = findPreference("account_pref");
+         accountPref.setSummary(accountName);
+//         SwitchPreference saveOnBackPref = (SwitchPreference) findPreference(Co.SAVE_ON_BACK_PRESSED);
+//         if (saveOnBackPref.isChecked()){
+//            saveOnBackPref.setSummary(getString(R.string.dont_save_task_on_back_pressed_summary));
+//         } else {
+//            saveOnBackPref.setSummary(getString(R.string.save_task_on_back_pressed_summary));
+//         }
+         bindPreferenceSummaryToValue(findPreference(Co.MORNING_ALARM_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.AFTERNOON_ALARM_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.EVENING_ALARM_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.SAVE_ON_BACK_PRESSED));
+         bindPreferenceSummaryToValue(findPreference(Co.REMINDER_RINGTONE));
       }
 
       @Override

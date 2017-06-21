@@ -3,32 +3,63 @@
                   xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:title="Account">
+        android:title="Accounts">
 
-    <ListPreference
-        android:defaultValue="true"
-        android:key="account_pref"
-        android:title="fgdfgdfg"
-        android:summary="Account connected"
-        android:dialogMessage="Connected with "
-        android:positiveButtonText="Disconnect"
-
-        android:negativeButtonText="Disconnect">
-
-
-    </ListPreference>
-
+        <Preference
+            android:enabled="true"
+            android:defaultValue="true"
+            android:key="account_pref"
+            android:selectable="false"
+            android:summary="Account name"
+            android:title="@string/connected_account_pref_title"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Reminders">
+        android:title="General">
 
         <SwitchPreference
-            android:defaultValue="true"
-            android:key="remind_tasks_due_soon"
-            android:title="Remind me of tasks due soon"
-            android:summary="Account connected"/>
+            android:enabled="true"
+            android:defaultValue="false"
+            android:key="save on back pressed"
+            android:title="@string/save_task_on_back_pressed_pref_title"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/reminders">
+
+        <RingtonePreference
+            android:title="@string/tone"
+            android:key="Reminder ringtone"
+            android:ringtoneType="notification"
+            android:showDefault="true"
+            android:showSilent="true"
+            android:summary="Arial"/>
+
+        <com.adrapps.mytasks.preferences.NumberPickerPreference
+            android:key="morning_reminder_pref"
+            android:summary="Account connected"
+            android:defaultValue="0"
+            android:title="@string/morning_reminder_pref_title"/>
+
+
+        <com.adrapps.mytasks.preferences.NumberPickerPreference
+            android:key="afternoon_reminder_pref"
+            android:summary="Account connected"
+            android:defaultValue="0"
+            android:title="@string/afternoon_reminder_pref_title"/>
+
+        <com.adrapps.mytasks.preferences.NumberPickerPreference
+            android:key="evening_reminder_pref"
+            android:summary="Account connected"
+            android:defaultValue="0"
+            android:title="@string/evening_reminder_pref_title"/>
+
+        <EditTextPreference
+            android:key="aaa"
+            android:summary="asdasdas"
+            android:title="asdfasdfaSD"/>
 
     </PreferenceCategory>
 

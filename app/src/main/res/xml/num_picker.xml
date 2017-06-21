@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.adrapps.mytasks.preferences.NumberPickerPreference
+        android:key="key_number"
+        android:title="Give me a number"
+        android:defaultValue="55" />
+
+</PreferenceScreen>

@@ -20,6 +20,7 @@ public class Co {
    public static final String TASK_STATUS = "Task status";
    public static final String BUNDLED_EXTRA = "Bundled extra";
    public static final String NO_API_EDIT = "No api edit";
+   public static final String SAVE_ON_BACK_PRESSED = "save on back pressed";
 
    public static String OP_UPDATE_STATUS;
 
@@ -50,11 +51,13 @@ public class Co {
 
 
    //Reminder
-   public static final int MORNING_ALARM_HOUR = 8;
-   public static final int AFTERNOON_ALARM_HOUR = 14;
-   public static final int EVENING_ALARM_HOUR = 19;
-
-
+   public static final int MORNING_DEFAULT_REMINDER_TIME = 8;
+   public static final int AFTERNOON_DEFAULT_REMINDER_TIME = 14;
+   public static final int EVENING_DEFAULT_REMINDER_TIME = 19;
+   public static final String MORNING_ALARM_KEY = "morning_reminder_pref";
+   public static final String AFTERNOON_ALARM_KEY = "afternoon_reminder_pref";
+   public static final String EVENING_ALARM_KEY = "evening_reminder_pref";
+   public static final String REMINDER_RINGTONE = "Reminder ringtone";
    public static final int REMINDER_ONE_TIME = 0;
    public static final int REMINDER_DAILY = 1;
    public static final int REMINDER_DAILY_WEEKDAYS = 2;

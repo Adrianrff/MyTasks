@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              android:padding="@dimen/full_margin">
+
+    <NumberPicker
+        android:id="@+id/numberPicker"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/full_margin"
+        android:layout_marginEnd="@dimen/full_margin"
+        android:layout_marginRight="@dimen/full_margin"
+        android:layout_weight="2.5"/>
+
+    <RadioGroup
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_weight="1">
+
+        <RadioButton
+            android:id="@+id/amRB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="a.m."/>
+
+        <RadioButton
+            android:id="@+id/pmRB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/half_margin"
+            android:text="p.m."/>
+    </RadioGroup>
+
+</LinearLayout>

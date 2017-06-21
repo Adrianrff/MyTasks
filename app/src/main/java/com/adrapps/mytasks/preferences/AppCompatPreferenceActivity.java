@@ -1,4 +1,4 @@
-package com.adrapps.mytasks;
+package com.adrapps.mytasks.preferences;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

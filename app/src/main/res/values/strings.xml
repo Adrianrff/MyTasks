@@ -111,6 +111,18 @@
     <string name="title_activity_settings">Settings</string>
     <string name="pref_ringtone_silent">ring tone silent</string>
     <string name="at">at</string>
+    <string name="connected_account_pref_title">Connected account</string>
+    <string name="settings_title">Settings</string>
+    <string name="day_of_month_label">Day of month</string>
+    <string name="reminder_set_past_due_date">The reminder is set past the due date</string>
+    <string name="morning_reminder_pref_title">Hour of morning reminders</string>
+    <string name="afternoon_reminder_pref_title">Hour of afternoon reminders</string>
+    <string name="evening_reminder_pref_title">Hour of evening reminders</string>
+    <string name="save_task_on_back_pressed_pref_title">Save changes on back pressed</string>
+    <string name="dont_save_task_on_back_pressed_summary">When editing or creating a task, changes made will be dismissed when pressing the back button</string>
+    <string name="save_task_on_back_pressed_summary">When editing or creating a task, changes made will be saved when pressing the back button</string>
+    <string name="reminders">Reminders</string>
+    <string name="tone">Tone</string>
 
     <string-array name="days_of_month">
         <item>1</item>

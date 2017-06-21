@@ -6,10 +6,14 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -28,6 +32,7 @@ public class AlarmReciever extends BroadcastReceiver {
    Context context;
    String title = "";
    String notes = "";
+   private final String TAG = "Alarm reciever";
 
    @Override
    public void onReceive(Context context, Intent intent) {
@@ -105,20 +110,29 @@ public class AlarmReciever extends BroadcastReceiver {
             stackBuilder.getPendingIntent(Co.NOT_ID_SUFIX + task.getIntId(), PendingIntent.FLAG_UPDATE_CURRENT);
       PendingIntent markCompletedPendingIntent = PendingIntent.getBroadcast(context,
             (int) task.getReminderId(), markCompletedIntent, PendingIntent.FLAG_ONE_SHOT);
-            NotificationCompat.Builder notifyBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
+      NotificationCompat.Builder notifyBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
             .setSmallIcon(R.drawable.ic_assignment_late_black_24dp)
             .setContentTitle(context.getString(R.string.task_reminder_notification_title))
             .setContentText(title +
                   " - " + context.getString(R.string.touch_for_details))
-            .setDefaults(Notification.DEFAULT_ALL);
+            .setDefaults(Notification.DEFAULT_VIBRATE)
+            .setLights(ContextCompat.getColor(context, R.color.colorPrimary), 700, 4000);
       if (task.getNotes() != null) {
          notifyBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText((title + "\n" + notes)));
       }
+      SharedPreferences ringtonePref = PreferenceManager.getDefaultSharedPreferences(context);
+      String ringtoneUri = ringtonePref.getString(Co.REMINDER_RINGTONE, "default sound");
+      if (ringtoneUri.equals("default sound")) {
+         notifyBuilder.setDefaults(Notification.DEFAULT_SOUND);
+      } else {
+         notifyBuilder.setSound(Uri.parse(ringtoneUri));
+      }
+      Log.d(TAG, "ringtoneValue: " + ringtoneUri);
       notifyBuilder.addAction(R.mipmap.ic_completed, "Completada", markCompletedPendingIntent)
             .setContentIntent(resultPendingIntent)
             .setAutoCancel(true)
             .setColor(ContextCompat.getColor(context, R.color.colorPrimary));
-                  ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).
+      ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).
             notify(Co.NOT_ID_SUFIX + task.getIntId(), notifyBuilder.build());
    }
 

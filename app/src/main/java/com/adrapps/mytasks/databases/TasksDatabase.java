@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
-import static android.content.ContentValues.TAG;
-
 public class TasksDatabase extends SQLiteOpenHelper {
+
+   private final String TAG = "TaskDatabase";
 
    //---------DATABASE AND TABLE NAMES----------//
    private static final String DATABASE_NAME = "TasksDatabase";
@@ -191,7 +191,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       } catch (Exception e) {
          e.printStackTrace();
          db.close();
-         Log.d(TAG, "getLocalTasks: error");
       }
       db.close();
       return tasks;
@@ -234,7 +233,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       }
       cursor.close();
       db.close();
-      Log.d(TAG, "getTasksFromList: run");
       return tasks;
    }
 
@@ -280,12 +278,10 @@ public class TasksDatabase extends SQLiteOpenHelper {
       } catch (Exception e) {
          e.printStackTrace();
          db.endTransaction();
-         Log.d(TAG, "getTasksFromListForAdapter: error");
       } finally {
          db.endTransaction();
          cursor.close();
          db.close();
-         Log.d(TAG, "getTasksFromListForAdapter: run");
       }
       db.close();
       return tasks;
@@ -318,7 +314,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       long insertedRow = db.insert(TABLE_NAME, null, cv);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "addTaskToDataBase: run");
       return insertedRow;
    }
 
@@ -344,7 +339,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       long insertedRow = db.insert(TABLE_NAME, null, cv);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "addTaskFirstTimeFromServer: run");
       return insertedRow;
    }
 
@@ -388,7 +382,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
          cv.put(COL_MOVED, currentTask.getMoved());
          db.insert(TABLE_NAME, null, cv);
       }
-      Log.d(TAG, "updateTasksFirstTime: run");
       db.close();
    }
 
@@ -411,7 +404,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "updateTaskStatus: run");
       return updatedRow;
    }
 
@@ -425,7 +417,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "markDeleted: run");
       return updatedRow;
    }
 
@@ -443,7 +434,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "updateSyncStatus: run");
       return updatedRow;
    }
 
@@ -482,7 +472,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       } else {
          cursor.close();
          db.close();
-         Log.d(TAG, "getTaskByTaskId: run");
          return null;
       }
    }
@@ -513,7 +502,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "updateTaskReminder: run");
       return updatedRow;
    }
 
@@ -548,7 +536,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "updateLocalTask: run");
       return updatedRow;
    }
 
@@ -574,7 +561,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "updateExistingTaskFromServerTask: run");
    }
 
    public void updateExistingTaskFromLocalTask(LocalTask task, String listId) {
@@ -604,7 +590,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "updateExistingTaskFromLocalTask: run");
    }
 
    public LocalTask updateNewlyCreatedTask(Task task, String listId, String intId) {
@@ -629,7 +614,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
       db.close();
       bm.dataChanged();
-      Log.d(TAG, "updateNewlyCreatedTask: run");
       return getTaskByTaskId(task.getId());
    }
 
@@ -660,7 +644,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
          cursor.close();
       }
       db.close();
-      Log.d(TAG, "getTaskIdByIntId: run");
       return taskId;
    }
 
@@ -679,7 +662,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
          cursor.close();
       }
       db.close();
-      Log.d(TAG, "getIntIdByTaskId: run");
       return intId;
    }
 
@@ -714,12 +696,10 @@ public class TasksDatabase extends SQLiteOpenHelper {
          task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
          db.close();
          cursor.close();
-         Log.d(TAG, "getTask: run");
          return task;
       } else {
          cursor.close();
          db.close();
-         Log.d(TAG, "getTask: run1");
          return null;
       }
    }
@@ -754,11 +734,9 @@ public class TasksDatabase extends SQLiteOpenHelper {
          db.setTransactionSuccessful();
       } catch (Exception e) {
          e.printStackTrace();
-         Log.d(TAG, "updateNewTasksInBulk: error");
       } finally {
          db.endTransaction();
          db.close();
-         Log.d(TAG, "updateNewTasksInBulk: run");
          bm.dataChanged();
       }
    }
@@ -780,12 +758,10 @@ public class TasksDatabase extends SQLiteOpenHelper {
          db.setTransactionSuccessful();
       } catch (Exception e) {
          e.printStackTrace();
-         Log.d(TAG, "updatePositions: error");
       } finally {
          db.endTransaction();
          bm.dataChanged();
          db.close();
-         Log.d(TAG, "updatePositions: run");
       }
    }
 }

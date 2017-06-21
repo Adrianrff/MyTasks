@@ -196,7 +196,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Día del mes"
+            android:text="@string/day_of_month_label"
             />
 
         <Spinner
@@ -234,8 +234,6 @@
 
     </LinearLayout>
 
-
-
     <LinearLayout
         android:id="@+id/warningLayout"
         android:layout_width="wrap_content"
@@ -253,12 +251,12 @@
             app:srcCompat="@drawable/ic_warning_yellow_24dp"/>
 
         <TextView
-            android:id="@+id/reminder_in_past"
+            android:id="@+id/warningTv"
+            android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/half_margin"
             android:layout_marginStart="@dimen/half_margin"
-            android:text="@string/past_reminder_warning"
             />
 
     </LinearLayout>

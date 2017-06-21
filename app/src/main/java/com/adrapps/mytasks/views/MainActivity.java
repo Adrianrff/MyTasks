@@ -50,18 +50,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adrapps.mytasks.R;
-import com.adrapps.mytasks.SettingsActivity;
 import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.DateHelper;
+import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.interfaces.OnStartDragListener;
 import com.adrapps.mytasks.other.MyApplication;
+import com.adrapps.mytasks.preferences.SettingsActivity;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
@@ -121,6 +123,9 @@ public class MainActivity extends AppCompatActivity
       this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
       if (getBooleanShP(Co.IS_FIRST_INIT)) {
          refreshFirstTime();
+         saveIntShP(Co.MORNING_ALARM_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
+         saveIntShP(Co.AFTERNOON_ALARM_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
+         saveIntShP(Co.EVENING_ALARM_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
          return;
       }
       initRecyclerView(mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID, null)));
@@ -142,6 +147,8 @@ public class MainActivity extends AppCompatActivity
             }
       }
    }
+
+
 
    @Override
    protected void onDestroy() {
@@ -846,18 +853,11 @@ public class MainActivity extends AppCompatActivity
          case R.id.action_settings:
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsIntent);
-
-//            container.removeView(findViewById(R.id.task_list_view));
-//            FragmentManager mFragmentManager = getFragmentManager();
-//            FragmentTransaction mFragmentTransaction = mFragmentManager
-//                  .beginTransaction();
-//            Preferences mPrefsFragment = new Preferences();
-//            mFragmentTransaction.replace(R.id.container, mPrefsFragment);
-//            mFragmentTransaction.commit();
             break;
 
          case R.id.test_pref:
-            showToast(getStringShP("edit_text_preference_1", null));
+            GoogleApiClient client = GoogleApiHelper.getClient(getApplicationContext());
+            showToast(client.isConnected() ? "Connected" : "Disconnected");
             break;
 
          case R.id.refresh:
@@ -933,6 +933,15 @@ public class MainActivity extends AppCompatActivity
       editor.apply();
 
    }
+
+   private void saveIntShP(String key, int value) {
+      SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(getApplicationContext());
+      SharedPreferences.Editor editor = prefs.edit();
+      editor.putInt(key, value);
+      editor.apply();
+   }
+
 
    @Override
    public void onRefresh() {

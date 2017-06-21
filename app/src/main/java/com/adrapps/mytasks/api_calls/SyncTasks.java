@@ -53,7 +53,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
    public SyncTasks(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
       this.context = context;
       this.mPresenter = presenter;
-
       HttpTransport transport = AndroidHttp.newCompatibleTransport();
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       mService = new Tasks.Builder(
@@ -67,7 +66,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
       this.getServerTaskForUpdateCallback = new JsonBatchCallback<Task>() {
          @Override
          public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
-
          }
 
          @Override
@@ -157,9 +155,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast("Google Play Services is not available");
          } else if (mLastError instanceof UserRecoverableAuthIOException) {
-//                mPresenter.showToast("The API has no authorization");
             mPresenter.requestApiPermission(mLastError);
-
          } else {
             mPresenter.showToast("The following error occurred:\n"
                   + mLastError.getMessage());
@@ -167,7 +163,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          }
       } else {
          mPresenter.showToast("Request cancelled.");
-
       }
    }
 
@@ -181,9 +176,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          //Get server lists
          List<TaskList> lists = mService.tasklists().list()
                .execute().getItems();
-
-//            localListsNotInServer = CompareLists.localListsNotInServer(mPresenter.getLocalLists(), lists);
-//            serverListNotInDb = CompareLists.serverListsNotInDB(mPresenter.getLocalLists(), lists);
 
          //Populate listIds field
          //Update lists database
