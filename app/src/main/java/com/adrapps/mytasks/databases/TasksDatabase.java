@@ -6,7 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
@@ -553,7 +552,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_NOTES, task.getNotes());
       cv.put(COL_STATUS, task.getStatus());
       cv.put(COL_DUE, task.getDue() != null ? task.getDue().getValue() - offSet : 0);
-      cv.put(COL_COMPLETED, task.getCompleted() != null ? task.getCompleted().getValue() : 0);
+      cv.put(COL_COMPLETED, task.getCompleted() != null ? task.getCompleted().getValue() : null);
       cv.put(COL_DELETED, task.getDeleted() == null ? 0 : 1);
       cv.put(COL_HIDDEN, task.getHidden() == null ? 0 : 1);
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
@@ -752,7 +751,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
             cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
             cv.put(COL_POSITION, task.getPosition());
             cv.put(COL_MOVED, Co.NOT_MOVED);
-            cv.put(COL_STATUS, Co.SYNCED);
+            cv.put(COL_SYNC_STATUS, Co.SYNCED);
             int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
          }
          db.setTransactionSuccessful();

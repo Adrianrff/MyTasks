@@ -22,12 +22,26 @@
             android:enabled="true"
             android:defaultValue="false"
             android:key="save on back pressed"
+            android:summaryOff="@string/dont_save_task_on_back_pressed_summary"
+            android:summaryOn="@string/save_task_on_back_pressed_summary"
             android:title="@string/save_task_on_back_pressed_pref_title"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/reminders">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:summary="@string/default_reminder_pref_summary"
+            android:key="default_reminder_pref_key"
+            android:title="@string/default_reminder_pref_title"/>
+
+        <com.adrapps.mytasks.preferences.NumberPickerPreference
+            android:key="default_reminder_time_pref_key"
+            android:defaultValue="8"
+            android:dependency="default_reminder_pref_key"
+            android:title="@string/default_reminder_time_pref_title"/>
 
         <RingtonePreference
             android:title="@string/tone"
@@ -36,6 +50,14 @@
             android:showDefault="true"
             android:showSilent="true"
             android:summary="Arial"/>
+
+        <SwitchPreference
+            android:enabled="true"
+            android:defaultValue="true"
+            android:key="reminder vibrate"
+            android:title="@string/vibrate"/>
+
+
 
         <com.adrapps.mytasks.preferences.NumberPickerPreference
             android:key="morning_reminder_pref"
@@ -55,11 +77,6 @@
             android:summary="Account connected"
             android:defaultValue="0"
             android:title="@string/evening_reminder_pref_title"/>
-
-        <EditTextPreference
-            android:key="aaa"
-            android:summary="asdasdas"
-            android:title="asdfasdfaSD"/>
 
     </PreferenceCategory>
 

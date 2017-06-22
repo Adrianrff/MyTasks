@@ -309,9 +309,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             for (int k = 0; k < localTasks.size(); k++) {
                LocalTask currentLocalTask = localTasks.get(k);
                Task sameServerTask = serverTasksMap.get(currentLocalTask.getId());
-               if (sameServerTask != null && sameServerTask.getUpdated() !=null) {
-                  long sameServerTaskUpdated = sameServerTask.getUpdated().getValue();
-               }
                String taskId = currentLocalTask.getId();
                boolean taskChanged = false;
                if (currentLocalTask.getLocalModify() > sameServerTask.getUpdated().getValue()) {
@@ -338,7 +335,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                      localTasksMap.put(taskId, currentLocalTask);
                   }
                } else {
-                  if (currentLocalTask.getServerModify() < sameServerTask.getUpdated().getValue()) {
+                  if (currentLocalTask.getLocalModify() < sameServerTask.getUpdated().getValue()) {
                      mPresenter.updateLocalTask(sameServerTask, currentListId);
                   }
                }

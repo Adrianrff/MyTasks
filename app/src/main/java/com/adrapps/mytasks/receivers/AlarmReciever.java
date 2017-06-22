@@ -45,9 +45,9 @@ public class AlarmReciever extends BroadcastReceiver {
       if (task != null) {
          title = task.getTitle();
          notes = task.getNotes() == null ? "" : task.getNotes();
-         Calendar now = Calendar.getInstance();
          Calendar c = Calendar.getInstance();
          c.setTimeInMillis(task.getReminder());
+
          switch (task.getRepeatMode()) {
             case Co.REMINDER_ONE_TIME:
                task.setReminderNoID(0);
@@ -116,13 +116,16 @@ public class AlarmReciever extends BroadcastReceiver {
             .setContentText(title +
                   " - " + context.getString(R.string.touch_for_details))
 
-            .setDefaults(Notification.DEFAULT_VIBRATE)
             .setLights(ContextCompat.getColor(context, R.color.colorPrimary), 700, 4000);
+      if (getBooleanSharedPreference(Co.VIBRATE_REMINDER_PREF_KEY, false)){
+         notifyBuilder.setDefaults(Notification.DEFAULT_VIBRATE);
+      } else {
+         notifyBuilder.setVibrate(null);
+      }
       if (task.getNotes() != null) {
          notifyBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText((title + "\n" + notes)));
       }
-      SharedPreferences ringtonePref = PreferenceManager.getDefaultSharedPreferences(context);
-      String ringtoneUri = ringtonePref.getString(Co.REMINDER_RINGTONE, "default sound");
+      String ringtoneUri = getStringSharedPreference(Co.REMINDER_RINGTONE_PREF_KEY, "default sound");
       if (ringtoneUri.equals("default sound")) {
          notifyBuilder.setDefaults(Notification.DEFAULT_SOUND);
       } else {
@@ -137,4 +140,13 @@ public class AlarmReciever extends BroadcastReceiver {
             notify(Co.NOT_ID_SUFIX + task.getIntId(), notifyBuilder.build());
    }
 
+   private String getStringSharedPreference(String key, String defaultValue){
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+      return pref.getString(key, defaultValue);
+   }
+
+   private boolean getBooleanSharedPreference(String key, boolean defaultValue){
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+      return pref.getBoolean(key, false);
+   }
 }

@@ -235,7 +235,7 @@ public class DataModel implements Contract.Model {
       for (int i = 0; i < tasks.size(); i++){
          LocalTask currentTask = tasks.get(i);
          String currentTaskId = currentTask.getId();
-         AlarmHelper.cancelReminder(tasks.get(i), context);
+         AlarmHelper.cancelTaskReminder(tasks.get(i), context);
          if (currentTaskId == null || currentTaskId.trim().isEmpty()){
             tasks.remove(i);
             deleteTaskFromDatabase(currentTask.getIntId());

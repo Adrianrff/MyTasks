@@ -403,7 +403,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             cTask.setReminderNoID(0);
             mPresenter.updateExistingTaskFromLocalTask(cTask, cTask.getList());
             mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_COMPLETED);
-            AlarmHelper.cancelReminder(cTask,context);
+            AlarmHelper.cancelTaskReminder(cTask,context);
             notifyItemChanged(getAdapterPosition());
          } else {
             dueDate.setTextColor(oldDueColors);

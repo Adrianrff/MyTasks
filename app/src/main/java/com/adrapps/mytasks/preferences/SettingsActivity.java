@@ -25,6 +25,7 @@ import android.view.MenuItem;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
+import com.adrapps.mytasks.helpers.AlarmHelper;
 
 
 /**
@@ -39,10 +40,7 @@ import com.adrapps.mytasks.domain.Co;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
-   /**
-    * A preference value change listener that updates the preference's summary
-    * to reflect its new value.
-    */
+
    private static final String TAG = "SettingsActivity";
    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
       @Override
@@ -99,16 +97,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                   preference.setSummary(String.valueOf(hour) + " a.m");
                }
             }
-
-         } else if (preference instanceof SwitchPreference){
-            if ((boolean) value){
-               preference.setSummary(preference.getContext().getString(R.string.save_task_on_back_pressed_summary));
-            } else {
-               preference.setSummary(preference.getContext().getString(R.string.dont_save_task_on_back_pressed_summary));
+            if (preference.getKey().equals(Co.DEFAULT_REMINDER_TIME_PREF_KEY)){
+               AlarmHelper.setDefaultRemindersForAllTasks(preference.getContext());
             }
 
-         } else {
-            preference.setSummary(stringValue);
+
+         }  else {
+            if (preference.getKey().equals(Co.DEFAULT_REMINDER_PREF_KEY)){
+               if ((boolean) value) {
+                  AlarmHelper.setDefaultRemindersForAllTasks(preference.getContext());
+               } else {
+                  AlarmHelper.cancelDefaultRemindersForAllTasks(preference.getContext());
+               }
+            } else {
+               preference.setSummary(stringValue);
+            }
          }
 
          return true;
@@ -140,10 +143,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
       // Trigger the listener immediately with the preference's
       // current value.
       if (preference instanceof SwitchPreference) {
-         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-               PreferenceManager
-                     .getDefaultSharedPreferences(preference.getContext())
-                     .getBoolean(preference.getKey(), false));
+         if (!preference.getKey().equals(Co.DEFAULT_REMINDER_PREF_KEY)) {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                  PreferenceManager
+                        .getDefaultSharedPreferences(preference.getContext())
+                        .getBoolean(preference.getKey(), false));
+         }
       } else if (preference instanceof NumberPickerPreference) {
          sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                PreferenceManager
@@ -222,6 +227,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
    public static class Preferences extends PreferenceFragment {
 
       private String accountName;
+      Context mContext;
 
       @Override
       public void onCreate(Bundle savedInstanceState) {
@@ -230,17 +236,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          setHasOptionsMenu(true);
          Preference accountPref = findPreference("account_pref");
          accountPref.setSummary(accountName);
-//         SwitchPreference saveOnBackPref = (SwitchPreference) findPreference(Co.SAVE_ON_BACK_PRESSED);
-//         if (saveOnBackPref.isChecked()){
-//            saveOnBackPref.setSummary(getString(R.string.dont_save_task_on_back_pressed_summary));
-//         } else {
-//            saveOnBackPref.setSummary(getString(R.string.save_task_on_back_pressed_summary));
-//         }
-         bindPreferenceSummaryToValue(findPreference(Co.MORNING_ALARM_KEY));
-         bindPreferenceSummaryToValue(findPreference(Co.AFTERNOON_ALARM_KEY));
-         bindPreferenceSummaryToValue(findPreference(Co.EVENING_ALARM_KEY));
-         bindPreferenceSummaryToValue(findPreference(Co.SAVE_ON_BACK_PRESSED));
-         bindPreferenceSummaryToValue(findPreference(Co.REMINDER_RINGTONE));
+         //TODO set default sound summary on first launch
+         bindPreferenceSummaryToValue(findPreference(Co.MORNING_REMINDER_PREF_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.AFTERNOON_REMINDER_PREF_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.EVENING_REMINDER_PREF_KEY));
+//         bindPreferenceSummaryToValue(findPreference(Co.SAVE_ON_BACK_PRESSED_PREF_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.REMINDER_RINGTONE_PREF_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.DEFAULT_REMINDER_TIME_PREF_KEY));
+         bindPreferenceSummaryToValue(findPreference(Co.DEFAULT_REMINDER_PREF_KEY));
       }
 
       @Override
@@ -248,6 +251,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          super.onAttach(context);
          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
          accountName = prefs.getString(Co.USER_EMAIL, Co.NO_ACCOUNT_NAME);
+         this.mContext = context;
       }
 
       @Override
@@ -259,7 +263,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          }
          return super.onOptionsItemSelected(item);
       }
+
+      private String getStringSharedPreference(String key, String defaultValue){
+         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+         return pref.getString(key, defaultValue);
+      }
+
+      private boolean getBooleanSharedPreference(String key, boolean defaultValue){
+         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+         return pref.getBoolean(key, false);
+      }
    }
+
+
 
 //   /**
 //    * This fragment shows notification preferences only. It is used when the

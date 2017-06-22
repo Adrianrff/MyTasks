@@ -123,9 +123,9 @@ public class MainActivity extends AppCompatActivity
       this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
       if (getBooleanShP(Co.IS_FIRST_INIT)) {
          refreshFirstTime();
-         saveIntShP(Co.MORNING_ALARM_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
-         saveIntShP(Co.AFTERNOON_ALARM_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
-         saveIntShP(Co.EVENING_ALARM_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
+         saveIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
+         saveIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
+         saveIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
          return;
       }
       initRecyclerView(mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID, null)));
@@ -546,21 +546,6 @@ public class MainActivity extends AppCompatActivity
             if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT ||
                   event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
                   event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE) {
-//               List<String> taskIds = new ArrayList<>();
-//               String currentId = null;
-//               for (int i = 0; i < tasks.size(); i++) {
-//                  LocalTask currentTask = tasks.get(i);
-//                  taskIds.add(currentTask.getId());
-//                  currentId = currentTask.getId();
-//                  int currentIntId = currentTask.getIntId();
-//                  if (currentId == null || currentId.trim().isEmpty()) {
-//                     currentId = mPresenter.getTaskIdByIntId(currentIntId);
-//                  }
-//                  if (currentId == null || currentId.trim().isEmpty()) {
-//                     mPresenter.deleteTaskFromDatabase(currentIntId);
-//                     AlarmHelper.cancelReminder(currentTask, MainActivity.this);
-//                  }
-//               }
                List<LocalTask> tasks = new ArrayList<>();
                for (int i = 0; i < map.size(); i++){
                   tasks.add((LocalTask) map.valueAt(i));
@@ -819,7 +804,7 @@ public class MainActivity extends AppCompatActivity
                      reminderCalendarObject.setTimeInMillis(reminderInMillis);
                      AlarmHelper.setOrUpdateAlarm(task, this);
                   } else {
-                     AlarmHelper.cancelReminder(task, this);
+                     AlarmHelper.cancelTaskReminder(task, this);
                   }
                   mPresenter.updateExistingTaskFromLocalTask(task, getStringShP(Co.CURRENT_LIST_ID, null));
                }

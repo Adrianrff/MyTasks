@@ -194,7 +194,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
 
    @Override
    public void onBackPressed() {
-      if (getBooleanShp(Co.SAVE_ON_BACK_PRESSED, false)){
+      if (getBooleanShp(Co.SAVE_ON_BACK_PRESSED_PREF_KEY, false)){
          saveTask();
       } else {
          super.onBackPressed();
@@ -272,20 +272,6 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    private void setRepeatMenuItems() {
       if (taskReminder != null) {
          repeatMenu = repeatPopupMenu.getMenu();
-//         String sameDayWeek;
-//         String sameDayMonth;
-//         sameDayWeek = getString(R.string.every) + " " +
-//               DateHelper.timeInMillsToDay(taskReminder.getTimeInMillis());
-//         repeatMenu.findItem(R.id.weekly).setTitle(sameDayWeek);
-//         int dayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
-//         if (dayOfMonth == taskReminder.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-//            sameDayMonth = getString(R.string.last_day_of_month) + " " +
-//                  getString(R.string.of_every_month);
-//         } else {
-//            sameDayMonth = (getString(R.string.on_day) + " " + taskReminder.get(Calendar.DAY_OF_MONTH) +
-//                  " " + getString(R.string.of_every_month));
-//         }
-//         repeatMenu.findItem(R.id.monthly).setTitle(sameDayMonth);
          repeatTV.setText(repeatMenu.getItem(repeatMode).getTitle());
       }
    }
@@ -314,15 +300,15 @@ public class NewTaskOrEditActivity extends AppCompatActivity
          if (isReminderDateToday() && repeatMode == Co.REMINDER_ONE_TIME) {
             Calendar now = now();
             int hour = now.get(Calendar.HOUR_OF_DAY);
-            if (hour >= getIntShP(Co.EVENING_ALARM_KEY, Co.EVENING_DEFAULT_REMINDER_TIME)) {
+            if (hour >= getIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME)) {
                showReminderTimePicker();
                return;
             }
-            if (hour > getIntShP(Co.MORNING_ALARM_KEY, Co.MORNING_DEFAULT_REMINDER_TIME)) {
+            if (hour > getIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME)) {
                morningTv.setTextColor(Color.GRAY);
                morningLayout.setOnClickListener(null);
             }
-            if (hour > getIntShP(Co.AFTERNOON_ALARM_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME)) {
+            if (hour > getIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME)) {
                afternoonTv.setTextColor(Color.GRAY);
                afternoonLayout.setOnClickListener(null);
             }
@@ -532,11 +518,11 @@ public class NewTaskOrEditActivity extends AppCompatActivity
       if (taskReminder != null) {
          int reminderHour = taskReminder.get(Calendar.HOUR_OF_DAY);
          int reminderMinute = taskReminder.get(Calendar.MINUTE);
-         if (reminderHour == getIntShP(Co.MORNING_ALARM_KEY, Co.MORNING_DEFAULT_REMINDER_TIME) && reminderMinute == 0) {
+         if (reminderHour == getIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME) && reminderMinute == 0) {
             reminderTimeTV.setText(getString(morning));
-         } else if (reminderHour == getIntShP(Co.AFTERNOON_ALARM_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME) && reminderMinute == 0) {
+         } else if (reminderHour == getIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME) && reminderMinute == 0) {
             reminderTimeTV.setText(getString(afternoon));
-         } else if (reminderHour == getIntShP(Co.EVENING_ALARM_KEY, Co.EVENING_DEFAULT_REMINDER_TIME) && reminderMinute == 0) {
+         } else if (reminderHour == getIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME) && reminderMinute == 0) {
             reminderTimeTV.setText(getString(evening));
          } else {
             reminderTimeTV.setText(DateHelper.millisToTimeOnly(taskReminder.getTimeInMillis()));
@@ -930,15 +916,15 @@ public class NewTaskOrEditActivity extends AppCompatActivity
                taskReminder = Calendar.getInstance();
             }
             if (v.getId() == R.id.layout_morning) {
-               taskReminder.set(Calendar.HOUR_OF_DAY, getIntShP(Co.MORNING_ALARM_KEY, Co.MORNING_DEFAULT_REMINDER_TIME));
+               taskReminder.set(Calendar.HOUR_OF_DAY, getIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME));
                reminderTimeTV.setText(getString(R.string.morning));
             }
             if (v.getId() == R.id.layout_afternoon) {
-               taskReminder.set(Calendar.HOUR_OF_DAY, getIntShP(Co.AFTERNOON_ALARM_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME));
+               taskReminder.set(Calendar.HOUR_OF_DAY, getIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME));
                reminderTimeTV.setText(getString(R.string.afternoon));
             }
             if (v.getId() == R.id.layout_evening) {
-               taskReminder.set(Calendar.HOUR_OF_DAY, getIntShP(Co.EVENING_ALARM_KEY, Co.EVENING_DEFAULT_REMINDER_TIME));
+               taskReminder.set(Calendar.HOUR_OF_DAY, getIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME));
                reminderTimeTV.setText(getString(R.string.evening));
             }
             if (repeatMode == Co.REMINDER_ONE_TIME) {

@@ -115,6 +115,7 @@
     <string name="settings_title">Settings</string>
     <string name="day_of_month_label">Day of month</string>
     <string name="reminder_set_past_due_date">The reminder is set past the due date</string>
+    <string name="reminder_in_the_past">Reminders set to a past date would have no effect and hence will not be saved</string>
     <string name="morning_reminder_pref_title">Hour of morning reminders</string>
     <string name="afternoon_reminder_pref_title">Hour of afternoon reminders</string>
     <string name="evening_reminder_pref_title">Hour of evening reminders</string>
@@ -123,6 +124,14 @@
     <string name="save_task_on_back_pressed_summary">When editing or creating a task, changes made will be saved when pressing the back button</string>
     <string name="reminders">Reminders</string>
     <string name="tone">Tone</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="account_pref_title">Accounts</string>
+    <string name="default_reminder_pref_title">Default reminder</string>
+    <string name="default_reminder_pref_summary">If enabled, a reminder will fire at the predefined time on the task\'s due date (if any is set)</string>
+    <string name="default_reminder_time_pref_title">Default reminder time</string>
+
+
+
 
     <string-array name="days_of_month">
         <item>1</item>

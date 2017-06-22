@@ -20,7 +20,8 @@ public class Co {
    public static final String TASK_STATUS = "Task status";
    public static final String BUNDLED_EXTRA = "Bundled extra";
    public static final String NO_API_EDIT = "No api edit";
-   public static final String SAVE_ON_BACK_PRESSED = "save on back pressed";
+   public static final String SAVE_ON_BACK_PRESSED_PREF_KEY = "save on back pressed";
+
 
    public static String OP_UPDATE_STATUS;
 
@@ -54,10 +55,10 @@ public class Co {
    public static final int MORNING_DEFAULT_REMINDER_TIME = 8;
    public static final int AFTERNOON_DEFAULT_REMINDER_TIME = 14;
    public static final int EVENING_DEFAULT_REMINDER_TIME = 19;
-   public static final String MORNING_ALARM_KEY = "morning_reminder_pref";
-   public static final String AFTERNOON_ALARM_KEY = "afternoon_reminder_pref";
-   public static final String EVENING_ALARM_KEY = "evening_reminder_pref";
-   public static final String REMINDER_RINGTONE = "Reminder ringtone";
+   public static final String MORNING_REMINDER_PREF_KEY = "morning_reminder_pref";
+   public static final String AFTERNOON_REMINDER_PREF_KEY = "afternoon_reminder_pref";
+   public static final String EVENING_REMINDER_PREF_KEY = "evening_reminder_pref";
+   public static final String REMINDER_RINGTONE_PREF_KEY = "Reminder ringtone";
    public static final int REMINDER_ONE_TIME = 0;
    public static final int REMINDER_DAILY = 1;
    public static final int REMINDER_DAILY_WEEKDAYS = 2;
@@ -75,7 +76,10 @@ public class Co {
    public static final int NOT_ID_SUFIX = 1000;
    public static final String STATE_TASK_REMINDER = "State task reminder";
    public static final String STATE_REPEAT_MODE = "State repeat mode";
-
+   public static final String VIBRATE_REMINDER_PREF_KEY = "reminder vibrate";
+   public static final String DEFAULT_REMINDER_PREF_KEY = "default_reminder_pref_key";
+   public static final String DEFAULT_REMINDER_TIME_PREF_KEY = "default_reminder_time_pref_key";
+   public static final int DEFAULT_REMINDER_INDENTIFIER = 33333;
 
 
 
@@ -85,10 +89,10 @@ public class Co {
    public static final int SYNCED = 2;
    public static final int NOT_MOVED = 0;
    public static final int IS_FIRST = -2;
-   public static int LOCAL_DELETED = 1;
-   public static int MOVED = 1;
+   public static final int LOCAL_DELETED = 1;
+   public static final int MOVED = 1;
    public static final String TASK_MOVED_TO_FIRST = "first";
-   public static int NOT_DELETED = 0;
+   public static final int NOT_DELETED = 0;
 
    public static final int SNACKBAR_DURATION = 6000;
    public static final String NO_VALUE = "no value";

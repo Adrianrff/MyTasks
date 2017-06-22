@@ -109,6 +109,7 @@
     <string name="saturdayToggle">Sab</string>
     <string name="sundayToggle">Dom</string>
     <string name="past_reminder_warning">Los recordatarios establecidos en fechas pasadas o posteriores a la fecha de vencimiento no serán registrados</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="pref_ringtone_silent">ring tone silent</string>
     <string name="at">a las</string>
     <string name="connected_account_pref_title">Cuenta conectada</string>
@@ -124,6 +125,12 @@
     <string name="save_task_on_back_pressed_summary">Al editar o crear una tarea, se guardarán los cambios realizados al presionar el botón atrás</string>
     <string name="reminders">Recordatorios</string>
     <string name="tone">Tono</string>
+    <string name="vibrate">Vibrar</string>
+    <string name="account_pref_title">Cuentas</string>
+    <string name="default_reminder_pref_title">Recordatorio predeterminado</string>
+    <string name="default_reminder_pref_summary">Si se habilita, se disparará un recordatorio para las tareas el día de su fecha de vencimiento (si existe) a la hora predefinida</string>
+    <string name="default_reminder_time_pref_title">Hora del recordatorio predeterminado</string>
+
 
     <string-array name="days_of_month">
         <item>1</item>
