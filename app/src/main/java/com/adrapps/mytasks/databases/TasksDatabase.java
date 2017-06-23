@@ -117,7 +117,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
 
    //----------CONSTRUCTOR--------------//
    private TasksDatabase(Context context) {
-      super(context, DATABASE_NAME, null, DATABASE_VERSION);
+      super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
       bm = new BackupManager(context);
    }
 
@@ -189,9 +189,9 @@ public class TasksDatabase extends SQLiteOpenHelper {
          cursor.close();
       } catch (Exception e) {
          e.printStackTrace();
-         db.close();
+         //db.close();
       }
-      db.close();
+//      //db.close();
       return tasks;
    }
 
@@ -231,7 +231,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
          } while (cursor.moveToNext());
       }
       cursor.close();
-      db.close();
+      //db.close();
       return tasks;
    }
 
@@ -280,9 +280,9 @@ public class TasksDatabase extends SQLiteOpenHelper {
       } finally {
          db.endTransaction();
          cursor.close();
-         db.close();
+         //db.close();
       }
-      db.close();
+      //db.close();
       return tasks;
    }
 
@@ -311,7 +311,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_SIBLING, localTask.getPreviousTask());
       cv.put(COL_MOVED, localTask.getMoved());
       long insertedRow = db.insert(TABLE_NAME, null, cv);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return insertedRow;
    }
@@ -336,7 +336,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       long insertedRow = db.insert(TABLE_NAME, null, cv);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return insertedRow;
    }
@@ -381,16 +381,16 @@ public class TasksDatabase extends SQLiteOpenHelper {
          cv.put(COL_MOVED, currentTask.getMoved());
          db.insert(TABLE_NAME, null, cv);
       }
-      db.close();
+      //db.close();
    }
 
    public void deleteTask(int intId) {
       db = getWritableDB();
       String selection = COL_INT_ID + " = ? ";
       String[] selectionArgs = {String.valueOf(intId)};
-      int deletedRow = db.delete(TABLE_NAME, selection, selectionArgs);
+      db.delete(TABLE_NAME, selection, selectionArgs);
       bm.dataChanged();
-      db.close();
+      //db.close();
    }
 
    public int updateTaskStatus(int intId, String newStatus) {
@@ -401,7 +401,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_STATUS, newStatus);
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -414,7 +414,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_DELETED, Co.LOCAL_DELETED);
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -431,7 +431,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       }
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -465,12 +465,12 @@ public class TasksDatabase extends SQLiteOpenHelper {
          task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
          task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
          task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-         db.close();
+         //db.close();
          cursor.close();
          return task;
       } else {
          cursor.close();
-         db.close();
+         //db.close();
          return null;
       }
    }
@@ -483,7 +483,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_REMINDER, reminder);
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -499,7 +499,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
 
 //      cv.put(COL_REMINDER_REPEAT_DAY, tasks.get(i).getRepeatDay());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -533,7 +533,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_DELETED, task.getLocalDeleted());
       cv.put(COL_MOVED, task.getMoved());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -558,7 +558,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
    }
 
@@ -587,7 +587,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_LOCAL_DELETED, task.getLocalDeleted());
       db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
    }
 
@@ -611,7 +611,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      db.close();
+      //db.close();
       bm.dataChanged();
       return getTaskByTaskId(task.getId());
    }
@@ -625,7 +625,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_POSITION, task.getPosition());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       bm.dataChanged();
-      db.close();
+      //db.close();
    }
 
    public String getTaskIdByIntId(int id) {
@@ -642,7 +642,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
          taskId = cursor.getString(cursor.getColumnIndex(COL_ID));
          cursor.close();
       }
-      db.close();
+      //db.close();
       return taskId;
    }
 
@@ -660,7 +660,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
          intId = cursor.getInt(cursor.getColumnIndex(COL_INT_ID));
          cursor.close();
       }
-      db.close();
+      //db.close();
       return intId;
    }
 
@@ -693,12 +693,12 @@ public class TasksDatabase extends SQLiteOpenHelper {
          task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
          task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
          task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-         db.close();
+         //db.close();
          cursor.close();
          return task;
       } else {
          cursor.close();
-         db.close();
+         //db.close();
          return null;
       }
    }
@@ -735,7 +735,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
          e.printStackTrace();
       } finally {
          db.endTransaction();
-         db.close();
+         //db.close();
          bm.dataChanged();
       }
    }
@@ -760,7 +760,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       } finally {
          db.endTransaction();
          bm.dataChanged();
-         db.close();
+         //db.close();
       }
    }
 }

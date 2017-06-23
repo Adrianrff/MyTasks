@@ -8,14 +8,11 @@ import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.AlarmHelper;
+import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 import com.google.api.services.tasks.model.TaskLists;
@@ -38,13 +35,8 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
    public FirstRefreshAsync(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
       this.mPresenter = presenter;
-      this.context = context;
-      HttpTransport transport = AndroidHttp.newCompatibleTransport();
-      JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-      mService = new com.google.api.services.tasks.Tasks.Builder(
-            transport, jsonFactory, credential)
-            .setApplicationName("Google Tasks API Android Quickstart")
-            .build();
+      this.context = context.getApplicationContext();
+      mService = GoogleApiHelper.getService(credential);
    }
 
    @Override
@@ -71,6 +63,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
    protected void onPreExecute() {
       mPresenter.showProgressDialog();
       mPresenter.showProgress(true);
+      mPresenter.lockScreenOrientation();
    }
 
    @Override
@@ -82,6 +75,9 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
       mPresenter.setUpViews();
       mPresenter.initRecyclerView(mPresenter.getTasksFromList(lists.get(0).getId()));
       mPresenter.updateCurrentView();
+      mPresenter.unlockScreenOrientation();
+      context = null;
+      mPresenter = null;
 
 
    }
@@ -102,10 +98,11 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
             mLastError.printStackTrace();
          }
       } else {
-
          mPresenter.showToast("Request cancelled.");
-
       }
+      mPresenter.unlockScreenOrientation();
+      context = null;
+      mPresenter = null;
    }
 
    private void firstRefresh() throws IOException {

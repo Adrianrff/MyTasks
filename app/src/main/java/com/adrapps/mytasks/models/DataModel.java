@@ -39,14 +39,14 @@ public class DataModel implements Contract.Model {
 
    public DataModel(TaskListPresenter presenter, Context context) {
       this.mPresenter = presenter;
-      tasksDb = TasksDatabase.getInstance(context);
-      listsDb = ListsDatabase.getInstance(context);
-      this.context = context;
+      tasksDb = TasksDatabase.getInstance(context.getApplicationContext());
+      listsDb = ListsDatabase.getInstance(context.getApplicationContext());
+      this.context = context.getApplicationContext();
    }
 
    public DataModel(Context context) {
-      tasksDb = TasksDatabase.getInstance(context);
-      listsDb = ListsDatabase.getInstance(context);
+      tasksDb = TasksDatabase.getInstance(context.getApplicationContext());
+      listsDb = ListsDatabase.getInstance(context.getApplicationContext());
    }
 
    //-----------------DATABASE OPERATIONS-----------------//
@@ -79,6 +79,12 @@ public class DataModel implements Contract.Model {
 
    @Override
    public List<String> getListsIds() {
+      try {
+         return listsDb.getListsIds();
+      } catch (Exception e) {
+         e.printStackTrace();
+         listsDb = ListsDatabase.getInstance(context.getApplicationContext());
+      }
       return listsDb.getListsIds();
    }
 
@@ -107,7 +113,6 @@ public class DataModel implements Contract.Model {
    public long updateReminder(int intId, long reminder, int repeatMode) {
       return tasksDb.updateTaskReminder(intId, reminder, repeatMode);
    }
-
 
 
    @Override
@@ -232,11 +237,11 @@ public class DataModel implements Contract.Model {
 
    @Override
    public void deleteTasks(List<LocalTask> tasks) {
-      for (int i = 0; i < tasks.size(); i++){
+      for (int i = 0; i < tasks.size(); i++) {
          LocalTask currentTask = tasks.get(i);
          String currentTaskId = currentTask.getId();
          AlarmHelper.cancelTaskReminder(tasks.get(i), context);
-         if (currentTaskId == null || currentTaskId.trim().isEmpty()){
+         if (currentTaskId == null || currentTaskId.trim().isEmpty()) {
             tasks.remove(i);
             deleteTaskFromDatabase(currentTask.getIntId());
          } else {
@@ -249,7 +254,6 @@ public class DataModel implements Contract.Model {
          }
       }
    }
-
 
 
    @Override

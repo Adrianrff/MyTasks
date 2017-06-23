@@ -27,9 +27,9 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/test_pref"
-        android:orderInCategory="100"
-        android:title="Test preferences"
-        app:showAsAction="never" />
+    <!--<item-->
+        <!--android:id="@+id/test_pref"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:title="Test preferences"-->
+        <!--app:showAsAction="never" />-->
 </menu>

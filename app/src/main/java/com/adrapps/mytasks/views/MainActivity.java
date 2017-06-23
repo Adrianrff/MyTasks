@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
@@ -23,6 +25,7 @@ import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -55,7 +58,6 @@ import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.DateHelper;
-import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.interfaces.OnStartDragListener;
@@ -63,7 +65,6 @@ import com.adrapps.mytasks.other.MyApplication;
 import com.adrapps.mytasks.preferences.SettingsActivity;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
@@ -139,15 +140,14 @@ public class MainActivity extends AppCompatActivity
       if (!isDeviceOnline()) {
          showNoInternetWarning(true);
       }
-      if (savedInstanceState != null){
-            taskShownInBottomSheet = (LocalTask) savedInstanceState.getSerializable(Co.STATE_SHOWN_TASK);
-            taskShownInBottomSheetPos = savedInstanceState.getInt(Co.STATE_SHOWN_TASK_POSITION);
-            if (taskShownInBottomSheet != null && taskShownInBottomSheetPos > 0){
-               showBottomSheet(taskShownInBottomSheet, taskShownInBottomSheetPos, true);
-            }
+      if (savedInstanceState != null) {
+         taskShownInBottomSheet = (LocalTask) savedInstanceState.getSerializable(Co.STATE_SHOWN_TASK);
+         taskShownInBottomSheetPos = savedInstanceState.getInt(Co.STATE_SHOWN_TASK_POSITION);
+         if (taskShownInBottomSheet != null && taskShownInBottomSheetPos >= 0) {
+            showBottomSheet(taskShownInBottomSheet, taskShownInBottomSheetPos, true);
+         }
       }
    }
-
 
 
    @Override
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public void setSwipeRefreshEnabled(boolean b){
+   public void setSwipeRefreshEnabled(boolean b) {
       swipeRefresh.setEnabled(b);
    }
 
@@ -319,13 +319,13 @@ public class MainActivity extends AppCompatActivity
 
                   case Co.REMINDER_WEEKLY:
                      SparseArray<String> daysMap = new SparseArray<>();
-                     daysMap.put(Co.MONDAY,getString(R.string.mondays));
-                     daysMap.put(Co.TUESDAY,getString(R.string.tuesdays));
-                     daysMap.put(Co.WEDNESDAY,getString(R.string.wednesdays));
-                     daysMap.put(Co.THURSDAY,getString(R.string.thursdays));
-                     daysMap.put(Co.FRIDAY,getString(R.string.fridays));
-                     daysMap.put(Co.SATURDAY,getString(R.string.saturdays));
-                     daysMap.put(Co.SUNDAY,getString(R.string.sundays));
+                     daysMap.put(Co.MONDAY, getString(R.string.mondays));
+                     daysMap.put(Co.TUESDAY, getString(R.string.tuesdays));
+                     daysMap.put(Co.WEDNESDAY, getString(R.string.wednesdays));
+                     daysMap.put(Co.THURSDAY, getString(R.string.thursdays));
+                     daysMap.put(Co.FRIDAY, getString(R.string.fridays));
+                     daysMap.put(Co.SATURDAY, getString(R.string.saturdays));
+                     daysMap.put(Co.SUNDAY, getString(R.string.sundays));
                      detailRepeat.setText(
                            getString(R.string.weekly) + " (" + daysMap.get(task.getRepeatDay()) + ")");
                      break;
@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity
                            getString(R.string.monthly) + " (" + taskReminder.get(Calendar.DAY_OF_MONTH) + ")");
                      int max = taskReminder.getActualMaximum(Calendar.DAY_OF_MONTH);
                      int reminderDayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
-                     if (max == reminderDayOfMonth){
+                     if (max == reminderDayOfMonth) {
                         nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis()) + " (" +
                               getString(R.string.last_day_of_month) + ")";
                      } else {
@@ -410,9 +410,17 @@ public class MainActivity extends AppCompatActivity
          try {
             currentListTitle = Co.listTitles.get(0);
          } catch (Exception e) {
+            Co.listTitles = mPresenter.getListsTitles();
             e.printStackTrace();
          }
-         String currentListId = Co.listIds.get(0);
+         String currentListId;
+         try {
+            currentListId = Co.listIds.get(0);
+         } catch (Exception e) {
+            e.printStackTrace();
+            Co.listIds = mPresenter.getListsIds();
+            currentListId = Co.listIds.get(0);
+         }
          saveStringShP(Co.CURRENT_LIST_ID, currentListId);
          saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
          toolbar.setTitle(currentListTitle);
@@ -431,7 +439,7 @@ public class MainActivity extends AppCompatActivity
             layoutManager.getOrientation());
       recyclerView.addItemDecoration(dividerItemDecoration);
       recyclerView.setLayoutManager(layoutManager);
-      adapter = new TaskListAdapter(getContext(), tasks, mPresenter);
+      adapter = new TaskListAdapter(this, tasks, mPresenter);
       recyclerView.setAdapter(adapter);
       ItemTouchHelper.Callback callback =
             new SimpleItemTouchHelperCallback(adapter, this);
@@ -472,13 +480,15 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void showProgressDialog() {
-      mProgress.setMessage(getString(R.string.please_wait));
-      mProgress.show();
+      if (mProgress != null) {
+         mProgress.setMessage(getString(R.string.please_wait));
+         mProgress.show();
+      }
    }
 
    @Override
    public void showFab(boolean b) {
-      if (b){
+      if (b) {
          fab.show();
          fab.setOnClickListener(MainActivity.this);
       } else {
@@ -488,15 +498,19 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void dismissProgressDialog() {
-      mProgress.dismiss();
+      if (progressBar != null && ViewCompat.isAttachedToWindow(progressBar)) {
+         mProgress.dismiss();
+      }
    }
 
    @Override
    public void showCircularProgress(boolean b) {
-      if (b)
-         progressBar.setVisibility(View.VISIBLE);
-      else
-         progressBar.setVisibility(View.GONE);
+      if (progressBar != null && ViewCompat.isAttachedToWindow(progressBar)) {
+         if (b)
+            progressBar.setVisibility(View.VISIBLE);
+         else
+            progressBar.setVisibility(View.GONE);
+      }
    }
 
    @Override
@@ -515,6 +529,7 @@ public class MainActivity extends AppCompatActivity
          }
       }
       try {
+         //TODO have a singleton for list titles and list ids, call sync if they're empty AND the database is empty
          listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE, null))).setChecked(true);
       } catch (Exception e) {
          showToast("error");
@@ -547,7 +562,7 @@ public class MainActivity extends AppCompatActivity
                   event == Snackbar.Callback.DISMISS_EVENT_SWIPE ||
                   event == Snackbar.Callback.DISMISS_EVENT_CONSECUTIVE) {
                List<LocalTask> tasks = new ArrayList<>();
-               for (int i = 0; i < map.size(); i++){
+               for (int i = 0; i < map.size(); i++) {
                   tasks.add((LocalTask) map.valueAt(i));
                }
                mPresenter.deleteTasks(tasks);
@@ -744,7 +759,7 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
-      if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+      if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
          if (taskShownInBottomSheet != null) {
             outState.putSerializable(Co.STATE_SHOWN_TASK, taskShownInBottomSheet);
             outState.putInt(Co.STATE_SHOWN_TASK_POSITION, taskShownInBottomSheetPos);
@@ -840,10 +855,10 @@ public class MainActivity extends AppCompatActivity
             startActivity(settingsIntent);
             break;
 
-         case R.id.test_pref:
-            GoogleApiClient client = GoogleApiHelper.getClient(getApplicationContext());
-            showToast(client.isConnected() ? "Connected" : "Disconnected");
-            break;
+//         case R.id.test_pref:
+//            GoogleApiClient client = GoogleApiHelper.getClient(getApplicationContext());
+//            showToast(client.isConnected() ? "Connected" : "Disconnected");
+//            break;
 
          case R.id.refresh:
             refresh();
@@ -869,7 +884,7 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public Context getContext() {
-      return this;
+      return this.getApplicationContext();
    }
 
    @Override
@@ -941,6 +956,21 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void updateItem(LocalTask syncedLocalTask) {
       adapter.updateItem(syncedLocalTask, -1);
+   }
+
+   @Override
+   public void lockScreenOrientation() {
+      int currentOrientation = getResources().getConfiguration().orientation;
+      if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+      } else {
+         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+      }
+   }
+
+   @Override
+   public void unlockScreenOrientation() {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
    }
 
 }

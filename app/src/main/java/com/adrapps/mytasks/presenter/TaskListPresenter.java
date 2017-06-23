@@ -79,6 +79,14 @@ public class TaskListPresenter implements Serializable {
       getView().showProgressDialog();
    }
 
+   public void lockScreenOrientation() {
+      getView().lockScreenOrientation();
+   }
+
+   public void unlockScreenOrientation() {
+      getView().unlockScreenOrientation();
+   }
+
    public void refresh() {
       if (isDeviceOnline()) {
          SyncTasks syncTasks = new SyncTasks(getView().getContext(), this, getView().getCredential());

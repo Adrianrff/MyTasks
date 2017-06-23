@@ -7,8 +7,8 @@ import android.os.AsyncTask;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.batch.BatchRequest;
 import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -16,9 +16,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlaySe
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 
@@ -35,21 +32,16 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
    private final LinkedHashMap<LocalTask, String> moveMap;
    private com.google.api.services.tasks.Tasks mService = null;
    private Exception mLastError = null;
-   private final TaskListPresenter mPresenter;
+   private TaskListPresenter mPresenter;
    Context context;
    private JsonBatchCallback<Task> callBack;
 
    public MoveTask(Context context, TaskListPresenter presenter,
                    GoogleAccountCredential credential, LinkedHashMap<LocalTask, String> moveMap) {
-      this.context = context;
+      this.context = context.getApplicationContext();
       this.mPresenter = presenter;
       this.moveMap = moveMap;
-      HttpTransport transport = AndroidHttp.newCompatibleTransport();
-      JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-      mService = new com.google.api.services.tasks.Tasks.Builder(
-            transport, jsonFactory, credential)
-            .setApplicationName("My Tasks")
-            .build();
+      mService = GoogleApiHelper.getService(credential);
       callBack = new JsonBatchCallback<Task>() {
          @Override
          public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
@@ -85,11 +77,15 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
    @Override
    protected void onPreExecute() {
       mPresenter.showProgress(true);
+      mPresenter.lockScreenOrientation();
    }
 
    @Override
    protected void onPostExecute(Void aVoid) {
       mPresenter.showProgress(false);
+      mPresenter.unlockScreenOrientation();
+      context = null;
+      mPresenter = null;
    }
 
    @Override
@@ -110,8 +106,10 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
          }
       } else {
          mPresenter.showToast(mPresenter.getString(R.string.request_canceled));
-
       }
+      mPresenter.unlockScreenOrientation();
+      context = null;
+      mPresenter = null;
    }
 
    private void moveTask(LinkedHashMap<LocalTask, String> moveMap) throws IOException {
@@ -153,7 +151,7 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
          if (request.size() > 0) {
             request.execute();
          }
-         List<Task> tasks = null;
+         List<Task> tasks;
          if (listId != null) {
             tasks = mService.tasks().list(listId).execute().getItems();
             mPresenter.updatePositions(tasks);

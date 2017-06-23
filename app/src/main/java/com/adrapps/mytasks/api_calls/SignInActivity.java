@@ -72,12 +72,7 @@ public class SignInActivity extends AppCompatActivity
       mCredential = GoogleAccountCredential.usingOAuth2(
             getApplicationContext(), Arrays.asList(Co.SCOPES))
             .setBackOff(new ExponentialBackOff());
-      HttpTransport transport = AndroidHttp.newCompatibleTransport();
-      JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-      mService = new com.google.api.services.tasks.Tasks.Builder(
-            transport, jsonFactory, mCredential)
-            .setApplicationName(getString(R.string.app_name))
-            .build();
+      mService = GoogleApiHelper.getService(mCredential);
       SignInButton signInButton = (SignInButton) findViewById(R.id.signIn);
       signInButton.setOnClickListener(new View.OnClickListener() {
          @Override
@@ -171,6 +166,8 @@ public class SignInActivity extends AppCompatActivity
          }
       }
    }
+
+
 
    @Override
    public void onRequestPermissionsResult(int requestCode,

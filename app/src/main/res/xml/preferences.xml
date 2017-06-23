@@ -49,7 +49,7 @@
             android:ringtoneType="notification"
             android:showDefault="true"
             android:showSilent="true"
-            android:summary="Arial"/>
+            android:defaultValue="default"/>
 
         <SwitchPreference
             android:enabled="true"

@@ -110,7 +110,7 @@
     <string name="sundayToggle">Dom</string>
     <string name="past_reminder_warning">Los recordatarios establecidos en fechas pasadas o posteriores a la fecha de vencimiento no serán registrados</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="pref_ringtone_silent">ring tone silent</string>
+    <string name="pref_ringtone_silent">Silencio</string>
     <string name="at">a las</string>
     <string name="connected_account_pref_title">Cuenta conectada</string>
     <string name="settings_title">Ajustes</string>

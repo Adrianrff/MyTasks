@@ -110,14 +110,14 @@ public class AlarmReciever extends BroadcastReceiver {
             stackBuilder.getPendingIntent(Co.NOT_ID_SUFIX + task.getIntId(), PendingIntent.FLAG_UPDATE_CURRENT);
       PendingIntent markCompletedPendingIntent = PendingIntent.getBroadcast(context,
             (int) task.getReminderId(), markCompletedIntent, PendingIntent.FLAG_ONE_SHOT);
-      NotificationCompat.Builder notifyBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
-            .setSmallIcon(R.drawable.ic_assignment_late_black_24dp)
-            .setContentTitle(context.getString(R.string.task_reminder_notification_title))
+      NotificationCompat.Builder notifyBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context);
+      notifyBuilder.setSmallIcon(R.mipmap.ic_task_reminder);
+      notifyBuilder.setContentTitle(context.getString(R.string.task_reminder_notification_title))
             .setContentText(title +
                   " - " + context.getString(R.string.touch_for_details))
 
             .setLights(ContextCompat.getColor(context, R.color.colorPrimary), 700, 4000);
-      if (getBooleanSharedPreference(Co.VIBRATE_REMINDER_PREF_KEY, false)){
+      if (getBooleanSharedPreference(Co.VIBRATE_REMINDER_PREF_KEY, false)) {
          notifyBuilder.setDefaults(Notification.DEFAULT_VIBRATE);
       } else {
          notifyBuilder.setVibrate(null);
@@ -125,14 +125,14 @@ public class AlarmReciever extends BroadcastReceiver {
       if (task.getNotes() != null) {
          notifyBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText((title + "\n" + notes)));
       }
-      String ringtoneUri = getStringSharedPreference(Co.REMINDER_RINGTONE_PREF_KEY, "default sound");
-      if (ringtoneUri.equals("default sound")) {
+      String ringtoneUri = getStringSharedPreference(Co.REMINDER_RINGTONE_PREF_KEY, "default");
+      if (ringtoneUri.equals("default")) {
          notifyBuilder.setDefaults(Notification.DEFAULT_SOUND);
       } else {
          notifyBuilder.setSound(Uri.parse(ringtoneUri));
       }
       Log.d(TAG, "ringtoneValue: " + ringtoneUri);
-      notifyBuilder.addAction(R.mipmap.ic_completed, "Completada", markCompletedPendingIntent)
+      notifyBuilder.addAction(R.mipmap.ic_task_completed, "Completada", markCompletedPendingIntent)
             .setContentIntent(resultPendingIntent)
             .setAutoCancel(true)
             .setColor(ContextCompat.getColor(context, R.color.colorPrimary));
@@ -140,12 +140,12 @@ public class AlarmReciever extends BroadcastReceiver {
             notify(Co.NOT_ID_SUFIX + task.getIntId(), notifyBuilder.build());
    }
 
-   private String getStringSharedPreference(String key, String defaultValue){
+   private String getStringSharedPreference(String key, String defaultValue) {
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
       return pref.getString(key, defaultValue);
    }
 
-   private boolean getBooleanSharedPreference(String key, boolean defaultValue){
+   private boolean getBooleanSharedPreference(String key, boolean defaultValue) {
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
       return pref.getBoolean(key, false);
    }

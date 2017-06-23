@@ -11,8 +11,8 @@ import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.CompareLists;
 import com.adrapps.mytasks.helpers.DateHelper;
+import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.batch.BatchRequest;
 import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -20,9 +20,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlaySe
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
@@ -51,14 +48,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
    private JsonBatchCallback<Task> moveCallback;
 
    public SyncTasks(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
-      this.context = context;
+      this.context = context.getApplicationContext();
       this.mPresenter = presenter;
-      HttpTransport transport = AndroidHttp.newCompatibleTransport();
-      JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-      mService = new Tasks.Builder(
-            transport, jsonFactory, credential)
-            .setApplicationName("My Tasks")
-            .build();
+      mService = GoogleApiHelper.getService(credential);
       this.requests = mService.batch();
       this.tasksToDelete = new ArrayList<>();
       this.tasksToUpdateFirstTime = new HashMap<>();
@@ -137,6 +129,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
    @Override
    protected void onPreExecute() {
       mPresenter.showProgress(true);
+      mPresenter.lockScreenOrientation();
    }
 
    @Override
@@ -144,6 +137,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
       mPresenter.showProgress(false);
       mPresenter.showSwipeRefreshProgress(false);
       mPresenter.updateCurrentView();
+      mPresenter.unlockScreenOrientation();
+      context = null;
+      mPresenter = null;
    }
 
    @Override
@@ -164,6 +160,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
       } else {
          mPresenter.showToast("Request cancelled.");
       }
+      mPresenter.unlockScreenOrientation();
+      context = null;
+      mPresenter = null;
    }
 
 
@@ -185,7 +184,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
          List<Task> serverTasks;
          List<LocalTask> localTasks;
-         List<LocalTask> localTasksNotInServer = new ArrayList<>();
+         List<LocalTask> localTasksNotInServer;
          List<Task> serverTasksNotInDB;
          String currentListId;
 

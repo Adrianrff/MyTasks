@@ -181,7 +181,7 @@ public class AlarmHelper {
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
       final int defaultReminderHour = pref.getInt(Co.DEFAULT_REMINDER_TIME_PREF_KEY, 8);
       final Calendar now = Calendar.getInstance();
-      final DataModel model = new DataModel(context);
+      final DataModel model = new DataModel(context.getApplicationContext());
       AsyncTask.execute(new Runnable() {
          @Override
          public void run() {
@@ -213,7 +213,6 @@ public class AlarmHelper {
          }
       });
    }
-
 
    //TODO create method for setting or updating default reminder for individual task
    //Triggers should be deleting, creating or changing the dueDate of a task, changing the default time (changes all tasks)

@@ -18,9 +18,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
+import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.adrapps.mytasks.R;
@@ -62,14 +62,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          } else if (preference instanceof RingtonePreference) {
             // For ringtone preferences, look up the correct display value
             // using RingtoneManager.
+            Ringtone ringtone;
             if (TextUtils.isEmpty(stringValue)) {
                // Empty values correspond to 'silent' (no ringtone).
                preference.setSummary(R.string.pref_ringtone_silent);
 
-            } else {
-               Ringtone ringtone = RingtoneManager.getRingtone(
-                     preference.getContext(), Uri.parse(stringValue));
-
+            }  else {
+               if(stringValue.equals("default")){
+                  ringtone = RingtoneManager.getRingtone(
+                        preference.getContext(), Settings.System.DEFAULT_NOTIFICATION_URI);
+               } else {
+                  ringtone = RingtoneManager.getRingtone(
+                        preference.getContext(), Uri.parse(stringValue));
+               }
                if (ringtone == null) {
                   // Clear the summary if there was a lookup error.
                   preference.setSummary(null);
@@ -78,7 +83,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                   // name.
                   String name = ringtone.getTitle(preference.getContext());
                   preference.setSummary(name);
-                  Log.d(TAG, "onPreferenceChange: " + stringValue);
                }
             }
 
@@ -236,11 +240,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          setHasOptionsMenu(true);
          Preference accountPref = findPreference("account_pref");
          accountPref.setSummary(accountName);
-         //TODO set default sound summary on first launch
          bindPreferenceSummaryToValue(findPreference(Co.MORNING_REMINDER_PREF_KEY));
          bindPreferenceSummaryToValue(findPreference(Co.AFTERNOON_REMINDER_PREF_KEY));
          bindPreferenceSummaryToValue(findPreference(Co.EVENING_REMINDER_PREF_KEY));
-//         bindPreferenceSummaryToValue(findPreference(Co.SAVE_ON_BACK_PRESSED_PREF_KEY));
          bindPreferenceSummaryToValue(findPreference(Co.REMINDER_RINGTONE_PREF_KEY));
          bindPreferenceSummaryToValue(findPreference(Co.DEFAULT_REMINDER_TIME_PREF_KEY));
          bindPreferenceSummaryToValue(findPreference(Co.DEFAULT_REMINDER_PREF_KEY));

@@ -431,6 +431,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                   dueDate.setTypeface(null, Typeface.NORMAL);
                }
             }
+            AlarmHelper.setOrUpdateAlarm(cTask, context);
             mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_NEEDS_ACTION);
          }
       }
@@ -438,7 +439,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       @Override
       public void onItemSelected() {
          oldPos = getAdapterPosition();
-
       }
 
 
@@ -455,8 +455,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             moveMap.put(movedTask, prevTaskId);
          }
       }
-
-
 
       @Override
       public void onClick(View v) {
@@ -479,11 +477,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
       @Override
       public boolean onLongClick(View v) {
-//         if (swipeLayout.isClosed()) {
-//            showToast("closed");
-//         } else {
-//            showToast("open");
-//         }
          if (!mMultiSelector.isSelectable()) {
             ((AppCompatActivity) context).startSupportActionMode(mActionModeCallback); // (2)
             mMultiSelector.setSelectable(true);
@@ -491,7 +484,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             if (mActionMode != null) {
                mActionMode.setTitle(String.valueOf(1) + " " + context.getString(R.string.selected));
             }
-//            mPresenter.showFab(false);
             return true;
          } else {
             mMultiSelector.clearSelections();
@@ -504,8 +496,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             }
             return false;
          }
-//         }
-//         return false;
       }
 
    }

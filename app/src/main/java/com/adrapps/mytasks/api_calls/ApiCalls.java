@@ -79,6 +79,8 @@ public class ApiCalls extends IntentService {
             }
          }
       }
+      mModel = null;
+      mPresenter = null;
    }
 
    private void showToast(String s) {

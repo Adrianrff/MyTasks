@@ -92,6 +92,10 @@ public class Contract {
         void updateItem(LocalTask syncedLocalTask);
 
        void showFab(boolean b);
+
+       void lockScreenOrientation();
+
+       void unlockScreenOrientation();
     }
 
 
