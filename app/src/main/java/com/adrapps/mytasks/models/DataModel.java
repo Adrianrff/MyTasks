@@ -188,8 +188,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void updateList(LocalList localList) {
-      listsDb.updateList(localList);
+   public void updateListInDBFromLocalListAfterServerOp(LocalList localList) {
+      listsDb.updateListInDBFromLocalListAfterServerOp(localList);
    }
 
    @Override

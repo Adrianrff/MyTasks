@@ -23,6 +23,10 @@ public class Contract {
 
         //-----------VIEWS AND WIDGETS------------////
 
+        boolean isDestroyed();
+
+        boolean isFinishing();
+
         void findViews();
 
         void setUpViews();
@@ -43,7 +47,7 @@ public class Contract {
 
         void updateCurrentView();
 
-        void showTaskDeleteUndoSnackBar(String message, SparseArray map);
+        void showDeleteSnackBar(String message, SparseArray map);
 
         void showBottomSheet(LocalTask task, int position, boolean b);
 
@@ -158,7 +162,7 @@ public class Contract {
 
         void addList(String listTitle);
 
-        void updateList(LocalList localList);
+        void updateListInDBFromLocalListAfterServerOp(LocalList localList);
 
         void editList(String listId, String title);
 

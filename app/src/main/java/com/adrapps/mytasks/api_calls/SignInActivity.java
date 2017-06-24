@@ -7,6 +7,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -290,6 +292,12 @@ public class SignInActivity extends AppCompatActivity
       @Override
       protected void onPreExecute() {
          mProgress.show();
+         int currentOrientation = getResources().getConfiguration().orientation;
+         if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+         } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+         }
       }
 
       @Override
@@ -303,11 +311,13 @@ public class SignInActivity extends AppCompatActivity
          editor.putString(Co.CURRENT_LIST_ID, defaultListInfo.get(0));
          editor.putBoolean(Co.IS_FIRST_INIT, true);
          editor.apply();
+         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
          goToTaskListActivity();
       }
 
       @Override
       protected void onCancelled(List<String> strings) {
+         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
          if (mLastError != null) {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
                Toast.makeText(context, R.string.Google_Services_not_available_toast, Toast.LENGTH_LONG).show();

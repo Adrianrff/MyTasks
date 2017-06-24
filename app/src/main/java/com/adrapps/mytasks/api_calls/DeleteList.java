@@ -3,6 +3,7 @@ package com.adrapps.mytasks.api_calls;
 import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -25,6 +26,8 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
    private TaskListPresenter mPresenter;
    private String listId;
    private LocalTask localTask;
+   private static final String TAG = "DeleteList";
+
    Context context;
 
    public DeleteList(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
@@ -62,8 +65,12 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
+      if (!mPresenter.isViewFinishing()) {
       mPresenter.showProgress(false);
       mPresenter.updateCurrentView();
+      } else {
+         Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;
@@ -71,7 +78,6 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
       mPresenter.showProgress(false);
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {

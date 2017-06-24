@@ -3,6 +3,7 @@ package com.adrapps.mytasks.api_calls;
 import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -34,6 +35,7 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
    private Exception mLastError = null;
    private TaskListPresenter mPresenter;
    Context context;
+   private static final String TAG = "MoveTask";
    private JsonBatchCallback<Task> callBack;
 
    public MoveTask(Context context, TaskListPresenter presenter,
@@ -82,7 +84,11 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
+      if (!mPresenter.isViewFinishing()) {
       mPresenter.showProgress(false);
+      } else {
+         Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;
@@ -90,7 +96,6 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
       mPresenter.showProgress(false);
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {

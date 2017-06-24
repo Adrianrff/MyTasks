@@ -31,8 +31,10 @@ import java.util.List;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
+
 public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
+   private final String TAG = "SyncTasks";
    private final BatchRequest requests;
    private Tasks mService = null;
    private Exception mLastError = null;
@@ -87,6 +89,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             Log.d("Deleted", "fail");
 
          }
+
          @Override
          public void onSuccess(Void aVoid, HttpHeaders responseHeaders) throws IOException {
             Log.d("deleted", "success");
@@ -134,9 +137,13 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
-      mPresenter.showProgress(false);
-      mPresenter.showSwipeRefreshProgress(false);
-      mPresenter.updateCurrentView();
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+         mPresenter.showSwipeRefreshProgress(false);
+         mPresenter.updateCurrentView();
+      } else {
+         Log.d(TAG, "onPostExecute (SyncTasks): View was finishing. UI related action not executed");
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;
@@ -144,7 +151,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
       mPresenter.showSwipeRefreshProgress(false);
       mPresenter.showProgress(false);
       if (mLastError != null) {

@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
    DrawerLayout drawer;
    NavigationView navigationView;
    FloatingActionButton fab;
-   ProgressDialog mProgress;
+   ProgressDialog progressDialog;
    ProgressBar progressBar;
    TaskListPresenter mPresenter;
    GoogleAccountCredential mCredential;
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void setUpViews() {
-      mProgress = new ProgressDialog(this);
+      progressDialog = new ProgressDialog(this);
       setSupportActionBar(toolbar);
       toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -480,9 +480,9 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void showProgressDialog() {
-      if (mProgress != null) {
-         mProgress.setMessage(getString(R.string.please_wait));
-         mProgress.show();
+      if (progressDialog != null) {
+         progressDialog.setMessage(getString(R.string.please_wait));
+         progressDialog.show();
       }
    }
 
@@ -498,9 +498,19 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void dismissProgressDialog() {
-      if (progressBar != null && ViewCompat.isAttachedToWindow(progressBar)) {
-         mProgress.dismiss();
+      if (progressDialog != null && progressDialog.isShowing()) {
+         progressDialog.dismiss();
       }
+   }
+
+   @Override
+   public boolean isDestroyed() {
+      return super.isDestroyed();
+   }
+
+   @Override
+   public boolean isFinishing() {
+      return super.isFinishing();
    }
 
    @Override
@@ -544,7 +554,7 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public void showTaskDeleteUndoSnackBar(String message, final SparseArray map) {
+   public void showDeleteSnackBar(String message, final SparseArray map) {
 
       Snackbar snackbar = Snackbar.make(coordinatorLayout, message, Co.SNACKBAR_DURATION);
       snackbar.setAction(R.string.undo, new View.OnClickListener() {

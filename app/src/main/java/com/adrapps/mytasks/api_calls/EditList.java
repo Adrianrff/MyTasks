@@ -3,6 +3,7 @@ package com.adrapps.mytasks.api_calls;
 import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -26,6 +27,8 @@ public class EditList extends AsyncTask<String, Void, Void> {
    private TaskListPresenter mPresenter;
    private String listId;
    private LocalTask localTask;
+   private static final String TAG = "EditList";
+
    Context context;
 
    public EditList(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
@@ -63,8 +66,12 @@ public class EditList extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
+      if (!mPresenter.isViewFinishing()) {
       mPresenter.showProgress(false);
       mPresenter.updateCurrentView();
+      } else {
+         Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;
@@ -72,7 +79,6 @@ public class EditList extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
       mPresenter.showProgress(false);
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
@@ -100,7 +106,7 @@ public class EditList extends AsyncTask<String, Void, Void> {
          TaskList list = mService.tasklists().get(listId).execute();
          list.setTitle(title);
          mService.tasklists().update(listId, list).execute();
-         mPresenter.updateList(list);
+         mPresenter.updateListInDBFromServerList(list);
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

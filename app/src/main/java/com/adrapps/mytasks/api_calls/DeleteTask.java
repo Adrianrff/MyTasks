@@ -3,6 +3,7 @@ package com.adrapps.mytasks.api_calls;
 import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -24,6 +25,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class DeleteTask extends AsyncTask<Void, Void, Void> {
 
+   private static final String TAG = "DeleteTasks";
    private final JsonBatchCallback<Void> deleteCallback;
    private com.google.api.services.tasks.Tasks mService = null;
    private Exception mLastError = null;
@@ -40,12 +42,10 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
       this.deleteCallback = new JsonBatchCallback<Void>() {
          @Override
          public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
-//            Log.d("Deleted", "fail");
-
          }
+
          @Override
          public void onSuccess(Void aVoid, HttpHeaders responseHeaders) throws IOException {
-//            Log.d("deleted", "success");
          }
       };
    }
@@ -58,7 +58,7 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
       } catch (Exception e) {
          mLastError = e;
          cancel(true);
-//            FirebaseCrash.report(e);
+//       FirebaseCrash.report(e);
          return null;
       }
       return null;
@@ -78,7 +78,11 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
-      mPresenter.showProgress(false);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+      } else {
+         Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;
@@ -86,7 +90,6 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
       mPresenter.showProgress(false);
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
@@ -119,7 +122,7 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
                mPresenter.deleteTaskFromDatabase(mPresenter.getIntIdByTaskId(currentTask.getId()));
             }
          }
-         if (requests.size() > 0){
+         if (requests.size() > 0) {
             requests.execute();
          }
       } else {

@@ -58,7 +58,9 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
-      mPresenter.showProgress(false);
+      if (mPresenter.getView() != null){
+         mPresenter.showProgress(false);
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;
@@ -66,8 +68,9 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
-      mPresenter.showProgress(false);
+      if (mPresenter.getView() != null) {
+         mPresenter.showProgress(false);
+      }
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));

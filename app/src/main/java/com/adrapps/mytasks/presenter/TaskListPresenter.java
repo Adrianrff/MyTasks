@@ -2,6 +2,7 @@ package com.adrapps.mytasks.presenter;
 
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.adrapps.mytasks.api_calls.SyncTasks;
@@ -25,6 +26,7 @@ public class TaskListPresenter implements Serializable {
 
    private WeakReference<Contract.MainActivityViewOps> mView;
    private Contract.Model mModel;
+   private String TAG = "TaskListPresenter";
 
 //------------------CONSTRUCTOR-------------------////
 
@@ -37,7 +39,7 @@ public class TaskListPresenter implements Serializable {
       mModel = new DataModel(this, getView().getContext());
    }
 
-   private Contract.MainActivityViewOps getView() throws NullPointerException {
+   public Contract.MainActivityViewOps getView() throws NullPointerException {
       if (mView != null)
          return mView.get();
       else
@@ -48,56 +50,125 @@ public class TaskListPresenter implements Serializable {
    //-------------VIEW OPERATIONS------------------///
 
    public void showToast(String msg) {
-      getView().showToast(msg);
-   }
-
-   public void updateCurrentView() {
-      getView().updateCurrentView();
-   }
-
-   public void setUpViews() {
-      getView().setUpViews();
-   }
-
-   public void initRecyclerView(List<LocalTask> tasks) {
-      getView().initRecyclerView(tasks);
-   }
-
-   public void dismissProgressDialog() {
-      getView().dismissProgressDialog();
-   }
-
-   public void showUndoSnackBar(String message, SparseArray map) {
-      getView().showTaskDeleteUndoSnackBar(message, map);
-   }
-
-   public void showProgress(boolean b) {
-      getView().showCircularProgress(b);
-   }
-
-   public void showProgressDialog() {
-      getView().showProgressDialog();
-   }
-
-   public void lockScreenOrientation() {
-      getView().lockScreenOrientation();
-   }
-
-   public void unlockScreenOrientation() {
-      getView().unlockScreenOrientation();
-   }
-
-   public void refresh() {
-      if (isDeviceOnline()) {
-         SyncTasks syncTasks = new SyncTasks(getView().getContext(), this, getView().getCredential());
-         syncTasks.execute();
-      } else {
-         showSwipeRefreshProgress(false);
+      try {
+         getView().showToast(msg);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
       }
    }
 
+   public void updateCurrentView() {
+      try {
+         getView().updateCurrentView();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+     
+   }
+
+   public boolean isViewDestroyed(){
+      try {
+         boolean isViewDestroyed = getView().isDestroyed();
+         return isViewDestroyed;
+      } catch (NullPointerException e) {
+         Log.d(TAG, "isViewDestroyed: View was null");
+         return true;
+      }
+   }
+
+   public boolean isViewFinishing(){
+      try {
+         boolean isViewFinishing = getView().isFinishing();
+         return isViewFinishing;
+      } catch (NullPointerException e) {
+         return true;
+      }
+   }
+
+   public void setUpViews() {
+      try {
+         getView().setUpViews();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void initRecyclerView(List<LocalTask> tasks) {
+      try {
+         getView().initRecyclerView(tasks);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void dismissProgressDialog() {
+      try {
+         getView().dismissProgressDialog();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void showUndoSnackBar(String message, SparseArray map) {
+      try {
+         getView().showDeleteSnackBar(message, map);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void showProgress(boolean b) {
+      try {
+         getView().showCircularProgress(b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void showProgressDialog() {
+      try {
+         getView().showProgressDialog();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void lockScreenOrientation() {
+      try {
+         getView().lockScreenOrientation();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void unlockScreenOrientation() {
+      try {
+         getView().unlockScreenOrientation();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void refresh() {
+      try {
+         if (isDeviceOnline()) {
+            SyncTasks syncTasks = new SyncTasks(getView().getContext(), this, getView().getCredential());
+            syncTasks.execute();
+         } else {
+            showSwipeRefreshProgress(false);
+         }
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+
+   }
+
    public void showSwipeRefreshProgress(boolean b) {
-      getView().showSwipeRefreshProgress(b);
+      try {
+         getView().showSwipeRefreshProgress(b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
 
@@ -127,15 +198,28 @@ public class TaskListPresenter implements Serializable {
 
 
    public void saveStringSharedPreference(String key, String value) {
-      getView().saveStringShP(key, value);
+      try {
+         getView().saveStringShP(key, value);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public String getStringShP(String key, @Nullable String defaultValue) {
-      return getView().getStringShP(key, null);
+      try {
+         return getView().getStringShP(key, defaultValue);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+         return null;
+      }
    }
 
    public void requestApiPermission(Exception mLastError) {
-      getView().requestAuthorization(mLastError);
+      try {
+         getView().requestAuthorization(mLastError);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public String getListTitleById(String listId) {
@@ -151,7 +235,12 @@ public class TaskListPresenter implements Serializable {
    }
 
    public GoogleAccountCredential getCredential() {
-      return getView().getCredential();
+      try {
+         return getView().getCredential();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+         return null;
+      }
    }
 
    public void updateTaskStatus(int intId, String listId, String newStatus) {
@@ -159,11 +248,20 @@ public class TaskListPresenter implements Serializable {
    }
 
    public boolean isDeviceOnline() {
-      return getView().isDeviceOnline();
+      try {
+         return getView().isDeviceOnline();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+         return false;
+      }
    }
 
    public void navigateToEditTask(Intent i) {
-      getView().navigateToEditTask(i);
+      try {
+         getView().navigateToEditTask(i);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public void refreshFirstTime() {
@@ -179,7 +277,11 @@ public class TaskListPresenter implements Serializable {
    }
 
    public void showEmptyRecyclerView(boolean b) {
-      getView().showEmptyRecyclerView(b);
+      try {
+         getView().showEmptyRecyclerView(b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public void moveTasks(LinkedHashMap<LocalTask, String> moveMap){
@@ -191,11 +293,19 @@ public class TaskListPresenter implements Serializable {
    }
 
    public void showBottomSheet(LocalTask task, int position, boolean b) {
-      getView().showBottomSheet(task, position, b);
+      try {
+         getView().showBottomSheet(task, position, b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public void saveBooleanShP(String key, boolean b) {
-      getView().saveBooleanShP(key, b);
+      try {
+         getView().saveBooleanShP(key, b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public int addTaskToDatabase(LocalTask task) {
@@ -207,7 +317,11 @@ public class TaskListPresenter implements Serializable {
    }
 
    public void addTaskToAdapter(LocalTask localTask) {
-      getView().addTaskToAdapter(localTask);
+      try {
+         getView().addTaskToAdapter(localTask);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public void updateSyncStatus(int intId, int synced) {
@@ -239,7 +353,11 @@ public class TaskListPresenter implements Serializable {
    }
 
    public void updateItem(LocalTask syncedLocalTask) {
-      getView().updateItem(syncedLocalTask);
+      try {
+         getView().updateItem(syncedLocalTask);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public List<String> getListsTitles() {
@@ -263,15 +381,15 @@ public class TaskListPresenter implements Serializable {
       mModel.addList(listTitle);
    }
 
-   public void updateList(LocalList localList) {
-      mModel.updateList(localList);
+   public void updateListInDBFromLocalListAfterServerOp(LocalList localList) {
+      mModel.updateListInDBFromLocalListAfterServerOp(localList);
    }
 
    public void editList(String listId, String title) {
       mModel.editList(listId, title);
    }
 
-   public void updateList(TaskList list) {
+   public void updateListInDBFromServerList(TaskList list) {
       mModel.updateList(list);
    }
 
@@ -288,11 +406,19 @@ public class TaskListPresenter implements Serializable {
    }
 
    public void swipeRefreshSetEnabled(boolean b) {
-      getView().setSwipeRefreshEnabled(b);
+      try {
+         getView().setSwipeRefreshEnabled(b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public void showFab(boolean b) {
-      getView().showFab(b);
+      try {
+         getView().showFab(b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
    }
 
    public void updatePositions(List<Task> tasks) {
@@ -303,4 +429,5 @@ public class TaskListPresenter implements Serializable {
    public void updateExistingTaskFromLocalTask(LocalTask task, String listId) {
       mModel.updateExistingTaskFromLocalTask(task, listId);
    }
+
 }

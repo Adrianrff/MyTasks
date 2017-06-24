@@ -3,6 +3,7 @@ package com.adrapps.mytasks.api_calls;
 import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -30,6 +31,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
    private TaskListPresenter mPresenter;
    private List<LocalTask> localTasks = new ArrayList<>();
    private List<TaskList> lists = new ArrayList<>();
+   private static final String TAG = "FirstRefresh";
    Context context;
 
 
@@ -69,12 +71,16 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
    @Override
    protected void onPostExecute(Void aVoid) {
       mPresenter.saveBooleanShP(Co.IS_FIRST_INIT, false);
+      mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE, lists.get(0).getTitle());
+      if (!mPresenter.isViewFinishing()) {
       mPresenter.dismissProgressDialog();
       mPresenter.showProgress(false);
-      mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE, lists.get(0).getTitle());
       mPresenter.setUpViews();
       mPresenter.initRecyclerView(mPresenter.getTasksFromList(lists.get(0).getId()));
       mPresenter.updateCurrentView();
+      } else {
+         Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;

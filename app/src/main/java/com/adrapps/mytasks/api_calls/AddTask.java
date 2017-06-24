@@ -3,6 +3,7 @@ package com.adrapps.mytasks.api_calls;
 import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -25,6 +26,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
    private TaskListPresenter mPresenter;
    private LocalTask syncedLocalTask;
    Context context;
+   private static final String TAG = "AddTask";
 
    public AddTask(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
       this.mPresenter = presenter;
@@ -61,9 +63,13 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
-      mPresenter.showProgress(false);
-      mPresenter.updateSyncStatus(syncedLocalTask.getIntId(), 2);
-      mPresenter.updateItem(syncedLocalTask);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+         mPresenter.updateSyncStatus(syncedLocalTask.getIntId(), 2);
+         mPresenter.updateItem(syncedLocalTask);
+      } else {
+         Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
+      }
       mPresenter.unlockScreenOrientation();
       context = null;
       mPresenter = null;
@@ -71,7 +77,6 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
       mPresenter.showProgress(false);
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
