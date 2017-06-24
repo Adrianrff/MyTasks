@@ -161,6 +161,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
          cv.put(COL_LOCAL_UPDATED,System.currentTimeMillis());
          cv.put(COL_SYNC_STATUS,Co.SYNCED);
          db.insert(TABLE_NAME,null,cv);
+
       }
       bm.dataChanged();
    }
