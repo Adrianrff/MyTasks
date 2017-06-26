@@ -58,7 +58,7 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onPostExecute(Void aVoid) {
-      if (mPresenter.getView() != null){
+      if (!mPresenter.isViewFinishing()) {
          mPresenter.showProgress(false);
       }
       mPresenter.unlockScreenOrientation();
@@ -68,7 +68,7 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      if (mPresenter.getView() != null) {
+      if (!mPresenter.isViewFinishing()) {
          mPresenter.showProgress(false);
       }
       if (mLastError != null) {
@@ -99,8 +99,8 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
             task.setCompleted(null);
          }
          task.setStatus(newStatus);
-         mPresenter.updateSyncStatus(mPresenter.getIntIdByTaskId(taskId), Co.SYNCED);
          mService.tasks().update(listId, task.getId(), task).execute();
+         mPresenter.updateSyncStatus(mPresenter.getIntIdByTaskId(taskId), Co.SYNCED);
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

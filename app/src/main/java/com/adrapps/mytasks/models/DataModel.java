@@ -241,6 +241,7 @@ public class DataModel implements Contract.Model {
          LocalTask currentTask = tasks.get(i);
          String currentTaskId = currentTask.getId();
          AlarmHelper.cancelTaskReminder(tasks.get(i), context);
+         AlarmHelper.cancelDefaultRemindersForTasks(context, tasks);
          if (currentTaskId == null || currentTaskId.trim().isEmpty()) {
             tasks.remove(i);
             deleteTaskFromDatabase(currentTask.getIntId());
@@ -257,11 +258,10 @@ public class DataModel implements Contract.Model {
 
 
    @Override
-   public void updateTaskStatus(int intId, String listId, String newStatus) {
-      tasksDb.updateTaskStatus(intId, newStatus);
-      if (tasksDb.getTask(intId).getSyncStatus() != 0) {
-         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED, intId);
-      }
+   public void updateTaskStatusInServer(int intId, String listId, String newStatus) {
+//      if (tasksDb.getTask(intId).getSyncStatus() != 0) {
+//         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED, intId);
+//      }
       if (mPresenter != null) {
          if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
@@ -270,6 +270,14 @@ public class DataModel implements Contract.Model {
          }
       }
 
+   }
+
+   @Override
+   public void updateTaskStatusInDB(int intId, String newStatus) {
+      tasksDb.updateTaskStatus(intId, newStatus);
+      if (tasksDb.getTask(intId).getSyncStatus() != 0) {
+         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED, intId);
+      }
    }
 
    @Override

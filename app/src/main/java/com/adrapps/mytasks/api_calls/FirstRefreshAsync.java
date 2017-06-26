@@ -90,8 +90,10 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.dismissProgressDialog();
-      mPresenter.showProgress(false);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.dismissProgressDialog();
+         mPresenter.showProgress(false);
+      }
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast("Google Play Services is not available");

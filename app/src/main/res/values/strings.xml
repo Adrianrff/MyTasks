@@ -86,7 +86,8 @@
     <string name="select_date">Select the date</string>
     <string name="select_time">Select the time</string>
     <string name="select_repeat_mode">Select repeat mode</string>
-    <string name="Delete">Eliminar</string>
+    <string name="Delete">Delete</string>
+    <string name="custom_date">Custom…</string>
     <string name="selected">selected</string>
     <string name="selected_plural">selected</string>
     <string name="change_lists">Change lists</string>
@@ -129,8 +130,7 @@
     <string name="default_reminder_pref_title">Default reminder</string>
     <string name="default_reminder_pref_summary">If enabled, a reminder will fire at the predefined time on the task\'s due date (if any is set)</string>
     <string name="default_reminder_time_pref_title">Default reminder time</string>
-
-
+    <string name="google_connection_failed">Connection to Google failed. Please try again</string>
 
 
     <string-array name="days_of_month">

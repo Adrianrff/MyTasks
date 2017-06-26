@@ -15,6 +15,30 @@
       },
       "oauth_client": [
         {
+          "client_id": "146839905436-krvv6v3eo85n4vip3j8euoemqnca0lkh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrapps.mytasks",
+            "certificate_hash": "9b3f0a85fec10b7c72cfce152abb72bb26c676af"
+          }
+        },
+        {
+          "client_id": "146839905436-19np1aqis5md8iggbfs56esi9d151s3m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrapps.mytasks",
+            "certificate_hash": "37c8ab1405a3438d8f9bdb205eeb9e7b4bcaad7c"
+          }
+        },
+        {
+          "client_id": "146839905436-b6nuqnn54plscdm8hp5a3ubf0ja87ir2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adrapps.mytasks",
+            "certificate_hash": "da911f867f3eae5385ec403df8a87fa6da5593ab"
+          }
+        },
+        {
           "client_id": "146839905436-h0eoar8eiil43nvt1glu5gb530rlocg9.apps.googleusercontent.com",
           "client_type": 3
         },
@@ -23,7 +47,7 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.adrapps.mytasks",
-            "certificate_hash": "37c8ab1405a3438d8f9bdb205eeb9e7b4bcaad7c"
+            "certificate_hash": "f4818586ecf869c122e4b3616062334b08fc3b4a"
           }
         },
         {

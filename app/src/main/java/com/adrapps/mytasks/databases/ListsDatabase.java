@@ -106,7 +106,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
          } while (cursor.moveToNext());
       }
       cursor.close();
-      //db.close();
       return listsTitles;
    }
 
@@ -120,7 +119,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
          } while (cursor.moveToNext());
       }
       cursor.close();
-      //db.close();
       return listsTitles;
    }
 
@@ -134,7 +132,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       long insertedRow = db.insert(TABLE_NAME, null, cv);
-      //db.close();
       bm.dataChanged();
       return insertedRow;
    }
@@ -211,7 +208,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
          } while (cursor.moveToNext());
       }
       cursor.close();
-      //db.close();
       return listTitle;
    }
 
@@ -226,7 +222,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       db.update(TABLE_NAME, cv, selection, selectionArgs);
-      //db.close();
       bm.dataChanged();
    }
 
@@ -237,7 +232,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
       ContentValues cv = new ContentValues();
       cv.put(COL_TITLE, title);
       db.update(TABLE_NAME, cv, selection, selectionArgs);
-      //db.close();
       bm.dataChanged();
    }
 
@@ -269,7 +263,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
          } while (cursor.moveToNext());
       }
       cursor.close();
-      //db.close();
       return listId;
    }
 
@@ -278,7 +271,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
       String selection = COL_ID + " = ? ";
       String[] selectionArgs = {listId};
       db.delete(TABLE_NAME, selection, selectionArgs);
-      //db.close();
       bm.dataChanged();
    }
 
@@ -287,7 +279,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
       String selection = COL_INT_ID + " = ? ";
       String[] selectionArgs = {String.valueOf(intId)};
       db.delete(TABLE_NAME, selection, selectionArgs);
-      //db.close();
       bm.dataChanged();
    }
 
@@ -308,7 +299,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
          } while (cursor.moveToNext());
       }
       cursor.close();
-      //db.close();
       return localLists;
    }
 

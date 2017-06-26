@@ -49,7 +49,9 @@ public class Co {
    public static final String TASK_ID_ORDERED_LIST = "Task_ordered_list";
    public static final String STATE_SHOWN_TASK = "Task shown in Bottom sheet";
    public static final String STATE_SHOWN_TASK_POSITION = "Task shown in Bottom sheet position";
-
+   public static final String TASK_ID = "task id";
+   public static final String TASK_INT_ID = "task int id";
+   public static final String TASK_LIST_ID = "task list id";
 
    //Reminder
    public static final int MORNING_DEFAULT_REMINDER_TIME = 8;
@@ -79,7 +81,7 @@ public class Co {
    public static final String VIBRATE_REMINDER_PREF_KEY = "reminder vibrate";
    public static final String DEFAULT_REMINDER_PREF_KEY = "default_reminder_pref_key";
    public static final String DEFAULT_REMINDER_TIME_PREF_KEY = "default_reminder_time_pref_key";
-   public static final int DEFAULT_REMINDER_INDENTIFIER = 33333;
+   public static final int DEFAULT_REMINDER_IDENTIFIER = 33333;
 
 
 

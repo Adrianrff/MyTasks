@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
-import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.CompareLists;
 import com.adrapps.mytasks.helpers.DateHelper;
@@ -151,7 +150,10 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.showSwipeRefreshProgress(false);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+         mPresenter.showSwipeRefreshProgress(false);
+      }
       mPresenter.showProgress(false);
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
@@ -175,17 +177,22 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
    private void syncAll() throws IOException {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
 
-         List<LocalList> localListsNotInServer = new ArrayList<>();
-         List<TaskList> serverListNotInDb = new ArrayList<>();
-
-         //Get server lists
-         List<TaskList> lists = mService.tasklists().list()
+         //Get server serverLists
+         List<TaskList> serverLists = mService.tasklists().list()
                .execute().getItems();
+         List<String> serverListsIds = new ArrayList<>();
+         for (int i = 0; i < serverLists.size() ; i++) {
+            serverListsIds.add(serverLists.get(i).getId());
+         }
+         List<String> localListsIds = mPresenter.getListsIds();
+         List<String> localListsNotInServer = CompareLists.localListsNotInServer(localListsIds, serverListsIds);
+         List<String> serverListNotInDb = CompareLists.serverListsNotInDB(localListsIds, serverListsIds);
+
 
          //Populate listIds field
-         //Update lists database
-         if (!lists.isEmpty()) {
-            mPresenter.updateLists(lists);
+         //Update serverLists database
+         if (!serverLists.isEmpty()) {
+            mPresenter.updateLists(serverLists);
          }
 
          List<Task> serverTasks;
@@ -194,9 +201,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          List<Task> serverTasksNotInDB;
          String currentListId;
 
-         // Loop through list of lists
-         for (int i = 0; i < lists.size(); i++) {
-            currentListId = lists.get(i).getId();
+         // Loop through list of serverLists
+         for (int i = 0; i < serverLists.size(); i++) {
+            currentListId = serverLists.get(i).getId();
 
             //Get server tasks and local tasks from list
             serverTasks = mService.tasks().list(currentListId).execute().getItems();
@@ -207,7 +214,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             if (serverTasks == null && localTasks.isEmpty()) {
                continue;
             }
-
             //LOCAL TASKS HASH MAP
             if (!localTasks.isEmpty()) {
                for (int k = 0; k < localTasks.size(); k++) {

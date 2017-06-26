@@ -54,7 +54,7 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
    protected Void doInBackground(Void... params) {
 
       try {
-         removeTask(tasks);
+         deleteTask(tasks);
       } catch (Exception e) {
          mLastError = e;
          cancel(true);
@@ -90,7 +90,9 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.showProgress(false);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+      }
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
@@ -112,7 +114,7 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
    }
 
 
-   private void removeTask(List<LocalTask> tasks) throws IOException {
+   private void deleteTask(List<LocalTask> tasks) throws IOException {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
          BatchRequest requests = mService.batch();
          for (int i = 0; i < tasks.size(); i++) {

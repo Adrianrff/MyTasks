@@ -42,6 +42,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -198,32 +199,32 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       LocalTask cTask = tasks.get(position);
       holder.setSelectionModeBackgroundDrawable(getHighlightedBackground());
       if (!cTask.getTitle().equals("")) {
-         holder.taskName.setText(cTask.getTitle());
+         holder.taskTitleTextView.setText(cTask.getTitle());
       } else {
-         holder.taskName.setText(R.string.no_task_name);
+         holder.taskTitleTextView.setText(R.string.no_task_name);
       }
       if (cTask.getDue() == 0) {
-         holder.dueDate.setTextColor(holder.oldDueColors);
-         holder.dueDate.setTypeface(null, Typeface.NORMAL);
-         holder.dueDate.setText(R.string.no_due_date);
+         holder.dueDateTextView.setTextColor(holder.oldDueColors);
+         holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
+         holder.dueDateTextView.setText(R.string.no_due_date);
       } else {
          if (DateUtils.isToday(cTask.getDue())) {
-            holder.dueDate.setTextColor(holder.oldDueColors);
-            holder.dueDate.setTypeface(null, Typeface.BOLD);
-            holder.dueDate.setText(R.string.today);
+            holder.dueDateTextView.setTextColor(holder.oldDueColors);
+            holder.dueDateTextView.setTypeface(null, Typeface.BOLD);
+            holder.dueDateTextView.setText(R.string.today);
          } else if (DateHelper.isTomorrow(cTask.getDue())) {
-            holder.dueDate.setTextColor(holder.oldDueColors);
-            holder.dueDate.setTypeface(null, Typeface.NORMAL);
-            holder.dueDate.setText(R.string.tomorrow);
+            holder.dueDateTextView.setTextColor(holder.oldDueColors);
+            holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
+            holder.dueDateTextView.setText(R.string.tomorrow);
          } else if (DateHelper.isInThePast(cTask.getDue())) {
-            holder.dueDate.setText(DateHelper.millisToDateOnly(cTask.getDue())
+            holder.dueDateTextView.setText(DateHelper.millisToDateOnly(cTask.getDue())
                   + " " + context.getString(R.string.overdue_append));
-            holder.dueDate.setTypeface(null, Typeface.NORMAL);
-            holder.dueDate.setTextColor(Color.RED);
+            holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
+            holder.dueDateTextView.setTextColor(Color.RED);
          } else {
-            holder.dueDate.setTextColor(holder.oldDueColors);
-            holder.dueDate.setTypeface(null, Typeface.NORMAL);
-            holder.dueDate.setText(DateHelper.millisToDateOnly(cTask.getDue()));
+            holder.dueDateTextView.setTextColor(holder.oldDueColors);
+            holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
+            holder.dueDateTextView.setText(DateHelper.millisToDateOnly(cTask.getDue()));
          }
       }
       holder.taskCheckbox.setOnCheckedChangeListener(null);
@@ -232,23 +233,19 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       }
       if (cTask.getStatus().equals(Co.TASK_COMPLETED)) {
          holder.taskCheckbox.setChecked(true);
-         holder.taskName.setPaintFlags(holder.taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-         holder.dueDate.setPaintFlags(holder.dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-         holder.dueDate.setTextColor(Color.GRAY);
-         holder.taskName.setTextColor(Color.GRAY);
+         holder.taskTitleTextView.setPaintFlags(holder.taskTitleTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+         holder.dueDateTextView.setPaintFlags(holder.dueDateTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+         holder.dueDateTextView.setTextColor(Color.GRAY);
+         holder.taskTitleTextView.setTextColor(Color.GRAY);
       } else {
-         holder.taskName.setTextColor(holder.oldTaskColors);
-         holder.taskName.setPaintFlags(0);
-         holder.dueDate.setPaintFlags(0);
+         holder.taskTitleTextView.setTextColor(holder.oldTaskColors);
+         holder.taskTitleTextView.setPaintFlags(0);
+         holder.dueDateTextView.setPaintFlags(0);
          holder.taskCheckbox.setChecked(false);
       }
       holder.taskCheckbox.setOnCheckedChangeListener(holder);
       if (cTask.getReminder() != 0) {
-//            if (mPresenter.isReminderSet((int) cTask.getReminderId())){
          holder.notificationImage.setVisibility(View.VISIBLE);
-//            } else {
-//                holder.notificationImage.setVisibility(View.GONE);
-//            }
       } else {
          holder.notificationImage.setVisibility(View.GONE);
       }
@@ -366,7 +363,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          CompoundButton.OnCheckedChangeListener, View.OnLongClickListener, SelectableHolder,
          ItemTouchHelperViewHolder {
 
-      TextView taskName, dueDate;
+      TextView taskTitleTextView, dueDateTextView;
       ImageView notificationImage;
       CheckBox taskCheckbox;
       Context context;
@@ -380,13 +377,13 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          this.mPresenter = presenter;
          v.setOnClickListener(this);
          v.setOnLongClickListener(this);
-         dueDate = (TextView) v.findViewById(R.id.textViewDate);
-         taskName = (TextView) v.findViewById(R.id.textViewName);
+         dueDateTextView = (TextView) v.findViewById(R.id.textViewDate);
+         taskTitleTextView = (TextView) v.findViewById(R.id.textViewName);
          notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
          taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
          taskCheckbox.setOnCheckedChangeListener(this);
-         oldTaskColors = taskName.getTextColors();
-         oldDueColors = dueDate.getTextColors();
+         oldTaskColors = taskTitleTextView.getTextColors();
+         oldDueColors = dueDateTextView.getTextColors();
       }
 
 
@@ -395,45 +392,56 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
          LocalTask cTask = tasks.get(getAdapterPosition());
          if (isChecked) {
-            taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            dueDate.setPaintFlags(dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            dueDate.setTextColor(Color.GRAY);
-            taskName.setTextColor(Color.GRAY);
+            taskTitleTextView.setPaintFlags(taskTitleTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            dueDateTextView.setPaintFlags(dueDateTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            dueDateTextView.setTextColor(Color.GRAY);
+            taskTitleTextView.setTextColor(Color.GRAY);
             cTask.setStatus(Co.TASK_COMPLETED);
             cTask.setReminderNoID(0);
             mPresenter.updateExistingTaskFromLocalTask(cTask, cTask.getList());
-            mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_COMPLETED);
-            AlarmHelper.cancelTaskReminder(cTask,context);
-            notifyItemChanged(getAdapterPosition());
-         } else {
-            dueDate.setTextColor(oldDueColors);
-            dueDate.setPaintFlags(0);
-            taskName.setTextColor(oldTaskColors);
-            taskName.setPaintFlags(0);
-            cTask.setStatus(Co.TASK_NEEDS_ACTION);
+            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getList(), Co.TASK_COMPLETED);
 
+            AlarmHelper.cancelTaskReminder(cTask,context);
+            if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true)){
+               List<LocalTask> task =  new ArrayList<>();
+               task.add(cTask);
+               AlarmHelper.cancelDefaultRemindersForTasks(context, task);
+            }
+         } else {
+            dueDateTextView.setTextColor(oldDueColors);
+            dueDateTextView.setPaintFlags(0);
+            taskTitleTextView.setTextColor(oldTaskColors);
+            taskTitleTextView.setPaintFlags(0);
+            cTask.setStatus(Co.TASK_NEEDS_ACTION);
             if (cTask.getDue() == 0) {
-               dueDate.setText(R.string.no_due_date);
+               dueDateTextView.setText(R.string.no_due_date);
             } else {
                if (DateUtils.isToday(cTask.getDue())) {
-                  dueDate.setTextColor(oldDueColors);
-                  dueDate.setTypeface(null, Typeface.BOLD);
+                  dueDateTextView.setTextColor(oldDueColors);
+                  dueDateTextView.setTypeface(null, Typeface.BOLD);
                } else if (DateHelper.isTomorrow(cTask.getDue())) {
-                  dueDate.setTextColor(oldDueColors);
-                  dueDate.setTypeface(null, Typeface.NORMAL);
+                  dueDateTextView.setTextColor(oldDueColors);
+                  dueDateTextView.setTypeface(null, Typeface.NORMAL);
                } else if (DateHelper.isInThePast(cTask.getDue())) {
-                  dueDate.setText(DateHelper.millisToDateOnly(cTask.getDue())
+                  dueDateTextView.setText(DateHelper.millisToDateOnly(cTask.getDue())
                         + " " + context.getString(R.string.overdue_append));
-                  dueDate.setTypeface(null, Typeface.NORMAL);
-                  dueDate.setTextColor(Color.RED);
+                  dueDateTextView.setTypeface(null, Typeface.NORMAL);
+                  dueDateTextView.setTextColor(Color.RED);
                } else {
-                  dueDate.setTextColor(oldDueColors);
-                  dueDate.setTypeface(null, Typeface.NORMAL);
+                  dueDateTextView.setTextColor(oldDueColors);
+                  dueDateTextView.setTypeface(null, Typeface.NORMAL);
                }
             }
-            AlarmHelper.setOrUpdateAlarm(cTask, context);
-            mPresenter.updateTaskStatus(cTask.getIntId(), cTask.getList(), Co.TASK_NEEDS_ACTION);
+            if (cTask.getReminder() != 0){
+               AlarmHelper.setOrUpdateAlarm(cTask, context);
+            }
+            if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true) &&
+                  cTask.getDue()!=0 && cTask.getDue() > Calendar.getInstance().getTimeInMillis()){
+               AlarmHelper.setOrUpdateDefaultRemindersForTask(context, cTask);
+            }
+            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getList(), Co.TASK_NEEDS_ACTION);
          }
+         notifyItemChanged(getAdapterPosition());
       }
 
       @Override

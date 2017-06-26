@@ -82,7 +82,7 @@
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAI5RxBc34dSH7m1o8X84T1y1ik137ZZBKMtDG4MQ"/>
 
-        <service android:name=".api_calls.ApiCalls"/>
+        <service android:name=".api_calls.MarkCompleteFromNotification"/>
 
     </application>
 

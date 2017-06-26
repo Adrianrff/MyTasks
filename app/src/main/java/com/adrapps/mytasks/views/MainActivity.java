@@ -14,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BaseTransientBottomBar;
@@ -78,7 +79,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
       implements NavigationView.OnNavigationItemSelectedListener,
       Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
-      View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, OnStartDragListener {
+      View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, OnStartDragListener, DrawerLayout.DrawerListener {
 
    Toolbar toolbar;
    DrawerLayout drawer;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity
    SwipeRefreshLayout swipeRefresh;
    private LinearLayout emptyDataLayout, noInternetLayout, notificationDetailLayout;
    private View bottomSheet;
-   private ImageView profilePic, editIcon;
+   private ImageView profilePicContainer, editIcon;
    private TextView userEmail, userName, detailTitle, detailDate, nextReminderTV,
          detailNotification, detailNotes, detailRepeat;
    private BottomSheetBehavior mBottomSheetBehavior;
@@ -105,12 +106,13 @@ public class MainActivity extends AppCompatActivity
    private ItemTouchHelper touchHelper;
    private LocalTask taskShownInBottomSheet;
    private int taskShownInBottomSheetPos;
+   private boolean settingsItemSelected, newListItemSelected;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
-      if (getBooleanShP(Co.IS_FIRST_LAUNCH)) {
+      if (getBooleanShP(Co.IS_FIRST_LAUNCH, true)) {
          Intent i = new Intent(this, SignInActivity.class);
          startActivity(i);
          finish();
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity
       setUpViews();
       setCredentials();
       this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
-      if (getBooleanShP(Co.IS_FIRST_INIT)) {
+      if (getBooleanShP(Co.IS_FIRST_INIT, true)) {
          refreshFirstTime();
          saveIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
          saveIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
@@ -171,10 +173,11 @@ public class MainActivity extends AppCompatActivity
       toolbar = (Toolbar) findViewById(R.id.toolbar);
       fab = (FloatingActionButton) findViewById(R.id.fab);
       drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+      drawer.addDrawerListener(this);
       coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
       navigationView = (NavigationView) findViewById(R.id.nav_view);
       View headerView = navigationView.getHeaderView(0);
-      profilePic = (ImageView) headerView.findViewById(R.id.profilePic);
+      profilePicContainer = (ImageView) headerView.findViewById(R.id.profilePic);
       userName = (TextView) headerView.findViewById(R.id.userName);
       userEmail = (TextView) headerView.findViewById(R.id.userEmail);
       recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -195,7 +198,10 @@ public class MainActivity extends AppCompatActivity
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
       toggle.setToolbarNavigationClickListener(this);
       toggle.syncState();
-      Glide.with(this).load(getStringShP(Co.USER_PIC_URL, null)).into(profilePic);
+      Glide.with(this)
+            .load(getStringShP(Co.USER_PIC_URL, null))
+//            .placeholder(placeHolderUrl)
+            .into(profilePicContainer);
       userName.setText(getStringShP(Co.USER_NAME, null));
       userEmail.setText(getStringShP(Co.USER_EMAIL, null));
       navigationView.setNavigationItemSelectedListener(this);
@@ -575,6 +581,7 @@ public class MainActivity extends AppCompatActivity
                for (int i = 0; i < map.size(); i++) {
                   tasks.add((LocalTask) map.valueAt(i));
                }
+               AlarmHelper.cancelDefaultRemindersForTasks(MainActivity.this, tasks);
                mPresenter.deleteTasks(tasks);
             }
          }
@@ -661,12 +668,52 @@ public class MainActivity extends AppCompatActivity
       }
 
       if (item.getItemId() == Co.NEW_LIST_MENU_ITEM_ID) {
+         newListItemSelected = true;
          drawer.closeDrawer(GravityCompat.START);
-         showNewListDialog();
+
+      }
+
+      if (item.getItemId() == R.id.nav_settings){
+         settingsItemSelected = true;
+         drawer.closeDrawer(GravityCompat.START);
 
       }
       return false;
 
+   }
+
+
+   //DRAWER LISTENER METHODS
+   @Override
+   public void onDrawerSlide(View drawerView, float slideOffset) {
+
+   }
+
+   @Override
+   public void onDrawerOpened(View drawerView) {
+
+   }
+
+   @Override
+   public void onDrawerClosed(View drawerView) {
+      if (settingsItemSelected){
+         goToSettings();
+         settingsItemSelected = false;
+      }
+      if (newListItemSelected){
+         showNewListDialog();
+         newListItemSelected = false;
+      }
+   }
+
+   @Override
+   public void onDrawerStateChanged(int newState) {
+
+   }
+
+   public void goToSettings(){
+      Intent i = new Intent(this, SettingsActivity.class);
+      startActivity(i);
    }
 
    public void showNewListDialog() {
@@ -832,11 +879,24 @@ public class MainActivity extends AppCompatActivity
                      AlarmHelper.cancelTaskReminder(task, this);
                   }
                   mPresenter.updateExistingTaskFromLocalTask(task, getStringShP(Co.CURRENT_LIST_ID, null));
+                  if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)){
+                     Calendar dueDate = Calendar.getInstance();
+                     dueDate.setTimeInMillis(task.getDue());
+                     AlarmHelper.setOrUpdateDefaultRemindersForTask(this, task);
+                  } else {
+                     if (AlarmHelper.isDefaultAlarmSet(this, task.getIntId())){
+                        List<LocalTask> tasks = new ArrayList<>();
+                        tasks.add(task);
+                        AlarmHelper.cancelDefaultRemindersForTasks(this, tasks);
+                     }
+                  }
+                  adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
+                  if (!resultIntent.hasExtra(Co.NO_API_EDIT)) {
+                     mPresenter.editTask(task);
+                  }
                }
-               adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
-               if (!resultIntent.hasExtra(Co.NO_API_EDIT)) {
-                  mPresenter.editTask(task);
-               }
+
+
 
                // TASK ADDED
             } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
@@ -846,6 +906,11 @@ public class MainActivity extends AppCompatActivity
                   if (task.getReminder() != 0) {
                      AlarmHelper.setOrUpdateAlarm(task, this);
                   }
+//                  if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY)){
+//                     Calendar dueDateTextView = Calendar.getInstance();
+//                     dueDateTextView.setTimeInMillis(task.getDue());
+//                     AlarmHelper.setOrUpdateDefaultRemindersForTask(this, task);
+//                  }
                   task.setSyncStatus(0);
                   mPresenter.addTask(task);
                }
@@ -860,16 +925,6 @@ public class MainActivity extends AppCompatActivity
 
       switch (item.getItemId()) {
 
-         case R.id.action_settings:
-            Intent settingsIntent = new Intent(this, SettingsActivity.class);
-            startActivity(settingsIntent);
-            break;
-
-//         case R.id.test_pref:
-//            GoogleApiClient client = GoogleApiHelper.getClient(getApplicationContext());
-//            showToast(client.isConnected() ? "Connected" : "Disconnected");
-//            break;
-
          case R.id.refresh:
             refresh();
             break;
@@ -880,6 +935,10 @@ public class MainActivity extends AppCompatActivity
 
          case R.id.deleteList:
             showConfirmationDialog();
+            break;
+
+         case R.id.test:
+            showToast("Default reminder set: " + String.valueOf(getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)));
             break;
       }
       return super.onOptionsItemSelected(item);
@@ -919,10 +978,10 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public boolean getBooleanShP(String key) {
+   public boolean getBooleanShP(String key, boolean defaultValue) {
       SharedPreferences prefs = PreferenceManager
             .getDefaultSharedPreferences(getApplicationContext());
-      return prefs.getBoolean(key, true);
+      return prefs.getBoolean(key, defaultValue);
    }
 
    @Override
@@ -980,8 +1039,19 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void unlockScreenOrientation() {
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+      if (android.provider.Settings.System.getInt(getContentResolver(),
+            Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
+         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+      } else {
+         int currentOrientation = getResources().getConfiguration().orientation;
+         if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+         } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+         }
+      }
    }
+
 
 }
 

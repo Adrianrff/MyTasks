@@ -16,6 +16,7 @@
     <string name="notifications_settings_title">Notificaciones</string>
     <string name="undo">DESHACER</string>
     <string name="task_deleted">Tarea eliminada</string>
+    <string name="Delete">Eliminar</string>
     <string name="tasks_restored">Tareas restauradas</string>
     <string name="request_canceled">Petición cancelada</string>
     <string name="g_services_not_available">Servicios de Google Play no está disponible</string>
@@ -80,6 +81,7 @@
     <string name="last_day_of_month">El último de cada mes</string>
     <string name="next_reminder">Próximo recordatorio: </string>
     <string name="custom_date">Otro…</string>
+    <string name="custom_time">Personalizado…</string>
     <string name="date">Date</string>
     <string name="custom_suffix">Otro</string>
     <string name="select_date">Seleccione la fecha</string>
@@ -130,6 +132,7 @@
     <string name="default_reminder_pref_title">Recordatorio predeterminado</string>
     <string name="default_reminder_pref_summary">Si se habilita, se disparará un recordatorio para las tareas el día de su fecha de vencimiento (si existe) a la hora predefinida</string>
     <string name="default_reminder_time_pref_title">Hora del recordatorio predeterminado</string>
+    <string name="google_connection_failed">La conexión con Google ha fallado. Por favor intente de nuevo.</string>
 
 
     <string-array name="days_of_month">

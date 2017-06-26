@@ -475,42 +475,44 @@ public class NewTaskOrEditActivity extends AppCompatActivity
    }
 
    public void onReminderChange() {
-      if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
-         reminderDetailsLayout.setVisibility(View.VISIBLE);
-      }
-      String nextRem;
-      clearReminder.setVisibility(View.VISIBLE);
-      reminderDateLayout.setVisibility(repeatMode == Co.REMINDER_ONE_TIME ? View.VISIBLE : View.GONE);
-      weekdaysGroup.setVisibility(repeatMode == Co.REMINDER_WEEKLY ? View.VISIBLE : View.GONE);
-      monthRepeatLayout.setVisibility(repeatMode == Co.REMINDER_MONTHLY ? View.VISIBLE : View.GONE);
-      if (repeatMode == Co.REMINDER_MONTHLY){
-         monthDaySpinner.setSelection(taskReminder.get(Calendar.DAY_OF_MONTH) - 1);
-         int max = taskReminder.getActualMaximum(Calendar.DAY_OF_MONTH);
-         int reminderDayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
-         if (max == reminderDayOfMonth){
-            nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis()) + " (" +
-                  getString(R.string.last_day_of_month) + ")";
+      if (taskReminder != null) {
+         if (reminderDetailsLayout.getVisibility() != View.VISIBLE) {
+            reminderDetailsLayout.setVisibility(View.VISIBLE);
+         }
+         String nextRem;
+         clearReminder.setVisibility(View.VISIBLE);
+         reminderDateLayout.setVisibility(repeatMode == Co.REMINDER_ONE_TIME ? View.VISIBLE : View.GONE);
+         weekdaysGroup.setVisibility(repeatMode == Co.REMINDER_WEEKLY ? View.VISIBLE : View.GONE);
+         monthRepeatLayout.setVisibility(repeatMode == Co.REMINDER_MONTHLY ? View.VISIBLE : View.GONE);
+         if (repeatMode == Co.REMINDER_MONTHLY) {
+            monthDaySpinner.setSelection(taskReminder.get(Calendar.DAY_OF_MONTH) - 1);
+            int max = taskReminder.getActualMaximum(Calendar.DAY_OF_MONTH);
+            int reminderDayOfMonth = taskReminder.get(Calendar.DAY_OF_MONTH);
+            if (max == reminderDayOfMonth) {
+               nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis()) + " (" +
+                     getString(R.string.last_day_of_month) + ")";
+            } else {
+               nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis());
+            }
          } else {
             nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis());
          }
-      } else {
-         nextRem = DateHelper.millisToFull(taskReminder.getTimeInMillis());
-      }
-      setReminderDateTv();
-      setReminderTimeTv();
-      setReminderTextView();
-      setRepeatMenuItems();
-      nextReminderTV.setText(nextRem);
-      repeatTV.setText(repeatMenu.getItem(repeatMode).getTitle());
-      if (!isReminderValid()) {
-         warningLayout.setVisibility(View.VISIBLE);
-         if (taskReminder.before(now())){
-            warningTv.setText(R.string.reminder_in_the_past);
-         } else if (dueDate != null && dueDate.before(taskReminder)){
-            warningTv.setText(R.string.reminder_set_past_due_date);
+         setReminderDateTv();
+         setReminderTimeTv();
+         setReminderTextView();
+         setRepeatMenuItems();
+         nextReminderTV.setText(nextRem);
+         repeatTV.setText(repeatMenu.getItem(repeatMode).getTitle());
+         if (!isReminderValid()) {
+            warningLayout.setVisibility(View.VISIBLE);
+            if (taskReminder.before(now())) {
+               warningTv.setText(R.string.reminder_in_the_past);
+            } else if (dueDate != null && dueDate.before(taskReminder)) {
+               warningTv.setText(R.string.reminder_set_past_due_date);
+            }
+         } else {
+            warningLayout.setVisibility(View.GONE);
          }
-      } else {
-         warningLayout.setVisibility(View.GONE);
       }
 }
 
@@ -825,7 +827,7 @@ public class NewTaskOrEditActivity extends AppCompatActivity
             reminderDetailsLayout.setVisibility(View.GONE);
             break;
 
-         //dueDate textview click
+         //dueDateTextView textview click
          case R.id.dueDateTv:
             Calendar now = Calendar.getInstance();
             DatePickerDialog datePicker = new DatePickerDialog(this, this,

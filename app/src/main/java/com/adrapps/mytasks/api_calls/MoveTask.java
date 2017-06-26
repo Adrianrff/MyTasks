@@ -96,7 +96,9 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.showProgress(false);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+      }
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));

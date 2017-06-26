@@ -46,7 +46,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
       @Override
       public boolean onPreferenceChange(Preference preference, Object value) {
          String stringValue = value.toString();
-         String key = preference.getKey();
          if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
             // the preference's 'entries' list.
@@ -67,13 +66,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                // Empty values correspond to 'silent' (no ringtone).
                preference.setSummary(R.string.pref_ringtone_silent);
 
-            }  else {
-               if(stringValue.equals("default")){
+            } else {
+               if (stringValue.equals("default")) {
                   ringtone = RingtoneManager.getRingtone(
-                        preference.getContext(), Settings.System.DEFAULT_NOTIFICATION_URI);
+                        preference.getContext().getApplicationContext(), Settings.System.DEFAULT_NOTIFICATION_URI);
                } else {
                   ringtone = RingtoneManager.getRingtone(
-                        preference.getContext(), Uri.parse(stringValue));
+                        preference.getContext().getApplicationContext(), Uri.parse(stringValue));
                }
                if (ringtone == null) {
                   // Clear the summary if there was a lookup error.
@@ -81,7 +80,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                } else {
                   // Set the summary to reflect the new ringtone display
                   // name.
-                  String name = ringtone.getTitle(preference.getContext());
+                  String name = ringtone.getTitle(preference.getContext().getApplicationContext());
                   preference.setSummary(name);
                }
             }
@@ -101,17 +100,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                   preference.setSummary(String.valueOf(hour) + " a.m");
                }
             }
-            if (preference.getKey().equals(Co.DEFAULT_REMINDER_TIME_PREF_KEY)){
-               AlarmHelper.setDefaultRemindersForAllTasks(preference.getContext());
+            if (preference.getKey().equals(Co.DEFAULT_REMINDER_TIME_PREF_KEY) &&
+                  preference.getSharedPreferences().getBoolean(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
+               AlarmHelper.setDefaultRemindersForAllTasks(preference.getContext().getApplicationContext());
             }
 
 
-         }  else {
-            if (preference.getKey().equals(Co.DEFAULT_REMINDER_PREF_KEY)){
+         } else {
+            if (preference.getKey().equals(Co.DEFAULT_REMINDER_PREF_KEY)) {
                if ((boolean) value) {
-                  AlarmHelper.setDefaultRemindersForAllTasks(preference.getContext());
+                  AlarmHelper.setDefaultRemindersForAllTasks(preference.getContext().getApplicationContext());
                } else {
-                  AlarmHelper.cancelDefaultRemindersForAllTasks(preference.getContext());
+                  AlarmHelper.cancelDefaultRemindersForAllTasks(preference.getContext().getApplicationContext());
                }
             } else {
                preference.setSummary(stringValue);
@@ -154,10 +154,28 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         .getBoolean(preference.getKey(), false));
          }
       } else if (preference instanceof NumberPickerPreference) {
-         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-               PreferenceManager
-                     .getDefaultSharedPreferences(preference.getContext())
-                     .getInt(preference.getKey(), 0));
+         if (!preference.getKey().equals(Co.DEFAULT_REMINDER_TIME_PREF_KEY)) {
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                  PreferenceManager
+                        .getDefaultSharedPreferences(preference.getContext())
+                        .getInt(preference.getKey(), 0));
+         } else {
+            int defaultReminderHour = preference.getSharedPreferences().
+                  getInt(Co.DEFAULT_REMINDER_TIME_PREF_KEY, 8);
+            if (defaultReminderHour >= 12) {
+               if (defaultReminderHour != 12) {
+                  defaultReminderHour = defaultReminderHour - 12;
+               }
+               preference.setSummary(String.valueOf(defaultReminderHour) + " p.m");
+
+            } else {
+               if (defaultReminderHour == 0) {
+                  preference.setSummary(String.valueOf(12) + " a.m");
+               } else {
+                  preference.setSummary(String.valueOf(defaultReminderHour) + " a.m");
+               }
+            }
+         }
 
       } else {
          sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
@@ -232,6 +250,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
       private String accountName;
       Context mContext;
+      private boolean defaultReminder;
 
       @Override
       public void onCreate(Bundle savedInstanceState) {
@@ -253,6 +272,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          super.onAttach(context);
          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
          accountName = prefs.getString(Co.USER_EMAIL, Co.NO_ACCOUNT_NAME);
+         defaultReminder = prefs.getBoolean(Co.DEFAULT_REMINDER_PREF_KEY, false);
          this.mContext = context;
       }
 
@@ -266,17 +286,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
          return super.onOptionsItemSelected(item);
       }
 
-      private String getStringSharedPreference(String key, String defaultValue){
+      private String getStringSharedPreference(String key, String defaultValue) {
          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
          return pref.getString(key, defaultValue);
       }
 
-      private boolean getBooleanSharedPreference(String key, boolean defaultValue){
+      private boolean getBooleanSharedPreference(String key, boolean defaultValue) {
          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
          return pref.getBoolean(key, false);
       }
    }
-
 
 
 //   /**

@@ -243,8 +243,8 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
-   public void updateTaskStatus(int intId, String listId, String newStatus) {
-      mModel.updateTaskStatus(intId, listId, newStatus);
+   public void updateTaskStatusInServer(int intId, String listId, String newStatus) {
+      mModel.updateTaskStatusInServer(intId, listId, newStatus);
    }
 
    public boolean isDeviceOnline() {
@@ -430,4 +430,7 @@ public class TaskListPresenter implements Serializable {
       mModel.updateExistingTaskFromLocalTask(task, listId);
    }
 
+   public boolean getBooleanShP(String key, boolean defaultValue) {
+      return getView().getBooleanShP(key, defaultValue);
+   }
 }

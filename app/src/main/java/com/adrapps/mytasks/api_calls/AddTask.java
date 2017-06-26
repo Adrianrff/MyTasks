@@ -8,6 +8,7 @@ import android.util.Log;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
+import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -65,7 +66,6 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
    protected void onPostExecute(Void aVoid) {
       if (!mPresenter.isViewFinishing()) {
          mPresenter.showProgress(false);
-         mPresenter.updateSyncStatus(syncedLocalTask.getIntId(), 2);
          mPresenter.updateItem(syncedLocalTask);
       } else {
          Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
@@ -77,7 +77,9 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.showProgress(false);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+      }
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
@@ -107,6 +109,9 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
          if (aTask != null) {
             syncedLocalTask = mPresenter.updateNewlyCreatedTask(aTask, lTask.getList(),
                   String.valueOf(lTask.getIntId()));
+            if (syncedLocalTask.getDue() != 0 && mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
+               AlarmHelper.setOrUpdateDefaultRemindersForTask(context, syncedLocalTask);
+            }
          } else {
             EasyPermissions.requestPermissions(
                   context, context.getString(R.string.contacts_permissions_rationale),

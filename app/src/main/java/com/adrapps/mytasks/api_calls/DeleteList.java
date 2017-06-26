@@ -16,6 +16,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.services.tasks.Tasks;
 
 import java.io.IOException;
+import java.util.List;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -78,7 +79,9 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
 
    @Override
    protected void onCancelled(Void aVoid) {
-      mPresenter.showProgress(false);
+      if (!mPresenter.isViewFinishing()) {
+         mPresenter.showProgress(false);
+      }
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
@@ -102,6 +105,8 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
 
    private void deleteList(String listId) throws IOException {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
+         List<LocalTask> tasks = mPresenter.getTasksFromList(listId);
+         mPresenter.deleteTasks(tasks);
          mService.tasklists().delete(listId).execute();
       } else {
          EasyPermissions.requestPermissions(

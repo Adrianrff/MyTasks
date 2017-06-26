@@ -83,7 +83,7 @@ public class Contract {
 
         GoogleAccountCredential getCredential();
 
-        boolean getBooleanShP(String key);
+        boolean getBooleanShP(String key, boolean defaultValue);
 
         String getStringShP(String key, @Nullable String defaultValue);
 
@@ -126,9 +126,11 @@ public class Contract {
 
         int addListToDb(String listTitle);
 
-        void updateTaskStatus(int intId, String listId, String newStatus);
+        void updateTaskStatusInServer(int intId, String listId, String newStatus);
 
-        void refreshFirstTime();
+       void updateTaskStatusInDB(int intId, String newStatus);
+
+       void refreshFirstTime();
 
         int addTask(LocalTask task);
 

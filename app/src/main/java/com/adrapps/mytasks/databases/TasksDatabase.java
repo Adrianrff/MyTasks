@@ -610,8 +610,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_HIDDEN, task.getHidden() == null ? 0 : 1);
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
-      int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      //db.close();
+      db.update(TABLE_NAME, cv, selection, selectionArgs);
       bm.dataChanged();
       return getTaskByTaskId(task.getId());
    }

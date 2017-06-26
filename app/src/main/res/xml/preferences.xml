@@ -40,6 +40,7 @@
         <com.adrapps.mytasks.preferences.NumberPickerPreference
             android:key="default_reminder_time_pref_key"
             android:defaultValue="8"
+            android:showDefault="true"
             android:dependency="default_reminder_pref_key"
             android:title="@string/default_reminder_time_pref_title"/>
 

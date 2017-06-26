@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -25,14 +27,14 @@ public class AlarmHelper {
    public static void setOrUpdateAlarm(LocalTask task, Context context) {
       if (task != null) {
          if (task.getReminder() != 0 && task.getReminderId() != 0) {
-            DataModel mModel = new DataModel(context);
-            Intent intent = new Intent(context, AlarmReciever.class);
+            DataModel mModel = new DataModel(context.getApplicationContext());
+            Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable(Co.LOCAL_TASK, task);
             intent.putExtra(Co.LOCAL_TASK, bundle);
             long reminder = task.getReminder();
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) task.getReminderId(), intent,
+            AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(ALARM_SERVICE);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), (int) task.getReminderId(), intent,
                   PendingIntent.FLAG_UPDATE_CURRENT);
 
             switch (task.getRepeatMode()) {
@@ -75,40 +77,42 @@ public class AlarmHelper {
    }
 
    public static void cancelTaskReminder(LocalTask task, Context context) {
-      Intent intent = new Intent(context, AlarmReciever.class);
-      AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-      PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+      Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
+      AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+      PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
             (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
       alarmManager.cancel(pendingIntent);
       pendingIntent.cancel();
    }
 
    public static void setOrUpdateAlarmForDate(LocalTask task, long timeOfAlarm, Context context) {
-      Intent intent = new Intent(context, AlarmReciever.class);
-      PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) task.getReminderId(),
+      Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
+      PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
+            (int) task.getReminderId(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT);
       AlarmManager alarmManager =
-            (AlarmManager) context.getSystemService(ALARM_SERVICE);
+            (AlarmManager) context.getApplicationContext().getSystemService(ALARM_SERVICE);
       alarmManager.set(AlarmManager.RTC_WAKEUP,
             timeOfAlarm, pendingIntent);
    }
 
    public void showToast(Context context, String msg) {
-      Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+      Toast.makeText(context.getApplicationContext(), msg, Toast.LENGTH_LONG).show();
    }
 
    public static void setOrUpdateAlarmFirstTime(LocalTask task, Context context) {
+      Context mContext = context.getApplicationContext();
       if (task != null) {
          if (task.getReminder() != 0 && task.getReminderId() != 0) {
-            DataModel mModel = new DataModel(context);
-            Intent intent = new Intent(context, AlarmReciever.class);
+            DataModel mModel = new DataModel(mContext);
+            Intent intent = new Intent(mContext, AlarmReciever.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable(Co.LOCAL_TASK, task);
             intent.putExtra(Co.LOCAL_TASK, bundle);
             long reminder = task.getReminder();
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) task.getReminderId(), intent,
+            AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, (int) task.getReminderId(), intent,
                   PendingIntent.FLAG_UPDATE_CURRENT);
             Calendar reminderCalendarObject = Calendar.getInstance();
             reminderCalendarObject.setTimeInMillis(reminder);
@@ -177,17 +181,74 @@ public class AlarmHelper {
       }
    }
 
-   public static void setDefaultRemindersForAllTasks(final Context context) {
-      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+   public static void setDefaultRemindersForAllTasks(Context context) {
+      final Context mContext = context.getApplicationContext();
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
       final int defaultReminderHour = pref.getInt(Co.DEFAULT_REMINDER_TIME_PREF_KEY, 8);
       final Calendar now = Calendar.getInstance();
-      final DataModel model = new DataModel(context.getApplicationContext());
-      AsyncTask.execute(new Runnable() {
+      final DataModel model = new DataModel(mContext);
+      Handler handler = new Handler(Looper.getMainLooper());
+      handler.post(new Runnable() {
          @Override
          public void run() {
             List<LocalTask> tasks = model.getLocalTasksFromDB();
             for (LocalTask task : tasks) {
-               if (!task.getStatus().equals(Co.TASK_COMPLETED)) {
+               if (task == null) {
+                  Toast.makeText(mContext, "La lista no es nula ni está vacía, pero al menos una de sus tareas es nula", Toast.LENGTH_LONG).show();
+               } else {
+                  if (task.getStatus() == null) {
+                     Toast.makeText(mContext,
+                           "Task title " + task.getTitle() + "\n" +
+                                 "Task status " + task.getStatus() + "\n" +
+                                 "Task dueDate " + DateHelper.millisToFull(task.getDue()) + "\n"
+                           , Toast.LENGTH_LONG).show();
+                  } else {
+                     if (!task.getStatus().equals(Co.TASK_COMPLETED)) {
+                        if (task.getDue() != 0) {
+                           Calendar reminderDate = Calendar.getInstance();
+                           reminderDate.setTimeInMillis(task.getDue());
+                           reminderDate.set(Calendar.HOUR_OF_DAY, defaultReminderHour);
+                           reminderDate.set(Calendar.MINUTE, 0);
+                           reminderDate.set(Calendar.SECOND, 0);
+                           reminderDate.set(Calendar.MILLISECOND, 0);
+                           if (!reminderDate.before(now)) {
+                              Intent intent = new Intent(mContext.getApplicationContext(), AlarmReciever.class);
+                              Bundle bundle = new Bundle();
+                              bundle.putSerializable(Co.LOCAL_TASK, task);
+                              intent.putExtra(Co.LOCAL_TASK, bundle);
+                              AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+                              PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext,
+                                    Co.DEFAULT_REMINDER_IDENTIFIER + task.getIntId(), intent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT);
+                              alarmManager.set(AlarmManager.RTC_WAKEUP,
+                                    reminderDate.getTimeInMillis(), pendingIntent);
+
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      });
+//      AsyncTask.execute(new Runnable() {
+//         @Override
+//         public void run() {
+//
+//         }
+//      });
+   }
+
+   public static void setOrUpdateDefaultRemindersForTask(Context context, final LocalTask task) {
+      final Context mContext = context.getApplicationContext();
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+      final int defaultReminderHour = pref.getInt(Co.DEFAULT_REMINDER_TIME_PREF_KEY, 8);
+      final Calendar now = Calendar.getInstance();
+      AsyncTask.execute(new Runnable() {
+         @Override
+         public void run() {
+            if (task != null) {
+               if (task.getStatus() == null || !task.getStatus().equals(Co.TASK_COMPLETED)) {
                   if (task.getDue() != 0) {
                      Calendar reminderDate = Calendar.getInstance();
                      reminderDate.setTimeInMillis(task.getDue());
@@ -196,13 +257,13 @@ public class AlarmHelper {
                         reminderDate.set(Calendar.MINUTE, 0);
                         reminderDate.set(Calendar.SECOND, 0);
                         reminderDate.set(Calendar.MILLISECOND, 0);
-                        Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
+                        Intent intent = new Intent(mContext.getApplicationContext(), AlarmReciever.class);
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(Co.LOCAL_TASK, task);
                         intent.putExtra(Co.LOCAL_TASK, bundle);
-                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-                              Co.DEFAULT_REMINDER_INDENTIFIER + task.getIntId(), intent,
+                        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext,
+                              Co.DEFAULT_REMINDER_IDENTIFIER + task.getIntId(), intent,
                               PendingIntent.FLAG_UPDATE_CURRENT);
                         alarmManager.set(AlarmManager.RTC_WAKEUP,
                               reminderDate.getTimeInMillis(), pendingIntent);
@@ -218,16 +279,36 @@ public class AlarmHelper {
    //Triggers should be deleting, creating or changing the dueDate of a task, changing the default time (changes all tasks)
    //marking a task as completed, passing the due date.
 
-   public static void cancelDefaultRemindersForAllTasks(final Context context) {
-      final DataModel model = new DataModel(context);
-
+   public static void cancelDefaultRemindersForAllTasks(Context context) {
+      final Context mContext = context.getApplicationContext();
+      final DataModel model = new DataModel(mContext);
       AsyncTask.execute(new Runnable() {
          @Override
          public void run() {
             List<LocalTask> tasks = model.getLocalTasksFromDB();
             for (LocalTask task : tasks) {
-               int id = Co.DEFAULT_REMINDER_INDENTIFIER + task.getIntId();
-               if (isAlarmSet(context, id)) {
+               int id = Co.DEFAULT_REMINDER_IDENTIFIER + task.getIntId();
+               if (isAlarmSet(mContext, id)) {
+                  Intent intent = new Intent(mContext, AlarmReciever.class);
+                  AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+                  PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext,
+                        id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                  alarmManager.cancel(pendingIntent);
+                  pendingIntent.cancel();
+               }
+            }
+         }
+      });
+
+   }
+
+   public static void cancelDefaultRemindersForTasks(final Context context, final List<LocalTask> tasks) {
+      AsyncTask.execute(new Runnable() {
+         @Override
+         public void run() {
+            for (LocalTask task : tasks) {
+               int id = Co.DEFAULT_REMINDER_IDENTIFIER + task.getIntId();
+               if (isDefaultAlarmSet(context, task.getIntId())) {
                   Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
                   AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                   PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
@@ -241,8 +322,14 @@ public class AlarmHelper {
 
    }
 
-   private static boolean isAlarmSet(Context context, int id) {
-      return (PendingIntent.getBroadcast(context, id,
+   public static boolean isAlarmSet(Context context, int taskIntId) {
+      return (PendingIntent.getBroadcast(context, taskIntId,
+            new Intent(context, AlarmReciever.class),
+            PendingIntent.FLAG_NO_CREATE) != null);
+   }
+
+   public static boolean isDefaultAlarmSet(Context context, int taskIntId) {
+      return (PendingIntent.getBroadcast(context, Co.DEFAULT_REMINDER_IDENTIFIER + taskIntId,
             new Intent(context, AlarmReciever.class),
             PendingIntent.FLAG_NO_CREATE) != null);
    }

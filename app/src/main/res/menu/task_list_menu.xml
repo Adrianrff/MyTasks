@@ -20,16 +20,9 @@
         android:title="@string/delete_list_menu_item"
         app:showAsAction="never" />
 
-
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/test"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Test"
         app:showAsAction="never" />
-
-    <!--<item-->
-        <!--android:id="@+id/test_pref"-->
-        <!--android:orderInCategory="100"-->
-        <!--android:title="Test preferences"-->
-        <!--app:showAsAction="never" />-->
 </menu>
