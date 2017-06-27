@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
+import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.CompareLists;
 import com.adrapps.mytasks.helpers.DateHelper;
@@ -75,7 +76,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                   task.setStatus(Co.TASK_NEEDS_ACTION);
                   task.setCompleted(null);
                }
-               mService.tasks().update(currentLocalTask.getList(),
+               mService.tasks().update(currentLocalTask.getListId(),
                      currentLocalTask.getId(),
                      task).execute();
             }
@@ -177,23 +178,47 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
    private void syncAll() throws IOException {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
 
-         //Get server serverLists
-         List<TaskList> serverLists = mService.tasklists().list()
-               .execute().getItems();
-         List<String> serverListsIds = new ArrayList<>();
-         for (int i = 0; i < serverLists.size() ; i++) {
-            serverListsIds.add(serverLists.get(i).getId());
+         //GET SERVER LISTS
+         List<TaskList> initialServerLists = mService.tasklists().list().execute().getItems();
+         List<String> initialServerListsIds = new ArrayList<>();
+         for (int i = 0; i < initialServerLists.size(); i++) {
+            initialServerListsIds.add(initialServerLists.get(i).getId());
          }
-         List<String> localListsIds = mPresenter.getListsIds();
-         List<String> localListsNotInServer = CompareLists.localListsNotInServer(localListsIds, serverListsIds);
-         List<String> serverListNotInDb = CompareLists.serverListsNotInDB(localListsIds, serverListsIds);
 
+         //GET LOCAL LISTS
+         List<LocalList> initialLocalLists = mPresenter.getLocalLists();
+         List<String> initialLocalListsIds = mPresenter.getLocalListsIds();
+
+         List<LocalList> localListsNotInServer = CompareLists.localListsNotInServer(initialLocalLists, initialServerListsIds);
+         List<TaskList> serverListNotInDb = CompareLists.serverListsNotInDB(initialLocalListsIds, initialServerLists);
+
+         if (!localListsNotInServer.isEmpty()){
+            for (int i = 0; i < localListsNotInServer.size(); i++) {
+               LocalList currentList = localListsNotInServer.get(i);
+               if (currentList.getSyncStatus() == Co.SYNCED){
+                  mPresenter.deleteListFromDB(currentList.getIntId());
+               } else {
+                  mPresenter.addNewListToServer(currentList.getTitle(), currentList.getIntId());
+               }
+               initialLocalLists.remove(currentList);
+            }
+         }
+
+         //TODO make this work (get tasks from list etc...)
+
+         if (!serverListNotInDb.isEmpty()){
+            for (int i = 0; i < serverListNotInDb.size(); i++) {
+               TaskList currentServerList = serverListNotInDb.get(i);
+               mPresenter.addNewListToDBFromServer(currentServerList);
+               initialServerLists.remove(currentServerList);
+            }
+         }
 
          //Populate listIds field
-         //Update serverLists database
-         if (!serverLists.isEmpty()) {
-            mPresenter.updateLists(serverLists);
-         }
+         //Update initialServerLists database
+//         if (!initialServerLists.isEmpty()) {
+//            mPresenter.createListDatabase(initialServerLists);
+//         }
 
          List<Task> serverTasks;
          List<LocalTask> localTasks;
@@ -201,9 +226,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          List<Task> serverTasksNotInDB;
          String currentListId;
 
-         // Loop through list of serverLists
-         for (int i = 0; i < serverLists.size(); i++) {
-            currentListId = serverLists.get(i).getId();
+         // Loop through list of initialServerLists
+         for (int i = 0; i < initialServerLists.size(); i++) {
+            currentListId = initialServerLists.get(i).getId();
 
             //Get server tasks and local tasks from list
             serverTasks = mService.tasks().list(currentListId).execute().getItems();

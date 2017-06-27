@@ -71,7 +71,11 @@ public class Contract {
 
         void setCredentials();
 
-        void saveBooleanShP(String key, boolean value);
+       int getIntShP(String key, int defaultValue);
+
+       void saveIntShP(String key, int value);
+
+       void saveBooleanShP(String key, boolean value);
 
         void saveStringShP(String key, String value);
 
@@ -108,7 +112,7 @@ public class Contract {
 
         void closeDatabases();
 
-        void updateLists(List<TaskList> lists);
+        List<LocalList> createListsDatabase(List<TaskList> lists);
 
         void updateTasksFirstTime(List<LocalTask> tasks);
 
@@ -118,13 +122,15 @@ public class Contract {
 
         List<String> getListsIds();
 
-        String getListTitleFromId(String listId);
+        String getListTitleFromIntId(int listIntId);
 
-        int addTaskToLocalDatabase(LocalTask task);
+       boolean listExistsInDB(int listIntId);
+
+       int addTaskToLocalDatabase(LocalTask task);
 
         void addTaskFirstTimeFromServer(Task task, String listId);
 
-        int addListToDb(String listTitle);
+        int addListNewToDb(String listTitle);
 
         void updateTaskStatusInServer(int intId, String listId, String newStatus);
 
@@ -148,7 +154,7 @@ public class Contract {
 
         int updateLocalTask(LocalTask modifiedTask, boolean updateReminders);
 
-        List<LocalTask> getTaskFromListForAdapter(String listId);
+        List<LocalTask> getTaskFromListForAdapter(int listIntId);
 
         void updateLocalTask(Task task, String listId);
 
@@ -162,23 +168,37 @@ public class Contract {
 
         int getIntIdByTaskId(String taskId);
 
-        void addList(String listTitle);
+        void addNewListToServer(String listTitle, int listIntId);
 
         void updateListInDBFromLocalListAfterServerOp(LocalList localList);
 
-        void editList(String listId, String title);
+        void changeListNameInDB(int listIntId, String title);
 
-        void updateList(TaskList list);
+       void changeListNameInServer(String listId, String title);
 
-        void deleteList(String listId);
+       void updateList(TaskList list);
 
-        void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
+       void deleteListFromServer(String listId);
+
+       void deleteListFromDb(int listIntId);
+
+       void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
 
         void deleteTasks(List<LocalTask> tasks);
 
        void updatePositions(List<Task> tasks);
 
        void updateExistingTaskFromLocalTask(LocalTask task, String listId);
+
+       List<LocalList> getLocalLists();
+
+       int getListIntIdById(String listId);
+
+       String getListIdByIntId(int listIntId);
+
+       void addNewListToDBFromServer(TaskList serverList);
+
+       List<Integer> getListsIntIds();
     }
 
 

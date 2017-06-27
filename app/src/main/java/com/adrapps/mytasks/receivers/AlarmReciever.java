@@ -105,7 +105,7 @@ public class AlarmReciever extends BroadcastReceiver {
          extras.putString(Co.TASK_STATUS, Co.TASK_COMPLETED);
          markCompletedIntent.putExtra(Co.TASK_ID, task.getId());
          markCompletedIntent.putExtra(Co.TASK_INT_ID, task.getIntId());
-         markCompletedIntent.putExtra(Co.TASK_LIST_ID, task.getList());
+         markCompletedIntent.putExtra(Co.TASK_LIST_ID, task.getListId());
          detailActivityIntent.putExtra(Co.LOCAL_TASK, task);
          TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
          stackBuilder.addParentStack(MainActivity.class);

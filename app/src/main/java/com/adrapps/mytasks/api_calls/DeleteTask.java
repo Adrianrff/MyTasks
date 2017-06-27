@@ -120,7 +120,7 @@ public class DeleteTask extends AsyncTask<Void, Void, Void> {
          for (int i = 0; i < tasks.size(); i++) {
             LocalTask currentTask = tasks.get(i);
             if (currentTask.getId() != null) {
-               mService.tasks().delete(currentTask.getList(), currentTask.getId()).queue(requests, deleteCallback);
+               mService.tasks().delete(currentTask.getListId(), currentTask.getId()).queue(requests, deleteCallback);
                mPresenter.deleteTaskFromDatabase(mPresenter.getIntIdByTaskId(currentTask.getId()));
             }
          }

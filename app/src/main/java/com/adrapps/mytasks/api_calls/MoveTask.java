@@ -137,15 +137,15 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
                prevTaskId = (String) pair.getValue();
             }
             if (movedTask != null) {
-               listId = movedTask.getList();
+               listId = movedTask.getListId();
                if (movedTask.getId() == null) {
-                  Task task = mService.tasks().insert(movedTask.getList(),
+                  Task task = mService.tasks().insert(movedTask.getListId(),
                         LocalTask.localTaskToApiTask(movedTask)).execute();
-                  mPresenter.updateNewlyCreatedTask(task, movedTask.getList(),
+                  mPresenter.updateNewlyCreatedTask(task, movedTask.getListId(),
                         String.valueOf(movedTask.getIntId()));
                   movedTask.setId(task.getId());
                }
-               Tasks.TasksOperations.Move move = mService.tasks().move(movedTask.getList(),
+               Tasks.TasksOperations.Move move = mService.tasks().move(movedTask.getListId(),
                      movedTask.getId());
                if (prevTaskId != null) {
                   move.setPrevious(prevTaskId);

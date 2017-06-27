@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
+import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.GoogleApiHelper;
@@ -30,7 +31,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
    private Exception mLastError = null;
    private TaskListPresenter mPresenter;
    private List<LocalTask> localTasks = new ArrayList<>();
-   private List<TaskList> lists = new ArrayList<>();
+   private List<TaskList> serverLists = new ArrayList<>();
    private static final String TAG = "FirstRefresh";
    Context context;
 
@@ -71,13 +72,13 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
    @Override
    protected void onPostExecute(Void aVoid) {
       mPresenter.saveBooleanShP(Co.IS_FIRST_INIT, false);
-      mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE, lists.get(0).getTitle());
+      mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE, serverLists.get(0).getTitle());
       if (!mPresenter.isViewFinishing()) {
-      mPresenter.dismissProgressDialog();
-      mPresenter.showProgress(false);
-      mPresenter.setUpViews();
-      mPresenter.initRecyclerView(mPresenter.getTasksFromList(lists.get(0).getId()));
-      mPresenter.updateCurrentView();
+         mPresenter.dismissProgressDialog();
+         mPresenter.showProgress(false);
+         mPresenter.setUpViews();
+         mPresenter.initRecyclerView(mPresenter.getTasksFromList(serverLists.get(0).getId()));
+         mPresenter.updateCurrentView();
       } else {
          Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
       }
@@ -118,31 +119,26 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
 
          TaskLists result = mService.tasklists().list()
                .execute();
-         lists = result.getItems();
-         if (!lists.isEmpty()) {
-            mPresenter.updateLists(lists);
-         }
+         serverLists = result.getItems();
+         List<LocalList> localLists = mPresenter.createListDatabase(serverLists);
          List<Task> tasks;
-         if (lists != null) {
-            if (!lists.isEmpty()) {
-               for (int i = 0; i < lists.size(); i++) {
-                  tasks = mService.tasks().list(lists.get(i).getId()).execute().getItems();
-                  if (tasks != null) {
-                     if (!tasks.isEmpty()) {
-                        for (int j = 0; j < tasks.size(); j++) {
-                           Task currentTask = tasks.get(j);
-                           if (currentTask.getTitle().trim().equals("") &&
-                                 currentTask.getDue() == null &&
-                                 currentTask.getNotes() == null) {
-                              mService.tasks().delete(lists.get(i).getId(), currentTask.getId()).execute();
-                              continue;
-                           }
-                           LocalTask task = new LocalTask(currentTask, Co.listIds.get(i));
-                           task.setSyncStatus(Co.SYNCED);
-                           task.setLocalModify();
-                           localTasks.add(task);
-                        }
+         if (serverLists != null && !serverLists.isEmpty()) {
+            for (int i = 0; i < serverLists.size(); i++) {
+               tasks = mService.tasks().list(serverLists.get(i).getId()).execute().getItems();
+               if (tasks != null && !tasks.isEmpty()) {
+                  for (int j = 0; j < tasks.size(); j++) {
+                     Task currentTask = tasks.get(j);
+                     if (currentTask.getTitle().trim().equals("") &&
+                           currentTask.getDue() == null &&
+                           currentTask.getNotes() == null) {
+                        mService.tasks().delete(serverLists.get(i).getId(), currentTask.getId()).execute();
+                        continue;
                      }
+                     LocalTask task = new LocalTask(currentTask, Co.listIds.get(i));
+                     task.setSyncStatus(Co.SYNCED);
+                     task.setLocalModify();
+                     task.setListIntId(localLists.get(i).getIntId());
+                     localTasks.add(task);
                   }
                }
             }

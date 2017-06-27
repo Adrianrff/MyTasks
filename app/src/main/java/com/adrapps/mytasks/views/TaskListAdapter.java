@@ -398,8 +398,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             taskTitleTextView.setTextColor(Color.GRAY);
             cTask.setStatus(Co.TASK_COMPLETED);
             cTask.setReminderNoID(0);
-            mPresenter.updateExistingTaskFromLocalTask(cTask, cTask.getList());
-            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getList(), Co.TASK_COMPLETED);
+            mPresenter.updateExistingTaskFromLocalTask(cTask, cTask.getListId());
+            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getListId(), Co.TASK_COMPLETED);
 
             AlarmHelper.cancelTaskReminder(cTask,context);
             if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true)){
@@ -439,7 +439,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                   cTask.getDue()!=0 && cTask.getDue() > Calendar.getInstance().getTimeInMillis()){
                AlarmHelper.setOrUpdateDefaultRemindersForTask(context, cTask);
             }
-            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getList(), Co.TASK_NEEDS_ACTION);
+            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getListId(), Co.TASK_NEEDS_ACTION);
          }
          notifyItemChanged(getAdapterPosition());
       }

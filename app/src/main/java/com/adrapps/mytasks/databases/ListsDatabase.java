@@ -13,7 +13,6 @@ import com.google.api.services.tasks.model.TaskList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 
 public class ListsDatabase extends SQLiteOpenHelper {
 
@@ -32,6 +31,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
    private static final String COL_TITLE = "Title";
    private static final String COL_SERVER_UPDATED = "Server_updated";
    private static final String COL_LOCAL_UPDATED = "Local_updated";
+   private static final String COL_LOCAL_DELETED = "Local_deleted";
    private static final String COL_SYNC_STATUS = "Sync_status";
 
    //---------ALL COLUMNS ARRAY----------//
@@ -41,6 +41,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
          COL_TITLE,
          COL_SERVER_UPDATED,
          COL_LOCAL_UPDATED,
+         COL_LOCAL_DELETED,
          COL_SYNC_STATUS};
 
    //-----------CREATE TABLE STATEMENT--------//
@@ -51,6 +52,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
                COL_TITLE + " text," +
                COL_SERVER_UPDATED + " bigint," +
                COL_LOCAL_UPDATED + " bigint," +
+               COL_LOCAL_DELETED + " int default 0," +
                COL_SYNC_STATUS + " int)";
 
    public static synchronized ListsDatabase getInstance(Context context) {
@@ -95,7 +97,6 @@ public class ListsDatabase extends SQLiteOpenHelper {
 
    }
 
-
    public List<String> getListsTitles() {
       List<String> listsTitles = new ArrayList<>();
       db = getReadableDB();
@@ -122,13 +123,25 @@ public class ListsDatabase extends SQLiteOpenHelper {
       return listsTitles;
    }
 
-   public long addList(TaskList list) {
+   public List<Integer> getListsIntIds() {
+      List<Integer> listsIntIds = new ArrayList<>();
+      db = getReadableDB();
+      Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, null, null, null, null, null);
+      if (cursor.moveToFirst()) {
+         do {
+            listsIntIds.add(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
+         } while (cursor.moveToNext());
+      }
+      cursor.close();
+      return listsIntIds;
+   }
+
+   public long addListFromServer(TaskList list) {
       db = getWritableDB();
-      int offset = TimeZone.getDefault().getRawOffset();
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, list.getId());
       cv.put(COL_TITLE, list.getTitle());
-      cv.put(COL_SERVER_UPDATED, list.getUpdated().getValue() + offset);
+      cv.put(COL_SERVER_UPDATED, list.getUpdated().getValue());
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       long insertedRow = db.insert(TABLE_NAME, null, cv);
@@ -136,7 +149,29 @@ public class ListsDatabase extends SQLiteOpenHelper {
       return insertedRow;
    }
 
-   public int addList(String listTitle) {
+   public void updateSyncStatus(int listIntId, int newStatus){
+      db = getWritableDB();
+      String selection = COL_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(listIntId)};
+      LocalList localList = new LocalList();
+      ContentValues cv = new ContentValues();
+      cv.put(COL_SYNC_STATUS, newStatus);
+      db.update(TABLE_NAME,cv,selection, selectionArgs);
+      bm.dataChanged();
+   }
+
+   public void updateLocalDeleted(int listIntId, int deletedValue){
+      db = getWritableDB();
+      String selection = COL_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(listIntId)};
+      LocalList localList = new LocalList();
+      ContentValues cv = new ContentValues();
+      cv.put(COL_LOCAL_DELETED, deletedValue);
+      db.update(TABLE_NAME,cv,selection, selectionArgs);
+      bm.dataChanged();
+   }
+
+   public int addListFirstTime(String listTitle) {
       db = getWritableDB();
       ContentValues cv = new ContentValues();
       cv.put(COL_TITLE, listTitle);
@@ -146,21 +181,30 @@ public class ListsDatabase extends SQLiteOpenHelper {
       return insertedRow;
    }
 
-   public void updateLists(List<TaskList> lists) {
+   public List<LocalList> createListDatabase(List<TaskList> serverLists) {
+      List<LocalList> localLists = new ArrayList<>();
       db = this.getWritableDatabase();
       ContentValues cv = new ContentValues();
       onUpgrade(db,1,1);
-      //TODO: do not delete lists, add if list not already in Database; update otherwise
-      for (int i = 0; i < lists.size(); i++ ){
-         cv.put(COL_ID,lists.get(i).getId());
-         cv.put(COL_TITLE,lists.get(i).getTitle());
-         cv.put(COL_SERVER_UPDATED,lists.get(i).getUpdated().getValue());
+      for (int i = 0; i < serverLists.size(); i++ ){
+         TaskList currentServerList = serverLists.get(i);
+         LocalList list = new LocalList();
+         list.setId(currentServerList.getId());
+         list.setTitle(currentServerList.getTitle());
+         list.setSyncStatus(Co.SYNCED);
+         list.setLocalUpdated(System.currentTimeMillis());
+         list.setServerUpdated(currentServerList.getUpdated().getValue());
+         cv.put(COL_ID,serverLists.get(i).getId());
+         cv.put(COL_TITLE,serverLists.get(i).getTitle());
+         cv.put(COL_SERVER_UPDATED,serverLists.get(i).getUpdated().getValue());
          cv.put(COL_LOCAL_UPDATED,System.currentTimeMillis());
          cv.put(COL_SYNC_STATUS,Co.SYNCED);
-         db.insert(TABLE_NAME,null,cv);
-
+         int listIntId = (int) db.insert(TABLE_NAME,null,cv);
+         list.setIntId(listIntId);
+         localLists.add(list);
       }
       bm.dataChanged();
+      return localLists;
    }
 
    public LocalList getLocalList(String listId){
@@ -174,6 +218,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
          localList.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
          localList.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
          localList.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
+         localList.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
          localList.setServerUpdated(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
          localList.setLocalUpdated(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
       }
@@ -196,11 +241,11 @@ public class ListsDatabase extends SQLiteOpenHelper {
       bm.dataChanged();
    }
 
-   public String getListTitleFromId(String listId) {
+   public String getListTitleFromIntId(int listIntId) {
       String listTitle = null;
       db = getReadableDB();
-      String selection = COL_ID + " = ? ";
-      String[] selectionArgs = {listId};
+      String selection = COL_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(listIntId)};
       Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, null);
       if (cursor.moveToFirst()) {
          do {
@@ -209,6 +254,16 @@ public class ListsDatabase extends SQLiteOpenHelper {
       }
       cursor.close();
       return listTitle;
+   }
+
+   public boolean listExists(int listIntId){
+      db = getWritableDB();
+      String selection = COL_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(listIntId)};
+      Cursor cursor = db.query(TABLE_NAME, new String[]{COL_INT_ID}, selection, selectionArgs, null, null, null);
+      boolean listExists = cursor.getCount() > 0;
+      cursor.close();
+      return listExists;
    }
 
 
@@ -225,30 +280,35 @@ public class ListsDatabase extends SQLiteOpenHelper {
       bm.dataChanged();
    }
 
-   public void editListTitle(String listId, String title) {
+   public void editListTitle(int listIntId, String title) {
       db = getWritableDB();
-      String selection = COL_ID + " = ? ";
-      String[] selectionArgs = {listId};
+      String selection = COL_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(listIntId)};
       ContentValues cv = new ContentValues();
       cv.put(COL_TITLE, title);
+      cv.put(COL_SYNC_STATUS, Co.EDITED_NOT_SYNCED);
+      cv.put(COL_LOCAL_UPDATED,System.currentTimeMillis());
       db.update(TABLE_NAME, cv, selection, selectionArgs);
       bm.dataChanged();
    }
 
-   public int getIntIdByListId(String listId) {
-      int intId = -1;
-      db = getReadableDB();
-      String selection = COL_ID + " = ? ";
-      String[] selectionArgs = {listId};
-      Cursor cursor = db.query(TABLE_NAME, new String[]{COL_INT_ID}, selection, selectionArgs, null, null, null);
-      if (cursor.moveToFirst()) {
-         do {
-            intId = cursor.getInt(cursor.getColumnIndex(COL_INT_ID));
-         } while (cursor.moveToNext());
+   public int getListIntIdById(String listId) {
+      if (listId != null) {
+         int intId = -1;
+         db = getReadableDB();
+         String selection = COL_ID + " = ? ";
+         String[] selectionArgs = {listId};
+         Cursor cursor = db.query(TABLE_NAME, new String[]{COL_INT_ID}, selection, selectionArgs, null, null, null);
+         if (cursor.moveToFirst()) {
+            do {
+               intId = cursor.getInt(cursor.getColumnIndex(COL_INT_ID));
+            } while (cursor.moveToNext());
+         }
+         cursor.close();
+         return intId;
+      } else {
+         return -1;
       }
-      cursor.close();
-      //db.close();
-      return intId;
    }
 
    public String getListIdByIntId(int intId) {
@@ -321,4 +381,5 @@ public class ListsDatabase extends SQLiteOpenHelper {
       db.update(TABLE_NAME, c, selection, selectionArgs);
       bm.dataChanged();
    }
+
 }

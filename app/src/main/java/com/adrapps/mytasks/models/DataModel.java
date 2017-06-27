@@ -58,8 +58,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void updateLists(List<TaskList> lists) {
-      listsDb.updateLists(lists);
+   public List<LocalList> createListsDatabase(List<TaskList> lists) {
+      return listsDb.createListDatabase(lists);
    }
 
    @Override
@@ -89,8 +89,13 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public String getListTitleFromId(String listId) {
-      return listsDb.getListTitleFromId(listId);
+   public String getListTitleFromIntId(int listIntId) {
+      return listsDb.getListTitleFromIntId(listIntId);
+   }
+
+   @Override
+   public boolean listExistsInDB(int listIntId) {
+      return listsDb.listExists(listIntId);
    }
 
    @Override
@@ -131,8 +136,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public List<LocalTask> getTaskFromListForAdapter(String listId) {
-      return tasksDb.getTasksFromListForAdapter(listId);
+   public List<LocalTask> getTaskFromListForAdapter(int listIntId) {
+      return tasksDb.getTasksFromListForAdapter(listIntId);
    }
 
    @Override
@@ -161,6 +166,31 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public List<LocalList> getLocalLists() {
+      return listsDb.getLocalLists();
+   }
+
+   @Override
+   public int getListIntIdById(String listId) {
+      return listsDb.getListIntIdById(listId);
+   }
+
+   @Override
+   public String getListIdByIntId(int listIntId) {
+      return listsDb.getListIdByIntId(listIntId);
+   }
+
+   @Override
+   public void addNewListToDBFromServer(TaskList serverList) {
+      listsDb.addListFromServer(serverList);
+   }
+
+   @Override
+   public List<Integer> getListsIntIds() {
+      return listsDb.getListsIntIds();
+   }
+
+   @Override
    public String getTaskIdByIntId(int id) {
       return tasksDb.getTaskIdByIntId(id);
    }
@@ -176,10 +206,10 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void addList(String listTitle) {
+   public void addNewListToServer(String listTitle, int listIntId) {
       LocalList list = new LocalList();
       list.setTitle(listTitle);
-      list.setIntId(addListToDb(listTitle));
+      list.setIntId(listIntId);
       if (mPresenter.isDeviceOnline()) {
          GoogleAccountCredential credential = mPresenter.getCredential();
          CreateList createList = new CreateList(context, mPresenter, credential);
@@ -193,14 +223,17 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void editList(String listId, String title) {
-      listsDb.editListTitle(listId, title);
+   public void changeListNameInDB(int listIntId, String title) {
+      listsDb.editListTitle(listIntId, title);
+   }
+
+   @Override
+   public void changeListNameInServer(String listId, String title) {
       if (mPresenter.isDeviceOnline()) {
          GoogleAccountCredential credential = mPresenter.getCredential();
          EditList editList = new EditList(context, mPresenter, credential);
          editList.execute(listId, title);
       }
-
    }
 
    @Override
@@ -209,7 +242,7 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void deleteList(String listId) {
+   public void deleteListFromServer(String listId) {
       if (listsDb.getListsCount() <= 1) {
          mPresenter.showToast(context.getString(R.string.default_delete_list_message));
          return;
@@ -223,13 +256,22 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public void deleteListFromDb(int listIntId) {
+      if (listsDb.getListsCount() <= 1) {
+         mPresenter.showToast(context.getString(R.string.default_delete_list_message));
+         return;
+      }
+      listsDb.deleteList(listIntId);
+   }
+
+   @Override
    public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
       tasksDb.updateNewTasksInBulk(map);
    }
 
    @Override
-   public int addListToDb(String listTitle) {
-      return listsDb.addList(listTitle);
+   public int addListNewToDb(String listTitle) {
+      return listsDb.addListFirstTime(listTitle);
    }
 
 
@@ -307,7 +349,7 @@ public class DataModel implements Contract.Model {
 //   public void moveTask(LocalTask movedTask, String previousTaskId) {
 //      if (mPresenter.isDeviceOnline()) {
 //         MoveTask move = new MoveTask(context, mPresenter, mPresenter.getCredential());
-//         move.execute(movedTask.getId(), movedTask.getList(), previousTaskId);
+//         move.execute(movedTask.getId(), movedTask.getListId(), previousTaskId);
 //      }
 //   }
 

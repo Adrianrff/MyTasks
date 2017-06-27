@@ -66,16 +66,6 @@ public class TaskListPresenter implements Serializable {
      
    }
 
-   public boolean isViewDestroyed(){
-      try {
-         boolean isViewDestroyed = getView().isDestroyed();
-         return isViewDestroyed;
-      } catch (NullPointerException e) {
-         Log.d(TAG, "isViewDestroyed: View was null");
-         return true;
-      }
-   }
-
    public boolean isViewFinishing(){
       try {
          boolean isViewFinishing = getView().isFinishing();
@@ -183,13 +173,13 @@ public class TaskListPresenter implements Serializable {
       return mModel.getTasksFromList(listId);
    }
 
-   public void updateLists(List<TaskList> lists) {
+   public List<LocalList> createListDatabase(List<TaskList> lists) {
       setListsInfo(lists);
-      mModel.updateLists(lists);
+      return mModel.createListsDatabase(lists);
    }
 
-   public List<LocalTask> getTasksFromListForAdapter(String listId) {
-      return mModel.getTaskFromListForAdapter(listId);
+   public List<LocalTask> getTasksFromListForAdapter(int listIntId) {
+      return mModel.getTaskFromListForAdapter(listIntId);
    }
 
    public void updateTasksFirstTime(List<LocalTask> tasks) {
@@ -222,8 +212,8 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
-   public String getListTitleById(String listId) {
-      return mModel.getListTitleFromId(listId);
+   public String getListTitleByIntId(int listIntId) {
+      return mModel.getListTitleFromIntId(listIntId);
    }
 
    public String getString(int stringId) {
@@ -364,7 +354,7 @@ public class TaskListPresenter implements Serializable {
       return mModel.getListsTitles();
    }
 
-   public List<String> getListsIds() {
+   public List<String> getLocalListsIds() {
       return mModel.getListsIds();
    }
 
@@ -377,24 +367,36 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
-   public void addList(String listTitle) {
-      mModel.addList(listTitle);
+   public void addNewListToServer(String listTitle, int listIntId) {
+      mModel.addNewListToServer(listTitle, listIntId);
+   }
+
+   public int addNewListToDB(String title) {
+      return mModel.addListNewToDb(title);
    }
 
    public void updateListInDBFromLocalListAfterServerOp(LocalList localList) {
       mModel.updateListInDBFromLocalListAfterServerOp(localList);
    }
 
-   public void editList(String listId, String title) {
-      mModel.editList(listId, title);
+   public void changeListNameInDB(int listIntId, String title) {
+      mModel.changeListNameInDB(listIntId, title);
+   }
+
+   public void changeListNameInServer(String listId, String title) {
+      mModel.changeListNameInServer(listId, title);
    }
 
    public void updateListInDBFromServerList(TaskList list) {
       mModel.updateList(list);
    }
 
-   public void deleteList(String listId) {
-      mModel.deleteList(listId);
+   public void deleteListFromServer(String listId) {
+      mModel.deleteListFromServer(listId);
+   }
+
+   public void deleteListFromDB(int listIntId){
+      mModel.deleteListFromDb(listIntId);
    }
 
    public List<LocalTask> getAllTasks() {
@@ -432,5 +434,30 @@ public class TaskListPresenter implements Serializable {
 
    public boolean getBooleanShP(String key, boolean defaultValue) {
       return getView().getBooleanShP(key, defaultValue);
+   }
+
+   public List<LocalList> getLocalLists() {
+      return mModel.getLocalLists();
+   }
+
+
+   public int getListIntIdById(String listId) {
+      return mModel.getListIntIdById(listId);
+   }
+
+   public String getlistIdByIntId(int listIntId) {
+      return mModel.getListIdByIntId(listIntId);
+   }
+
+   public void addNewListToDBFromServer(TaskList serverList) {
+      mModel.addNewListToDBFromServer(serverList);
+   }
+
+   public List<Integer> getListsIntIds() {
+      return mModel.getListsIntIds();
+   }
+
+   public boolean listExistsInDB(int listIntId) {
+      return mModel.listExistsInDB(listIntId);
    }
 }

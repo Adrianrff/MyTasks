@@ -105,9 +105,9 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
          Task task = LocalTask.localTaskToApiTask(lTask);
          Task aTask;
-         aTask = mService.tasks().insert(lTask.getList(), task).execute();
+         aTask = mService.tasks().insert(lTask.getListId(), task).execute();
          if (aTask != null) {
-            syncedLocalTask = mPresenter.updateNewlyCreatedTask(aTask, lTask.getList(),
+            syncedLocalTask = mPresenter.updateNewlyCreatedTask(aTask, lTask.getListId(),
                   String.valueOf(lTask.getIntId()));
             if (syncedLocalTask.getDue() != 0 && mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
                AlarmHelper.setOrUpdateDefaultRemindersForTask(context, syncedLocalTask);

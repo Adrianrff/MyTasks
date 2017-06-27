@@ -30,7 +30,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
    private static final String COL_INT_ID = "Int_Id";
    //    private static final String COL_SORT_ID = "Sort_Id";
    private static final String COL_ID = "Id";
-   private static final String COL_LIST = "List";
+   private static final String COL_LIST_ID = "List_id";
+   private static final String COL_LIST_INT_ID = "List_int_id";
    private static final String COL_TITLE = "Title";
    private static final String COL_SERVER_UPDATED = "serverUpdated";
    private static final String COL_PARENT = "Parent";
@@ -49,7 +50,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
    private static final String COL_LOCAL_SIBLING = "local_sibling";
    private static final String COL_MOVED = "moved";
    private static final String COL_LOCAL_UPDATED = "local_updated";
-   private static final String COL_LOCAL_DELETED = "loca_deleted";
+   private static final String COL_LOCAL_DELETED = "local_deleted";
    private static final String ORDER_ASC = " ASC";
    public static final String ORDER_DESC = " DESC";
    private SQLiteDatabase db;
@@ -58,7 +59,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
    private static final String[] ALL_COLUMNS = {
          COL_INT_ID,
          COL_ID,
-         COL_LIST,
+         COL_LIST_ID,
+         COL_LIST_INT_ID,
          COL_TITLE,
          COL_SERVER_UPDATED,
          COL_PARENT,
@@ -101,7 +103,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
                COL_MOVED + " int default 0," +
                COL_DELETED + " int," +
                COL_HIDDEN + " int," +
-               COL_LIST + " text," +
+               COL_LIST_ID + " text," +
+               COL_LIST_INT_ID + " int," +
                COL_ID + " text," +
                COL_LOCAL_DELETED + " int default 0)";
    private long offSet = TimeZone.getDefault().getRawOffset();
@@ -166,7 +169,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
                task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
                task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
                task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-               task.setList(cursor.getString(cursor.getColumnIndex(COL_LIST)));
+               task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
+               task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
                task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
                task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
                task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
@@ -197,7 +201,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
 
    public List<LocalTask> getTasksFromList(String listId) {
       List<LocalTask> tasks = new ArrayList<>();
-      String selection = COL_LIST + " = ? ";
+      String selection = COL_LIST_ID + " = ? ";
       String[] selectionArgs = {listId};
       db = getReadableDB();
 
@@ -210,7 +214,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
             task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
             task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
             task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-            task.setList(cursor.getString(cursor.getColumnIndex(COL_LIST)));
+            task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
+            task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
             task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
             task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
             task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
@@ -235,10 +240,10 @@ public class TasksDatabase extends SQLiteOpenHelper {
       return tasks;
    }
 
-   public List<LocalTask> getTasksFromListForAdapter(String listId) {
+   public List<LocalTask> getTasksFromListForAdapter(int listIntId) {
       List<LocalTask> tasks = new ArrayList<>();
-      String selection = COL_LIST + " = ? ";
-      String[] selectionArgs = {listId};
+      String selection = COL_LIST_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(listIntId)};
       db = getReadableDB();
       db.beginTransaction();
       Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
@@ -252,7 +257,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
                   task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
                   task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
                   task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-                  task.setList(cursor.getString(cursor.getColumnIndex(COL_LIST)));
+                  task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
+                  task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
                   task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
                   task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
                   task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
@@ -280,9 +286,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       } finally {
          db.endTransaction();
          cursor.close();
-         //db.close();
       }
-      //db.close();
       return tasks;
    }
 
@@ -290,7 +294,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
       db = getWritableDB();
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, localTask.getId());
-      cv.put(COL_LIST, localTask.getList());
+      cv.put(COL_LIST_ID, localTask.getListId());
+      cv.put(COL_LIST_INT_ID, localTask.getListIntId());
       cv.put(COL_TITLE, localTask.getTitle());
       cv.put(COL_SERVER_UPDATED, localTask.getServerModify());
       cv.put(COL_PARENT, localTask.getParent());
@@ -320,7 +325,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
       db = getWritableDB();
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
-      cv.put(COL_LIST, listId);
+      cv.put(COL_LIST_ID, listId);
+      //TODO find way of getting the list int id here
       cv.put(COL_TITLE, task.getTitle());
       cv.put(COL_SERVER_UPDATED, task.getUpdated() == null ? 0 : task.getUpdated().getValue());
       cv.put(COL_PARENT, task.getParent());
@@ -360,7 +366,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
             continue;
          }
          cv.put(COL_ID, currentTask.getId());
-         cv.put(COL_LIST, currentTask.getList());
+         cv.put(COL_LIST_ID, currentTask.getListId());
+         cv.put(COL_LIST_INT_ID, currentTask.getListIntId());
          cv.put(COL_TITLE, currentTask.getTitle());
          cv.put(COL_SERVER_UPDATED, currentTask.getServerModify());
          cv.put(COL_PARENT, currentTask.getParent());
@@ -448,7 +455,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
          task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
          task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
          task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-         task.setList(cursor.getString(cursor.getColumnIndex(COL_LIST)));
+         task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
+         task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
          task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
          task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
          task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
@@ -496,7 +504,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_UPDATED, System.currentTimeMillis());
       cv.put(COL_REMINDER, reminder);
       cv.put(COL_REMINDER_REPEAT_MODE, repeatMode);
-
 //      cv.put(COL_REMINDER_REPEAT_DAY, tasks.get(i).getRepeatDay());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       //db.close();
@@ -510,7 +517,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
       String[] selectionArgs = {String.valueOf(task.getIntId())};
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
-      cv.put(COL_LIST, task.getList());
+      cv.put(COL_LIST_ID, task.getListId());
+      cv.put(COL_LIST_INT_ID, task.getListIntId());
       cv.put(COL_TITLE, task.getTitle());
       cv.put(COL_SERVER_UPDATED, task.getServerModify());
       cv.put(COL_PARENT, task.getParent());
@@ -544,7 +552,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       String[] selectionArgs = {task.getId()};
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
-      cv.put(COL_LIST, listId);
+      cv.put(COL_LIST_ID, listId);
       cv.put(COL_TITLE, task.getTitle());
       cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
       cv.put(COL_PARENT, task.getParent());
@@ -568,7 +576,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
       String[] selectionArgs = {String.valueOf(task.getIntId())};
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
-      cv.put(COL_LIST, listId);
+      cv.put(COL_LIST_ID, listId);
+      cv.put(COL_LIST_INT_ID, task.getListIntId());
       cv.put(COL_TITLE, task.getTitle());
       cv.put(COL_SERVER_UPDATED, task.getServerModify());
       cv.put(COL_PARENT, task.getParent());
@@ -597,7 +606,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
       String[] selectionArgs = {intId};
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
-      cv.put(COL_LIST, listId);
+      cv.put(COL_LIST_ID, listId);
+      //TODO find way of getting the list int id here
       cv.put(COL_TITLE, task.getTitle());
       cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
       cv.put(COL_PARENT, task.getParent());
@@ -675,7 +685,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
          task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
          task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
          task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-         task.setList(cursor.getString(cursor.getColumnIndex(COL_LIST)));
+         task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
+         task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
          task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
          task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
          task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
@@ -714,7 +725,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
             String[] selectionArgs = {String.valueOf(localTask.getIntId())};
             ContentValues cv = new ContentValues();
             cv.put(COL_ID, task.getId());
-            cv.put(COL_LIST, localTask.getList());
+            cv.put(COL_LIST_ID, localTask.getListId());
+            cv.put(COL_LIST_INT_ID, localTask.getListIntId());
             cv.put(COL_TITLE, task.getTitle());
             cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
             cv.put(COL_PARENT, task.getParent());

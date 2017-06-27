@@ -21,6 +21,7 @@ public class Co {
    public static final String BUNDLED_EXTRA = "Bundled extra";
    public static final String NO_API_EDIT = "No api edit";
    public static final String SAVE_ON_BACK_PRESSED_PREF_KEY = "save on back pressed";
+   public static final String CURRENT_LIST_INT_ID = "List int id";
 
 
    public static String OP_UPDATE_STATUS;
@@ -31,6 +32,7 @@ public class Co {
    public static final int NEW_LIST_MENU_ITEM_ID = 1001;
    public static List<String> listIds = new ArrayList<>();
    public static List<String> listTitles = new ArrayList<>();
+   public static List<Integer> listIntIds = new ArrayList<>();
 
    //Flags
    public static final String IS_FIRST_LAUNCH = "is first time";
@@ -48,7 +50,7 @@ public class Co {
    public static final String NEW_TASK = "New task";
    public static final String TASK_ID_ORDERED_LIST = "Task_ordered_list";
    public static final String STATE_SHOWN_TASK = "Task shown in Bottom sheet";
-   public static final String STATE_SHOWN_TASK_POSITION = "Task shown in Bottom sheet position";
+   public static final String SHOWN_TASK_POSITION_STATE = "Task shown in Bottom sheet position";
    public static final String TASK_ID = "task id";
    public static final String TASK_INT_ID = "task int id";
    public static final String TASK_LIST_ID = "task list id";
@@ -100,12 +102,24 @@ public class Co {
    public static final String NO_VALUE = "no value";
    public static final String STATE_DUE_DATE = "State due date in millis";
 
-   public static void setListIds(List<String> listIds) {
-      Co.listIds = listIds;
+   public static void setListIds(List<LocalList> lists) {
+      Co.listIds.clear();
+      for (int i = 0; i < lists.size(); i++) {
+         Co.listIds.add(lists.get(i).getId());
+      }
+   }
+   public static void setListIntIds(List<LocalList> lists) {
+      Co.listIntIds.clear();
+      for (int i = 0; i < lists.size(); i++) {
+         Co.listIntIds.add(lists.get(i).getIntId());
+      }
    }
 
-   public static void setListTitles(List<String> listTitles) {
-      Co.listTitles = listTitles;
+   public static void setListTitles(List<LocalList> lists) {
+      Co.listTitles.clear();
+      for (int i = 0; i < lists.size(); i++) {
+         Co.listTitles.add(lists.get(i).getTitle());
+      }
    }
 
    public static boolean IS_MULTISELECT_ENABLED;

@@ -6,73 +6,80 @@ import java.io.Serializable;
 
 public class LocalList implements Serializable, Comparable {
 
-    private String title, id;
-    private int intId;
+   private String title, id;
+   private int intId, localDeleted, syncStatus;
+   private long serverUpdated, localUpdated;
 
 
+   public LocalList() {
 
-    private int syncStatus;
-    private long serverUpdated, localUpdated;
+   }
 
-
-    public LocalList(){
-
-    }
-
-    //GETTERS
-
-    public int getSyncStatus() {
-        return syncStatus;
-    }
-    public String getTitle() {
-        return title;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public int getIntId() {
-        return intId;
-    }
-
-    public long getServerUpdated() {
-        return serverUpdated;
-    }
-
-    public long getLocalUpdated() {
-        return localUpdated;
-    }
+   //GETTERS
 
 
+   public int getLocalDeleted() {
+      return localDeleted;
+   }
 
-    //SETTERS
-    public void setSyncStatus(int syncStatus) {
-        this.syncStatus = syncStatus;
-    }
+   public int getSyncStatus() {
+      return syncStatus;
+   }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+   public String getTitle() {
+      return title;
+   }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+   public String getId() {
+      return id;
+   }
 
-    public void setIntId(int intId) {
-        this.intId = intId;
-    }
+   public int getIntId() {
+      return intId;
+   }
 
-    public void setServerUpdated(long server_updated) {
-        this.serverUpdated = server_updated;
-    }
+   public long getServerUpdated() {
+      return serverUpdated;
+   }
 
-    public void setLocalUpdated(long local_updated) {
-        this.localUpdated = local_updated;
-    }
+   public long getLocalUpdated() {
+      return localUpdated;
+   }
 
-    @Override
-    public int compareTo(@NonNull Object o) {
-        return 0;
-    }
+
+   //SETTERS
+
+
+   public void setLocalDeleted(int localDeleted) {
+      this.localDeleted = localDeleted;
+   }
+
+   public void setSyncStatus(int syncStatus) {
+      this.syncStatus = syncStatus;
+   }
+
+   public void setTitle(String title) {
+      this.title = title;
+   }
+
+   public void setId(String id) {
+      this.id = id;
+   }
+
+   public void setIntId(int intId) {
+      this.intId = intId;
+   }
+
+   public void setServerUpdated(long server_updated) {
+      this.serverUpdated = server_updated;
+   }
+
+   public void setLocalUpdated(long local_updated) {
+      this.localUpdated = local_updated;
+   }
+
+   @Override
+   public int compareTo(@NonNull Object o) {
+      return 0;
+   }
 }

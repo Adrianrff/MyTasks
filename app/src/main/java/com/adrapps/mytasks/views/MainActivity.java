@@ -56,9 +56,11 @@ import android.widget.Toast;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.api_calls.SignInActivity;
 import com.adrapps.mytasks.domain.Co;
+import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.DateHelper;
+import com.adrapps.mytasks.helpers.ObjectHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.interfaces.OnStartDragListener;
@@ -69,6 +71,7 @@ import com.bumptech.glide.Glide;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
+import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
@@ -131,8 +134,9 @@ public class MainActivity extends AppCompatActivity
          saveIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
          return;
       }
-      initRecyclerView(mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID, null)));
       setListsData();
+      //TODO Use list int id
+      initRecyclerView(mPresenter.getTasksFromListForAdapter(getIntShP(Co.CURRENT_LIST_INT_ID, -1)));
       if (getIntent().hasExtra(Co.LOCAL_TASK)) {
          LocalTask task = (LocalTask) getIntent().getSerializableExtra(Co.LOCAL_TASK);
          Intent i = new Intent(this, NewTaskOrEditActivity.class);
@@ -144,7 +148,7 @@ public class MainActivity extends AppCompatActivity
       }
       if (savedInstanceState != null) {
          taskShownInBottomSheet = (LocalTask) savedInstanceState.getSerializable(Co.STATE_SHOWN_TASK);
-         taskShownInBottomSheetPos = savedInstanceState.getInt(Co.STATE_SHOWN_TASK_POSITION);
+         taskShownInBottomSheetPos = savedInstanceState.getInt(Co.SHOWN_TASK_POSITION_STATE);
          if (taskShownInBottomSheet != null && taskShownInBottomSheetPos >= 0) {
             showBottomSheet(taskShownInBottomSheet, taskShownInBottomSheetPos, true);
          }
@@ -279,12 +283,6 @@ public class MainActivity extends AppCompatActivity
       return super.dispatchTouchEvent(event);
    }
 
-   @Override
-   public void setListsData() {
-      Co.setListIds(mPresenter.getListsIds());
-      Co.setListTitles(mPresenter.getListsTitles());
-      setNavDrawerMenu(Co.listTitles);
-   }
 
    @Override
    public void showBottomSheet(@Nullable final LocalTask task, final int position, boolean shouldShow) {
@@ -402,39 +400,75 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public void updateCurrentView() {
-      Co.setListIds(mPresenter.getListsIds());
-      Co.setListTitles(mPresenter.getListsTitles());
-      boolean listStillExists = Co.listIds.contains(getStringShP(Co.CURRENT_LIST_ID, null));
-      if (listStillExists) {
-         String currentListTitle = mPresenter.getListTitleById(
-               getStringShP(Co.CURRENT_LIST_ID, null));
-         saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
-         setToolbarTitle(currentListTitle);
+   public void setListsData() {
+      List<LocalList> lists = mPresenter.getLocalLists();
+      Co.setListIds(lists);
+      Co.setListTitles(lists);
+      Co.setListIntIds(lists);
+      if (!Co.listTitles.isEmpty()) {
+         setNavDrawerMenu(Co.listTitles);
       } else {
-         String currentListTitle = null;
-         try {
-            currentListTitle = Co.listTitles.get(0);
-         } catch (Exception e) {
-            Co.listTitles = mPresenter.getListsTitles();
-            e.printStackTrace();
-         }
-         String currentListId;
-         try {
-            currentListId = Co.listIds.get(0);
-         } catch (Exception e) {
-            e.printStackTrace();
-            Co.listIds = mPresenter.getListsIds();
-            currentListId = Co.listIds.get(0);
-         }
-         saveStringShP(Co.CURRENT_LIST_ID, currentListId);
-         saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
-         toolbar.setTitle(currentListTitle);
+         //TODO: Create method to update lists only
+//         SyncTasks sync = new SyncTasks(this.getApplicationContext(), mPresenter, getCredential());
+//         sync.execute();
       }
-      setNavDrawerMenu(Co.listTitles);
-      List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(getStringShP(Co.CURRENT_LIST_ID, null));
-      showEmptyRecyclerView(tasks == null || tasks.isEmpty());
-      adapter.updateItems(tasks);
+   }
+
+   @Override
+   public void updateCurrentView() {
+      List<LocalList> lists = mPresenter.getLocalLists();
+      SparseArray<LocalList> listMap = ObjectHelper.getListMap(lists);
+      if (!lists.isEmpty()) {
+         Co.setListIds(lists);
+         Co.setListTitles(lists);
+         Co.setListIntIds(lists);
+         int currentListIntId = getIntShP(Co.CURRENT_LIST_INT_ID, -1);
+         String currentListId;
+         String currentListTitle;
+         if (Co.listIntIds.contains(currentListIntId)) {
+            currentListId = listMap.get(currentListIntId).getId();
+            currentListTitle = listMap.get(currentListIntId).getTitle();
+            saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
+            saveStringShP(Co.CURRENT_LIST_ID, currentListId);
+         } else {
+            currentListIntId = lists.get(0).getIntId();
+            currentListId = lists.get(0).getId();
+            currentListTitle = lists.get(0).getTitle();
+            saveIntShP(Co.CURRENT_LIST_INT_ID, currentListIntId);
+            saveStringShP(Co.CURRENT_LIST_ID, lists.get(0).getId());
+            saveStringShP(Co.CURRENT_LIST_INT_ID, lists.get(0).getTitle());
+         }
+//         try {
+//            currentListTitle = Co.listTitles.get(0);
+//         } catch (Exception e) {
+//            Co.listTitles = mPresenter.getListsTitles();
+//            currentListTitle = Co.listTitles.get(0);
+//            e.printStackTrace();
+//         }
+//         try {
+//            currentListId = Co.listIds.get(0);
+//         } catch (Exception e) {
+//            e.printStackTrace();
+//            Co.listIds = mPresenter.getLocalListsIds();
+//            currentListId = Co.listIds.get(0);
+//         }
+//         saveStringShP(Co.CURRENT_LIST_ID, currentListId);
+//         saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
+//         saveIntShP(Co.CURRENT_LIST_INT_ID, currentListIntId);
+//         toolbar.setTitle(currentListTitle);
+//
+         setToolbarTitle(currentListTitle);
+         setNavDrawerMenu(Co.listTitles);
+         List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(currentListIntId);
+         showEmptyRecyclerView(tasks == null || tasks.isEmpty());
+         adapter.updateItems(tasks);
+      } else {
+         try {
+            throw new Exception("Lists database is returning empty");
+         } catch (Exception e) {
+            FirebaseCrash.report(e);
+         }
+      }
 
    }
 
@@ -545,7 +579,6 @@ public class MainActivity extends AppCompatActivity
          }
       }
       try {
-         //TODO have a singleton for list titles and list ids, call sync if they're empty AND the database is empty
          listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE, null))).setChecked(true);
       } catch (Exception e) {
          showToast("error");
@@ -646,14 +679,15 @@ public class MainActivity extends AppCompatActivity
       Menu menu = navigationView.getMenu();
       MenuItem menuItem = menu.findItem(R.id.lists_titles_menu);
       SubMenu listsMenu = menuItem.getSubMenu();
-      if (item.getItemId() <= Co.listTitles.size()) {
+      if (item.getItemId() <= Co.listIntIds.size()) {
          saveStringShP(Co.CURRENT_LIST_ID, Co.listIds.get(item.getItemId()));
          saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(item.getItemId()));
+         saveIntShP(Co.CURRENT_LIST_INT_ID, Co.listIntIds.get(item.getItemId()));
          for (int i = 0; i < listsMenu.size(); i++) {
             listsMenu.getItem(i).setChecked(false);
          }
          item.setChecked(true);
-         List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(Co.listIds.get(item.getItemId()));
+         List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId()));
          if (tasks == null || tasks.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyDataLayout.setVisibility(View.VISIBLE);
@@ -661,7 +695,7 @@ public class MainActivity extends AppCompatActivity
             recyclerView.setVisibility(View.VISIBLE);
             emptyDataLayout.setVisibility(View.GONE);
          }
-         adapter.updateItems(mPresenter.getTasksFromListForAdapter(Co.listIds.get(item.getItemId())));
+         adapter.updateItems(mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId())));
          toolbar.setTitle(item.getTitle());
          drawer.closeDrawer(GravityCompat.START);
          return false;
@@ -673,7 +707,7 @@ public class MainActivity extends AppCompatActivity
 
       }
 
-      if (item.getItemId() == R.id.nav_settings){
+      if (item.getItemId() == R.id.nav_settings) {
          settingsItemSelected = true;
          drawer.closeDrawer(GravityCompat.START);
 
@@ -696,11 +730,11 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void onDrawerClosed(View drawerView) {
-      if (settingsItemSelected){
+      if (settingsItemSelected) {
          goToSettings();
          settingsItemSelected = false;
       }
-      if (newListItemSelected){
+      if (newListItemSelected) {
          showNewListDialog();
          newListItemSelected = false;
       }
@@ -711,7 +745,7 @@ public class MainActivity extends AppCompatActivity
 
    }
 
-   public void goToSettings(){
+   public void goToSettings() {
       Intent i = new Intent(this, SettingsActivity.class);
       startActivity(i);
    }
@@ -730,7 +764,8 @@ public class MainActivity extends AppCompatActivity
          @Override
          public void onClick(DialogInterface dialog, int which) {
             if (!newTaskTitle.getText().toString().trim().isEmpty()) {
-               mPresenter.addList(newTaskTitle.getText().toString());
+               int listIntId = mPresenter.addNewListToDB(newTaskTitle.getText().toString());
+               mPresenter.addNewListToServer(newTaskTitle.getText().toString(), listIntId);
                dialog.dismiss();
             } else {
                showToast(getString(R.string.list_title_empty_toast));
@@ -756,7 +791,16 @@ public class MainActivity extends AppCompatActivity
          @Override
          public void onClick(DialogInterface dialog, int which) {
             if (!taskTitle.getText().toString().trim().isEmpty()) {
-               mPresenter.editList(getStringShP(Co.CURRENT_LIST_ID, null), taskTitle.getText().toString());
+               String newName = taskTitle.getText().toString().trim();
+               String listId = null;
+               int listIntId = getIntShP(Co.CURRENT_LIST_INT_ID, -1);
+               if (listIntId >= 0) {
+                  mPresenter.changeListNameInDB(listIntId, newName);
+                  listId = mPresenter.getlistIdByIntId(listIntId);
+               }
+               if (listId != null) {
+                  mPresenter.changeListNameInServer(getStringShP(Co.CURRENT_LIST_ID, null), newName);
+               }
                dialog.dismiss();
             } else {
                showToast(getString(R.string.list_title_empty_toast));
@@ -798,7 +842,11 @@ public class MainActivity extends AppCompatActivity
       db.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          @Override
          public void onClick(DialogInterface dialog, int which) {
-            mPresenter.deleteList(getStringShP(Co.CURRENT_LIST_ID, null));
+            mPresenter.deleteListFromDB(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
+            String listId = mPresenter.getlistIdByIntId(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
+            if (listId != null) {
+               mPresenter.deleteListFromServer(listId);
+            }
          }
       });
 
@@ -819,7 +867,7 @@ public class MainActivity extends AppCompatActivity
       if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
          if (taskShownInBottomSheet != null) {
             outState.putSerializable(Co.STATE_SHOWN_TASK, taskShownInBottomSheet);
-            outState.putInt(Co.STATE_SHOWN_TASK_POSITION, taskShownInBottomSheetPos);
+            outState.putInt(Co.SHOWN_TASK_POSITION_STATE, taskShownInBottomSheetPos);
          }
       }
       super.onSaveInstanceState(outState);
@@ -879,12 +927,12 @@ public class MainActivity extends AppCompatActivity
                      AlarmHelper.cancelTaskReminder(task, this);
                   }
                   mPresenter.updateExistingTaskFromLocalTask(task, getStringShP(Co.CURRENT_LIST_ID, null));
-                  if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)){
+                  if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
                      Calendar dueDate = Calendar.getInstance();
                      dueDate.setTimeInMillis(task.getDue());
                      AlarmHelper.setOrUpdateDefaultRemindersForTask(this, task);
                   } else {
-                     if (AlarmHelper.isDefaultAlarmSet(this, task.getIntId())){
+                     if (AlarmHelper.isDefaultAlarmSet(this, task.getIntId())) {
                         List<LocalTask> tasks = new ArrayList<>();
                         tasks.add(task);
                         AlarmHelper.cancelDefaultRemindersForTasks(this, tasks);
@@ -897,20 +945,14 @@ public class MainActivity extends AppCompatActivity
                }
 
 
-
                // TASK ADDED
             } else if (resultIntent.hasExtra(Co.NEW_TASK)) {
                LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                if (task != null) {
-                  task.setList(getStringShP(Co.CURRENT_LIST_ID, null));
+                  task.setListId(getStringShP(Co.CURRENT_LIST_ID, null));
                   if (task.getReminder() != 0) {
                      AlarmHelper.setOrUpdateAlarm(task, this);
                   }
-//                  if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY)){
-//                     Calendar dueDateTextView = Calendar.getInstance();
-//                     dueDateTextView.setTimeInMillis(task.getDue());
-//                     AlarmHelper.setOrUpdateDefaultRemindersForTask(this, task);
-//                  }
                   task.setSyncStatus(0);
                   mPresenter.addTask(task);
                }
@@ -985,6 +1027,22 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
+   public int getIntShP(String key, int defaultValue) {
+      SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(getApplicationContext());
+      return prefs.getInt(key, defaultValue);
+   }
+
+   @Override
+   public void saveIntShP(String key, int value) {
+      SharedPreferences prefs = PreferenceManager
+            .getDefaultSharedPreferences(getApplicationContext());
+      SharedPreferences.Editor editor = prefs.edit();
+      editor.putInt(key, value);
+      editor.apply();
+   }
+
+   @Override
    public void saveBooleanShP(String key, boolean value) {
       SharedPreferences prefs = PreferenceManager
             .getDefaultSharedPreferences(getApplicationContext());
@@ -1002,15 +1060,6 @@ public class MainActivity extends AppCompatActivity
       editor.apply();
 
    }
-
-   private void saveIntShP(String key, int value) {
-      SharedPreferences prefs = PreferenceManager
-            .getDefaultSharedPreferences(getApplicationContext());
-      SharedPreferences.Editor editor = prefs.edit();
-      editor.putInt(key, value);
-      editor.apply();
-   }
-
 
    @Override
    public void onRefresh() {

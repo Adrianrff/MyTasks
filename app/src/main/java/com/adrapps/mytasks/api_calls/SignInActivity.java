@@ -320,7 +320,6 @@ public class SignInActivity extends AppCompatActivity
 
       @Override
       protected void onPostExecute(List<String> defaultListInfo) {
-//         Toast.makeText(SignInActivity.this, "on Post ex called", Toast.LENGTH_SHORT).show();
          mProgress.dismiss();
          SharedPreferences prefs =
                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -330,7 +329,17 @@ public class SignInActivity extends AppCompatActivity
          editor.putString(Co.CURRENT_LIST_ID, defaultListInfo.get(0));
          editor.putBoolean(Co.IS_FIRST_INIT, true);
          editor.apply();
-         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+         if (android.provider.Settings.System.getInt(getContentResolver(),
+               Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+         } else {
+            int currentOrientation = getResources().getConfiguration().orientation;
+            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else {
+               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+         }
          goToTaskListActivity();
       }
 
@@ -367,19 +376,19 @@ public class SignInActivity extends AppCompatActivity
       }
 
       private List<String> firstCall() throws IOException {
-         List<TaskList> lists;
+         List<TaskList> serverLists;
          List<String> defaultListInfo = new ArrayList<>();
          TaskLists result = mService.tasklists().list()
                .execute();
-         lists = result.getItems();
-         for (int i = 0; i < lists.size(); i++) {
+         serverLists = result.getItems();
+         for (int i = 0; i < serverLists.size(); i++) {
             Co.listIds.clear();
             Co.listTitles.clear();
-            Co.listIds.add(lists.get(i).getId());
-            Co.listTitles.add(lists.get(i).getTitle());
+            Co.listIds.add(serverLists.get(i).getId());
+            Co.listTitles.add(serverLists.get(i).getTitle());
          }
-         defaultListInfo.add(lists.get(0).getId());
-         defaultListInfo.add(lists.get(0).getTitle());
+         defaultListInfo.add(serverLists.get(0).getId());
+         defaultListInfo.add(serverLists.get(0).getTitle());
          return defaultListInfo;
       }
    }

@@ -10,9 +10,10 @@ import java.util.TimeZone;
 
 public class LocalTask implements Serializable, Comparable {
 
-    private String id, title, parent, position, notes, status, list;
-    private int moved, localDeleted, intId, previousTask, syncStatus, repeatMode, adapterPos, repeatDay;
-    private long serverModify,due,completed, localModify, reminder, reminderId;
+    private String id, title, parent, position, notes, status, listId;
+    private int moved, localDeleted, intId, previousTask, syncStatus, repeatMode,
+          adapterPos, repeatDay, listIntId;
+    private long serverModify, due, completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
 
 
@@ -63,7 +64,7 @@ public class LocalTask implements Serializable, Comparable {
         this.position = task.getPosition();
         this.notes = task.getNotes();
         this.status = task.getStatus();
-        this.list = listId;
+        this.listId = listId;
         this.serverModify = (task.getUpdated() == null) ? 0:task.getUpdated().getValue();
         this.due = (task.getDue() == null) ? 0:task.getDue().getValue() - offSet;
         this.completed = (task.getCompleted() == null) ? 0:task.getCompleted().getValue();
@@ -119,6 +120,10 @@ public class LocalTask implements Serializable, Comparable {
     ///-------------------SETTERS ----------------------//
 
 
+   public void setListIntId(int listIntId) {
+      this.listIntId = listIntId;
+   }
+
    public void setRepeatDay(int repeatDay) {
       this.repeatDay = repeatDay;
    }
@@ -165,8 +170,8 @@ public class LocalTask implements Serializable, Comparable {
         this.reminderId = reminderId;
     }
 
-    public void setList(String list) {
-        this.list = list;
+    public void setListId(String listId) {
+        this.listId = listId;
     }
 
     public void setIntId(int intId) {
@@ -266,8 +271,8 @@ public class LocalTask implements Serializable, Comparable {
         return reminder;
     }
 
-    public String getList() {
-        return list;
+    public String getListId() {
+        return listId;
     }
 
     public int getIntId() {
@@ -318,7 +323,11 @@ public class LocalTask implements Serializable, Comparable {
         return hidden;
     }
 
-    @Override
+   public int getListIntId() {
+      return listIntId;
+   }
+
+   @Override
     public int compareTo(@NonNull Object o) {
         return 0;
     }
