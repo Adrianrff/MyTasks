@@ -138,7 +138,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, list.getId());
       cv.put(COL_TITLE, list.getTitle());
-//      cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
+      cv.put(COL_LOCAL_MODIFY, list.getUpdated().getValue());
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       long insertedRow = db.insert(TABLE_NAME, null, cv);
       bm.dataChanged();
@@ -172,6 +172,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
       ContentValues cv = new ContentValues();
       cv.put(COL_TITLE, listTitle);
       cv.put(COL_SYNC_STATUS, Co.NOT_SYNCED);
+      cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       int insertedRow = (int) db.insert(TABLE_NAME, null, cv);
       bm.dataChanged();
       return insertedRow;
@@ -189,9 +190,9 @@ public class ListsDatabase extends SQLiteOpenHelper {
          list.setTitle(currentServerList.getTitle());
          list.setSyncStatus(Co.SYNCED);
          list.setLocalModify(0);
-         cv.put(COL_ID,serverLists.get(i).getId());
-         cv.put(COL_TITLE,serverLists.get(i).getTitle());
-//         cv.put(COL_LOCAL_MODIFY,System.currentTimeMillis());
+         cv.put(COL_ID,currentServerList.getId());
+         cv.put(COL_TITLE,currentServerList.getTitle());
+         cv.put(COL_LOCAL_MODIFY,currentServerList.getUpdated().getValue());
          cv.put(COL_SYNC_STATUS,Co.SYNCED);
          int listIntId = (int) db.insert(TABLE_NAME,null,cv);
          list.setIntId(listIntId);
@@ -219,7 +220,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
       return localList;
    }
 
-   public void updateListInDBFromLocalListAfterServerOp(LocalList localList) {
+   public void updateListFromLocalList(LocalList localList) {
       db = getWritableDB();
       String selection = COL_INT_ID + " = ? ";
       String[] selectionArgs = {String.valueOf(localList.getIntId())};
@@ -266,7 +267,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, list.getId());
       cv.put(COL_TITLE, list.getTitle());
-//      cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
+      cv.put(COL_LOCAL_MODIFY, list.getUpdated().getValue());
       cv.put(COL_SYNC_STATUS, Co.SYNCED);
       db.update(TABLE_NAME, cv, selection, selectionArgs);
       bm.dataChanged();
@@ -380,6 +381,7 @@ public class ListsDatabase extends SQLiteOpenHelper {
       String[] selectionArgs = {String.valueOf(listIntId)};
       ContentValues c = new ContentValues();
       c.put(COL_LOCAL_DELETED, Co.LOCAL_DELETED);
+      c.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       db.update(TABLE_NAME, c, selection, selectionArgs);
       bm.dataChanged();
    }

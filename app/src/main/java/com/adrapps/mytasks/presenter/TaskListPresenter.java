@@ -306,8 +306,8 @@ public class TaskListPresenter implements Serializable {
       return mModel.addTaskToLocalDatabase(task);
    }
 
-   public void addTaskFirstTimeFromServer(Task task, String listId) {
-      mModel.addTaskFirstTimeFromServer(task, listId);
+   public void addTaskFirstTimeFromServer(Task task, String listId, int listIntId) {
+      mModel.addTaskFirstTimeFromServer(task, listId, listIntId);
    }
 
    public void addTaskToAdapter(LocalTask localTask) {
@@ -379,8 +379,8 @@ public class TaskListPresenter implements Serializable {
       return mModel.addListNewToDb(title);
    }
 
-   public void updateListInDBFromLocalListAfterServerOp(LocalList localList) {
-      mModel.updateListInDBFromLocalListAfterServerOp(localList);
+   public void updateListInDBFromLocalList(LocalList localList) {
+      mModel.updateListInDBFromLocalList(localList);
    }
 
    public void changeListNameInDB(int listIntId, String title) {

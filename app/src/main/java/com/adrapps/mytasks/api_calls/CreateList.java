@@ -112,7 +112,7 @@ public class CreateList extends AsyncTask<LocalList, Void, Void> {
          list = mService.tasklists().insert(list).execute();
          localList.setId(list.getId());
          localList.setLocalModify(System.currentTimeMillis());
-         mPresenter.updateListInDBFromLocalListAfterServerOp(localList);
+         mPresenter.updateListInDBFromLocalList(localList);
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

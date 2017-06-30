@@ -109,8 +109,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void addTaskFirstTimeFromServer(Task task, String listId) {
-      tasksDb.addTaskFirstTimeFromServer(task, listId);
+   public void addTaskFirstTimeFromServer(Task task, String listId, int listIntId) {
+      tasksDb.addTaskFirstTimeFromServer(task, listId, listIntId);
    }
 
 
@@ -238,8 +238,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void updateListInDBFromLocalListAfterServerOp(LocalList localList) {
-      listsDb.updateListInDBFromLocalListAfterServerOp(localList);
+   public void updateListInDBFromLocalList(LocalList localList) {
+      listsDb.updateListFromLocalList(localList);
    }
 
    @Override
@@ -375,7 +375,7 @@ public class DataModel implements Contract.Model {
 
    @Override
    public void editTask(LocalTask task) {
-      if (task.getSyncStatus() != Co.NOT_SYNCED && task.getSyncStatus() != Co.EDITED_NOT_SYNCED) {
+      if (task.getSyncStatus() == Co.SYNCED) {
          task.setSyncStatus(Co.EDITED_NOT_SYNCED);
       }
       mPresenter.updateLocalTask(task, true);

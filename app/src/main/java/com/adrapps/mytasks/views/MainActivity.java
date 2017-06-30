@@ -136,7 +136,6 @@ public class MainActivity extends AppCompatActivity
       }
       setListsData();
       setNavDrawerMenu(Co.lists);
-      //TODO Use list int id
       initRecyclerView(mPresenter.getTasksFromListForAdapter(getIntShP(Co.CURRENT_LIST_INT_ID, -1)));
       if (getIntent().hasExtra(Co.LOCAL_TASK)) {
          LocalTask task = (LocalTask) getIntent().getSerializableExtra(Co.LOCAL_TASK);
@@ -834,6 +833,8 @@ public class MainActivity extends AppCompatActivity
                   mPresenter.changeListNameInServer(getStringShP(Co.CURRENT_LIST_ID, null), newName);
                }
                dialog.dismiss();
+               setListsData();
+               updateView();
             } else {
                showToast(getString(R.string.list_title_empty_toast));
             }
@@ -973,6 +974,9 @@ public class MainActivity extends AppCompatActivity
                   } else {
                      AlarmHelper.cancelTaskReminder(task, this);
                   }
+                  task.setLocalModify();
+                  task.setSyncStatus(task.getSyncStatus() != Co.NOT_SYNCED ? Co.EDITED_NOT_SYNCED : Co.NOT_SYNCED);
+                  //TODO Fix this to update the task based on int id
                   mPresenter.updateExistingTaskFromLocalTask(task, getStringShP(Co.CURRENT_LIST_ID, null));
                   if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
                      Calendar dueDate = Calendar.getInstance();
@@ -987,6 +991,7 @@ public class MainActivity extends AppCompatActivity
                   }
                   adapter.updateItem(task, resultIntent.getIntExtra(Co.ADAPTER_POSITION, -1));
                   if (!resultIntent.hasExtra(Co.NO_API_EDIT)) {
+                     //TODO Only try server edit here
                      mPresenter.editTask(task);
                   }
                }

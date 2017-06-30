@@ -127,7 +127,7 @@ public class Contract {
 
       int addTaskToLocalDatabase(LocalTask task);
 
-      void addTaskFirstTimeFromServer(Task task, String listId);
+      void addTaskFirstTimeFromServer(Task task, String listId, int listIntId);
 
       int addListNewToDb(String listTitle);
 
@@ -169,7 +169,7 @@ public class Contract {
 
       void addNewListToServer(String listTitle, int listIntId);
 
-      void updateListInDBFromLocalListAfterServerOp(LocalList localList);
+      void updateListInDBFromLocalList(LocalList localList);
 
       void changeListNameInDB(int listIntId, String title);
 
