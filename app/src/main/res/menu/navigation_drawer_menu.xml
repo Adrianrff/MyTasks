@@ -6,20 +6,30 @@
         android:background="?android:attr/selectableItemBackground"
         android:id="@+id/lists_titles">
 
-
         <item
             android:checkableBehavior="single"
             android:background="?android:attr/selectableItemBackground"
             android:id="@+id/lists_titles_menu"
             android:title="@string/lists_menu_title">
-
             <menu>
-
+                <item
+                    android:id="@+id/newList"
+                    android:icon="@drawable/ic_new_list"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:title="@string/new_list" />
             </menu>
 
         </item>
 
 
+    </group>
+
+    <group>
+        <!--<item-->
+            <!--android:id="@+id/newList"-->
+            <!--android:icon="@drawable/ic_new_list"-->
+            <!--android:background="?android:attr/selectableItemBackground"-->
+            <!--android:title="@string/new_list" />-->
     </group>
 
     <group>

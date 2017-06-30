@@ -111,8 +111,7 @@ public class CreateList extends AsyncTask<LocalList, Void, Void> {
          list.setTitle(localList.getTitle());
          list = mService.tasklists().insert(list).execute();
          localList.setId(list.getId());
-         localList.setLocalUpdated(System.currentTimeMillis());
-         localList.setServerUpdated(list.getUpdated().getValue());
+         localList.setLocalModify(System.currentTimeMillis());
          mPresenter.updateListInDBFromLocalListAfterServerOp(localList);
       } else {
          EasyPermissions.requestPermissions(

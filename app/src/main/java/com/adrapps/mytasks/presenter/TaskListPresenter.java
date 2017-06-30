@@ -59,7 +59,7 @@ public class TaskListPresenter implements Serializable {
 
    public void updateCurrentView() {
       try {
-         getView().updateCurrentView();
+         getView().updateView();
       } catch (NullPointerException e) {
          Log.d(TAG, "Presenter method: view was null");
       }
@@ -171,6 +171,10 @@ public class TaskListPresenter implements Serializable {
 
    public List<LocalTask> getTasksFromList(String listId) {
       return mModel.getTasksFromList(listId);
+   }
+
+   public List<LocalTask> getTasksFromList(int intId) {
+      return mModel.getTasksFromList(intId);
    }
 
    public List<LocalList> createListDatabase(List<TaskList> lists) {
@@ -326,8 +330,8 @@ public class TaskListPresenter implements Serializable {
       mModel.updateLocalTask(task, listId);
    }
 
-   public LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId) {
-      return mModel.updateNewlyCreatedTask(aTask, listId, intId);
+   public LocalTask updateNewlyCreatedTask(Task aTask, String listId, int taskIntId) {
+      return mModel.updateNewlyCreatedTask(aTask, listId, taskIntId);
    }
 
    public void updatePosition(Task task) {
@@ -387,12 +391,16 @@ public class TaskListPresenter implements Serializable {
       mModel.changeListNameInServer(listId, title);
    }
 
-   public void updateListInDBFromServerList(TaskList list) {
-      mModel.updateList(list);
+   public void updateListInDBFromServerList(TaskList list, int intId) {
+      mModel.updateListInDBFromServerList(list, intId);
    }
 
    public void deleteListFromServer(String listId) {
       mModel.deleteListFromServer(listId);
+   }
+
+   public int getListsCount(){
+      return mModel.getListsCount();
    }
 
    public void deleteListFromDB(int listIntId){
@@ -460,4 +468,14 @@ public class TaskListPresenter implements Serializable {
    public boolean listExistsInDB(int listIntId) {
       return mModel.listExistsInDB(listIntId);
    }
+
+   public void markListDeleted(int listIntId) {
+      mModel.markListDeleted(listIntId);
+   }
+
+   public void deleteTasksFromList(int listIntId) {
+      mModel.deleteTasksFromList(listIntId);
+   }
+
+
 }

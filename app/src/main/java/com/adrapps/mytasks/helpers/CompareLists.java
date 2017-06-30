@@ -75,11 +75,13 @@ public class CompareLists {
          return serverLists;
       }
       for (int i = 0; i < localListsIds.size(); i++) {
-         String item = localListsIds.remove(i).trim();
-         localListsIds.add(i, item);
+         if (localListsIds.get(i) != null) {
+            String item = localListsIds.remove(i).trim();
+            localListsIds.add(i, item);
+         }
       }
       for (int i = 0; i < serverLists.size(); i++) {
-         if (!localListsIds.contains(serverLists.get(i).getId().trim())){
+         if (!localListsIds.contains(serverLists.get(i).getId().trim())) {
             listsNotInDb.add(serverLists.get(i));
          }
       }
@@ -118,9 +120,15 @@ public class CompareLists {
          serverListsIds.add(i, item);
       }
       for (int i = 0; i < localLists.size(); i++) {
-         if (!serverListsIds.contains(localLists.get(i).getId().trim())){
-            listsNotInServer.add(localLists.get(i));
+         LocalList list = localLists.get(i);
+         if (list.getId() == null) {
+            listsNotInServer.add(list);
+         } else {
+            if (!serverListsIds.contains(list.getId().trim())) {
+               listsNotInServer.add(list);
+            }
          }
+
       }
       return listsNotInServer;
 
@@ -158,9 +166,9 @@ public class CompareLists {
       if (!serverLists.isEmpty()) {
          TaskList sameServerList = null;
          for (int i = 0; i < serverLists.size(); i++) {
-           if (serverLists.get(i).getId().trim().equals(localListId)){
-              sameServerList = serverLists.get(i);
-              break;
+            if (serverLists.get(i).getId().trim().equals(localListId)) {
+               sameServerList = serverLists.get(i);
+               break;
             }
          }
          return sameServerList;
@@ -173,7 +181,7 @@ public class CompareLists {
       if (!localLists.isEmpty()) {
          LocalList sameLocalList = null;
          for (int i = 0; i < localLists.size(); i++) {
-            if (localLists.get(i).getId().trim().equals(serverListId)){
+            if (localLists.get(i).getId().trim().equals(serverListId)) {
                sameLocalList = localLists.get(i);
                break;
             }

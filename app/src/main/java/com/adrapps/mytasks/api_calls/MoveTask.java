@@ -142,7 +142,7 @@ public class MoveTask extends AsyncTask<Void, Void, Void> {
                   Task task = mService.tasks().insert(movedTask.getListId(),
                         LocalTask.localTaskToApiTask(movedTask)).execute();
                   mPresenter.updateNewlyCreatedTask(task, movedTask.getListId(),
-                        String.valueOf(movedTask.getIntId()));
+                        movedTask.getIntId());
                   movedTask.setId(task.getId());
                }
                Tasks.TasksOperations.Move move = mService.tasks().move(movedTask.getListId(),

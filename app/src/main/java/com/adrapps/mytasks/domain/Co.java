@@ -30,9 +30,13 @@ public class Co {
    public static final String CURRENT_LIST_ID = "current list";
    public static final String CURRENT_LIST_TITLE = "current list title";
    public static final int NEW_LIST_MENU_ITEM_ID = 1001;
+   public static final int LIST_ITEM_ID_SUFFIX = 7777;
+   public static final String LIST_ID_NULL = "List id null";
+
    public static List<String> listIds = new ArrayList<>();
    public static List<String> listTitles = new ArrayList<>();
    public static List<Integer> listIntIds = new ArrayList<>();
+   public static List<LocalList> lists = new ArrayList<>();
 
    //Flags
    public static final String IS_FIRST_LAUNCH = "is first time";
@@ -105,20 +109,32 @@ public class Co {
    public static void setListIds(List<LocalList> lists) {
       Co.listIds.clear();
       for (int i = 0; i < lists.size(); i++) {
+         if (lists.get(i).getLocalDeleted() != Co.LOCAL_DELETED)
          Co.listIds.add(lists.get(i).getId());
       }
    }
    public static void setListIntIds(List<LocalList> lists) {
       Co.listIntIds.clear();
       for (int i = 0; i < lists.size(); i++) {
-         Co.listIntIds.add(lists.get(i).getIntId());
+         if (lists.get(i).getLocalDeleted() != Co.LOCAL_DELETED)
+            Co.listIntIds.add(lists.get(i).getIntId());
       }
    }
 
    public static void setListTitles(List<LocalList> lists) {
       Co.listTitles.clear();
       for (int i = 0; i < lists.size(); i++) {
-         Co.listTitles.add(lists.get(i).getTitle());
+         if (lists.get(i).getLocalDeleted() != Co.LOCAL_DELETED)
+            Co.listTitles.add(lists.get(i).getTitle());
+      }
+   }
+
+   public static void setLists(List<LocalList> lists){
+      Co.lists.clear();
+      for (int i = 0; i < lists.size(); i++) {
+         if (lists.get(i).getLocalDeleted() != Co.LOCAL_DELETED){
+            Co.lists.add(lists.get(i));
+         }
       }
    }
 

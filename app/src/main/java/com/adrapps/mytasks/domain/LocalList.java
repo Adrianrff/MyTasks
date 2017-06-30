@@ -8,7 +8,7 @@ public class LocalList implements Serializable, Comparable {
 
    private String title, id;
    private int intId, localDeleted, syncStatus;
-   private long serverUpdated, localUpdated;
+   private long localModify;
 
 
    public LocalList() {
@@ -38,12 +38,8 @@ public class LocalList implements Serializable, Comparable {
       return intId;
    }
 
-   public long getServerUpdated() {
-      return serverUpdated;
-   }
-
-   public long getLocalUpdated() {
-      return localUpdated;
+   public long getLocalModify() {
+      return localModify;
    }
 
 
@@ -70,12 +66,8 @@ public class LocalList implements Serializable, Comparable {
       this.intId = intId;
    }
 
-   public void setServerUpdated(long server_updated) {
-      this.serverUpdated = server_updated;
-   }
-
-   public void setLocalUpdated(long local_updated) {
-      this.localUpdated = local_updated;
+   public void setLocalModify(long local_updated) {
+      this.localModify = local_updated;
    }
 
    @Override

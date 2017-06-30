@@ -73,6 +73,11 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public List<LocalTask> getTasksFromList(int listIntId) {
+      return tasksDb.getTasksFromList(listIntId);
+   }
+
+   @Override
    public List<String> getListsTitles() {
       return listsDb.getListsTitles();
    }
@@ -146,8 +151,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId) {
-      return tasksDb.updateNewlyCreatedTask(aTask, listId, intId);
+   public LocalTask updateNewlyCreatedTask(Task aTask, String listId, int taskIntId) {
+      return tasksDb.updateNewlyCreatedTask(aTask, listId, taskIntId);
    }
 
    @Override
@@ -191,6 +196,20 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public void markListDeleted(int listIntId) {
+      if (listsDb.getListsCount() <= 1) {
+         mPresenter.showToast(context.getString(R.string.default_delete_list_message));
+         return;
+      }
+      listsDb.markListDeleted(listIntId);
+   }
+
+   @Override
+   public void deleteTasksFromList(int listIntId) {
+      tasksDb.deleteTaskFromList(listIntId);
+   }
+
+   @Override
    public String getTaskIdByIntId(int id) {
       return tasksDb.getTaskIdByIntId(id);
    }
@@ -207,10 +226,11 @@ public class DataModel implements Contract.Model {
 
    @Override
    public void addNewListToServer(String listTitle, int listIntId) {
-      LocalList list = new LocalList();
-      list.setTitle(listTitle);
-      list.setIntId(listIntId);
+
       if (mPresenter.isDeviceOnline()) {
+         LocalList list = new LocalList();
+         list.setTitle(listTitle);
+         list.setIntId(listIntId);
          GoogleAccountCredential credential = mPresenter.getCredential();
          CreateList createList = new CreateList(context, mPresenter, credential);
          createList.execute(list);
@@ -237,17 +257,17 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void updateList(TaskList list) {
-      listsDb.updateList(list);
+   public void updateListInDBFromServerList(TaskList list, int intId) {
+      listsDb.updateListInDBFromServerList(list, intId);
+   }
+
+   @Override
+   public int getListsCount() {
+      return listsDb.getListsCount();
    }
 
    @Override
    public void deleteListFromServer(String listId) {
-      if (listsDb.getListsCount() <= 1) {
-         mPresenter.showToast(context.getString(R.string.default_delete_list_message));
-         return;
-      }
-      listsDb.deleteList(listId);
       if (mPresenter.isDeviceOnline()) {
          GoogleAccountCredential credential = mPresenter.getCredential();
          DeleteList deleteList = new DeleteList(context, mPresenter, credential);
@@ -344,14 +364,6 @@ public class DataModel implements Contract.Model {
       mPresenter.addTaskToAdapter(task);
       return newTaskId;
    }
-
-//   @Override
-//   public void moveTask(LocalTask movedTask, String previousTaskId) {
-//      if (mPresenter.isDeviceOnline()) {
-//         MoveTask move = new MoveTask(context, mPresenter, mPresenter.getCredential());
-//         move.execute(movedTask.getId(), movedTask.getListId(), previousTaskId);
-//      }
-//   }
 
    @Override
    public void moveTasks(LinkedHashMap<LocalTask, String> moveMap) {

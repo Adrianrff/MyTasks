@@ -72,7 +72,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
    @Override
    protected void onPostExecute(Void aVoid) {
       mPresenter.saveBooleanShP(Co.IS_FIRST_INIT, false);
-      mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE, serverLists.get(0).getTitle());
+//      mPresenter.saveStringSharedPreference(Co.CURRENT_LIST_TITLE, serverLists.get(0).getTitle());
       if (!mPresenter.isViewFinishing()) {
          mPresenter.dismissProgressDialog();
          mPresenter.showProgress(false);

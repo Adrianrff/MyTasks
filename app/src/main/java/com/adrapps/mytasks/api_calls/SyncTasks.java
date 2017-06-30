@@ -12,6 +12,7 @@ import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.CompareLists;
 import com.adrapps.mytasks.helpers.DateHelper;
 import com.adrapps.mytasks.helpers.GoogleApiHelper;
+import com.adrapps.mytasks.helpers.ObjectHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.google.api.client.googleapis.batch.BatchRequest;
 import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
@@ -179,56 +180,216 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
 
          //GET SERVER LISTS
-         List<TaskList> initialServerLists = mService.tasklists().list().execute().getItems();
-         List<String> initialServerListsIds = new ArrayList<>();
-         for (int i = 0; i < initialServerLists.size(); i++) {
-            initialServerListsIds.add(initialServerLists.get(i).getId());
+         List<TaskList> serverLists = mService.tasklists().list().execute().getItems();
+         List<String> serverListsIds = new ArrayList<>();
+         List<LocalList> localLists = mPresenter.getLocalLists();
+         HashMap<String, LocalList> localListsMap = ObjectHelper.getLocalListIdMap(localLists);
+         List<String> handledIds = new ArrayList<>();
+         for (int i = 0; i < serverLists.size(); i++) {
+            serverListsIds.add(serverLists.get(i).getId());
          }
 
+         //ITERATE THROUGH SERVER LISTS
+         for (int i = 0; i < serverLists.size(); i++) {
+            TaskList serverList = serverLists.get(i);
+            String serverListId = serverLists.get(i).getId();
+            if (!localListsMap.containsKey(serverListId.trim())) {
+               //List is not in database. Create it
+               mPresenter.addNewListToDBFromServer(serverList);
+            } else {
+               LocalList localList = localListsMap.get(serverListId);
+               if (localList != null) {
+                  //List was last modified locally
+                  if (localList.getLocalModify() > serverList.getUpdated().getValue()) {
+                     //List is marked deleted. Delete it
+                     if (localList.getLocalDeleted() == Co.LOCAL_DELETED){
+                        mPresenter.deleteListFromDB(localList.getIntId());
+                        mPresenter.deleteTasksFromList(localList.getIntId());
+                        mService.tasklists().delete(serverListId).queue(requests, new JsonBatchCallback<Void>() {
+                           @Override
+                           public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+                              Log.d(TAG, "onFailure: Failed to delete list: " + e.getMessage());
+                           }
+
+                           @Override
+                           public void onSuccess(Void aVoid, HttpHeaders responseHeaders) throws IOException {
+                              Log.d(TAG, "onSuccess: list successfully deleted");
+                           }
+                        });
+                     } else {
+                        //List is not marked deleted. Update in server
+                        TaskList serverListToModify = new TaskList();
+                        serverListToModify.setTitle(localList.getTitle());
+                        mService.tasklists().update(serverListId, serverListToModify).queue(requests, new JsonBatchCallback<TaskList>() {
+                           @Override
+                           public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+                              Log.d(TAG, "onFailure: failed to update list: " + e.getMessage());
+                           }
+
+                           @Override
+                           public void onSuccess(TaskList taskList, HttpHeaders responseHeaders) throws IOException {
+                              Log.d(TAG, "onSuccess: List " + taskList.getId() + " successfully modified in server");
+                           }
+                        });
+                     }
+                  } else {
+                     //List was last modified in server, update in db
+                     mPresenter.updateListInDBFromServerList(serverList, localList.getIntId());
+                  }
+               }
+            }
+            handledIds.add(serverListId);
+         }
+
+         //ITERATE THROUGH LOCAL LISTS
+         for (LocalList list : localLists) {
+            final int listIntId = list.getIntId();
+            //list was added locally but not synced. Add it to the server and update it in db
+            if (list.getId() == null){
+               final TaskList serverListToAdd = new TaskList();
+               serverListToAdd.setTitle(list.getTitle());
+               mService.tasklists().insert(serverListToAdd).queue(requests, new JsonBatchCallback<TaskList>() {
+                  @Override
+                  public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+                     Log.d(TAG, "onFailure: failed to insert list");
+                  }
+
+                  @Override
+                  public void onSuccess(TaskList taskList, HttpHeaders responseHeaders) throws IOException {
+                     mPresenter.updateListInDBFromServerList(taskList, listIntId);
+                  }
+               });
+            } else {
+
+            }
+
+         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
          //GET LOCAL LISTS
-         List<LocalList> initialLocalLists = mPresenter.getLocalLists();
-         List<String> initialLocalListsIds = mPresenter.getLocalListsIds();
+//         List<LocalList> localLists = mPresenter.getLocalLists();
+         List<String> initialLocalListsIds = new ArrayList<>();
+         for (int i = 0; i < localLists.size(); i++) {
+            initialLocalListsIds.add(localLists.get(i).getId());
+         }
 
-         List<LocalList> localListsNotInServer = CompareLists.localListsNotInServer(initialLocalLists, initialServerListsIds);
-         List<TaskList> serverListNotInDb = CompareLists.serverListsNotInDB(initialLocalListsIds, initialServerLists);
+         HashMap<String, TaskList> serverListMap = ObjectHelper.getServerListIdMap(serverLists);
 
-         if (!localListsNotInServer.isEmpty()){
+         List<LocalList> deletedLists = new ArrayList<>();
+         for (int i = 0; i < localLists.size(); i++) {
+            LocalList currentLocalList = localLists.get(i);
+            if (localLists.get(i).getLocalDeleted() == Co.LOCAL_DELETED) {
+               if (currentLocalList.getId() != null) {
+                  try {
+                     if (serverListsIds.contains(currentLocalList.getId())) {
+                        //This deletes the tasks in the list, too
+                        mService.tasklists().delete(currentLocalList.getId()).execute();
+                     }
+                  } catch (Exception e) {
+                     e.printStackTrace();
+                  }
+                  mPresenter.deleteTasksFromList(currentLocalList.getIntId());
+                  mPresenter.deleteListFromDB(currentLocalList.getIntId());
+               }
+               deletedLists.add(currentLocalList);
+               serverLists.remove(serverListMap.get(localLists.get(i).getId()));
+            } else if (currentLocalList.getId() == null && currentLocalList.getSyncStatus() == Co.NOT_SYNCED) {
+               final TaskList list = new TaskList();
+               list.setTitle(currentLocalList.getTitle());
+               try {
+                  list.setId(mService.tasklists().insert(list).execute().getId());
+                  List<LocalTask> newTasks = mPresenter.getTasksFromList(currentLocalList.getIntId());
+                  if (!newTasks.isEmpty()) {
+                     for (int j = 0; j < newTasks.size(); j++) {
+                        if (list.getId() != null) {
+                           final LocalTask currentLocalTask = newTasks.get(j);
+                           currentLocalTask.setListId(list.getId());
+                           Task task = LocalTask.localTaskToApiTask(newTasks.get(j));
+                           task = mService.tasks().insert(list.getId(), task).execute();
+                           mPresenter.updateNewlyCreatedTask(task, list.getId(), currentLocalTask.getIntId());
+                        }
+                     }
+                  }
+               } catch (Exception e) {
+                  e.printStackTrace();
+               }
+
+            }
+         }
+         if (!deletedLists.isEmpty()) {
+            localLists.removeAll(deletedLists);
+         }
+//         HashMap<String, LocalList> localListsMap = ObjectHelper.getLocalListIdMap(localLists);
+
+
+         List<LocalList> localListsNotInServer = CompareLists.localListsNotInServer(localLists, serverListsIds);
+         List<TaskList> serverListNotInDb = CompareLists.serverListsNotInDB(initialLocalListsIds, serverLists);
+
+         if (!localListsNotInServer.isEmpty()) {
             for (int i = 0; i < localListsNotInServer.size(); i++) {
                LocalList currentList = localListsNotInServer.get(i);
-               if (currentList.getSyncStatus() == Co.SYNCED){
+               if (currentList.getSyncStatus() == Co.SYNCED) {
                   mPresenter.deleteListFromDB(currentList.getIntId());
                } else {
-                  mPresenter.addNewListToServer(currentList.getTitle(), currentList.getIntId());
+                  TaskList list = new TaskList();
+                  list.setTitle(currentList.getTitle());
+                  try {
+                     list = mService.tasklists().insert(list).execute();
+                     mPresenter.updateListInDBFromServerList(list, currentList.getIntId());
+                  } catch (IOException e) {
+                     e.printStackTrace();
+                  }
                }
-               initialLocalLists.remove(currentList);
+               localLists.remove(currentList);
             }
          }
 
          //TODO make this work (get tasks from list etc...)
-
-         if (!serverListNotInDb.isEmpty()){
+         if (!serverListNotInDb.isEmpty()) {
             for (int i = 0; i < serverListNotInDb.size(); i++) {
-               TaskList currentServerList = serverListNotInDb.get(i);
+               final TaskList currentServerList = serverListNotInDb.get(i);
                mPresenter.addNewListToDBFromServer(currentServerList);
-               initialServerLists.remove(currentServerList);
+               List<Task> addedTasks = mService.tasks().list(currentServerList.getId()).execute().getItems();
+               for (int j = 0; j < addedTasks.size(); j++) {
+                  mPresenter.addTaskFirstTimeFromServer(addedTasks.get(j), currentServerList.getId());
+               }
+               serverLists.remove(currentServerList);
             }
          }
 
-         //Populate listIds field
-         //Update initialServerLists database
-//         if (!initialServerLists.isEmpty()) {
-//            mPresenter.createListDatabase(initialServerLists);
-//         }
+         for (int i = 0; i < localLists.size(); i++) {
+            LocalList currentLocalList = localLists.get(i);
+            //TODO Loop through tasks and update based on the most recent
+         }
 
+
+         //TASKS
          List<Task> serverTasks;
          List<LocalTask> localTasks;
          List<LocalTask> localTasksNotInServer;
          List<Task> serverTasksNotInDB;
          String currentListId;
 
-         // Loop through list of initialServerLists
-         for (int i = 0; i < initialServerLists.size(); i++) {
-            currentListId = initialServerLists.get(i).getId();
+         // Loop through list of serverLists
+         for (int i = 0; i < serverLists.size(); i++) {
+            currentListId = serverLists.get(i).getId();
 
             //Get server tasks and local tasks from list
             serverTasks = mService.tasks().list(currentListId).execute().getItems();
@@ -271,10 +432,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                LocalTask localTask = localTasks.get(j);
                if (localTask.getSyncStatus() == 0 || localTask.getId() == null) {
                   Task task = LocalTask.localTaskToApiTask(localTask);
-//                        mService.tasks().insert(currentListId, task).queue(requests, insertCallback);
                   Task serverTask = mService.tasks().insert(currentListId, task).execute();
-//                        LocalTask lTask = mPresenter.updateNewlyCreatedTask(serverTask,
-//                                currentListId, String.valueOf(localTask.getIntId()));
                   tasksToUpdateFirstTime.put(serverTask, localTask);
                }
 

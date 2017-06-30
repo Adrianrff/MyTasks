@@ -108,7 +108,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
          aTask = mService.tasks().insert(lTask.getListId(), task).execute();
          if (aTask != null) {
             syncedLocalTask = mPresenter.updateNewlyCreatedTask(aTask, lTask.getListId(),
-                  String.valueOf(lTask.getIntId()));
+                  lTask.getIntId());
             if (syncedLocalTask.getDue() != 0 && mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
                AlarmHelper.setOrUpdateDefaultRemindersForTask(context, syncedLocalTask);
             }

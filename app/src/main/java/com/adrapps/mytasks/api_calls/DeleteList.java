@@ -16,7 +16,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.services.tasks.Tasks;
 
 import java.io.IOException;
-import java.util.List;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -105,9 +104,10 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
 
    private void deleteList(String listId) throws IOException {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
-         List<LocalTask> tasks = mPresenter.getTasksFromList(listId);
-         mPresenter.deleteTasks(tasks);
+//         List<LocalTask> tasks = mPresenter.getTasksFromList(listId);
+//         mPresenter.deleteTasks(tasks);
          mService.tasklists().delete(listId).execute();
+         mPresenter.deleteListFromDB(mPresenter.getListIntIdById(listId));
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

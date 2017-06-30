@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity
          return;
       }
       setListsData();
+      setNavDrawerMenu(Co.lists);
       //TODO Use list int id
       initRecyclerView(mPresenter.getTasksFromListForAdapter(getIntShP(Co.CURRENT_LIST_INT_ID, -1)));
       if (getIntent().hasExtra(Co.LOCAL_TASK)) {
@@ -402,26 +403,18 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void setListsData() {
       List<LocalList> lists = mPresenter.getLocalLists();
+      Co.setLists(lists);
       Co.setListIds(lists);
       Co.setListTitles(lists);
       Co.setListIntIds(lists);
-      if (!Co.listTitles.isEmpty()) {
-         setNavDrawerMenu(Co.listTitles);
-      } else {
-         //TODO: Create method to update lists only
-//         SyncTasks sync = new SyncTasks(this.getApplicationContext(), mPresenter, getCredential());
-//         sync.execute();
-      }
    }
 
    @Override
-   public void updateCurrentView() {
-      List<LocalList> lists = mPresenter.getLocalLists();
-      SparseArray<LocalList> listMap = ObjectHelper.getListMap(lists);
+   public void updateView() {
+      setListsData();
+      List<LocalList> lists = Co.lists;
+      SparseArray<LocalList> listMap = ObjectHelper.getLocalListIntIdMap(lists);
       if (!lists.isEmpty()) {
-         Co.setListIds(lists);
-         Co.setListTitles(lists);
-         Co.setListIntIds(lists);
          int currentListIntId = getIntShP(Co.CURRENT_LIST_INT_ID, -1);
          String currentListId;
          String currentListTitle;
@@ -435,8 +428,8 @@ public class MainActivity extends AppCompatActivity
             currentListId = lists.get(0).getId();
             currentListTitle = lists.get(0).getTitle();
             saveIntShP(Co.CURRENT_LIST_INT_ID, currentListIntId);
-            saveStringShP(Co.CURRENT_LIST_ID, lists.get(0).getId());
-            saveStringShP(Co.CURRENT_LIST_INT_ID, lists.get(0).getTitle());
+            saveStringShP(Co.CURRENT_LIST_ID, currentListId);
+            saveStringShP(Co.CURRENT_LIST_TITLE, currentListTitle);
          }
 //         try {
 //            currentListTitle = Co.listTitles.get(0);
@@ -458,7 +451,7 @@ public class MainActivity extends AppCompatActivity
 //         toolbar.setTitle(currentListTitle);
 //
          setToolbarTitle(currentListTitle);
-         setNavDrawerMenu(Co.listTitles);
+         setNavDrawerMenu(lists);
          List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(currentListIntId);
          showEmptyRecyclerView(tasks == null || tasks.isEmpty());
          adapter.updateItems(tasks);
@@ -471,6 +464,38 @@ public class MainActivity extends AppCompatActivity
       }
 
    }
+
+   @Override
+   public void setNavDrawerMenu(List<LocalList> localLists) {
+      Menu menu = navigationView.getMenu();
+      MenuItem listsTitlesMenuItem = menu.findItem(R.id.lists_titles_menu);
+      SubMenu listsTitlesSubMenu = listsTitlesMenuItem.getSubMenu();
+      listsTitlesSubMenu.clear();
+      for (int i = 0; i < localLists.size(); i++) {
+         listsTitlesSubMenu.add(0, Co.LIST_ITEM_ID_SUFFIX + localLists.get(i).getIntId(), i,
+               localLists.get(i).getTitle()).setIcon(R.drawable.ic_new_list).
+               setOnMenuItemClickListener(this);
+      }
+      listsTitlesSubMenu.add(0, R.id.newList, 9999, getString(R.string.new_list)).
+                  setIcon(R.drawable.add_white).
+                  setOnMenuItemClickListener(this);
+      MenuItem currentListMenuItem = listsTitlesSubMenu.
+            findItem(getIntShP(Co.LIST_ITEM_ID_SUFFIX + Co.CURRENT_LIST_INT_ID, -1));
+      if (currentListMenuItem != null) {
+         currentListMenuItem.setChecked(true);
+      } else {
+         listsTitlesSubMenu.getItem(0).setChecked(true);
+      }
+//      try {
+//         listsTitlesSubMenu.findItem(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
+//      } catch (Exception e) {
+//         listsTitlesSubMenu.getItem(getIntShP(Co.CURRENT_LIST_ID, -1)).setChecked(true);
+//         showToast("error");
+//         saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(0));
+//         e.printStackTrace();
+//      }
+   }
+
 
    @Override
    public void initRecyclerView(List<LocalTask> tasks) {
@@ -563,29 +588,6 @@ public class MainActivity extends AppCompatActivity
       }
    }
 
-   @Override
-   public void setNavDrawerMenu(List<String> taskListsTitles) {
-      Menu menu = navigationView.getMenu();
-      MenuItem item = menu.findItem(R.id.lists_titles_menu);
-      SubMenu listsMenu = item.getSubMenu();
-      listsMenu.clear();
-      for (int i = 0; i < taskListsTitles.size(); i++) {
-         listsMenu.add(0, i, i, taskListsTitles.get(i)).setIcon(R.drawable.ic_list).
-               setOnMenuItemClickListener(this);
-         if (i == taskListsTitles.size() - 1) {
-            listsMenu.add(0, Co.NEW_LIST_MENU_ITEM_ID, i + 1, getString(R.string.new_list)).
-                  setIcon(R.drawable.add_white).
-                  setOnMenuItemClickListener(this);
-         }
-      }
-      try {
-         listsMenu.getItem(Co.listTitles.indexOf(getStringShP(Co.CURRENT_LIST_TITLE, null))).setChecked(true);
-      } catch (Exception e) {
-         showToast("error");
-         saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(0));
-         e.printStackTrace();
-      }
-   }
 
    @Override
    public void setToolbarTitle(String title) {
@@ -630,7 +632,7 @@ public class MainActivity extends AppCompatActivity
             getApplicationContext(), Arrays.asList(Co.SCOPES))
             .setBackOff(new ExponentialBackOff());
       accountName = getStringShP(Co.USER_EMAIL, null);
-      if (!accountName.equals(Co.NO_ACCOUNT_NAME)) {
+      if (accountName != null) {
          mCredential.setSelectedAccountName(accountName);
       }
    }
@@ -679,15 +681,14 @@ public class MainActivity extends AppCompatActivity
       Menu menu = navigationView.getMenu();
       MenuItem menuItem = menu.findItem(R.id.lists_titles_menu);
       SubMenu listsMenu = menuItem.getSubMenu();
-      if (item.getItemId() <= Co.listIntIds.size()) {
-         saveStringShP(Co.CURRENT_LIST_ID, Co.listIds.get(item.getItemId()));
-         saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(item.getItemId()));
-         saveIntShP(Co.CURRENT_LIST_INT_ID, Co.listIntIds.get(item.getItemId()));
+      if (item.getItemId() != R.id.newList && item.getItemId() != R.id.nav_settings){
+         int listIntId = item.getItemId() - Co.LIST_ITEM_ID_SUFFIX;
+         setCurrentListInfo(listIntId);
          for (int i = 0; i < listsMenu.size(); i++) {
             listsMenu.getItem(i).setChecked(false);
          }
          item.setChecked(true);
-         List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId()));
+         List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(listIntId);
          if (tasks == null || tasks.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyDataLayout.setVisibility(View.VISIBLE);
@@ -695,25 +696,54 @@ public class MainActivity extends AppCompatActivity
             recyclerView.setVisibility(View.VISIBLE);
             emptyDataLayout.setVisibility(View.GONE);
          }
-         adapter.updateItems(mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId())));
+         adapter.updateItems(tasks);
          toolbar.setTitle(item.getTitle());
          drawer.closeDrawer(GravityCompat.START);
          return false;
+      } else {
+         if (item.getItemId() == R.id.newList) {
+            newListItemSelected = true;
+            drawer.closeDrawer(GravityCompat.START);
+            return false;
+         }
+
+         if (item.getItemId() == R.id.nav_settings) {
+            settingsItemSelected = true;
+            drawer.closeDrawer(GravityCompat.START);
+            return false;
+         }
       }
+//      if (item.getItemId() <= Co.listIntIds.size()) {
+//         saveStringShP(Co.CURRENT_LIST_ID, Co.listIds.get(item.getItemId()));
+//         saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(item.getItemId()));
+//         saveIntShP(Co.CURRENT_LIST_INT_ID, Co.listIntIds.get(item.getItemId()));
+//         for (int i = 0; i < listsMenu.size(); i++) {
+//            listsMenu.getItem(i).setChecked(false);
+//         }
+//         item.setChecked(true);
+//         List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId()));
+//         if (tasks == null || tasks.isEmpty()) {
+//            recyclerView.setVisibility(View.GONE);
+//            emptyDataLayout.setVisibility(View.VISIBLE);
+//         } else {
+//            recyclerView.setVisibility(View.VISIBLE);
+//            emptyDataLayout.setVisibility(View.GONE);
+//         }
+//         adapter.updateItems(mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId())));
+//         toolbar.setTitle(item.getTitle());
+//         drawer.closeDrawer(GravityCompat.START);
+//         return false;
+//      }
 
-      if (item.getItemId() == Co.NEW_LIST_MENU_ITEM_ID) {
-         newListItemSelected = true;
-         drawer.closeDrawer(GravityCompat.START);
 
-      }
-
-      if (item.getItemId() == R.id.nav_settings) {
-         settingsItemSelected = true;
-         drawer.closeDrawer(GravityCompat.START);
-
-      }
       return false;
 
+   }
+
+   public void setCurrentListInfo(int listIntId){
+      saveIntShP(Co.CURRENT_LIST_INT_ID, listIntId);
+      saveStringShP(Co.CURRENT_LIST_ID, mPresenter.getlistIdByIntId(listIntId));
+      saveStringShP(Co.CURRENT_LIST_TITLE, mPresenter.getListTitleByIntId(listIntId));
    }
 
 
@@ -766,6 +796,8 @@ public class MainActivity extends AppCompatActivity
             if (!newTaskTitle.getText().toString().trim().isEmpty()) {
                int listIntId = mPresenter.addNewListToDB(newTaskTitle.getText().toString());
                mPresenter.addNewListToServer(newTaskTitle.getText().toString(), listIntId);
+               updateView();
+               onNavigationItemSelected(navigationView.getMenu().findItem(Co.LIST_ITEM_ID_SUFFIX + listIntId));
                dialog.dismiss();
             } else {
                showToast(getString(R.string.list_title_empty_toast));
@@ -836,16 +868,30 @@ public class MainActivity extends AppCompatActivity
    }
 
 
-   private void showConfirmationDialog() {
+   private void showDeleteListConfirmationDialog() {
       AlertDialog.Builder db = new AlertDialog.Builder(this);
       db.setMessage(R.string.confirmation_task_delete_message);
       db.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          @Override
          public void onClick(DialogInterface dialog, int which) {
-            mPresenter.deleteListFromDB(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
-            String listId = mPresenter.getlistIdByIntId(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
-            if (listId != null) {
-               mPresenter.deleteListFromServer(listId);
+            if (mPresenter.getListsCount() > 1) {
+               int listIntId = getIntShP(Co.CURRENT_LIST_INT_ID, -1);
+               String listId = getStringShP(Co.CURRENT_LIST_ID, null);
+               if (listId == null) {
+                  if (listIntId >= 0) {
+                     mPresenter.isDeviceOnline();
+                     mPresenter.deleteListFromDB(listIntId);
+                     setListsData();
+                     updateView();
+                  }
+               } else {
+                  mPresenter.markListDeleted(listIntId);
+                  mPresenter.deleteListFromServer(listId);
+                  setListsData();
+                  updateView();
+               }
+            } else {
+               showToast(getString(R.string.default_delete_list_message));
             }
          }
       });
@@ -918,6 +964,7 @@ public class MainActivity extends AppCompatActivity
                fab.setOnClickListener(MainActivity.this);
                LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                if (task != null) {
+                  int listIntId = getIntShP(Co.CURRENT_LIST_INT_ID, -1);
                   long reminderInMillis = task.getReminder();
                   if (reminderInMillis != 0) {
                      Calendar reminderCalendarObject = Calendar.getInstance();
@@ -950,6 +997,7 @@ public class MainActivity extends AppCompatActivity
                LocalTask task = (LocalTask) resultIntent.getExtras().getSerializable(Co.LOCAL_TASK);
                if (task != null) {
                   task.setListId(getStringShP(Co.CURRENT_LIST_ID, null));
+                  task.setListIntId(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
                   if (task.getReminder() != 0) {
                      AlarmHelper.setOrUpdateAlarm(task, this);
                   }
@@ -976,7 +1024,7 @@ public class MainActivity extends AppCompatActivity
             break;
 
          case R.id.deleteList:
-            showConfirmationDialog();
+            showDeleteListConfirmationDialog();
             break;
 
          case R.id.test:
@@ -999,24 +1047,11 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public String getStringShP(String key, @Nullable String defaultValue) {
+   public String getStringShP(String key, String defaultValue) {
       SharedPreferences prefs = PreferenceManager
             .getDefaultSharedPreferences(getApplicationContext());
 
-      if (key.equals(Co.CURRENT_LIST_ID)) {
-         if (prefs.getString(key, Co.NO_VALUE).equals(Co.NO_VALUE)) {
-            return "@default";
-         }
-      }
-      if (key.equals(Co.CURRENT_LIST_TITLE)) {
-         if (prefs.getString(key, Co.NO_VALUE).equals(Co.NO_VALUE)) {
-            if (!Co.listTitles.isEmpty()) {
-               return Co.listTitles.get(0);
-            }
-         }
-      }
-
-      return prefs.getString(key, defaultValue == null ? Co.NO_VALUE : defaultValue);
+      return prefs.getString(key, defaultValue);
    }
 
    @Override

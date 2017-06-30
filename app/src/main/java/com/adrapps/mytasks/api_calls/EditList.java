@@ -108,7 +108,7 @@ public class EditList extends AsyncTask<String, Void, Void> {
          TaskList list = mService.tasklists().get(listId).execute();
          list.setTitle(title);
          mService.tasklists().update(listId, list).execute();
-         mPresenter.updateListInDBFromServerList(list);
+         mPresenter.updateListInDBFromServerList(list, mPresenter.getListIntIdById(listId));
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

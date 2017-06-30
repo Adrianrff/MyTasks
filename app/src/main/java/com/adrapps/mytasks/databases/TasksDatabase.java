@@ -240,6 +240,46 @@ public class TasksDatabase extends SQLiteOpenHelper {
       return tasks;
    }
 
+   public List<LocalTask> getTasksFromList(int listIntId) {
+      List<LocalTask> tasks = new ArrayList<>();
+      String selection = COL_LIST_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(listIntId)};
+      db = getReadableDB();
+      Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
+      if (cursor.getCount() != 0 && cursor.moveToFirst()) {
+         do {
+            LocalTask task = new LocalTask();
+            task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
+            task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
+            task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
+            task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
+            task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
+            task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
+            task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
+            task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
+            task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
+            task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
+            task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
+            task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
+            task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
+            task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
+            task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
+            task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+            task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
+            task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
+            task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
+            task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
+            task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_UPDATED)));
+            task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
+            task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
+            tasks.add(task);
+         } while (cursor.moveToNext());
+      }
+      cursor.close();
+      //db.close();
+      return tasks;
+   }
+
    public List<LocalTask> getTasksFromListForAdapter(int listIntId) {
       List<LocalTask> tasks = new ArrayList<>();
       String selection = COL_LIST_INT_ID + " = ? ";
@@ -326,6 +366,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
       cv.put(COL_LIST_ID, listId);
+//      cv.put(COL_LIST_INT_ID, intListId));
       //TODO find way of getting the list int id here
       cv.put(COL_TITLE, task.getTitle());
       cv.put(COL_SERVER_UPDATED, task.getUpdated() == null ? 0 : task.getUpdated().getValue());
@@ -600,10 +641,10 @@ public class TasksDatabase extends SQLiteOpenHelper {
       bm.dataChanged();
    }
 
-   public LocalTask updateNewlyCreatedTask(Task task, String listId, String intId) {
+   public LocalTask updateNewlyCreatedTask(Task task, String listId, int taskIntId) {
       db = getWritableDB();
       String selection = COL_INT_ID + " = ? ";
-      String[] selectionArgs = {intId};
+      String[] selectionArgs = {String.valueOf(taskIntId)};
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
       cv.put(COL_LIST_ID, listId);
@@ -772,6 +813,25 @@ public class TasksDatabase extends SQLiteOpenHelper {
          db.endTransaction();
          bm.dataChanged();
          //db.close();
+      }
+   }
+
+   public void deleteTaskFromList(int listIntId) {
+      List<LocalTask> tasks = getTasksFromList(listIntId);
+      db = getWritableDB();
+      db.beginTransaction();
+      try {
+         for (LocalTask task : tasks) {
+            String selection = COL_INT_ID + " = ? ";
+            String[] selectionArgs = {String.valueOf(task.getIntId())};
+            db.delete(TABLE_NAME, selection, selectionArgs);
+         }
+         db.setTransactionSuccessful();
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         db.endTransaction();
+         bm.dataChanged();
       }
    }
 }

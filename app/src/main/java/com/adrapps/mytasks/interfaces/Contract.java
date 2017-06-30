@@ -17,189 +17,196 @@ import java.util.List;
 
 public class Contract {
 
-    //-------------------------VIEW OPS----------------------//
-    public interface MainActivityViewOps {
+   //-------------------------VIEW OPS----------------------//
+   public interface MainActivityViewOps {
 
 
-        //-----------VIEWS AND WIDGETS------------////
+      //-----------VIEWS AND WIDGETS------------////
 
-        boolean isDestroyed();
+      boolean isDestroyed();
 
-        boolean isFinishing();
+      boolean isFinishing();
 
-        void findViews();
+      void findViews();
 
-        void setUpViews();
+      void setUpViews();
 
-        void showToast(String msg);
+      void showToast(String msg);
 
-        void showCircularProgress(boolean b);
+      void showCircularProgress(boolean b);
 
-        void showEmptyRecyclerView(boolean b);
+      void showEmptyRecyclerView(boolean b);
 
-        void showNoInternetWarning(boolean b);
+      void showNoInternetWarning(boolean b);
 
-        void showProgressDialog();
+      void showProgressDialog();
 
-        void dismissProgressDialog();
+      void dismissProgressDialog();
 
-        void showSwipeRefreshProgress(boolean b);
+      void showSwipeRefreshProgress(boolean b);
 
-        void updateCurrentView();
+      void updateView();
 
-        void showDeleteSnackBar(String message, SparseArray map);
+      void showDeleteSnackBar(String message, SparseArray map);
 
-        void showBottomSheet(LocalTask task, int position, boolean b);
+      void showBottomSheet(LocalTask task, int position, boolean b);
 
-        void refreshFirstTime();
+      void refreshFirstTime();
 
-        void refresh();
+      void refresh();
 
 
+      //------------DATA SETUP-----------///
 
-        //------------DATA SETUP-----------///
+      void setNavDrawerMenu(List<LocalList> lists);
 
-        void setNavDrawerMenu(List<String> taskListsTitles);
+      void setSwipeRefreshEnabled(boolean b);
 
-       void setSwipeRefreshEnabled(boolean b);
+      void setListsData();
 
-       void setListsData();
+      void setToolbarTitle(String title);
 
-        void setToolbarTitle(String title);
+      void requestAuthorization(Exception e);
 
-        void requestAuthorization(Exception e);
+      void setCredentials();
 
-        void setCredentials();
+      int getIntShP(String key, int defaultValue);
 
-       int getIntShP(String key, int defaultValue);
+      void saveIntShP(String key, int value);
 
-       void saveIntShP(String key, int value);
+      void saveBooleanShP(String key, boolean value);
 
-       void saveBooleanShP(String key, boolean value);
+      void saveStringShP(String key, String value);
 
-        void saveStringShP(String key, String value);
+      void initRecyclerView(List<LocalTask> tasks);
 
-        void initRecyclerView(List<LocalTask> tasks);
+      void addTaskToAdapter(LocalTask localTask);
 
-        void addTaskToAdapter(LocalTask localTask);
+      //-------DATA RETRIEVE-------------///
 
-        //-------DATA RETRIEVE-------------///
+      GoogleAccountCredential getCredential();
 
-        GoogleAccountCredential getCredential();
+      boolean getBooleanShP(String key, boolean defaultValue);
 
-        boolean getBooleanShP(String key, boolean defaultValue);
+      String getStringShP(String key, @Nullable String defaultValue);
 
-        String getStringShP(String key, @Nullable String defaultValue);
+      Context getContext();
 
-        Context getContext();
+      boolean isDeviceOnline();
 
-        boolean isDeviceOnline();
+      void navigateToEditTask(Intent i);
 
-        void navigateToEditTask(Intent i);
+      void updateItem(LocalTask syncedLocalTask);
 
-        void updateItem(LocalTask syncedLocalTask);
+      void showFab(boolean b);
 
-       void showFab(boolean b);
+      void lockScreenOrientation();
 
-       void lockScreenOrientation();
+      void unlockScreenOrientation();
+   }
 
-       void unlockScreenOrientation();
-    }
 
+   //-------------------------MODEL OPS----------------------//
+   public interface Model {
 
-    //-------------------------MODEL OPS----------------------//
-    public interface Model{
+      void closeDatabases();
 
-        void closeDatabases();
+      List<LocalList> createListsDatabase(List<TaskList> lists);
 
-        List<LocalList> createListsDatabase(List<TaskList> lists);
+      void updateTasksFirstTime(List<LocalTask> tasks);
 
-        void updateTasksFirstTime(List<LocalTask> tasks);
+      List<LocalTask> getTasksFromList(String listId);
 
-        List<LocalTask> getTasksFromList(String listId);
+      List<String> getListsTitles();
 
-        List<String> getListsTitles();
+      List<String> getListsIds();
 
-        List<String> getListsIds();
+      String getListTitleFromIntId(int listIntId);
 
-        String getListTitleFromIntId(int listIntId);
+      boolean listExistsInDB(int listIntId);
 
-       boolean listExistsInDB(int listIntId);
+      int addTaskToLocalDatabase(LocalTask task);
 
-       int addTaskToLocalDatabase(LocalTask task);
+      void addTaskFirstTimeFromServer(Task task, String listId);
 
-        void addTaskFirstTimeFromServer(Task task, String listId);
+      int addListNewToDb(String listTitle);
 
-        int addListNewToDb(String listTitle);
+      void updateTaskStatusInServer(int intId, String listId, String newStatus);
 
-        void updateTaskStatusInServer(int intId, String listId, String newStatus);
+      void updateTaskStatusInDB(int intId, String newStatus);
 
-       void updateTaskStatusInDB(int intId, String newStatus);
+      void refreshFirstTime();
 
-       void refreshFirstTime();
+      int addTask(LocalTask task);
 
-        int addTask(LocalTask task);
+      void moveTasks(LinkedHashMap<LocalTask, String> moveMap);
 
-        void moveTasks(LinkedHashMap<LocalTask, String> moveMap);
+      void editTask(LocalTask task);
 
-        void editTask(LocalTask task);
+      long updateReminder(String taskId, long reminder);
 
-        long updateReminder(String taskId, long reminder);
+      long updateReminder(int intId, long reminder, int repeatMode);
 
-        long updateReminder(int intId, long reminder, int repeatMode);
+      void updateSyncStatus(int synced, int intId);
 
-        void updateSyncStatus(int synced, int intId);
+      List<LocalTask> getLocalTasksFromDB();
 
-        List<LocalTask> getLocalTasksFromDB();
+      int updateLocalTask(LocalTask modifiedTask, boolean updateReminders);
 
-        int updateLocalTask(LocalTask modifiedTask, boolean updateReminders);
+      List<LocalTask> getTaskFromListForAdapter(int listIntId);
 
-        List<LocalTask> getTaskFromListForAdapter(int listIntId);
+      void updateLocalTask(Task task, String listId);
 
-        void updateLocalTask(Task task, String listId);
+      LocalTask updateNewlyCreatedTask(Task aTask, String listId, int taskIntId);
 
-        LocalTask updateNewlyCreatedTask(Task aTask, String listId, String intId);
+      void updatePosition(Task task);
 
-        void updatePosition(Task task);
+      String getTaskIdByIntId(int id);
 
-        String getTaskIdByIntId(int id);
+      void deleteTaskFromDatabase(int intId);
 
-        void deleteTaskFromDatabase(int intId);
+      int getIntIdByTaskId(String taskId);
 
-        int getIntIdByTaskId(String taskId);
+      void addNewListToServer(String listTitle, int listIntId);
 
-        void addNewListToServer(String listTitle, int listIntId);
+      void updateListInDBFromLocalListAfterServerOp(LocalList localList);
 
-        void updateListInDBFromLocalListAfterServerOp(LocalList localList);
+      void changeListNameInDB(int listIntId, String title);
 
-        void changeListNameInDB(int listIntId, String title);
+      void changeListNameInServer(String listId, String title);
 
-       void changeListNameInServer(String listId, String title);
+      void updateListInDBFromServerList(TaskList list, int intId);
 
-       void updateList(TaskList list);
+      int getListsCount();
 
-       void deleteListFromServer(String listId);
+      void deleteListFromServer(String listId);
 
-       void deleteListFromDb(int listIntId);
+      void deleteListFromDb(int listIntId);
 
-       void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
+      void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
 
-        void deleteTasks(List<LocalTask> tasks);
+      void deleteTasks(List<LocalTask> tasks);
 
-       void updatePositions(List<Task> tasks);
+      void updatePositions(List<Task> tasks);
 
-       void updateExistingTaskFromLocalTask(LocalTask task, String listId);
+      void updateExistingTaskFromLocalTask(LocalTask task, String listId);
 
-       List<LocalList> getLocalLists();
+      List<LocalList> getLocalLists();
 
-       int getListIntIdById(String listId);
+      int getListIntIdById(String listId);
 
-       String getListIdByIntId(int listIntId);
+      String getListIdByIntId(int listIntId);
 
-       void addNewListToDBFromServer(TaskList serverList);
+      void addNewListToDBFromServer(TaskList serverList);
 
-       List<Integer> getListsIntIds();
-    }
+      List<Integer> getListsIntIds();
+
+      void markListDeleted(int listIntId);
+
+      void deleteTasksFromList(int listIntId);
+
+      List<LocalTask> getTasksFromList(int intId);
+   }
 
 
 }
