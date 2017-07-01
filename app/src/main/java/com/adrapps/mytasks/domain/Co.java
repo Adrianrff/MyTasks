@@ -32,6 +32,7 @@ public class Co {
    public static final int NEW_LIST_MENU_ITEM_ID = 1001;
    public static final int LIST_ITEM_ID_SUFFIX = 7777;
    public static final String LIST_ID_NULL = "List id null";
+   public static final  String DEFAULT_LIST_ID_KEY = "Default list id key";
 
    public static List<String> listIds = new ArrayList<>();
    public static List<String> listTitles = new ArrayList<>();

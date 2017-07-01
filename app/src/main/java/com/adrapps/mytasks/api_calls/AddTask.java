@@ -109,9 +109,6 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
          if (aTask != null) {
             syncedLocalTask = mPresenter.updateNewlyCreatedTask(aTask, lTask.getListId(),
                   lTask.getIntId());
-            if (syncedLocalTask.getDue() != 0 && mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
-               AlarmHelper.setOrUpdateDefaultRemindersForTask(context, syncedLocalTask);
-            }
          } else {
             EasyPermissions.requestPermissions(
                   context, context.getString(R.string.contacts_permissions_rationale),

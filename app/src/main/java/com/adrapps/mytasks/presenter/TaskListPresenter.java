@@ -262,8 +262,8 @@ public class TaskListPresenter implements Serializable {
       mModel.refreshFirstTime();
    }
 
-   public int addTask(LocalTask task) {
-      return mModel.addTask(task);
+   public void addTask(LocalTask task) {
+      mModel.addTask(task);
    }
 
    public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
@@ -282,8 +282,8 @@ public class TaskListPresenter implements Serializable {
       mModel.moveTasks(moveMap);
    }
 
-   public void editTask(LocalTask task) {
-      mModel.editTask(task);
+   public void editTaskInServer(LocalTask task) {
+      mModel.editTaskInServer(task);
    }
 
    public void showBottomSheet(LocalTask task, int position, boolean b) {
@@ -303,7 +303,7 @@ public class TaskListPresenter implements Serializable {
    }
 
    public int addTaskToDatabase(LocalTask task) {
-      return mModel.addTaskToLocalDatabase(task);
+      return mModel.addTaskToDatabase(task);
    }
 
    public void addTaskFirstTimeFromServer(Task task, String listId, int listIntId) {
@@ -436,8 +436,8 @@ public class TaskListPresenter implements Serializable {
    }
 
 
-   public void updateExistingTaskFromLocalTask(LocalTask task, String listId) {
-      mModel.updateExistingTaskFromLocalTask(task, listId);
+   public void updateExistingTaskFromLocalTask(LocalTask task) {
+      mModel.updateExistingTaskFromLocalTask(task);
    }
 
    public boolean getBooleanShP(String key, boolean defaultValue) {
@@ -478,4 +478,7 @@ public class TaskListPresenter implements Serializable {
    }
 
 
+   public void markTasksDeleted(List<LocalTask> tasksFromList) {
+      mModel.markTasksDeleted(tasksFromList);
+   }
 }

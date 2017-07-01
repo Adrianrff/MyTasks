@@ -90,8 +90,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
                COL_DUE + " bigint," +
                COL_REMINDER + " bigint default 0," +
                COL_POSITION + " text default 000," +
-               COL_SERVER_UPDATED + " bigint," +
-               COL_LOCAL_MODIFY + " bigint," +
+               COL_SERVER_UPDATED + " bigint default 0," +
+               COL_LOCAL_MODIFY + " bigint default 0," +
                COL_PARENT + " text," +
                COL_STATUS + " text," +
                COL_COMPLETED + " text," +
@@ -330,7 +330,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       return tasks;
    }
 
-   public long addTaskToDataBase(LocalTask localTask) {
+   public int addTaskToDataBase(LocalTask localTask) {
       db = getWritableDB();
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, localTask.getId());
@@ -355,8 +355,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       cv.put(COL_LOCAL_SIBLING, localTask.getPreviousTask());
       cv.put(COL_MOVED, localTask.getMoved());
-      long insertedRow = db.insert(TABLE_NAME, null, cv);
-      //db.close();
+      int insertedRow = (int) db.insert(TABLE_NAME, null, cv);
       bm.dataChanged();
       return insertedRow;
    }
@@ -607,13 +606,13 @@ public class TasksDatabase extends SQLiteOpenHelper {
       bm.dataChanged();
    }
 
-   public void updateExistingTaskFromLocalTask(LocalTask task, String listId) {
+   public void updateExistingTaskFromLocalTask(LocalTask task) {
       db = getWritableDB();
       String selection = COL_INT_ID + " = ? ";
       String[] selectionArgs = {String.valueOf(task.getIntId())};
       ContentValues cv = new ContentValues();
       cv.put(COL_ID, task.getId());
-      cv.put(COL_LIST_ID, listId);
+      cv.put(COL_LIST_ID, task.getListId());
       cv.put(COL_LIST_INT_ID, task.getListIntId());
       cv.put(COL_TITLE, task.getTitle());
       cv.put(COL_SERVER_UPDATED, task.getServerModify());
@@ -821,6 +820,26 @@ public class TasksDatabase extends SQLiteOpenHelper {
             String selection = COL_INT_ID + " = ? ";
             String[] selectionArgs = {String.valueOf(task.getIntId())};
             db.delete(TABLE_NAME, selection, selectionArgs);
+         }
+         db.setTransactionSuccessful();
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         db.endTransaction();
+         bm.dataChanged();
+      }
+   }
+
+   public void markTasksDeleted(List<LocalTask> tasksFromList) {
+      db = getWritableDB();
+      db.beginTransaction();
+      try {
+         for (LocalTask task : tasksFromList) {
+            String selection = COL_INT_ID + " = ? ";
+            String[] selectionArgs = {String.valueOf(task.getIntId())};
+            ContentValues cv = new ContentValues();
+            cv.put(COL_DELETED, Co.LOCAL_DELETED);
+            db.update(TABLE_NAME, cv, selection, selectionArgs);
          }
          db.setTransactionSuccessful();
       } catch (Exception e) {

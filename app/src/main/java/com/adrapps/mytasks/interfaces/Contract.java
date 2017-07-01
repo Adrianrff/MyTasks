@@ -125,7 +125,7 @@ public class Contract {
 
       boolean listExistsInDB(int listIntId);
 
-      int addTaskToLocalDatabase(LocalTask task);
+      int addTaskToDatabase(LocalTask task);
 
       void addTaskFirstTimeFromServer(Task task, String listId, int listIntId);
 
@@ -137,11 +137,11 @@ public class Contract {
 
       void refreshFirstTime();
 
-      int addTask(LocalTask task);
+      void addTask(LocalTask task);
 
       void moveTasks(LinkedHashMap<LocalTask, String> moveMap);
 
-      void editTask(LocalTask task);
+      void editTaskInServer(LocalTask task);
 
       long updateReminder(String taskId, long reminder);
 
@@ -189,7 +189,7 @@ public class Contract {
 
       void updatePositions(List<Task> tasks);
 
-      void updateExistingTaskFromLocalTask(LocalTask task, String listId);
+      void updateExistingTaskFromLocalTask(LocalTask task);
 
       List<LocalList> getLocalLists();
 
@@ -206,6 +206,8 @@ public class Contract {
       void deleteTasksFromList(int listIntId);
 
       List<LocalTask> getTasksFromList(int intId);
+
+      void markTasksDeleted(List<LocalTask> tasksFromList);
    }
 
 

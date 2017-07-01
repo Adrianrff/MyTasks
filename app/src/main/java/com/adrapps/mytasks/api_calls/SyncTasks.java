@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
@@ -207,6 +206,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             if (!localListsMap.containsKey(serverListId.trim())) {
                //List is not in database. Create it
                mPresenter.addNewListToDBFromServer(serverList);
+               handledListIds.add(serverListId);
             } else {
                //List exists in database
                final LocalList localList = localListsMap.get(serverListId);
@@ -214,7 +214,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                   //List was last modified locally
                   if (localList.getLocalModify() > serverList.getUpdated().getValue()) {
                      //List is marked deleted. Delete it
-                     if (localList.getLocalDeleted() == Co.LOCAL_DELETED){
+                     if (localList.getLocalDeleted() == Co.LOCAL_DELETED) {
                         mPresenter.deleteTasksFromList(localList.getIntId());
                         mPresenter.deleteListFromDB(localList.getIntId());
                         mService.tasklists().delete(serverListId).queue(requests, serverListDeleteCallback);
@@ -225,32 +225,32 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         serverListToModify.setTitle(localList.getTitle());
                         mService.tasklists().update(serverListId, serverListToModify).
                               queue(requests, new JsonBatchCallback<TaskList>() {
-                           @Override
-                           public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
-                              Log.d(TAG, "onFailure: failed to update list: " + e.getMessage());
-                           }
+                                 @Override
+                                 public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+                                    Log.d(TAG, "onFailure: failed to update list: " + e.getMessage());
+                                 }
 
-                           @Override
-                           public void onSuccess(TaskList taskList, HttpHeaders responseHeaders) throws IOException {
-                              Log.d(TAG, "onSuccess: List " + taskList.getId() + " successfully modified in server");
-                              localList.setLocalModify(serverList.getUpdated().getValue());
-                              mPresenter.updateListInDBFromLocalList(localList);
-                           }
-                        });
+                                 @Override
+                                 public void onSuccess(TaskList taskList, HttpHeaders responseHeaders) throws IOException {
+                                    Log.d(TAG, "onSuccess: List " + taskList.getId() + " successfully modified in server");
+                                    localList.setLocalModify(serverList.getUpdated().getValue());
+                                    mPresenter.updateListInDBFromLocalList(localList);
+                                 }
+                              });
                         handledListIds.add(serverListId);
                      }
 
-                  //List was last modified in server
+                     //List was last modified in server
                   } else if (serverList.getUpdated().getValue() > localList.getLocalModify()) {
 
                      //List is marked deleted. Delete it
-                     if (localList.getLocalDeleted() == Co.LOCAL_DELETED){
+                     if (localList.getLocalDeleted() == Co.LOCAL_DELETED) {
                         mPresenter.deleteTasksFromList(localList.getIntId());
                         mPresenter.deleteListFromDB(localList.getIntId());
                         mService.tasklists().delete(serverListId).queue(requests, serverListDeleteCallback);
                         handledListIds.add(serverListId);
 
-                     //List is not marked deleted, update it in DB
+                        //List is not marked deleted, update it in DB
                      } else {
                         mPresenter.updateListInDBFromServerList(serverList, localList.getIntId());
                         handledListIds.add(serverListId);
@@ -268,11 +268,11 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
          //ITERATE THROUGH LOCAL LISTS
          for (LocalList list : localLists) {
-            if (list.getId() != null && handledListIds.contains(list.getId())){
+            if (list.getId() != null && handledListIds.contains(list.getId())) {
                continue;
             }
             final int listIntId = list.getIntId();
-            if (list.getId() == null){
+            if (list.getId() == null) {
                if (list.getLocalDeleted() != Co.LOCAL_DELETED) {
                   //list was added locally but not synced (and not marked deleted). Add it to the server and update it in db
                   TaskList serverListToAdd = new TaskList();
@@ -296,18 +296,17 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                }
             } else {
                //List is not in server. Delete it
-               if (!handledListIds.contains(list.getId())){
+               if (!handledListIds.contains(list.getId())) {
                   mPresenter.deleteListFromDB(listIntId);
                   mPresenter.deleteTasksFromList(listIntId);
                }
             }
          }
 
-         if (requests.size() > 0){
+         if (requests.size() > 0) {
             requests.execute();
          }
 
-         localLists = mPresenter.getLocalLists();
 
          /*------------------ITERATE THROUGH SERVER TASKS LIST BY LIST------------------*/
          JsonBatchCallback<Void> taskDeleteCallBack = new JsonBatchCallback<Void>() {
@@ -322,44 +321,57 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             }
          };
 
-         List<Task> serverTasks;
-         List<LocalTask> localTasks;
-         localTasks = mPresenter.getAllTasks();
-         List<String> handledTaskIds = new ArrayList<>();
-         SparseArray<String> localListIntIdToIdMap = ObjectHelper.getLocalListIntIdToIdMap(localLists);
-         SparseArray<String> localTaskIntIdToIdMap = ObjectHelper.getLocalTaskIntIdToIdMap(localTasks);
-         HashMap<String, LocalTask> localTaskMap = ObjectHelper.getLocalTaskIdMap(localTasks);
-         localListsMap = ObjectHelper.getLocalListIdMap(localLists);
-
+         //Update server and local lists
+         localLists = mPresenter.getLocalLists();
          serverLists = mService.tasklists().list().execute().getItems();
 
          //Check if lists are synced
-         if (ObjectHelper.areListsSynced(localLists, serverLists)){
+         if (ObjectHelper.areListsSynced(localLists, serverLists)) {
 
-            //Iterate through server tasks
+
+//            for (int i = 0; i < serverLists.size(); i++) {
+//               serverTasks.addAll(mService.tasks().list(serverLists.get(i).getId()).execute().getItems());
+//            }
+            List<String> handledTaskIds = new ArrayList<>();
+//         SparseArray<String> localListIntIdToIdMap = ObjectHelper.getLocalListIntIdToIdMap(localLists);
+//         SparseArray<String> localTaskIntIdToIdMap = ObjectHelper.getLocalTaskIntIdToIdMap(localTasks);
+
+            localListsMap = ObjectHelper.getLocalListIdMap(localLists);
+            //Get server and local tasks from list
             for (int i = 0; i < serverLists.size(); i++) {
                final String listId = serverLists.get(i).getId().trim();
-               serverTasks = mService.tasks().list(listId).execute().getItems();
-               for (int j = 0; j < serverTasks.size(); j++) {
-                  final Task serverTask = serverTasks.get(j);
-                  final String taskId = serverTask.getId().trim();
-                  if (!localTaskMap.containsKey(taskId.trim())) {
-                     //Task is not in database. Create it
-                     mPresenter.addTaskFirstTimeFromServer(serverTask, listId, localListsMap.get(listId).getIntId());
-                     handledTaskIds.add(taskId);
-                  } else {
-                     final LocalTask localTask = localTaskMap.get(taskId);
-                     if (localTask != null){
-                        //Task was last modified locally
-                        if (localTask.getLocalModify() > serverTask.getUpdated().getValue()){
-                           //Task is marked deleted. Delete it
-                           if (localTask.getLocalDeleted() == Co.LOCAL_DELETED){
+               int listIntId = localListsMap.get(listId).getIntId();
+               List<Task> serverTasksFromList = mService.tasks().list(listId).execute().getItems();
+               List<LocalTask> localTasksFromList = mPresenter.getTasksFromList(listIntId);
+               if (serverTasksFromList != null) {
+
+                  //Iterate through server tasks
+                  for (int j = 0; j < serverTasksFromList.size(); j++) {
+                     final Task serverTask = serverTasksFromList.get(j);
+                     final String taskId = serverTask.getId().trim();
+                     HashMap<String, LocalTask> localTaskMap = ObjectHelper.getLocalTaskIdMap(localTasksFromList);
+                     HashMap<String, Task> serverTaskMap = ObjectHelper.getServerTaskIdMap(serverTasksFromList);
+                     if (!localTaskMap.containsKey(taskId.trim())) {
+                        //Task is not in database. Create it
+                        mPresenter.addTaskFirstTimeFromServer(serverTask, listId, localListsMap.get(listId).getIntId());
+                        handledTaskIds.add(taskId);
+                     } else {
+                        final LocalTask localTask = localTaskMap.get(taskId);
+                        if (localTask != null) {
+                           //Task is marked deleted. Delete it and continue
+                           if (localTask.getLocalDeleted() == Co.LOCAL_DELETED) {
                               mPresenter.deleteTaskFromDatabase(localTask.getIntId());
-                              mService.tasks().delete(taskId,listId).queue(requests, taskDeleteCallBack);
+                              mService.tasks().delete(taskId, listId).queue(requests, taskDeleteCallBack);
                               handledTaskIds.add(taskId);
-                           } else {
-                              //task is not marked deleted. Update in server
-                              Task taskToUpdate = mService.tasks().get(taskId, listId).execute();
+                              continue;
+                           }
+
+                           //Task is not marked deleted and was last modified locally
+                           if (localTask.getLocalModify() > serverTask.getUpdated().getValue()) {
+                              Task taskToUpdate = mService.tasks().get(listId, taskId).execute();
+                              taskToUpdate.setTitle(localTask.getTitle());
+                              taskToUpdate.setNotes(localTask.getNotes());
+                              taskToUpdate.setDue(DateHelper.millisecondsToDateTime(localTask.getDue()));
                               mService.tasks().update(listId, taskId, taskToUpdate).queue(requests, new JsonBatchCallback<Task>() {
                                  @Override
                                  public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
@@ -370,40 +382,40 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                                  public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
                                     Log.d(TAG, "onSuccess: Task " + taskId + " updated successfully");
                                     localTask.setLocalModify(serverTask.getUpdated().getValue());
-                                    mPresenter.updateExistingTaskFromLocalTask(localTask, listId);
+                                    mPresenter.updateExistingTaskFromLocalTask(localTask);
                                  }
                               });
                               handledTaskIds.add(taskId);
-                           }
-                        } else if (serverTask.getUpdated().getValue() > localTask.getLocalModify()){
-                           //Task is marked deleted. Delete it
-                           if (localTask.getLocalDeleted() == Co.LOCAL_DELETED){
-                              mPresenter.deleteTaskFromDatabase(localTask.getIntId());
-                              mService.tasks().delete(taskId,listId).queue(requests, taskDeleteCallBack);
-                              handledTaskIds.add(taskId);
-                              //Task is not marked deleted, update it in DB
-                           } else {
+
+                              //Task was last modified in server. Update it in database
+                           } else if (serverTask.getUpdated().getValue() > localTask.getLocalModify()) {
                               mPresenter.updateLocalTask(serverTask, listId);
                               handledTaskIds.add(taskId);
+                           } else {
+                              //They're the same
+                              handledTaskIds.add(taskId);
                            }
-                        } else {
-                           //They're the same
-                           handledTaskIds.add(taskId);
                         }
                      }
                   }
 
+
                }
-               localTasks = mPresenter.getAllTasks();
+
+               //Update tasks from list
+               localTasksFromList = mPresenter.getTasksFromList(listIntId);
+
                //Iterate though local tasks
-               for (LocalTask task : localTasks) {
-                  if (task.getId() != null && handledTaskIds.contains(task.getId())){
+               for (LocalTask task : localTasksFromList) {
+                  if (task.getId() != null && handledTaskIds.contains(task.getId())) {
                      continue;
                   }
                   final int taskIntId = task.getIntId();
-                  if (task.getId() == null){
-                     if (task.getLocalDeleted() != Co.LOCAL_DELETED){
-                        //task was added locally but not synced (and not marked deleted). Add it to the server and update it in db
+
+                  //Task is not yet synced in server (id is null)
+                  if (task.getId() == null) {
+                     //task is not marked deleted. Add it to the server and update it in db
+                     if (task.getLocalDeleted() != Co.LOCAL_DELETED) {
                         Task serverTaskToAdd = LocalTask.localTaskToApiTask(task);
                         mService.tasks().insert(listId, serverTaskToAdd).queue(requests, new JsonBatchCallback<Task>() {
                            @Override
@@ -423,14 +435,14 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                      }
                   } else {
                      //Task is not in server. Delete it
-                     if (!handledListIds.contains(task.getId())){
+                     if (!handledListIds.contains(task.getId())) {
                         mPresenter.deleteTaskFromDatabase(taskIntId);
                      }
                   }
                }
             }
 
-            if (requests.size() > 0){
+            if (requests.size() > 0) {
                requests.execute();
             }
 
@@ -438,7 +450,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          } else {
             Log.d(TAG, "syncAll: LISTS ARE NOT SYNCED!!!");
          }
-
 
 
 //         //GET LOCAL LISTS

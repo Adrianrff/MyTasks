@@ -78,6 +78,11 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public void markTasksDeleted(List<LocalTask> tasksFromList) {
+      tasksDb.markTasksDeleted(tasksFromList);
+   }
+
+   @Override
    public List<String> getListsTitles() {
       return listsDb.getListsTitles();
    }
@@ -104,8 +109,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public int addTaskToLocalDatabase(LocalTask task) {
-      return (int) tasksDb.addTaskToDataBase(task);
+   public int addTaskToDatabase(LocalTask task) {
+      return tasksDb.addTaskToDataBase(task);
    }
 
    @Override
@@ -166,8 +171,8 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void updateExistingTaskFromLocalTask(LocalTask task, String listId) {
-      tasksDb.updateExistingTaskFromLocalTask(task, listId);
+   public void updateExistingTaskFromLocalTask(LocalTask task) {
+      tasksDb.updateExistingTaskFromLocalTask(task);
    }
 
    @Override
@@ -353,16 +358,12 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public int addTask(LocalTask task) {
-      int newTaskId = mPresenter.addTaskToDatabase(task);
-      task.setIntId(newTaskId);
+   public void addTask(LocalTask task) {
       if (mPresenter.isDeviceOnline()) {
          AddTask add = new AddTask(context, mPresenter,
                mPresenter.getCredential());
          add.execute(task);
       }
-      mPresenter.addTaskToAdapter(task);
-      return newTaskId;
    }
 
    @Override
@@ -374,11 +375,11 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void editTask(LocalTask task) {
-      if (task.getSyncStatus() == Co.SYNCED) {
-         task.setSyncStatus(Co.EDITED_NOT_SYNCED);
-      }
-      mPresenter.updateLocalTask(task, true);
+   public void editTaskInServer(LocalTask task) {
+//      if (task.getSyncStatus() == Co.SYNCED) {
+//         task.setSyncStatus(Co.EDITED_NOT_SYNCED);
+//      }
+//      mPresenter.updateLocalTask(task, true);
       if (mPresenter.isDeviceOnline()) {
          EditTask edit = new EditTask(context, mPresenter, mPresenter.getCredential(),
                mPresenter.getStringShP(Co.CURRENT_LIST_ID, null));

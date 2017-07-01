@@ -382,6 +382,12 @@ public class SignInActivity extends AppCompatActivity
                .execute();
          serverLists = result.getItems();
          for (int i = 0; i < serverLists.size(); i++) {
+            if (i == 0){
+               SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
+               SharedPreferences.Editor editor = prefs.edit();
+               editor.putString(Co.DEFAULT_LIST_ID_KEY, serverLists.get(i).getId());
+               editor.apply();
+            }
             Co.listIds.clear();
             Co.listTitles.clear();
             Co.listIds.add(serverLists.get(i).getId());

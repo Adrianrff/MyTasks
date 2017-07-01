@@ -107,7 +107,9 @@ public class DeleteList extends AsyncTask<String, Void, Void> {
 //         List<LocalTask> tasks = mPresenter.getTasksFromList(listId);
 //         mPresenter.deleteTasks(tasks);
          mService.tasklists().delete(listId).execute();
-         mPresenter.deleteListFromDB(mPresenter.getListIntIdById(listId));
+         int intId= mPresenter.getListIntIdById(listId);
+         mPresenter.deleteListFromDB(intId);
+         mPresenter.deleteTasksFromList(intId);
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

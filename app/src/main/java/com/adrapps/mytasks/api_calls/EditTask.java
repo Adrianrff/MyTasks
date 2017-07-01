@@ -65,7 +65,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
    @Override
    protected void onPostExecute(Void aVoid) {
       if (!mPresenter.isViewFinishing()) {
-      mPresenter.showProgress(false);
+         mPresenter.showProgress(false);
       } else {
          Log.d(TAG, "onPostExecute: View was finishing. UI related action not executed");
       }
@@ -105,11 +105,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
          Task task = mService.tasks().get(listId, lTask.getId()).execute();
          task.setTitle(lTask.getTitle());
          task.setNotes(lTask.getNotes());
-         if (lTask.getDue() != 0) {
-            task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
-         } else {
-            task.setDue(null);
-         }
+         task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
          mService.tasks().update(listId, task.getId(), task).execute();
          mPresenter.updateSyncStatus(lTask.getIntId(), Co.SYNCED);
       } else {

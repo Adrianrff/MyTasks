@@ -398,7 +398,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             taskTitleTextView.setTextColor(Color.GRAY);
             cTask.setStatus(Co.TASK_COMPLETED);
             cTask.setReminderNoID(0);
-            mPresenter.updateExistingTaskFromLocalTask(cTask, cTask.getListId());
+            mPresenter.updateExistingTaskFromLocalTask(cTask);
             mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getListId(), Co.TASK_COMPLETED);
 
             AlarmHelper.cancelTaskReminder(cTask,context);
