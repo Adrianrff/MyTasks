@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
+import com.adrapps.mytasks.domain.LocalTask;
 import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -17,7 +18,7 @@ import java.io.IOException;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class UpdateStatus extends AsyncTask<String, Void, Void> {
+public class UpdateStatus extends AsyncTask<LocalTask, Void, Void> {
 
    private com.google.api.services.tasks.Tasks mService = null;
    private Exception mLastError = null;
@@ -31,10 +32,10 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
    }
 
    @Override
-   protected Void doInBackground(String... params) {
+   protected Void doInBackground(LocalTask... params) {
 
       try {
-         changeStatus(params[0], params[1], params[2]);
+         changeStatus(params[0], params[0].getStatus());
       } catch (Exception e) {
          mLastError = e;
          cancel(true);
@@ -92,15 +93,19 @@ public class UpdateStatus extends AsyncTask<String, Void, Void> {
    }
 
 
-   private void changeStatus(String taskId, String listId, String newStatus) throws IOException {
+   private void changeStatus(LocalTask localTask, String newStatus) throws IOException {
       if (EasyPermissions.hasPermissions(context, Manifest.permission.GET_ACCOUNTS)) {
-         Task task = mService.tasks().get(listId, taskId).execute();
+         Task task = mService.tasks().get(localTask.getListId(), localTask.getId()).execute();
          if (newStatus.equals(Co.TASK_NEEDS_ACTION)) {
             task.setCompleted(null);
          }
          task.setStatus(newStatus);
-         mService.tasks().update(listId, task.getId(), task).execute();
-         mPresenter.updateSyncStatus(mPresenter.getIntIdByTaskId(taskId), Co.SYNCED);
+         Task updatedServerTask = mService.tasks().update(localTask.getListId(), task.getId(), task).execute();
+         if (updatedServerTask != null) {
+            localTask.setLocalModify(updatedServerTask.getUpdated().getValue());
+            localTask.setSyncStatus(Co.SYNCED);
+            mPresenter.updateExistingTaskFromLocalTask(localTask);
+         }
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

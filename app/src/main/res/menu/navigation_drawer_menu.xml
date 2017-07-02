@@ -25,14 +25,6 @@
     </group>
 
     <group>
-        <!--<item-->
-            <!--android:id="@+id/newList"-->
-            <!--android:icon="@drawable/ic_new_list"-->
-            <!--android:background="?android:attr/selectableItemBackground"-->
-            <!--android:title="@string/new_list" />-->
-    </group>
-
-    <group>
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings_black_24dp"

@@ -8,7 +8,6 @@ import android.util.Log;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
-import com.adrapps.mytasks.helpers.AlarmHelper;
 import com.adrapps.mytasks.helpers.GoogleApiHelper;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;

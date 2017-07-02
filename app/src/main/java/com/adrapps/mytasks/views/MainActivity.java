@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity
    public void setUpViews() {
       progressDialog = new ProgressDialog(this);
       setSupportActionBar(toolbar);
+      toolbar.setOnClickListener(this);
       toggle = new ActionBarDrawerToggle(
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
       toggle.setToolbarNavigationClickListener(this);
@@ -402,8 +403,8 @@ public class MainActivity extends AppCompatActivity
    @Override
    public void setListsData() {
       List<LocalList> lists = mPresenter.getLocalLists();
-      Co.setLists(lists);
       Co.setListIds(lists);
+      Co.setLists(lists);
       Co.setListTitles(lists);
       Co.setListIntIds(lists);
    }
@@ -470,14 +471,31 @@ public class MainActivity extends AppCompatActivity
       MenuItem listsTitlesMenuItem = menu.findItem(R.id.lists_titles_menu);
       SubMenu listsTitlesSubMenu = listsTitlesMenuItem.getSubMenu();
       listsTitlesSubMenu.clear();
+
+      //Set menu item titles (list titles) and task counters
       for (int i = 0; i < localLists.size(); i++) {
-         listsTitlesSubMenu.add(0, Co.LIST_ITEM_ID_SUFFIX + localLists.get(i).getIntId(), i,
-               localLists.get(i).getTitle()).setIcon(R.drawable.ic_new_list).
+         LocalList list = localLists.get(i);
+         MenuItem currentItem = listsTitlesSubMenu.add(0, Co.LIST_ITEM_ID_SUFFIX + localLists.get(i).getIntId(), i,
+               list.getTitle()).setIcon(R.drawable.ic_new_list).
                setOnMenuItemClickListener(this);
+         if (currentItem.getActionView() == null) {
+            currentItem.setActionView(R.layout.navdrawer_item_counter);
+         }
+         updateTaskCounterForDrawer(list.getIntId(), currentItem);
+         View counter = currentItem.getActionView();
+         if (counter instanceof TextView){
+            ((TextView) counter).setText(
+                  "(" +
+                        String.valueOf(mPresenter.getTasksNotCompletedFromListCount(list.getIntId())) +
+                        ")");
+         }
       }
+      //Add new list item
       listsTitlesSubMenu.add(0, R.id.newList, 9999, getString(R.string.new_list)).
             setIcon(R.drawable.add_white).
             setOnMenuItemClickListener(this);
+
+      //Set current list item selected
       MenuItem currentListMenuItem = listsTitlesSubMenu.
             findItem(getIntShP(Co.LIST_ITEM_ID_SUFFIX + Co.CURRENT_LIST_INT_ID, -1));
       if (currentListMenuItem != null) {
@@ -493,6 +511,23 @@ public class MainActivity extends AppCompatActivity
 //         saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(0));
 //         e.printStackTrace();
 //      }
+   }
+
+   @Override
+   public void updateTaskCounterForDrawer(int listIntId, @Nullable MenuItem itemToUpdate){
+      if (itemToUpdate == null) {
+         Menu menu = navigationView.getMenu();
+         MenuItem listsTitlesMenuItem = menu.findItem(R.id.lists_titles_menu);
+         SubMenu listsTitlesSubMenu = listsTitlesMenuItem.getSubMenu();
+         itemToUpdate = listsTitlesSubMenu.findItem(Co.LIST_ITEM_ID_SUFFIX + listIntId);
+      }
+      if (itemToUpdate != null) {
+         View counter = itemToUpdate.getActionView();
+         if (counter != null && counter instanceof TextView) {
+            ((TextView) counter).setText("(" +
+                  String.valueOf(mPresenter.getTasksNotCompletedFromListCount(listIntId)) + ")");
+         }
+      }
    }
 
 
@@ -672,6 +707,9 @@ public class MainActivity extends AppCompatActivity
             Intent i = new Intent(this, NewTaskOrEditActivity.class);
             mPresenter.navigateToEditTask(i);
             break;
+
+         case R.id.toolbar:
+            showToast(getStringShP(Co.CURRENT_LIST_TITLE, null));
       }
    }
 
@@ -712,29 +750,6 @@ public class MainActivity extends AppCompatActivity
             return false;
          }
       }
-//      if (item.getItemId() <= Co.listIntIds.size()) {
-//         saveStringShP(Co.CURRENT_LIST_ID, Co.listIds.get(item.getItemId()));
-//         saveStringShP(Co.CURRENT_LIST_TITLE, Co.listTitles.get(item.getItemId()));
-//         saveIntShP(Co.CURRENT_LIST_INT_ID, Co.listIntIds.get(item.getItemId()));
-//         for (int i = 0; i < listsMenu.size(); i++) {
-//            listsMenu.getItem(i).setChecked(false);
-//         }
-//         item.setChecked(true);
-//         List<LocalTask> tasks = mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId()));
-//         if (tasks == null || tasks.isEmpty()) {
-//            recyclerView.setVisibility(View.GONE);
-//            emptyDataLayout.setVisibility(View.VISIBLE);
-//         } else {
-//            recyclerView.setVisibility(View.VISIBLE);
-//            emptyDataLayout.setVisibility(View.GONE);
-//         }
-//         adapter.updateItems(mPresenter.getTasksFromListForAdapter(Co.listIntIds.get(item.getItemId())));
-//         toolbar.setTitle(item.getTitle());
-//         drawer.closeDrawer(GravityCompat.START);
-//         return false;
-//      }
-
-
       return false;
 
    }
@@ -796,6 +811,7 @@ public class MainActivity extends AppCompatActivity
                int listIntId = mPresenter.addNewListToDB(newTaskTitle.getText().toString());
                mPresenter.addNewListToServer(newTaskTitle.getText().toString(), listIntId);
                updateView();
+               //FIXME list item not being highlighted as selected in navdrawer after creation
                onNavigationItemSelected(navigationView.getMenu().findItem(Co.LIST_ITEM_ID_SUFFIX + listIntId));
                dialog.dismiss();
             } else {
@@ -1021,10 +1037,12 @@ public class MainActivity extends AppCompatActivity
                   int taskIntId = mPresenter.addTaskToDatabase(task);
                   if (taskIntId > 0) {
                      task.setIntId(taskIntId);
+                     adapter.addItem(task, 0);
                      if (task.getListId() != null) {
                         mPresenter.addTask(task);
                      }
                   }
+                  updateTaskCounterForDrawer(task.getListIntId(), null);
                }
             }
 

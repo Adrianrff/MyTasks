@@ -398,14 +398,18 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             taskTitleTextView.setTextColor(Color.GRAY);
             cTask.setStatus(Co.TASK_COMPLETED);
             cTask.setReminderNoID(0);
+            cTask.setLocalModify(System.currentTimeMillis());
+            cTask.setSyncStatus(Co.EDITED_NOT_SYNCED);
+            cTask.setCompleted(System.currentTimeMillis());
             mPresenter.updateExistingTaskFromLocalTask(cTask);
-            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getListId(), Co.TASK_COMPLETED);
-
             AlarmHelper.cancelTaskReminder(cTask,context);
             if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true)){
                List<LocalTask> task =  new ArrayList<>();
                task.add(cTask);
                AlarmHelper.cancelDefaultRemindersForTasks(context, task);
+            }
+            if (cTask.getId() != null && cTask.getListId() != null) {
+               mPresenter.updateTaskStatusInServer(cTask, Co.TASK_COMPLETED);
             }
          } else {
             dueDateTextView.setTextColor(oldDueColors);
@@ -413,6 +417,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             taskTitleTextView.setTextColor(oldTaskColors);
             taskTitleTextView.setPaintFlags(0);
             cTask.setStatus(Co.TASK_NEEDS_ACTION);
+            cTask.setCompleted(0);
             if (cTask.getDue() == 0) {
                dueDateTextView.setText(R.string.no_due_date);
             } else {
@@ -439,9 +444,13 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                   cTask.getDue()!=0 && cTask.getDue() > Calendar.getInstance().getTimeInMillis()){
                AlarmHelper.setOrUpdateDefaultRemindersForTask(context, cTask);
             }
-            mPresenter.updateTaskStatusInServer(cTask.getIntId(), cTask.getListId(), Co.TASK_NEEDS_ACTION);
+            mPresenter.updateTaskStatusInDb(cTask.getIntId(), Co.TASK_NEEDS_ACTION);
+            if (cTask.getId() != null && cTask.getListId() != null) {
+               mPresenter.updateTaskStatusInServer(cTask, Co.TASK_NEEDS_ACTION);
+            }
          }
          notifyItemChanged(getAdapterPosition());
+         mPresenter.updateTaskCounterForDrawer(cTask.getListIntId(), null);
       }
 
       @Override

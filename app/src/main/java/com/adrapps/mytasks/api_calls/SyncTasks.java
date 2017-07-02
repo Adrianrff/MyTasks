@@ -54,59 +54,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
       this.mPresenter = presenter;
       mService = GoogleApiHelper.getService(credential);
       this.requests = mService.batch();
-      this.tasksToDelete = new ArrayList<>();
-      this.tasksToUpdateFirstTime = new HashMap<>();
-
-      this.getServerTaskForUpdateCallback = new JsonBatchCallback<Task>() {
-         @Override
-         public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
-         }
-
-         @Override
-         public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
-            LocalTask currentLocalTask = localTasksMap.get(task.getId());
-            if (currentLocalTask != null) {
-               task.setTitle(currentLocalTask.getTitle());
-               task.setNotes(currentLocalTask.getNotes() == null ? null : currentLocalTask.getNotes());
-               task.setDue(currentLocalTask.getDue() == 0 ? null :
-                     DateHelper.millisecondsToDateTime(currentLocalTask.getDue()));
-               if (currentLocalTask.getStatus().equals(Co.TASK_COMPLETED)) {
-                  task.setStatus(Co.TASK_COMPLETED);
-               } else {
-                  task.setStatus(Co.TASK_NEEDS_ACTION);
-                  task.setCompleted(null);
-               }
-               mService.tasks().update(currentLocalTask.getListId(),
-                     currentLocalTask.getId(),
-                     task).execute();
-            }
-         }
-
-      };
-      this.deleteCallback = new JsonBatchCallback<Void>() {
-         @Override
-         public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
-            Log.d("Deleted", "fail");
-
-         }
-
-         @Override
-         public void onSuccess(Void aVoid, HttpHeaders responseHeaders) throws IOException {
-            Log.d("deleted", "success");
-         }
-      };
-
-      this.moveCallback = new JsonBatchCallback<Task>() {
-         @Override
-         public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
-
-         }
-
-         @Override
-         public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
-            mPresenter.updatePosition(task);
-         }
-      };
    }
 
    @Override
@@ -203,6 +150,8 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          for (int i = 0; i < serverLists.size(); i++) {
             final TaskList serverList = serverLists.get(i);
             String serverListId = serverLists.get(i).getId();
+            long updateServer = serverLists.get(i).getUpdated().getValue();
+            int u = ((int) updateServer);
             if (!localListsMap.containsKey(serverListId.trim())) {
                //List is not in database. Create it
                mPresenter.addNewListToDBFromServer(serverList);
@@ -327,15 +276,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
          //Check if lists are synced
          if (ObjectHelper.areListsSynced(localLists, serverLists)) {
-
-
-//            for (int i = 0; i < serverLists.size(); i++) {
-//               serverTasks.addAll(mService.tasks().list(serverLists.get(i).getId()).execute().getItems());
-//            }
             List<String> handledTaskIds = new ArrayList<>();
 //         SparseArray<String> localListIntIdToIdMap = ObjectHelper.getLocalListIntIdToIdMap(localLists);
 //         SparseArray<String> localTaskIntIdToIdMap = ObjectHelper.getLocalTaskIntIdToIdMap(localTasks);
-
             localListsMap = ObjectHelper.getLocalListIdMap(localLists);
             //Get server and local tasks from list
             for (int i = 0; i < serverLists.size(); i++) {
@@ -351,27 +294,41 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                      final String taskId = serverTask.getId().trim();
                      HashMap<String, LocalTask> localTaskMap = ObjectHelper.getLocalTaskIdMap(localTasksFromList);
                      HashMap<String, Task> serverTaskMap = ObjectHelper.getServerTaskIdMap(serverTasksFromList);
+
+                     /*--------------TASKS WITHOUT GOOGLE ID----------------*/
                      if (!localTaskMap.containsKey(taskId.trim())) {
                         //Task is not in database. Create it
                         mPresenter.addTaskFirstTimeFromServer(serverTask, listId, localListsMap.get(listId).getIntId());
                         handledTaskIds.add(taskId);
+
+
+                      /*--------------TASKS WITH GOOGLE ID----------------*/
+
                      } else {
                         final LocalTask localTask = localTaskMap.get(taskId);
                         if (localTask != null) {
-                           //Task is marked deleted. Delete it and continue
+                           //Task is marked deleted. Delete it and continue with next task
                            if (localTask.getLocalDeleted() == Co.LOCAL_DELETED) {
                               mPresenter.deleteTaskFromDatabase(localTask.getIntId());
-                              mService.tasks().delete(taskId, listId).queue(requests, taskDeleteCallBack);
+                              mService.tasks().delete(listId, taskId).queue(requests, taskDeleteCallBack);
                               handledTaskIds.add(taskId);
                               continue;
                            }
 
                            //Task is not marked deleted and was last modified locally
+                           //TODO: handle moved tasks
                            if (localTask.getLocalModify() > serverTask.getUpdated().getValue()) {
                               Task taskToUpdate = mService.tasks().get(listId, taskId).execute();
                               taskToUpdate.setTitle(localTask.getTitle());
                               taskToUpdate.setNotes(localTask.getNotes());
                               taskToUpdate.setDue(DateHelper.millisecondsToDateTime(localTask.getDue()));
+                              if (localTask.getStatus().equals(Co.TASK_COMPLETED)){
+                                 taskToUpdate.setStatus(Co.TASK_COMPLETED);
+                                 taskToUpdate.setCompleted(DateHelper.millisecondsToDateTime(localTask.getCompleted()));
+                              } else {
+                                 taskToUpdate.setStatus(Co.TASK_NEEDS_ACTION);
+                                 taskToUpdate.setCompleted(null);
+                              }
                               mService.tasks().update(listId, taskId, taskToUpdate).queue(requests, new JsonBatchCallback<Task>() {
                                  @Override
                                  public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {

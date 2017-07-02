@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.SparseArray;
+import android.view.MenuItem;
 
 import com.adrapps.mytasks.domain.LocalList;
 import com.adrapps.mytasks.domain.LocalTask;
@@ -11,7 +12,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -78,6 +78,8 @@ public class Contract {
 
       void saveStringShP(String key, String value);
 
+      void updateTaskCounterForDrawer(int listIntId, @Nullable MenuItem itemToUpdate);
+
       void initRecyclerView(List<LocalTask> tasks);
 
       void addTaskToAdapter(LocalTask localTask);
@@ -131,7 +133,7 @@ public class Contract {
 
       int addListNewToDb(String listTitle);
 
-      void updateTaskStatusInServer(int intId, String listId, String newStatus);
+      void updateTaskStatusInServer(LocalTask task, String newStatus);
 
       void updateTaskStatusInDB(int intId, String newStatus);
 
@@ -147,7 +149,7 @@ public class Contract {
 
       long updateReminder(int intId, long reminder, int repeatMode);
 
-      void updateSyncStatus(int synced, int intId);
+      void updateSyncStatus(LocalTask task, int newStatus);
 
       List<LocalTask> getLocalTasksFromDB();
 
@@ -183,8 +185,6 @@ public class Contract {
 
       void deleteListFromDb(int listIntId);
 
-      void updateNewTasksInBulk(HashMap<Task, LocalTask> map);
-
       void deleteTasks(List<LocalTask> tasks);
 
       void updatePositions(List<Task> tasks);
@@ -208,6 +208,12 @@ public class Contract {
       List<LocalTask> getTasksFromList(int intId);
 
       void markTasksDeleted(List<LocalTask> tasksFromList);
+
+      int getTasksNotCompletedFromListCount(int intId);
+
+      void updateTaskStatusInDb(int intId, String newStatus);
+
+      LocalTask getTask(int taskIntId);
    }
 
 

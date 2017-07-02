@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.MenuItem;
 
 import com.adrapps.mytasks.api_calls.SyncTasks;
 import com.adrapps.mytasks.domain.Co;
@@ -17,7 +18,6 @@ import com.google.api.services.tasks.model.TaskList;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -237,8 +237,8 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
-   public void updateTaskStatusInServer(int intId, String listId, String newStatus) {
-      mModel.updateTaskStatusInServer(intId, listId, newStatus);
+   public void updateTaskStatusInServer(LocalTask task, String newStatus) {
+      mModel.updateTaskStatusInServer(task, newStatus);
    }
 
    public boolean isDeviceOnline() {
@@ -264,10 +264,6 @@ public class TaskListPresenter implements Serializable {
 
    public void addTask(LocalTask task) {
       mModel.addTask(task);
-   }
-
-   public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
-      mModel.updateNewTasksInBulk(map);
    }
 
    public void showEmptyRecyclerView(boolean b) {
@@ -318,8 +314,8 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
-   public void updateSyncStatus(int intId, int synced) {
-      mModel.updateSyncStatus(synced, intId);
+   public void updateSyncStatus(LocalTask localTask, int syncedStatus) {
+      mModel.updateSyncStatus(localTask, syncedStatus);
    }
 
    public int updateLocalTask(LocalTask modifiedTask, boolean updateReminder) {
@@ -480,5 +476,17 @@ public class TaskListPresenter implements Serializable {
 
    public void markTasksDeleted(List<LocalTask> tasksFromList) {
       mModel.markTasksDeleted(tasksFromList);
+   }
+
+   public int getTasksNotCompletedFromListCount(int intId) {
+      return mModel.getTasksNotCompletedFromListCount(intId);
+   }
+
+   public void updateTaskStatusInDb(int intId, String newStatus) {
+      mModel.updateTaskStatusInDb(intId, newStatus);
+   }
+
+   public void updateTaskCounterForDrawer(int listIntId, MenuItem listItem) {
+      getView().updateTaskCounterForDrawer(listIntId, listItem);
    }
 }

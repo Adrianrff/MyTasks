@@ -106,8 +106,12 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
          task.setTitle(lTask.getTitle());
          task.setNotes(lTask.getNotes());
          task.setDue(DateHelper.millisecondsToDateTime(lTask.getDue()));
-         mService.tasks().update(listId, task.getId(), task).execute();
-         mPresenter.updateSyncStatus(lTask.getIntId(), Co.SYNCED);
+         Task editedServerTask = mService.tasks().update(listId, task.getId(), task).execute();
+         if (editedServerTask != null) {
+            lTask.setLocalModify(editedServerTask.getUpdated().getValue());
+            lTask.setSyncStatus(Co.SYNCED);
+            mPresenter.updateExistingTaskFromLocalTask(lTask);
+         }
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

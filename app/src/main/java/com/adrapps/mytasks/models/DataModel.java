@@ -24,7 +24,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -83,6 +82,21 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public int getTasksNotCompletedFromListCount(int intId) {
+      return tasksDb.getTasksNotCompletedFromList(intId);
+   }
+
+   @Override
+   public void updateTaskStatusInDb(int intId, String newStatus) {
+      tasksDb.updateTaskStatus(intId, newStatus);
+   }
+
+   @Override
+   public LocalTask getTask(int taskIntId) {
+      return tasksDb.getTask(taskIntId);
+   }
+
+   @Override
    public List<String> getListsTitles() {
       return listsDb.getListsTitles();
    }
@@ -131,8 +145,8 @@ public class DataModel implements Contract.Model {
 
 
    @Override
-   public void updateSyncStatus(int synced, int intId) {
-      tasksDb.updateSyncStatus(synced, intId);
+   public void updateSyncStatus(LocalTask localTask, int newStatus) {
+      tasksDb.updateSyncStatus(localTask, newStatus);
    }
 
    @Override
@@ -290,11 +304,6 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
-      tasksDb.updateNewTasksInBulk(map);
-   }
-
-   @Override
    public int addListNewToDb(String listTitle) {
       return listsDb.addListFirstTime(listTitle);
    }
@@ -325,15 +334,12 @@ public class DataModel implements Contract.Model {
 
 
    @Override
-   public void updateTaskStatusInServer(int intId, String listId, String newStatus) {
-//      if (tasksDb.getTask(intId).getSyncStatus() != 0) {
-//         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED, intId);
-//      }
+   public void updateTaskStatusInServer(LocalTask task, String newStatus) {
       if (mPresenter != null) {
          if (mPresenter.isDeviceOnline()) {
             GoogleAccountCredential credential = mPresenter.getCredential();
             UpdateStatus update = new UpdateStatus(context, mPresenter, credential);
-            update.execute(mPresenter.getTaskIdByIntId(intId), listId, newStatus);
+            update.execute(task);
          }
       }
 
@@ -342,9 +348,9 @@ public class DataModel implements Contract.Model {
    @Override
    public void updateTaskStatusInDB(int intId, String newStatus) {
       tasksDb.updateTaskStatus(intId, newStatus);
-      if (tasksDb.getTask(intId).getSyncStatus() != 0) {
-         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED, intId);
-      }
+//      if (tasksDb.getTask(intId).getSyncStatus() != 0) {
+//         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED, intId);
+//      }
    }
 
    @Override

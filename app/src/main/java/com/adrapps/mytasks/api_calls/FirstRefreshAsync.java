@@ -143,6 +143,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
                }
             }
          }
+         //FIXME Lists not being shown in the right order on different devices
          mPresenter.updateTasksFirstTime(localTasks);
          localTasks = mPresenter.getAllTasks();
          for (LocalTask task : localTasks) {

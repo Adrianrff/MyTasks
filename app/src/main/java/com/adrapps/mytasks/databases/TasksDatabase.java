@@ -12,7 +12,6 @@ import com.adrapps.mytasks.domain.LocalTask;
 import com.google.api.services.tasks.model.Task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -33,7 +32,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
    private static final String COL_LIST_ID = "List_id";
    private static final String COL_LIST_INT_ID = "List_int_id";
    private static final String COL_TITLE = "Title";
-   private static final String COL_SERVER_UPDATED = "serverUpdated";
    private static final String COL_PARENT = "Parent";
    private static final String COL_POSITION = "Position";
    private static final String COL_NOTES = "Notes";
@@ -62,7 +60,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
          COL_LIST_ID,
          COL_LIST_INT_ID,
          COL_TITLE,
-         COL_SERVER_UPDATED,
          COL_PARENT,
          COL_POSITION,
          COL_NOTES,
@@ -90,7 +87,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
                COL_DUE + " bigint," +
                COL_REMINDER + " bigint default 0," +
                COL_POSITION + " text default 000," +
-               COL_SERVER_UPDATED + " bigint default 0," +
                COL_LOCAL_MODIFY + " bigint default 0," +
                COL_PARENT + " text," +
                COL_STATUS + " text," +
@@ -149,7 +145,35 @@ public class TasksDatabase extends SQLiteOpenHelper {
          db = getReadableDatabase();
       }
       return db;
+   }
 
+   //-----------------------------HELPER METHODS------------------------------------//
+   private LocalTask getLocalTaskFromCursor(Cursor cursor){
+      LocalTask task = new LocalTask();
+      task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
+      task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
+      task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
+      task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
+      task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
+      task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
+      task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
+      task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)) == null ?
+            Co.TASK_NEEDS_ACTION : cursor.getString(cursor.getColumnIndex(COL_STATUS)));
+      task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
+      task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
+      task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
+      task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
+      task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
+      task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
+      task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
+      task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
+      task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
+      task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
+      task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
+      task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_MODIFY)));
+      task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
+      task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
+      return task;
    }
 
 
@@ -163,31 +187,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
          cursor = db.query(TABLE_NAME, null, null, null, null, null, COL_POSITION + ORDER_ASC);
          if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
-               LocalTask task = new LocalTask();
-               task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-               task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-               task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
-               task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
-               task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-               task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
-               task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
-               task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
-               task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
-               task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
-               task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
-               task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
-               task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
-               task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-               task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
-               task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
-               task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
-               task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
-               task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
-               task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
-               task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_MODIFY)));
-               task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
-               task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-               tasks.add(task);
+               tasks.add(getLocalTaskFromCursor(cursor));
             } while (cursor.moveToNext());
          }
          cursor.close();
@@ -204,40 +204,33 @@ public class TasksDatabase extends SQLiteOpenHelper {
       String selection = COL_LIST_ID + " = ? ";
       String[] selectionArgs = {listId};
       db = getReadableDB();
-
       Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
       if (cursor.getCount() != 0 && cursor.moveToFirst()) {
          do {
-            LocalTask task = new LocalTask();
-            task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-            task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-            task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
-            task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
-            task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-            task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
-            task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
-            task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
-            task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
-            task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
-            task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
-            task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
-            task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
-            task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-            task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
-            task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
-            task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
-            task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
-            task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
-            task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
-            task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_MODIFY)));
-            task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
-            task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-            tasks.add(task);
+            tasks.add(getLocalTaskFromCursor(cursor));
          } while (cursor.moveToNext());
       }
       cursor.close();
       //db.close();
       return tasks;
+   }
+
+   public int getTasksNotCompletedFromList(int intId) {
+      int tasksNotCompletedCount = 0;
+      String selection = COL_LIST_INT_ID + " = ?";
+      String[] selectionArgs = {String.valueOf(intId)};
+      db = getReadableDB();
+      Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
+      if (cursor.getCount() != 0 && cursor.moveToFirst()) {
+         do {
+            String taskStatus = cursor.getString(cursor.getColumnIndex(COL_STATUS));
+            if (taskStatus == null || !taskStatus.equals(Co.TASK_COMPLETED)) {
+               tasksNotCompletedCount += 1;
+            }
+         } while (cursor.moveToNext());
+      }
+      cursor.close();
+      return tasksNotCompletedCount;
    }
 
    public List<LocalTask> getTasksFromList(int listIntId) {
@@ -248,31 +241,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, COL_POSITION + ORDER_ASC);
       if (cursor.getCount() != 0 && cursor.moveToFirst()) {
          do {
-            LocalTask task = new LocalTask();
-            task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-            task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-            task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
-            task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
-            task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-            task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
-            task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
-            task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
-            task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
-            task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
-            task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
-            task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
-            task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
-            task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-            task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
-            task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
-            task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
-            task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
-            task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
-            task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
-            task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_MODIFY)));
-            task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
-            task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-            tasks.add(task);
+            tasks.add(getLocalTaskFromCursor(cursor));
          } while (cursor.moveToNext());
       }
       cursor.close();
@@ -291,31 +260,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
          if (cursor.getCount() != 0 && cursor.moveToFirst()) {
             do {
                if (cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)) != Co.LOCAL_DELETED) {
-                  LocalTask task = new LocalTask();
-                  task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-                  task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-                  task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
-                  task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
-                  task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-                  task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
-                  task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
-                  task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
-                  task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
-                  task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
-                  task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
-                  task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
-                  task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
-                  task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-                  task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
-                  task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
-                  task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
-                  task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
-                  task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
-                  task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
-                  task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_MODIFY)));
-                  task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
-                  task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-                  tasks.add(task);
+                  tasks.add(getLocalTaskFromCursor(cursor));
                }
             } while (cursor.moveToNext());
             db.setTransactionSuccessful();
@@ -337,7 +282,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LIST_ID, localTask.getListId());
       cv.put(COL_LIST_INT_ID, localTask.getListIntId());
       cv.put(COL_TITLE, localTask.getTitle());
-      cv.put(COL_SERVER_UPDATED, localTask.getServerModify());
       cv.put(COL_PARENT, localTask.getParent());
       cv.put(COL_POSITION, localTask.getPosition());
       cv.put(COL_NOTES, localTask.getNotes());
@@ -367,7 +311,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LIST_ID, listId);
       cv.put(COL_LIST_INT_ID, listIntId);
       cv.put(COL_TITLE, task.getTitle());
-      cv.put(COL_SERVER_UPDATED, task.getUpdated() == null ? 0 : task.getUpdated().getValue());
       cv.put(COL_PARENT, task.getParent());
       cv.put(COL_POSITION, task.getPosition());
       cv.put(COL_NOTES, task.getNotes());
@@ -388,6 +331,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
 
    public void updateTasksFirstTime(List<LocalTask> tasks) {
       List<String> taskIds = new ArrayList<>();
+      ArrayList<LocalTask> updatedTasks = new ArrayList<>();
       db = getWritableDB();
       Cursor cursor = db.query(TABLE_NAME, new String[]{COL_ID}, null, null, null, null, null);
       if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
@@ -402,29 +346,27 @@ public class TasksDatabase extends SQLiteOpenHelper {
          currentTask = tasks.get(i);
          if (taskIds.contains(currentTask.getId())) {
             updateLocalTask(currentTask, false);
-            continue;
+         } else {
+            cv.put(COL_ID, currentTask.getId());
+            cv.put(COL_LIST_ID, currentTask.getListId());
+            cv.put(COL_LIST_INT_ID, currentTask.getListIntId());
+            cv.put(COL_TITLE, currentTask.getTitle());
+            cv.put(COL_PARENT, currentTask.getParent());
+            cv.put(COL_POSITION, currentTask.getPosition());
+            cv.put(COL_NOTES, currentTask.getNotes());
+            cv.put(COL_STATUS, currentTask.getStatus());
+            cv.put(COL_DUE, currentTask.getDue());
+            cv.put(COL_COMPLETED, currentTask.getCompleted());
+            cv.put(COL_DELETED, (currentTask.isDeleted()) ? 1 : 0);
+            cv.put(COL_HIDDEN, (currentTask.isHidden()) ? 1 : 0);
+            cv.put(COL_SYNC_STATUS, currentTask.getSyncStatus());
+            cv.put(COL_LOCAL_MODIFY, currentTask.getLocalModify());
+            cv.put(COL_LOCAL_SIBLING, currentTask.getPreviousTask());
+            cv.put(COL_LOCAL_DELETED, currentTask.getLocalDeleted());
+            cv.put(COL_MOVED, currentTask.getMoved());
+            db.insert(TABLE_NAME, null, cv);
          }
-         cv.put(COL_ID, currentTask.getId());
-         cv.put(COL_LIST_ID, currentTask.getListId());
-         cv.put(COL_LIST_INT_ID, currentTask.getListIntId());
-         cv.put(COL_TITLE, currentTask.getTitle());
-         cv.put(COL_SERVER_UPDATED, currentTask.getServerModify());
-         cv.put(COL_PARENT, currentTask.getParent());
-         cv.put(COL_POSITION, currentTask.getPosition());
-         cv.put(COL_NOTES, currentTask.getNotes());
-         cv.put(COL_STATUS, currentTask.getStatus());
-         cv.put(COL_DUE, currentTask.getDue());
-         cv.put(COL_COMPLETED, currentTask.getCompleted());
-         cv.put(COL_DELETED, (currentTask.isDeleted()) ? 1 : 0);
-         cv.put(COL_HIDDEN, (currentTask.isHidden()) ? 1 : 0);
-         cv.put(COL_SYNC_STATUS, currentTask.getSyncStatus());
-         cv.put(COL_LOCAL_MODIFY, currentTask.getLocalModify());
-         cv.put(COL_LOCAL_SIBLING, currentTask.getPreviousTask());
-         cv.put(COL_LOCAL_DELETED, currentTask.getLocalDeleted());
-         cv.put(COL_MOVED, currentTask.getMoved());
-         db.insert(TABLE_NAME, null, cv);
       }
-      //db.close();
    }
 
    public void deleteTask(int intId) {
@@ -443,8 +385,8 @@ public class TasksDatabase extends SQLiteOpenHelper {
       ContentValues cv = new ContentValues();
       cv.put(COL_STATUS, newStatus);
       cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
+      cv.put(COL_SYNC_STATUS, Co.EDITED_NOT_SYNCED);
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -462,15 +404,16 @@ public class TasksDatabase extends SQLiteOpenHelper {
       return updatedRow;
    }
 
-   public int updateSyncStatus(int newStatus, int intId) {
+   public int updateSyncStatus(LocalTask localTask, int newStatus) {
       db = getWritableDB();
       String selection = COL_INT_ID + " = ? ";
-      String[] selectionArgs = {String.valueOf(intId)};
+      String[] selectionArgs = {String.valueOf(localTask.getIntId())};
       ContentValues cv = new ContentValues();
       cv.put(COL_SYNC_STATUS, newStatus);
       if (newStatus == Co.SYNCED) {
          cv.put(COL_MOVED, Co.NOT_MOVED);
          cv.put(COL_DELETED, Co.NOT_DELETED);
+         cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       }
       cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
@@ -483,38 +426,14 @@ public class TasksDatabase extends SQLiteOpenHelper {
       db = getWritableDB();
       String selection = COL_ID + " = ? ";
       String[] selectionArgs = {taskId};
-      LocalTask task = new LocalTask();
+      LocalTask task;
       Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, null);
       if (cursor.getCount() != 0 && cursor.moveToFirst()) {
-         task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-         task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-         task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
-         task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
-         task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-         task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
-         task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
-         task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
-         task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
-         task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
-         task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
-         task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
-         task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
-         task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-         task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
-         task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
-         task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
-         task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
-         task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
-         task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
-         task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_MODIFY)));
-         task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
-         task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-         //db.close();
+         task = getLocalTaskFromCursor(cursor);
          cursor.close();
          return task;
       } else {
          cursor.close();
-         //db.close();
          return null;
       }
    }
@@ -524,7 +443,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       String selection = COL_ID + " = ? ";
       String[] selectionArgs = {taskId};
       ContentValues cv = new ContentValues();
-      cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
+//      cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       cv.put(COL_REMINDER, reminder);
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
       //db.close();
@@ -537,12 +456,9 @@ public class TasksDatabase extends SQLiteOpenHelper {
       String selection = COL_INT_ID + " = ? ";
       String[] selectionArgs = {String.valueOf(intId)};
       ContentValues cv = new ContentValues();
-      cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       cv.put(COL_REMINDER, reminder);
       cv.put(COL_REMINDER_REPEAT_MODE, repeatMode);
-//      cv.put(COL_REMINDER_REPEAT_DAY, tasks.get(i).getRepeatDay());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -556,7 +472,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LIST_ID, task.getListId());
       cv.put(COL_LIST_INT_ID, task.getListIntId());
       cv.put(COL_TITLE, task.getTitle());
-      cv.put(COL_SERVER_UPDATED, task.getServerModify());
       cv.put(COL_PARENT, task.getParent());
       cv.put(COL_POSITION, task.getPosition());
       cv.put(COL_NOTES, task.getNotes());
@@ -577,7 +492,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LOCAL_DELETED, task.getLocalDeleted());
       cv.put(COL_MOVED, task.getMoved());
       int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
-      //db.close();
       bm.dataChanged();
       return updatedRow;
    }
@@ -590,7 +504,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_ID, task.getId());
       cv.put(COL_LIST_ID, listId);
       cv.put(COL_TITLE, task.getTitle());
-      cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
       cv.put(COL_PARENT, task.getParent());
       cv.put(COL_POSITION, task.getPosition());
       cv.put(COL_NOTES, task.getNotes());
@@ -615,7 +528,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LIST_ID, task.getListId());
       cv.put(COL_LIST_INT_ID, task.getListIntId());
       cv.put(COL_TITLE, task.getTitle());
-      cv.put(COL_SERVER_UPDATED, task.getServerModify());
       cv.put(COL_PARENT, task.getParent());
       cv.put(COL_POSITION, task.getPosition());
       cv.put(COL_NOTES, task.getNotes());
@@ -645,7 +557,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
       cv.put(COL_LIST_ID, listId);
       cv.put(COL_INT_ID, taskIntId);
       cv.put(COL_TITLE, task.getTitle());
-      cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
       cv.put(COL_PARENT, task.getParent());
       cv.put(COL_POSITION, task.getPosition());
       cv.put(COL_NOTES, task.getNotes());
@@ -668,7 +579,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
       ContentValues cv = new ContentValues();
       cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
       cv.put(COL_POSITION, task.getPosition());
-      int updatedRow = db.update(TABLE_NAME, cv, selection, selectionArgs);
+      db.update(TABLE_NAME, cv, selection, selectionArgs);
       bm.dataChanged();
       //db.close();
    }
@@ -687,7 +598,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
          taskId = cursor.getString(cursor.getColumnIndex(COL_ID));
          cursor.close();
       }
-      //db.close();
       return taskId;
    }
 
@@ -705,7 +615,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
          intId = cursor.getInt(cursor.getColumnIndex(COL_INT_ID));
          cursor.close();
       }
-      //db.close();
       return intId;
    }
 
@@ -713,77 +622,15 @@ public class TasksDatabase extends SQLiteOpenHelper {
       db = getWritableDB();
       String selection = COL_INT_ID + " = ? ";
       String[] selectionArgs = {String.valueOf(intId)};
-      LocalTask task = new LocalTask();
+      LocalTask task;
       Cursor cursor = db.query(TABLE_NAME, ALL_COLUMNS, selection, selectionArgs, null, null, null);
       if (cursor.getCount() != 0 && cursor.moveToFirst()) {
-         task.setId(cursor.getString(cursor.getColumnIndex(COL_ID)));
-         task.setTitle(cursor.getString(cursor.getColumnIndex(COL_TITLE)));
-         task.setParent(cursor.getString(cursor.getColumnIndex(COL_PARENT)));
-         task.setPosition(cursor.getString(cursor.getColumnIndex(COL_POSITION)));
-         task.setNotes(cursor.getString(cursor.getColumnIndex(COL_NOTES)));
-         task.setListId(cursor.getString(cursor.getColumnIndex(COL_LIST_ID)));
-         task.setListIntId(cursor.getInt(cursor.getColumnIndex(COL_LIST_INT_ID)));
-         task.setStatus(cursor.getString(cursor.getColumnIndex(COL_STATUS)));
-         task.setServerModify(cursor.getLong(cursor.getColumnIndex(COL_SERVER_UPDATED)));
-         task.setCompleted(cursor.getLong(cursor.getColumnIndex(COL_COMPLETED)));
-         task.setDue(cursor.getLong(cursor.getColumnIndex(COL_DUE)));
-         task.setDeleted((cursor.getInt(cursor.getColumnIndex(COL_DELETED)) == 1));
-         task.setHidden((cursor.getInt(cursor.getColumnIndex(COL_HIDDEN)) == 1));
-         task.setIntId(cursor.getInt(cursor.getColumnIndex(COL_INT_ID)));
-         task.setReminderNoID(cursor.getLong(cursor.getColumnIndex(COL_REMINDER)));
-         task.setReminderId(cursor.getLong(cursor.getColumnIndex(COL_REMINDER_ID)));
-         task.setRepeatMode(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_MODE)));
-         task.setRepeatDay(cursor.getInt(cursor.getColumnIndex(COL_REMINDER_REPEAT_DAY)));
-         task.setSyncStatus(cursor.getInt(cursor.getColumnIndex(COL_SYNC_STATUS)));
-         task.setLocalDeleted(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_DELETED)));
-         task.setLocalModify(cursor.getLong(cursor.getColumnIndex(COL_LOCAL_MODIFY)));
-         task.setMoved(cursor.getInt(cursor.getColumnIndex(COL_MOVED)));
-         task.setPreviousTask(cursor.getInt(cursor.getColumnIndex(COL_LOCAL_SIBLING)));
-         //db.close();
+         task = getLocalTaskFromCursor(cursor);
          cursor.close();
          return task;
       } else {
          cursor.close();
-         //db.close();
          return null;
-      }
-   }
-
-   public void updateNewTasksInBulk(HashMap<Task, LocalTask> map) {
-      db = getWritableDB();
-      db.beginTransaction();
-      LocalTask localTask;
-      List<Task> serverTasks = new ArrayList<>(map.keySet());
-      String selection = COL_INT_ID + " = ? ";
-      try {
-         for (Task task : serverTasks) {
-            localTask = map.get(task);
-            String[] selectionArgs = {String.valueOf(localTask.getIntId())};
-            ContentValues cv = new ContentValues();
-            cv.put(COL_ID, task.getId());
-            cv.put(COL_LIST_ID, localTask.getListId());
-            cv.put(COL_LIST_INT_ID, localTask.getListIntId());
-            cv.put(COL_TITLE, task.getTitle());
-            cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
-            cv.put(COL_PARENT, task.getParent());
-            cv.put(COL_POSITION, task.getPosition());
-            cv.put(COL_NOTES, task.getNotes());
-            cv.put(COL_STATUS, task.getStatus());
-            cv.put(COL_DUE, task.getDue() != null ? task.getDue().getValue() - offSet : 0);
-            cv.put(COL_COMPLETED, task.getCompleted() != null ? task.getCompleted().getValue() : 0);
-            cv.put(COL_DELETED, task.getDeleted() == null ? 0 : 1);
-            cv.put(COL_HIDDEN, task.getHidden() == null ? 0 : 1);
-            cv.put(COL_LOCAL_MODIFY, System.currentTimeMillis());
-            cv.put(COL_SYNC_STATUS, Co.SYNCED);
-            int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
-         }
-         db.setTransactionSuccessful();
-      } catch (Exception e) {
-         e.printStackTrace();
-      } finally {
-         db.endTransaction();
-         //db.close();
-         bm.dataChanged();
       }
    }
 
@@ -795,11 +642,10 @@ public class TasksDatabase extends SQLiteOpenHelper {
          for (Task task : tasks) {
             String[] selectionArgs = {task.getId()};
             ContentValues cv = new ContentValues();
-            cv.put(COL_SERVER_UPDATED, task.getUpdated() != null ? task.getUpdated().getValue() : 0);
             cv.put(COL_POSITION, task.getPosition());
             cv.put(COL_MOVED, Co.NOT_MOVED);
             cv.put(COL_SYNC_STATUS, Co.SYNCED);
-            int row = db.update(TABLE_NAME, cv, selection, selectionArgs);
+            db.update(TABLE_NAME, cv, selection, selectionArgs);
          }
          db.setTransactionSuccessful();
       } catch (Exception e) {
