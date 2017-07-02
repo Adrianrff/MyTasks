@@ -120,7 +120,7 @@ public class FirstRefreshAsync extends AsyncTask<Void, Void, Void> {
          TaskLists result = mService.tasklists().list()
                .execute();
          serverLists = result.getItems();
-         List<LocalList> localLists = mPresenter.createListDatabase(serverLists);
+         List<LocalList> localLists = mPresenter.createListsDatabase(serverLists);
          List<Task> tasks;
          if (serverLists != null && !serverLists.isEmpty()) {
             for (int i = 0; i < serverLists.size(); i++) {

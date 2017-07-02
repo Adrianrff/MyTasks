@@ -1027,20 +1027,19 @@ public class MainActivity extends AppCompatActivity
                if (task != null) {
                   task.setListId(getStringShP(Co.CURRENT_LIST_ID, null));
                   task.setListIntId(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
+                  int taskIntId = mPresenter.addTaskToDatabase(task);
+                  task.setIntId(taskIntId);
+                  if (taskIntId > 0) {
+                     adapter.addItem(task, 0);
+                     if (task.getListId() != null) {
+                        mPresenter.addTask(task);
+                     }
+                  }
                   if (task.getReminder() != 0) {
                      AlarmHelper.setOrUpdateAlarm(task, this);
                   }
                   if (task.getDue() != 0 && mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
                      AlarmHelper.setOrUpdateDefaultRemindersForTask(this, task);
-                  }
-                  task.setSyncStatus(0);
-                  int taskIntId = mPresenter.addTaskToDatabase(task);
-                  if (taskIntId > 0) {
-                     task.setIntId(taskIntId);
-                     adapter.addItem(task, 0);
-                     if (task.getListId() != null) {
-                        mPresenter.addTask(task);
-                     }
                   }
                   updateTaskCounterForDrawer(task.getListIntId(), null);
                }

@@ -177,7 +177,7 @@ public class TaskListPresenter implements Serializable {
       return mModel.getTasksFromList(intId);
    }
 
-   public List<LocalList> createListDatabase(List<TaskList> lists) {
+   public List<LocalList> createListsDatabase(List<TaskList> lists) {
       setListsInfo(lists);
       return mModel.createListsDatabase(lists);
    }

@@ -96,12 +96,13 @@ public class SignInActivity extends AppCompatActivity
       if (!isGooglePlayServicesAvailable()) {
 //         Toast.makeText(this, "Acquire Google Services (Sign in)", Toast.LENGTH_SHORT).show();
          acquireGooglePlayServices();
+      } else if (!isDeviceOnline()) {
+         Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
+
       } else if (mCredential.getSelectedAccountName() == null) {
 //         Toast.makeText(this, "Account name null, start sign in intent", Toast.LENGTH_SHORT).show();
          Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
          startActivityForResult(signInIntent, 1007);
-      } else if (!isDeviceOnline()) {
-         Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
       } else {
          EasyPermissions.requestPermissions(
                this, getString(R.string.contacts_permissions_rationale),

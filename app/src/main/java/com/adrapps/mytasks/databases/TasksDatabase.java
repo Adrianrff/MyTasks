@@ -27,7 +27,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
 
    //----------TABLE COLUMNS---------------//
    private static final String COL_INT_ID = "Int_Id";
-   //    private static final String COL_SORT_ID = "Sort_Id";
    private static final String COL_ID = "Id";
    private static final String COL_LIST_ID = "List_id";
    private static final String COL_LIST_INT_ID = "List_int_id";
