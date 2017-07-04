@@ -1038,7 +1038,7 @@ public class MainActivity extends AppCompatActivity
                   if (task.getReminder() != 0) {
                      AlarmHelper.setOrUpdateAlarm(task, this);
                   }
-                  if (task.getDue() != 0 && mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
+                  if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
                      AlarmHelper.setOrUpdateDefaultRemindersForTask(this, task);
                   }
                   updateTaskCounterForDrawer(task.getListIntId(), null);
