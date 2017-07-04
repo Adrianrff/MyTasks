@@ -37,6 +37,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -77,6 +78,8 @@ import com.squareup.leakcanary.RefWatcher;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -110,6 +113,7 @@ public class MainActivity extends AppCompatActivity
    private LocalTask taskShownInBottomSheet;
    private int taskShownInBottomSheetPos;
    private boolean settingsItemSelected, newListItemSelected;
+   private static final String TAG = "MainActivity";
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -1067,7 +1071,18 @@ public class MainActivity extends AppCompatActivity
             break;
 
          case R.id.test:
-            showToast("Default reminder set: " + String.valueOf(getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)));
+            List<LocalTask> tasks = mPresenter.getTasksFromList(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
+            Collections.sort(tasks, new Comparator<LocalTask>() {
+               @Override
+               public int compare(LocalTask o1, LocalTask o2) {
+                  return (int) (o2.getDue() - o1.getDue());
+               }
+            });
+            for (int i = 0; i < tasks.size(); i++) {
+               Log.d(TAG, tasks.get(i).getTitle() + " - " +
+                     DateUtils.getRelativeTimeSpanString(this, tasks.get(i).getDue(), true));
+//                     DateHelper.millisToDateOnly(tasks.get(i).getDue()));
+            }
             break;
       }
       return super.onOptionsItemSelected(item);

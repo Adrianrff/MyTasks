@@ -8,7 +8,7 @@ import com.google.api.services.tasks.model.Task;
 import java.io.Serializable;
 import java.util.TimeZone;
 
-public class LocalTask implements Serializable, Comparable {
+public class LocalTask extends ListItem implements Serializable, Comparable {
 
     private String id, title, parent, position, notes, status, listId;
     private int moved, localDeleted, intId, previousTask, syncStatus, repeatMode,
@@ -331,4 +331,9 @@ public class LocalTask implements Serializable, Comparable {
     public int compareTo(@NonNull Object o) {
         return 0;
     }
+
+   @Override
+   public int getType() {
+      return ListItem.TYPE_TASK;
+   }
 }

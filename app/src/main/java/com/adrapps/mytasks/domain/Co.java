@@ -22,6 +22,9 @@ public class Co {
    public static final String NO_API_EDIT = "No api edit";
    public static final String SAVE_ON_BACK_PRESSED_PREF_KEY = "save on back pressed";
    public static final String CURRENT_LIST_INT_ID = "List int id";
+   public static final int SORT_CREATION = 0;
+   public static final int SORT_DUE_DATE = 1;
+   public static final int SORT_TITLE = 2;
 
 
    public static String OP_UPDATE_STATUS;
