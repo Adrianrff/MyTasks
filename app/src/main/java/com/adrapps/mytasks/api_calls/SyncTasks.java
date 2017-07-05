@@ -4,7 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.adrapps.mytasks.BuildConfig;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalList;
@@ -102,7 +104,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          mPresenter.showProgress(false);
          mPresenter.showSwipeRefreshProgress(false);
       }
-      mPresenter.showProgress(false);
       if (mLastError != null) {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast("Google Play Services is not available");
@@ -127,14 +128,9 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
 
          //GET SERVER LISTS
          List<TaskList> serverLists = mService.tasklists().list().execute().getItems();
-//         List<String> serverListsIds = new ArrayList<>();
          List<LocalList> localLists = mPresenter.getLocalLists();
          HashMap<String, LocalList> localListsMap = ObjectHelper.getLocalListIdMap(localLists);
          List<String> handledListIds = new ArrayList<>();
-//         for (int i = 0; i < serverLists.size(); i++) {
-//            serverListsIds.add(serverLists.get(i).getId());
-//         }
-
          JsonBatchCallback<Void> serverListDeleteCallback = new JsonBatchCallback<Void>() {
             @Override
             public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
@@ -277,16 +273,15 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
          //Check if lists are synced
          if (ObjectHelper.areListsSynced(localLists, serverLists)) {
             List<String> handledTaskIds = new ArrayList<>();
-//         SparseArray<String> localListIntIdToIdMap = ObjectHelper.getLocalListIntIdToIdMap(localLists);
-//         SparseArray<String> localTaskIntIdToIdMap = ObjectHelper.getLocalTaskIntIdToIdMap(localTasks);
             localListsMap = ObjectHelper.getLocalListIdMap(localLists);
+
             //Get server and local tasks from list
             for (int i = 0; i < serverLists.size(); i++) {
                final String listId = serverLists.get(i).getId().trim();
                int listIntId = localListsMap.get(listId).getIntId();
                List<Task> serverTasksFromList = mService.tasks().list(listId).execute().getItems();
                List<LocalTask> localTasksFromList = mPresenter.getTasksFromList(listIntId);
-               if (serverTasksFromList != null) {
+               if (serverTasksFromList != null && !serverTasksFromList.isEmpty()) {
 
                   //Iterate through server tasks
                   for (int j = 0; j < serverTasksFromList.size(); j++) {
@@ -307,7 +302,8 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                      } else {
                         final LocalTask localTask = localTaskMap.get(taskId);
                         if (localTask != null) {
-                           //Task is marked deleted. Delete it and continue with next task
+                           //Task is marked deleted regardless of where it was last modified,
+                           // delete it and continue with next task
                            if (localTask.getLocalDeleted() == Co.LOCAL_DELETED) {
                               mPresenter.deleteTaskFromDatabase(localTask.getIntId());
                               mService.tasks().delete(listId, taskId).queue(requests, taskDeleteCallBack);
@@ -391,7 +387,7 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         mPresenter.deleteTaskFromDatabase(taskIntId);
                      }
                   } else {
-                     //Task is not in server. Delete it
+                     //Task is not in server so it was probably delete in server. Delete it in db
                      if (!handledListIds.contains(task.getId())) {
                         mPresenter.deleteTaskFromDatabase(taskIntId);
                      }
@@ -402,7 +398,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             if (requests.size() > 0) {
                requests.execute();
             }
-
 
          } else {
             Log.d(TAG, "syncAll: LISTS ARE NOT SYNCED!!!");

@@ -1,5 +1,9 @@
 package com.adrapps.mytasks.helpers;
 
+import android.content.Context;
+import android.text.format.DateUtils;
+
+import com.adrapps.mytasks.R;
 import com.google.api.client.util.DateTime;
 
 import java.text.SimpleDateFormat;
@@ -31,6 +35,26 @@ public class DateHelper {
       }
       SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
       return sdf.format(calendar.getTime());
+   }
+
+   public static String millisToRelativeDateOnly(Context context, long timeInMills) {
+      if (DateUtils.isToday(timeInMills)) {
+         return context.getString(R.string.today);
+      } else if (isTomorrow(timeInMills)) {
+         return context.getString(R.string.tomorrow);
+      } else {
+         Calendar calendar = Calendar.getInstance();
+         Calendar calToday = Calendar.getInstance();
+         calendar.setTimeInMillis(timeInMills);
+         String format;
+         if (calendar.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)) {
+            format = "EEEE d MMMM";
+         } else {
+            format = "EEEE d MMMM, yyyy";
+         }
+         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+         return sdf.format(calendar.getTime());
+      }
    }
 
    public static String millisToFull(long timeInMills) {

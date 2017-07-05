@@ -37,7 +37,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -207,9 +206,11 @@ public class MainActivity extends AppCompatActivity
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
       toggle.setToolbarNavigationClickListener(this);
       toggle.syncState();
+
       Glide.with(this)
             .load(getStringShP(Co.USER_PIC_URL, null))
-//            .placeholder(placeHolderUrl)
+            .placeholder(R.drawable.default_user_pic_24dp)
+            .error(R.drawable.default_user_pic_24dp)
             .into(profilePicContainer);
       userName.setText(getStringShP(Co.USER_NAME, null));
       userEmail.setText(getStringShP(Co.USER_EMAIL, null));
@@ -604,11 +605,6 @@ public class MainActivity extends AppCompatActivity
       if (progressDialog != null && progressDialog.isShowing()) {
          progressDialog.dismiss();
       }
-   }
-
-   @Override
-   public boolean isDestroyed() {
-      return super.isDestroyed();
    }
 
    @Override
@@ -1080,8 +1076,7 @@ public class MainActivity extends AppCompatActivity
             });
             for (int i = 0; i < tasks.size(); i++) {
                Log.d(TAG, tasks.get(i).getTitle() + " - " +
-                     DateUtils.getRelativeTimeSpanString(this, tasks.get(i).getDue(), true));
-//                     DateHelper.millisToDateOnly(tasks.get(i).getDue()));
+                     DateHelper.millisToRelativeDateOnly(this, tasks.get(i).getDue()));
             }
             break;
       }
