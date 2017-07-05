@@ -210,24 +210,13 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          holder.dueDateTextView.setText(R.string.no_due_date);
       } else {
          holder.dueDateTextView.setText(DateHelper.millisToRelativeDateOnly(context, cTask.getDue()));
+         holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
+         holder.dueDateTextView.setTextColor(holder.normalDueColor);
          if (DateUtils.isToday(cTask.getDue())) {
-            holder.dueDateTextView.setTextColor(holder.normalDueColor);
             holder.dueDateTextView.setTypeface(null, Typeface.BOLD);
-//            holder.dueDateTextView.setText(R.string.today);
-         } else if (DateHelper.isTomorrow(cTask.getDue())) {
-            holder.dueDateTextView.setTextColor(holder.normalDueColor);
-            holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
-//            holder.dueDateTextView.setText(R.string.tomorrow);
          } else if (DateHelper.isInThePast(cTask.getDue())) {
-//            holder.dueDateTextView.setText(DateHelper.millisToDateOnly(cTask.getDue())
-//                  + " " + context.getString(R.string.overdue_append));
             holder.dueDateTextView.append(" " + context.getString(R.string.overdue_append));
-            holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
             holder.dueDateTextView.setTextColor(Color.RED);
-         } else {
-            holder.dueDateTextView.setTextColor(holder.normalDueColor);
-            holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
-//            holder.dueDateTextView.setText(DateHelper.millisToDateOnly(cTask.getDue()));
          }
       }
       holder.taskCheckbox.setOnCheckedChangeListener(null);
