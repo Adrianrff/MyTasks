@@ -1,0 +1,3 @@
+The Json COnfig file needs to be updated!!!!!
+
+keytool -listId -v -keystore D:\Adrian\Android\MyTasks\MyTasksKey.jks -alias key0
