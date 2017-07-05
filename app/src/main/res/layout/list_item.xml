@@ -34,13 +34,11 @@
         android:visibility="visible"
         app:srcCompat="@drawable/notes_small"/>
 
-
     <TextView
         android:id="@+id/textViewName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
-
         android:layout_toEndOf="@+id/notesIconInTitle"
         android:layout_toLeftOf="@+id/notificationImage"
         android:layout_toRightOf="@+id/notesIconInTitle"
@@ -52,7 +50,6 @@
         android:textColor="@color/colorPrimary"
         android:textStyle="bold"/>
 
-
     <TextView
         android:id="@+id/textViewDate"
         android:layout_width="match_parent"
@@ -60,7 +57,6 @@
         android:layout_alignLeft="@+id/notesIconInTitle"
         android:layout_alignStart="@+id/notesIconInTitle"
         android:layout_below="@id/textViewName"
-
         android:layout_toRightOf="@+id/taskCheckbox"
         android:layout_toEndOf="@+id/taskCheckbox"
         android:ellipsize="end"
