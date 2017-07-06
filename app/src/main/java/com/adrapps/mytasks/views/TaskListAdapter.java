@@ -213,7 +213,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          p.setMargins(margin + marginToAdd, 0, 0, 0);
          view.requestLayout();
       }
-
    }
 
    public void decreaseMargin(View view, int position) {
