@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,9 +49,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+
 class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewHolder>
       implements ItemTouchHelperAdapter {
 
+   private final String TAG = "TaskListAdapter";
    private Context context;
    private List<LocalTask> tasks;
    private TaskListPresenter mPresenter;
@@ -61,6 +64,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    private ModalMultiSelectorCallback mActionModeCallback;
    private LinkedHashMap<LocalTask, String> moveMap;
    private boolean moved;
+   private RecyclerView mRecyclerView;
 
 
    TaskListAdapter(final Context context, List<LocalTask> tasks, TaskListPresenter presenter) {
@@ -68,7 +72,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       this.context = context;
       this.tasks = getSortedTasks(tasks);
       mMultiSelector = new MultiSelector();
-
       mActionModeCallback
             = new ModalMultiSelectorCallback(mMultiSelector) {
 
@@ -100,8 +103,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                mMultiSelector.clearSelections();
                return true;
             }
-            if (menuItem.getItemId() == R.id.make_child){
-               if (mMultiSelector.getSelectedPositions().size() == 1){
+            if (menuItem.getItemId() == R.id.make_child) {
+               if (mMultiSelector.getSelectedPositions().size() == 1) {
                   makeChild(mMultiSelector.getSelectedPositions().get(0));
                }
             }
@@ -121,30 +124,110 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             mPresenter.swipeRefreshSetEnabled(true);
             mPresenter.showFab(true);
             Co.IS_MULTISELECT_ENABLED = false;
-            if (moved){
+            if (moved) {
                saveTasksPositions();
             }
-            if (!moveMap.isEmpty()){
+            if (!moveMap.isEmpty()) {
                mPresenter.moveTasks(moveMap);
             }
          }
       };
    }
 
+   @Override
+   public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
+      LocalTask cTask = tasks.get(position);
+      holder.setSelectionModeBackgroundDrawable(getHighlightedBackground());
+      if (!cTask.getTitle().equals("")) {
+         holder.taskTitleTextView.setText(cTask.getTitle());
+      } else {
+         holder.taskTitleTextView.setText(R.string.no_task_name);
+      }
+      if (cTask.getParent() != null){
+         increaseMargin(holder);
+      }
+      holder.notesTitleIcon.setVisibility(cTask.getNotes() == null ? View.GONE : View.VISIBLE);
+      if (cTask.getDue() == 0) {
+         holder.dueDateTextView.setTextColor(holder.normalDueColor);
+         holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
+         holder.dueDateTextView.setText(R.string.no_due_date);
+      } else {
+         holder.dueDateTextView.setText(DateHelper.millisToRelativeDateOnly(context, cTask.getDue()));
+         holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
+         holder.dueDateTextView.setTextColor(holder.normalDueColor);
+         if (DateUtils.isToday(cTask.getDue())) {
+            holder.dueDateTextView.setTypeface(null, Typeface.BOLD);
+         } else if (DateHelper.isInThePast(cTask.getDue())) {
+            holder.dueDateTextView.append(" " + context.getString(R.string.overdue_append));
+            holder.dueDateTextView.setTextColor(Color.RED);
+         }
+      }
+      holder.taskCheckbox.setOnCheckedChangeListener(null);
+      if (cTask.getStatus() == null) {
+         cTask.setStatus(Co.TASK_NEEDS_ACTION);
+      }
+      if (cTask.getStatus().equals(Co.TASK_COMPLETED)) {
+         holder.taskCheckbox.setChecked(true);
+         holder.taskTitleTextView.setPaintFlags(holder.taskTitleTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+         holder.dueDateTextView.setPaintFlags(holder.dueDateTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+         holder.dueDateTextView.setTextColor(Color.GRAY);
+         holder.taskTitleTextView.setTextColor(Color.GRAY);
+      } else {
+         holder.taskTitleTextView.setTextColor(holder.normalTaskColor);
+         holder.taskTitleTextView.setPaintFlags(0);
+         holder.dueDateTextView.setPaintFlags(0);
+         holder.taskCheckbox.setChecked(false);
+      }
+      holder.taskCheckbox.setOnCheckedChangeListener(holder);
+      if (cTask.getReminder() != 0) {
+         holder.notificationImage.setVisibility(View.VISIBLE);
+      } else {
+         holder.notificationImage.setVisibility(View.GONE);
+      }
+
+   }
+
+   @Override
+   public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+      super.onAttachedToRecyclerView(recyclerView);
+      mRecyclerView = recyclerView;
+   }
+
    private void makeChild(int position) {
-      if (position > 0){
+      if (position > 0) {
          LocalTask task = tasks.get(position);
          task.setParent(tasks.get(position - 1).getId());
          task.setLocalModify();
          mPresenter.updateTaskParentInDb(task, tasks.get(position - 1).getId());
          notifyItemChanged(position);
-         //TODO make server call
+//         //TODO make server call
+      }
+   }
+
+   private void increaseMargin(TaskListViewHolder holder) {
+      View view = holder.parentView;
+      if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+         ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+         int margin = p.leftMargin;
+         int marginToAdd = 32;
+         p.setMargins(margin + marginToAdd, 0, 0, 0);
+         view.requestLayout();
+      }
+   }
+
+   public void decreaseMargin(View view, int position) {
+      if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+         ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+         int margin = p.leftMargin;
+         int marginToAdd = -32;
+         if(margin + marginToAdd > 0) p.setMargins(margin + marginToAdd, 0, 0, 0);
+         view.requestLayout();
       }
    }
 
    private void saveTasksPositions() {
       List<Integer> listOfTasksId = new ArrayList<>();
-      for (LocalTask task: tasks){
+      for (LocalTask task : tasks) {
          listOfTasksId.add(task.getIntId());
       }
       Gson gson = new Gson();
@@ -203,8 +286,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                }
             }
          }
-         if (!tasksCopy.isEmpty()){
-            for (int i = tasksCopy.size() - 1; i >= 0; i--){
+         if (!tasksCopy.isEmpty()) {
+            for (int i = tasksCopy.size() - 1; i >= 0; i--) {
                sortedTasks.add(0, tasksCopy.get(i));
             }
          }
@@ -214,56 +297,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       return sortedTasks;
    }
 
-   @Override
-   public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
-      LocalTask cTask = tasks.get(position);
-      holder.setSelectionModeBackgroundDrawable(getHighlightedBackground());
-      if (!cTask.getTitle().equals("")) {
-         holder.taskTitleTextView.setText(cTask.getTitle());
-      } else {
-         holder.taskTitleTextView.setText(R.string.no_task_name);
-      }
-      holder.indentView.setVisibility(cTask.getParent() != null ? View.VISIBLE : View.GONE);
-      holder.notesTitleIcon.setVisibility(cTask.getNotes() == null ? View.GONE : View.VISIBLE);
-      if (cTask.getDue() == 0) {
-         holder.dueDateTextView.setTextColor(holder.normalDueColor);
-         holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
-         holder.dueDateTextView.setText(R.string.no_due_date);
-      } else {
-         holder.dueDateTextView.setText(DateHelper.millisToRelativeDateOnly(context, cTask.getDue()));
-         holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
-         holder.dueDateTextView.setTextColor(holder.normalDueColor);
-         if (DateUtils.isToday(cTask.getDue())) {
-            holder.dueDateTextView.setTypeface(null, Typeface.BOLD);
-         } else if (DateHelper.isInThePast(cTask.getDue())) {
-            holder.dueDateTextView.append(" " + context.getString(R.string.overdue_append));
-            holder.dueDateTextView.setTextColor(Color.RED);
-         }
-      }
-      holder.taskCheckbox.setOnCheckedChangeListener(null);
-      if (cTask.getStatus() == null) {
-         cTask.setStatus(Co.TASK_NEEDS_ACTION);
-      }
-      if (cTask.getStatus().equals(Co.TASK_COMPLETED)) {
-         holder.taskCheckbox.setChecked(true);
-         holder.taskTitleTextView.setPaintFlags(holder.taskTitleTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-         holder.dueDateTextView.setPaintFlags(holder.dueDateTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-         holder.dueDateTextView.setTextColor(Color.GRAY);
-         holder.taskTitleTextView.setTextColor(Color.GRAY);
-      } else {
-         holder.taskTitleTextView.setTextColor(holder.normalTaskColor);
-         holder.taskTitleTextView.setPaintFlags(0);
-         holder.dueDateTextView.setPaintFlags(0);
-         holder.taskCheckbox.setChecked(false);
-      }
-      holder.taskCheckbox.setOnCheckedChangeListener(holder);
-      if (cTask.getReminder() != 0) {
-         holder.notificationImage.setVisibility(View.VISIBLE);
-      } else {
-         holder.notificationImage.setVisibility(View.GONE);
-      }
 
-   }
 
    private StateListDrawable getHighlightedBackground() {
       ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(context, R.color.colorLightGray));
@@ -370,7 +404,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    }
 
 
-
    //------------------------VIEW HOLDER-------------------------------///
    class TaskListViewHolder extends SwappingHolder implements View.OnClickListener,
          CompoundButton.OnCheckedChangeListener, View.OnLongClickListener, SelectableHolder,
@@ -385,6 +418,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       TaskListPresenter mPresenter;
       ColorStateList normalTaskColor;
       ColorStateList normalDueColor;
+      RelativeLayout parentView;
+
+
 
       TaskListViewHolder(View v, Context context, TaskListPresenter presenter) {
          super(v, mMultiSelector);
@@ -394,7 +430,8 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          v.setOnLongClickListener(this);
          dueDateTextView = (TextView) v.findViewById(R.id.textViewDate);
          notesTitleIcon = (ImageView) v.findViewById(R.id.notesIconInTitle);
-         indentView = (Space) v.findViewById(R.id.indentSpace);
+         parentView = (RelativeLayout) v.findViewById(R.id.itemParent);
+//         indentView = (Space) v.findViewById(R.id.indentSpace);
          taskTitleTextView = (TextView) v.findViewById(R.id.textViewName);
          notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
          taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
@@ -419,9 +456,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             cTask.setSyncStatus(Co.EDITED_NOT_SYNCED);
             cTask.setCompleted(System.currentTimeMillis());
             mPresenter.updateExistingTaskFromLocalTask(cTask);
-            AlarmHelper.cancelTaskReminder(cTask,context);
-            if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true)){
-               List<LocalTask> task =  new ArrayList<>();
+            AlarmHelper.cancelTaskReminder(cTask, context);
+            if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true)) {
+               List<LocalTask> task = new ArrayList<>();
                task.add(cTask);
                AlarmHelper.cancelDefaultRemindersForTasks(context, task);
             }
@@ -454,11 +491,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                   dueDateTextView.setTypeface(null, Typeface.NORMAL);
                }
             }
-            if (cTask.getReminder() != 0){
+            if (cTask.getReminder() != 0) {
                AlarmHelper.setOrUpdateAlarm(cTask, context);
             }
             if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true) &&
-                  cTask.getDue()!=0 && cTask.getDue() > Calendar.getInstance().getTimeInMillis()){
+                  cTask.getDue() != 0 && cTask.getDue() > Calendar.getInstance().getTimeInMillis()) {
                AlarmHelper.setOrUpdateDefaultRemindersForTask(context, cTask);
             }
             mPresenter.updateTaskStatusInDb(cTask.getIntId(), Co.TASK_NEEDS_ACTION);
@@ -483,7 +520,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             newPos = getAdapterPosition();
             String prevTaskId = null;
             LocalTask movedTask = tasks.get(newPos);
-            if (newPos > 0){
+            if (newPos > 0) {
                prevTaskId = tasks.get(newPos - 1).getId();
             }
             moveMap.put(movedTask, prevTaskId);
@@ -504,7 +541,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                mMultiSelector.setSelectable(false);
                mActionMode.finish();
             } else {
-               if (selectedQty == 1){
+               if (selectedQty == 1) {
                   mActionMode.getMenu().findItem(R.id.make_child).setVisible(true);
                } else {
                   mActionMode.getMenu().findItem(R.id.make_child).setVisible(false);
@@ -536,6 +573,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             return false;
          }
       }
+
 
    }
 }

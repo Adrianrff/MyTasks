@@ -68,6 +68,7 @@ import com.adrapps.mytasks.other.MyApplication;
 import com.adrapps.mytasks.preferences.SettingsActivity;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
@@ -210,7 +211,8 @@ public class MainActivity extends AppCompatActivity
       Glide.with(this)
             .load(getStringShP(Co.USER_PIC_URL, null))
             .placeholder(R.drawable.default_user_pic_24dp)
-            .error(R.drawable.default_user_pic_24dp)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .skipMemoryCache(false)
             .into(profilePicContainer);
       userName.setText(getStringShP(Co.USER_NAME, null));
       userEmail.setText(getStringShP(Co.USER_EMAIL, null));
