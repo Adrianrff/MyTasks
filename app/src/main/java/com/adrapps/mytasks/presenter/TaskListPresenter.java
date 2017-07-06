@@ -489,4 +489,8 @@ public class TaskListPresenter implements Serializable {
    public void updateTaskCounterForDrawer(int listIntId, MenuItem listItem) {
       getView().updateTaskCounterForDrawer(listIntId, listItem);
    }
+
+   public void updateTaskParentInDb(LocalTask task, String parent) {
+      mModel.updateTaskParentInDb(task, parent);
+   }
 }

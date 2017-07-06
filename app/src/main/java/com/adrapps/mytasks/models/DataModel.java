@@ -97,6 +97,11 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
+   public void updateTaskParentInDb(LocalTask task, String parent) {
+      tasksDb.updateTaskParent(task, parent);
+   }
+
+   @Override
    public List<String> getListsTitles() {
       return listsDb.getListsTitles();
    }

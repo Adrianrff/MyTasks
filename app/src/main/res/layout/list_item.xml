@@ -11,15 +11,25 @@
     android:paddingStart="@dimen/full_margin"
     android:paddingTop="14dp">
 
+    <android.support.v4.widget.Space
+        android:id="@+id/indentSpace"
+        android:layout_width="12dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:visibility="visible"/>
+
     <CheckBox
         android:id="@+id/taskCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_toEndOf="@+id/indentSpace"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_marginRight="@dimen/half_margin"
         android:layout_marginEnd="@dimen/half_margin"
-        android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/indentSpace"/>
 
     <ImageView
         android:id="@+id/notesIconInTitle"

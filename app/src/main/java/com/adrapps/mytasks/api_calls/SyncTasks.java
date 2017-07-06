@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.adrapps.mytasks.BuildConfig;
 import com.adrapps.mytasks.R;
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalList;
@@ -324,6 +322,22 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                               } else {
                                  taskToUpdate.setStatus(Co.TASK_NEEDS_ACTION);
                                  taskToUpdate.setCompleted(null);
+                              }
+                              if (localTask.getParent() != null){
+                                 mService.tasks().move(listId, taskId).setParent(localTask.getParent()).queue(requests, new JsonBatchCallback<Task>() {
+                                    @Override
+                                    public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders) throws IOException {
+                                       Log.d(TAG, "onFailure: Fail to make subtask");
+                                    }
+
+                                    @Override
+                                    public void onSuccess(Task task, HttpHeaders responseHeaders) throws IOException {
+                                       Log.d(TAG, "onSuccess: Task " + task.getTitle() +
+                                             " successfully made subtask of " + task.getParent());
+
+                                    }
+                                 });
+                                 taskToUpdate.setParent(localTask.getParent());
                               }
                               mService.tasks().update(listId, taskId, taskToUpdate).queue(requests, new JsonBatchCallback<Task>() {
                                  @Override

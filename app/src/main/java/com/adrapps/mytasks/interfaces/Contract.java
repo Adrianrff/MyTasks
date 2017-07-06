@@ -214,6 +214,8 @@ public class Contract {
       void updateTaskStatusInDb(int intId, String newStatus);
 
       LocalTask getTask(int taskIntId);
+
+      void updateTaskParentInDb(LocalTask task, String parent);
    }
 
 

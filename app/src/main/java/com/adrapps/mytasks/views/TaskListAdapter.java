@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.Space;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
@@ -92,11 +93,17 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 
          @Override
          public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+
             if (menuItem.getItemId() == R.id.delete_items) {
                actionMode.finish();
                deleteItems();
                mMultiSelector.clearSelections();
                return true;
+            }
+            if (menuItem.getItemId() == R.id.make_child){
+               if (mMultiSelector.getSelectedPositions().size() == 1){
+                  makeChild(mMultiSelector.getSelectedPositions().get(0));
+               }
             }
             return false;
          }
@@ -104,8 +111,10 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          @Override
          public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
             return super.onPrepareActionMode(actionMode, menu);
+
          }
 
+         //TODO Finish implementing making subtasks
          @Override
          public void onDestroyActionMode(ActionMode actionMode) {
             super.onDestroyActionMode(actionMode);
@@ -120,6 +129,17 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             }
          }
       };
+   }
+
+   private void makeChild(int position) {
+      if (position > 0){
+         LocalTask task = tasks.get(position);
+         task.setParent(tasks.get(position - 1).getId());
+         task.setLocalModify();
+         mPresenter.updateTaskParentInDb(task, tasks.get(position - 1).getId());
+         notifyItemChanged(position);
+         //TODO make server call
+      }
    }
 
    private void saveTasksPositions() {
@@ -203,6 +223,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       } else {
          holder.taskTitleTextView.setText(R.string.no_task_name);
       }
+      holder.indentView.setVisibility(cTask.getParent() != null ? View.VISIBLE : View.GONE);
       holder.notesTitleIcon.setVisibility(cTask.getNotes() == null ? View.GONE : View.VISIBLE);
       if (cTask.getDue() == 0) {
          holder.dueDateTextView.setTextColor(holder.normalDueColor);
@@ -355,6 +376,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          CompoundButton.OnCheckedChangeListener, View.OnLongClickListener, SelectableHolder,
          ItemTouchHelperViewHolder {
 
+      Space indentView;
       ImageView notesTitleIcon;
       TextView taskTitleTextView, dueDateTextView;
       ImageView notificationImage;
@@ -372,6 +394,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          v.setOnLongClickListener(this);
          dueDateTextView = (TextView) v.findViewById(R.id.textViewDate);
          notesTitleIcon = (ImageView) v.findViewById(R.id.notesIconInTitle);
+         indentView = (Space) v.findViewById(R.id.indentSpace);
          taskTitleTextView = (TextView) v.findViewById(R.id.textViewName);
          notificationImage = (ImageView) v.findViewById(R.id.notificationImage);
          taskCheckbox = (CheckBox) v.findViewById(R.id.taskCheckbox);
@@ -480,9 +503,14 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             if (selectedQty == 0) {
                mMultiSelector.setSelectable(false);
                mActionMode.finish();
-               return;
+            } else {
+               if (selectedQty == 1){
+                  mActionMode.getMenu().findItem(R.id.make_child).setVisible(true);
+               } else {
+                  mActionMode.getMenu().findItem(R.id.make_child).setVisible(false);
+               }
+               mActionMode.setTitle(String.valueOf(selectedQty) + " " + text);
             }
-            mActionMode.setTitle(String.valueOf(selectedQty) + " " + text);
          }
       }
 

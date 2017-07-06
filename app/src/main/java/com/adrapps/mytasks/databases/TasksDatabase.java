@@ -694,6 +694,17 @@ public class TasksDatabase extends SQLiteOpenHelper {
          bm.dataChanged();
       }
    }
+
+   public void updateTaskParent(LocalTask task, String parent) {
+      db = getWritableDB();
+      String selection = COL_INT_ID + " = ? ";
+      String[] selectionArgs = {String.valueOf(task.getIntId())};
+      ContentValues cv = new ContentValues();
+      cv.put(COL_PARENT, parent);
+      cv.put(COL_LOCAL_MODIFY, task.getLocalModify());
+      db.update(TABLE_NAME, cv, selection, selectionArgs);
+      bm.dataChanged();
+   }
 }
 
 
