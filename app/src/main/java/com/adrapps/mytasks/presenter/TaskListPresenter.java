@@ -404,7 +404,7 @@ public class TaskListPresenter implements Serializable {
    }
 
    public List<LocalTask> getAllTasks() {
-      return mModel.getLocalTasksFromDB();
+      return mModel.getLocalTasks();
    }
 
    public void deleteTasks(List<LocalTask> tasks) {

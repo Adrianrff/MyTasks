@@ -83,9 +83,7 @@ public class AddTask extends AsyncTask<LocalTask, Void, Void> {
          if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
             mPresenter.showToast(mPresenter.getString(R.string.g_services_not_available));
          } else if (mLastError instanceof UserRecoverableAuthIOException) {
-//                mPresenter.showToast("The API has no authorization");
             mPresenter.requestApiPermission(mLastError);
-
          } else {
             mPresenter.showToast("The following error occurred:\n"
                   + mLastError.getMessage());

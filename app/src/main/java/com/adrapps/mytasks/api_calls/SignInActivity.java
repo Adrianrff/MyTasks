@@ -14,7 +14,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -89,18 +88,16 @@ public class SignInActivity extends AppCompatActivity
       mProgress.setMessage(getString(R.string.request_api_authorization));
       mGoogleApiClient = GoogleApiHelper.getClient(getApplicationContext());
       mGoogleApiClient.connect();
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
    }
 
    private void signIn() {
-//      Toast.makeText(this, "Sign in called", Toast.LENGTH_SHORT).show();
       if (!isGooglePlayServicesAvailable()) {
-//         Toast.makeText(this, "Acquire Google Services (Sign in)", Toast.LENGTH_SHORT).show();
          acquireGooglePlayServices();
       } else if (!isDeviceOnline()) {
          Toast.makeText(this, R.string.no_internet_toast, Toast.LENGTH_LONG).show();
 
       } else if (mCredential.getSelectedAccountName() == null) {
-//         Toast.makeText(this, "Account name null, start sign in intent", Toast.LENGTH_SHORT).show();
          Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
          startActivityForResult(signInIntent, 1007);
       } else {
@@ -122,7 +119,6 @@ public class SignInActivity extends AppCompatActivity
       super.onActivityResult(requestCode, resultCode, data);
       switch (requestCode) {
          case Co.REQUEST_GOOGLE_PLAY_SERVICES:
-//            Toast.makeText(this, "onActivityResult No Google services", Toast.LENGTH_SHORT).show();
             if (resultCode != RESULT_OK) {
                Toast.makeText(this, getString(R.string.requires_Google_Services_message),
                      Toast.LENGTH_SHORT).show();
@@ -131,7 +127,6 @@ public class SignInActivity extends AppCompatActivity
 
          case Co.REQUEST_AUTHORIZATION:
             if (resultCode == RESULT_OK) {
-//               Toast.makeText(this, "onActivityResult request auth", Toast.LENGTH_SHORT).show();
                SharedPreferences prefs =
                      PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                SharedPreferences.Editor editor = prefs.edit();
@@ -145,17 +140,13 @@ public class SignInActivity extends AppCompatActivity
 
          case 1007:
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-//            Toast.makeText(this, result.toString(), Toast.LENGTH_SHORT).show();
-//            Toast.makeText(this, "onActivityResult 1007", Toast.LENGTH_SHORT).show();
             if (result.isSuccess()) {
-//               Toast.makeText(this, "1007 result success", Toast.LENGTH_SHORT).show();
                SharedPreferences prefs =
                      PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                SharedPreferences.Editor editor = prefs.edit();
                editor.putBoolean(Co.IS_FIRST_LAUNCH, false);
                GoogleSignInAccount acct = result.getSignInAccount();
                if (acct != null) {
-//                  Toast.makeText(this, "1007 account not null", Toast.LENGTH_SHORT).show();
                   Account account = acct.getAccount();
                   editor.putString(Co.USER_EMAIL, account != null ? account.name : null);
                   editor.putString(Co.USER_NAME, acct.getDisplayName());
@@ -173,16 +164,6 @@ public class SignInActivity extends AppCompatActivity
       }
    }
 
-   @Override
-   protected void onStop() {
-      super.onStop();
-//      if (mGoogleApiClient != null){
-//         if (mGoogleApiClient.isConnected()){
-//            mGoogleApiClient.disconnect();
-//         }
-//      }
-   }
-
 
    @Override
    public void onRequestPermissionsResult(int requestCode,
@@ -191,19 +172,16 @@ public class SignInActivity extends AppCompatActivity
       super.onRequestPermissionsResult(requestCode, permissions, grantResults);
       EasyPermissions.onRequestPermissionsResult(
             requestCode, permissions, grantResults, this);
-//      Toast.makeText(this, "onRequestPerm", Toast.LENGTH_SHORT).show();
    }
 
    @Override
    public void onPermissionsGranted(int requestCode, List<String> list) {
-//      Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
       FirstAPICall firstCall = new FirstAPICall(this, mCredential);
       firstCall.execute();
    }
 
    @Override
    public void onPermissionsDenied(int requestCode, List<String> list) {
-//      Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
       if (EasyPermissions.somePermissionPermanentlyDenied(this, list)) {
          new AppSettingsDialog.Builder(this, getString(R.string.contacts_permissions_rationale)).build().show();
       }
@@ -245,7 +223,6 @@ public class SignInActivity extends AppCompatActivity
    }
 
    private void goToTaskListActivity() {
-//      Toast.makeText(this, "goToTaskListActivity", Toast.LENGTH_SHORT).show();
       Intent i = new Intent(this, MainActivity.class);
       i.putExtra(Co.IS_FIRST_INIT, true);
       startActivity(i);
@@ -260,12 +237,10 @@ public class SignInActivity extends AppCompatActivity
 
    @Override
    public void onConnected(@Nullable Bundle bundle) {
-//      Toast.makeText(this, "connected", Toast.LENGTH_SHORT).show();
    }
 
    @Override
    public void onConnectionSuspended(int i) {
-//      Toast.makeText(this, "Connection suspended", Toast.LENGTH_SHORT).show();
       Log.d("SignIn", "onConnectionSuspended: suspended");
    }
 
@@ -277,7 +252,6 @@ public class SignInActivity extends AppCompatActivity
       Context context;
 
       private FirstAPICall(Context context, GoogleAccountCredential credential) {
-//         Toast.makeText(SignInActivity.this, "FirstApi constructor", Toast.LENGTH_SHORT).show();
          this.context = context;
          HttpTransport transport = AndroidHttp.newCompatibleTransport();
          JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -309,7 +283,7 @@ public class SignInActivity extends AppCompatActivity
 
       @Override
       protected void onPreExecute() {
-//         Toast.makeText(SignInActivity.this, "onPreEx called", Toast.LENGTH_SHORT).show();
+         mProgress.setCancelable(false);
          mProgress.show();
          int currentOrientation = getResources().getConfiguration().orientation;
          if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -330,35 +304,34 @@ public class SignInActivity extends AppCompatActivity
          editor.putString(Co.CURRENT_LIST_ID, defaultListInfo.get(0));
          editor.putBoolean(Co.IS_FIRST_INIT, true);
          editor.apply();
-         if (android.provider.Settings.System.getInt(getContentResolver(),
-               Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-         } else {
-            int currentOrientation = getResources().getConfiguration().orientation;
-            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            } else {
-               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-         }
+//         if (android.provider.Settings.System.getInt(getContentResolver(),
+//               Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+//         } else {
+//            int currentOrientation = getResources().getConfiguration().orientation;
+//            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+//               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//            } else {
+//               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//            }
+//         }
          goToTaskListActivity();
       }
 
       @Override
       protected void onCancelled(List<String> strings) {
          mProgress.dismiss();
-//         Toast.makeText(SignInActivity.this, "onCanceled called", Toast.LENGTH_SHORT).show();
-         if (android.provider.Settings.System.getInt(getContentResolver(),
-               Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-         } else {
-            int currentOrientation = getResources().getConfiguration().orientation;
-            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            } else {
-               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-         }
+//         if (android.provider.Settings.System.getInt(getContentResolver(),
+//               Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+//         } else {
+//            int currentOrientation = getResources().getConfiguration().orientation;
+//            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+//               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//            } else {
+//               setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//            }
+//         }
          if (mLastError != null) {
             if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
                Toast.makeText(context, R.string.Google_Services_not_available_toast, Toast.LENGTH_LONG).show();
@@ -382,6 +355,8 @@ public class SignInActivity extends AppCompatActivity
          TaskLists result = mService.tasklists().list()
                .execute();
          serverLists = result.getItems();
+         Co.listIds.clear();
+         Co.listTitles.clear();
          for (int i = 0; i < serverLists.size(); i++) {
             if (i == 0){
                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
@@ -389,8 +364,6 @@ public class SignInActivity extends AppCompatActivity
                editor.putString(Co.DEFAULT_LIST_ID_KEY, serverLists.get(i).getId());
                editor.apply();
             }
-            Co.listIds.clear();
-            Co.listTitles.clear();
             Co.listIds.add(serverLists.get(i).getId());
             Co.listTitles.add(serverLists.get(i).getTitle());
          }

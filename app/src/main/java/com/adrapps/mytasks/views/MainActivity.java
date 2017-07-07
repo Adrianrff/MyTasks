@@ -14,7 +14,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BaseTransientBottomBar;
@@ -118,7 +117,9 @@ public class MainActivity extends AppCompatActivity
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-
+      if (getBooleanShP(Co.IS_FIRST_INIT, true)) {
+         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+      }
       if (getBooleanShP(Co.IS_FIRST_LAUNCH, true)) {
          Intent i = new Intent(this, SignInActivity.class);
          startActivity(i);
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity
       setCredentials();
       this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
       if (getBooleanShP(Co.IS_FIRST_INIT, true)) {
+         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
          refreshFirstTime();
          saveIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
          saveIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
@@ -490,7 +492,7 @@ public class MainActivity extends AppCompatActivity
          }
          updateTaskCounterForDrawer(list.getIntId(), currentItem);
          View counter = currentItem.getActionView();
-         if (counter instanceof TextView){
+         if (counter instanceof TextView) {
             ((TextView) counter).setText(
                   "(" +
                         String.valueOf(mPresenter.getTasksNotCompletedFromListCount(list.getIntId())) +
@@ -521,7 +523,7 @@ public class MainActivity extends AppCompatActivity
    }
 
    @Override
-   public void updateTaskCounterForDrawer(int listIntId, @Nullable MenuItem itemToUpdate){
+   public void updateTaskCounterForDrawer(int listIntId, @Nullable MenuItem itemToUpdate) {
       if (itemToUpdate == null) {
          Menu menu = navigationView.getMenu();
          MenuItem listsTitlesMenuItem = menu.findItem(R.id.lists_titles_menu);
@@ -879,8 +881,12 @@ public class MainActivity extends AppCompatActivity
          fab.setOnClickListener(MainActivity.this);
          return;
       }
-      if (adapter.isSelectableMode()) {
-         adapter.leaveSelectMode();
+      if (adapter != null) {
+         if (adapter.isSelectableMode()) {
+            adapter.leaveSelectMode();
+         } else {
+            super.onBackPressed();
+         }
       } else {
          super.onBackPressed();
       }
@@ -1186,17 +1192,7 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void unlockScreenOrientation() {
-      if (android.provider.Settings.System.getInt(getContentResolver(),
-            Settings.System.ACCELEROMETER_ROTATION, 0) == 1) {
-         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-      } else {
-         int currentOrientation = getResources().getConfiguration().orientation;
-         if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-         } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-         }
-      }
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
    }
 
 

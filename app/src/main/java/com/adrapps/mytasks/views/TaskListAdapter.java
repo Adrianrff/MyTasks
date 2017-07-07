@@ -138,12 +138,12 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    public void onBindViewHolder(TaskListAdapter.TaskListViewHolder holder, int position) {
       LocalTask cTask = tasks.get(position);
 //      holder.setSelectionModeBackgroundDrawable(getHighlightedBackground());
-      holder.taskTitleTextView.setText(cTask.getTitle());
 //      if (cTask.getParent() != null) {
 //         increaseMargin(holder);
 //      }
       holder.notesTitleIcon.setVisibility(cTask.getNotes() == null ? View.GONE : View.VISIBLE);
       setDueDateText(holder, cTask);
+      setTitleText(holder, cTask);
 //      holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
 //      holder.dueDateTextView.setTextColor(holder.normalDueColor);
 //      if (cTask.getDue() == 0) {
@@ -163,33 +163,17 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       }
       if (cTask.getStatus().equals(Co.TASK_COMPLETED)) {
          holder.taskCheckbox.setChecked(true);
-         holder.taskTitleTextView.setPaintFlags(/*holder.taskTitleTextView.getPaintFlags() | */Paint.STRIKE_THRU_TEXT_FLAG);
-         holder.taskTitleTextView.setAlpha(0.6f);
-//         holder.dueDateTextView.setAlpha(0.6f);
-//         holder.dueDateTextView.setPaintFlags(/*holder.dueDateTextView.getPaintFlags() | */Paint.STRIKE_THRU_TEXT_FLAG);
-//         holder.dueDateTextView.setTextColor(Color.GRAY);
-         holder.taskTitleTextView.setTextColor(Color.GRAY);
          holder.notesTitleIcon.setColorFilter(ContextCompat.getColor(context, R.color.darkGray));
-         holder.notesTitleIcon.setAlpha(0.6f);
+         holder.notesTitleIcon.setAlpha(0.4f);
          holder.taskCheckbox.setHighlightColor(ContextCompat.getColor(context, R.color.darkGray));
          holder.taskCheckbox.setAlpha(0.6f);
       } else {
-         holder.taskTitleTextView.setAlpha(1);
-         holder.taskTitleTextView.setTextColor(holder.normalTaskColor);
-         holder.taskTitleTextView.setPaintFlags(0);
-//         holder.dueDateTextView.setAlpha(1);
-//         holder.dueDateTextView.setPaintFlags(0);
          holder.taskCheckbox.setHighlightColor(ContextCompat.getColor(context, R.color.colorPrimary));
          holder.taskCheckbox.setAlpha(1);
          holder.taskCheckbox.setChecked(false);
       }
       holder.taskCheckbox.setOnCheckedChangeListener(holder);
-      if (cTask.getReminder() != 0) {
-         holder.notificationImage.setVisibility(View.VISIBLE);
-      } else {
-         holder.notificationImage.setVisibility(View.GONE);
-      }
-
+      holder.notificationImage.setVisibility(cTask.getReminder() == 0 ? View.GONE : View.VISIBLE);
    }
 
    private void setDueDateText(TaskListViewHolder holder, LocalTask task) {
@@ -221,7 +205,19 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       }
    }
 
-   //TODO create method to set task title style and text
+   private void setTitleText(TaskListViewHolder holder, LocalTask task) {
+      holder.taskTitleTextView.setText(task.getTitle());
+      if (task.getStatus().equals(Co.TASK_COMPLETED)) {
+         holder.taskTitleTextView.setPaintFlags(/*holder.taskTitleTextView.getPaintFlags() | */Paint.STRIKE_THRU_TEXT_FLAG);
+         holder.taskTitleTextView.setAlpha(0.6f);
+         holder.taskTitleTextView.setTextColor(Color.GRAY);
+      } else {
+         holder.taskTitleTextView.setAlpha(1);
+         holder.taskTitleTextView.setTextColor(holder.normalTaskColor);
+         holder.taskTitleTextView.setPaintFlags(0);
+      }
+
+   }
 
    @Override
    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -369,7 +365,11 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
    }
 
    boolean isSelectableMode() {
-      return mMultiSelector.isSelectable();
+      if (mMultiSelector == null){
+         return false;
+      } else {
+         return mMultiSelector.isSelectable();
+      }
    }
 
    void leaveSelectMode() {
@@ -455,7 +455,6 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
       ColorStateList normalDueColor;
       RelativeLayout parentView;
 
-
       TaskListViewHolder(View v, Context context, TaskListPresenter presenter) {
          super(v, mMultiSelector);
          this.context = context;
@@ -475,19 +474,17 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          normalDueColor = dueDateTextView.getTextColors();
       }
 
-
       @Override
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
          LocalTask cTask = tasks.get(getAdapterPosition());
          if (isChecked) {
+            //Task marked completed
             cTask.setStatus(Co.TASK_COMPLETED);
             cTask.setReminderNoID(0);
             cTask.setLocalModify(System.currentTimeMillis());
             cTask.setSyncStatus(Co.EDITED_NOT_SYNCED);
             cTask.setCompleted(System.currentTimeMillis());
-            taskTitleTextView.setPaintFlags(taskTitleTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            taskTitleTextView.setTextColor(Color.GRAY);
             mPresenter.updateExistingTaskFromLocalTask(cTask);
             AlarmHelper.cancelTaskReminder(cTask, context);
             if (mPresenter.getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, true)) {
@@ -499,10 +496,9 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                mPresenter.updateTaskStatusInServer(cTask, Co.TASK_COMPLETED);
             }
          } else {
+            //Task mark not completed
             cTask.setStatus(Co.TASK_NEEDS_ACTION);
             cTask.setCompleted(0);
-            taskTitleTextView.setTextColor(normalTaskColor);
-            taskTitleTextView.setPaintFlags(0);
             if (cTask.getReminder() != 0) {
                AlarmHelper.setOrUpdateAlarm(cTask, context);
             }
@@ -515,6 +511,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                mPresenter.updateTaskStatusInServer(cTask, Co.TASK_NEEDS_ACTION);
             }
          }
+         setTitleText(this, cTask);
          setDueDateText(this, cTask);
          notifyItemChanged(getAdapterPosition());
          mPresenter.updateTaskCounterForDrawer(cTask.getListIntId(), null);

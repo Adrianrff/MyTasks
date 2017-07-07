@@ -76,6 +76,61 @@ public class AlarmHelper {
       }
    }
 
+   public static void setOrUpdateAllReminders(Context context) {
+      DataModel mModel = new DataModel(context.getApplicationContext());
+      List<LocalTask> tasks = mModel.getLocalTasks();
+      for (LocalTask task : tasks) {
+         if (task != null) {
+            if (task.getReminder() != 0 && task.getReminderId() != 0) {
+               Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
+               Bundle bundle = new Bundle();
+               bundle.putSerializable(Co.LOCAL_TASK, task);
+               intent.putExtra(Co.LOCAL_TASK, bundle);
+               long reminder = task.getReminder();
+               AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(ALARM_SERVICE);
+               PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), (int) task.getReminderId(), intent,
+                     PendingIntent.FLAG_UPDATE_CURRENT);
+
+               switch (task.getRepeatMode()) {
+
+                  case Co.REMINDER_ONE_TIME:
+                     //NO RESET IN RECEIVER
+                     alarmManager.set(AlarmManager.RTC_WAKEUP,
+                           reminder, pendingIntent);
+                     break;
+
+                  case Co.REMINDER_DAILY:
+                     //NO RESET IN RECEIVER
+                     //WORKING
+                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                           reminder, Co.ONE_DAY_LATER, pendingIntent);
+                     mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
+                     break;
+
+                  case Co.REMINDER_DAILY_WEEKDAYS:
+                     //NO RESET IN RECEIVER BUT CHECKS IF ITS WEEKDAY
+                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                           reminder, Co.ONE_DAY_LATER, pendingIntent);
+                     mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
+                     break;
+
+                  case Co.REMINDER_WEEKLY:
+                     //RESET IN RECEIVER
+                     alarmManager.set(AlarmManager.RTC_WAKEUP,
+                           reminder, pendingIntent);
+                     break;
+
+                  case Co.REMINDER_MONTHLY:
+                     //RESET IN RECEIVER
+                     alarmManager.set(AlarmManager.RTC_WAKEUP,
+                           reminder, pendingIntent);
+                     break;
+               }
+            }
+         }
+      }
+   }
+
    public static void cancelTaskReminder(LocalTask task, Context context) {
       Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
       AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
@@ -191,7 +246,7 @@ public class AlarmHelper {
       handler.post(new Runnable() {
          @Override
          public void run() {
-            List<LocalTask> tasks = model.getLocalTasksFromDB();
+            List<LocalTask> tasks = model.getLocalTasks();
             for (LocalTask task : tasks) {
                if (task == null) {
                   Toast.makeText(mContext, "La lista no es nula ni está vacía, pero al menos una de sus tareas es nula", Toast.LENGTH_LONG).show();
@@ -285,7 +340,7 @@ public class AlarmHelper {
       AsyncTask.execute(new Runnable() {
          @Override
          public void run() {
-            List<LocalTask> tasks = model.getLocalTasksFromDB();
+            List<LocalTask> tasks = model.getLocalTasks();
             for (LocalTask task : tasks) {
                int id = Co.DEFAULT_REMINDER_IDENTIFIER + task.getIntId();
                if (isAlarmSet(mContext, id)) {

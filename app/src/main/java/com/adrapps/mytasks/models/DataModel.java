@@ -155,7 +155,7 @@ public class DataModel implements Contract.Model {
    }
 
    @Override
-   public List<LocalTask> getLocalTasksFromDB() {
+   public List<LocalTask> getLocalTasks() {
       return tasksDb.getLocalTasks();
    }
 

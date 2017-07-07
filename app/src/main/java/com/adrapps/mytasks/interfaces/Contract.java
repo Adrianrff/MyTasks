@@ -151,7 +151,7 @@ public class Contract {
 
       void updateSyncStatus(LocalTask task, int newStatus);
 
-      List<LocalTask> getLocalTasksFromDB();
+      List<LocalTask> getLocalTasks();
 
       int updateLocalTask(LocalTask modifiedTask, boolean updateReminders);
 
