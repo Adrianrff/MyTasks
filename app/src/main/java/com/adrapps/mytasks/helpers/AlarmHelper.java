@@ -22,6 +22,7 @@ import java.util.List;
 
 import static android.content.Context.ALARM_SERVICE;
 
+
 public class AlarmHelper {
 
    public static void setOrUpdateAlarm(LocalTask task, Context context) {
@@ -133,7 +134,7 @@ public class AlarmHelper {
 
    public static void cancelTaskReminder(LocalTask task, Context context) {
       Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
-      AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+      AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(ALARM_SERVICE);
       PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(),
             (int) task.getReminderId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
       alarmManager.cancel(pendingIntent);
@@ -345,7 +346,7 @@ public class AlarmHelper {
                int id = Co.DEFAULT_REMINDER_IDENTIFIER + task.getIntId();
                if (isAlarmSet(mContext, id)) {
                   Intent intent = new Intent(mContext, AlarmReciever.class);
-                  AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+                  AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
                   PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext,
                         id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                   alarmManager.cancel(pendingIntent);
@@ -365,7 +366,7 @@ public class AlarmHelper {
                int id = Co.DEFAULT_REMINDER_IDENTIFIER + task.getIntId();
                if (isDefaultAlarmSet(context, task.getIntId())) {
                   Intent intent = new Intent(context.getApplicationContext(), AlarmReciever.class);
-                  AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                  AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
                   PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
                         id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                   alarmManager.cancel(pendingIntent);

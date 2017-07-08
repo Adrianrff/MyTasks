@@ -103,11 +103,12 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
                mMultiSelector.clearSelections();
                return true;
             }
-            if (menuItem.getItemId() == R.id.make_child) {
-               if (mMultiSelector.getSelectedPositions().size() == 1) {
-                  makeChild(mMultiSelector.getSelectedPositions().get(0));
-               }
-            }
+//            if (menuItem.getItemId() == R.id.make_child) {
+//               if (mMultiSelector.getSelectedPositions().size() == 1) {
+//                  makeChild(mMultiSelector.getSelectedPositions().get(0));
+//               }
+//               return true;
+//            }
             return false;
          }
 
@@ -152,7 +153,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
 //         holder.dueDateTextView.setText(DateHelper.millisToRelativeDateOnly(context, cTask.getDue()));
 //         if (DateUtils.isToday(cTask.getDue())) {
 //            holder.dueDateTextView.setTypeface(null, Typeface.BOLD);
-//         } else if (DateHelper.isInThePast(cTask.getDue())) {
+//         } else if (DateHelper.isBeforeToday(cTask.getDue())) {
 //            holder.dueDateTextView.append(" " + context.getString(R.string.overdue_append));
 //            holder.dueDateTextView.setTextColor(Color.RED);
 //         }
@@ -181,7 +182,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          holder.dueDateTextView.setText(R.string.no_due_date);
       } else {
          holder.dueDateTextView.setText(DateHelper.millisToRelativeDateOnly(context, task.getDue()));
-         if (DateHelper.isInThePast(task.getDue())) {
+         if (DateHelper.isBeforeToday(task.getDue())) {
             holder.dueDateTextView.append(" " + context.getString(R.string.overdue_append));
          }
       }
@@ -197,7 +198,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
          } else {
             holder.dueDateTextView.setTypeface(null, Typeface.NORMAL);
          }
-         if (DateHelper.isInThePast(task.getDue()) && task.getDue() != 0) {
+         if (DateHelper.isBeforeToday(task.getDue()) && task.getDue() != 0) {
             holder.dueDateTextView.setTextColor(Color.RED);
          } else {
             holder.dueDateTextView.setTextColor(holder.normalDueColor);

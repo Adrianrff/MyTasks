@@ -108,7 +108,7 @@ public class DateHelper {
       return yearToday == yearInput && monthToday == monthInput && dayInput == dayToday + 1;
    }
 
-   public static boolean isInThePast(long timeInMills) {
+   public static boolean isBeforeToday(long timeInMills) {
       Calendar ca = Calendar.getInstance();
       Calendar ca1 = Calendar.getInstance();
       ca1.setTimeInMillis(timeInMills);
@@ -121,6 +121,13 @@ public class DateHelper {
       return yearToday > yearInput ||
             yearToday == yearInput && monthToday > monthInput ||
             yearToday == yearInput && monthToday == monthInput && dayToday > dayInput;
+   }
+
+   public static boolean isInThePast (long timeInMillis){
+      Calendar today = Calendar.getInstance();
+      Calendar ca1 = Calendar.getInstance();
+      ca1.setTimeInMillis(timeInMillis);
+      return ca1.before(today);
    }
 
 

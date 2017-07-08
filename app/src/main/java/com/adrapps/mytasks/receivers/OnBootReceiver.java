@@ -17,13 +17,10 @@ public class OnBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        DataModel mModel = new DataModel(context);
-        List<LocalTask>  tasks = mModel.getLocalTasks();
        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
        if (prefs.getBoolean(Co.DEFAULT_REMINDER_PREF_KEY, true)) {
           AlarmHelper.setDefaultRemindersForAllTasks(context);
        }
        AlarmHelper.setOrUpdateAllReminders(context);
-        mModel = null;
     }
 }

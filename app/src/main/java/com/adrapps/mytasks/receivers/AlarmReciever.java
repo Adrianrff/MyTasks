@@ -31,6 +31,8 @@ public class AlarmReciever extends BroadcastReceiver {
    private Contract.Model mModel;
    LocalTask task;
    Context context;
+   int intId;
+   int repeatMode;
    String title = "";
    String notes = "";
    private final String TAG = "Alarm reciever";
@@ -46,21 +48,21 @@ public class AlarmReciever extends BroadcastReceiver {
       if (task != null) {
          title = task.getTitle();
          notes = task.getNotes() == null ? "" : task.getNotes();
+         intId = task.getIntId();
          Calendar c = Calendar.getInstance();
          c.setTimeInMillis(task.getReminder());
 
          switch (task.getRepeatMode()) {
             case Co.REMINDER_ONE_TIME:
                task.setReminderNoID(0);
-               mModel.updateReminder(task.getIntId(), 0, task.getRepeatMode());
+               mModel.updateReminder(intId, 0, task.getRepeatMode());
                setAndShowNotification();
                break;
 
             case Co.REMINDER_DAILY:
-               //WORKING
                c.add(Calendar.DATE, 1);
                task.setReminderNoID(c.getTimeInMillis());
-               mModel.updateReminder(task.getId(), c.getTimeInMillis());
+               mModel.updateReminder(intId, c.getTimeInMillis(), repeatMode);
                setAndShowNotification();
                break;
 
@@ -72,7 +74,7 @@ public class AlarmReciever extends BroadcastReceiver {
                   c.add(Calendar.DATE, today.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY ? 3 : 2);
                }
                task.setReminderNoID(c.getTimeInMillis());
-               mModel.updateReminder(task.getId(), c.getTimeInMillis());
+               mModel.updateReminder(intId, c.getTimeInMillis(), repeatMode);
                if (DateHelper.isWeekday(today)) {
                   setAndShowNotification();
                }
@@ -81,7 +83,7 @@ public class AlarmReciever extends BroadcastReceiver {
             case Co.REMINDER_WEEKLY:
                c.add(Calendar.DATE, 7);
                task.setReminderNoID(c.getTimeInMillis());
-               mModel.updateReminder(task.getId(), c.getTimeInMillis());
+               mModel.updateReminder(intId, c.getTimeInMillis(), repeatMode);
                AlarmHelper.setOrUpdateAlarmForDate(task, c.getTimeInMillis(), context);
                setAndShowNotification();
                break;
@@ -89,7 +91,7 @@ public class AlarmReciever extends BroadcastReceiver {
             case Co.REMINDER_MONTHLY:
                c.add(Calendar.MONTH, 1);
                task.setReminderNoID(c.getTimeInMillis());
-               mModel.updateReminder(task.getId(), c.getTimeInMillis());
+               mModel.updateReminder(intId, c.getTimeInMillis(), repeatMode);
                AlarmHelper.setOrUpdateAlarmForDate(task, c.getTimeInMillis(), context);
                setAndShowNotification();
          }
