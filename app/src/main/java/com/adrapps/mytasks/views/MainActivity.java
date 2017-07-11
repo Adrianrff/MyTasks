@@ -1052,6 +1052,7 @@ public class MainActivity extends AppCompatActivity
                if (task != null) {
                   task.setListId(getStringShP(Co.CURRENT_LIST_ID, null));
                   task.setListIntId(getIntShP(Co.CURRENT_LIST_INT_ID, -1));
+                  task.setStatus(Co.TASK_NEEDS_ACTION);
                   int taskIntId = mPresenter.addTaskToDatabase(task);
                   task.setIntId(taskIntId);
                   if (taskIntId > 0) {

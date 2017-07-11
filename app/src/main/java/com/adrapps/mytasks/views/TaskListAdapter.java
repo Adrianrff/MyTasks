@@ -186,7 +186,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             holder.dueDateTextView.append(" " + context.getString(R.string.overdue_append));
          }
       }
-      if (task.getStatus().equals(Co.TASK_COMPLETED)) {
+      if (task.getStatus() != null && task.getStatus().equals(Co.TASK_COMPLETED)) {
          holder.dueDateTextView.setTextColor(Color.GRAY);
          holder.dueDateTextView.setAlpha(0.6f);
          holder.dueDateTextView.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
