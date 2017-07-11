@@ -103,7 +103,7 @@ public class UpdateStatus extends AsyncTask<LocalTask, Void, Void> {
          Task updatedServerTask = mService.tasks().update(localTask.getListId(), task.getId(), task).execute();
          if (updatedServerTask != null) {
             localTask.setLocalModify(updatedServerTask.getUpdated().getValue());
-            localTask.setSyncStatus(Co.SYNCED);
+//            localTask.setSyncStatus(Co.SYNCED);
             mPresenter.updateExistingTaskFromLocalTask(localTask);
          }
       } else {

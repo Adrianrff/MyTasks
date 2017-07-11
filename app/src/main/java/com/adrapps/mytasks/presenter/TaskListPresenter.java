@@ -314,10 +314,6 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
-   public void updateSyncStatus(LocalTask localTask, int syncedStatus) {
-      mModel.updateSyncStatus(localTask, syncedStatus);
-   }
-
    public int updateLocalTask(LocalTask modifiedTask, boolean updateReminder) {
       return mModel.updateLocalTask(modifiedTask, updateReminder);
    }

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
 
 android {
     configurations.all {
@@ -49,6 +50,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.nex3z:toggle-button-group:1.0.1'
     compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.jakewharton:butterknife:8.7.0'
+    apt 'com.jakewharton:butterknife-compiler:8.7.0'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'

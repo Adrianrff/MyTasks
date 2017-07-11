@@ -109,7 +109,7 @@ public class EditTask extends AsyncTask<LocalTask, Void, Void> {
          Task editedServerTask = mService.tasks().update(listId, task.getId(), task).execute();
          if (editedServerTask != null) {
             lTask.setLocalModify(editedServerTask.getUpdated().getValue());
-            lTask.setSyncStatus(Co.SYNCED);
+//            lTask.setSyncStatus(Co.SYNCED);
             mPresenter.updateExistingTaskFromLocalTask(lTask);
          }
       } else {

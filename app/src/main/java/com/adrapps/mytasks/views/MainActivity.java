@@ -80,30 +80,44 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity
       implements NavigationView.OnNavigationItemSelectedListener,
       Contract.MainActivityViewOps, MenuItem.OnMenuItemClickListener,
       View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, OnStartDragListener, DrawerLayout.DrawerListener {
 
-   Toolbar toolbar;
-   DrawerLayout drawer;
+   @BindView(R.id.detail_title) TextView detailTitle;
+   @BindView(R.id.detail_notes) TextView detailNotes;
+   @BindView(R.id.detail_date) TextView detailDate;
+   @BindView(R.id.detail_notification_tv) TextView detailNotification;
+   @BindView(R.id.next_reminder_label_bs) TextView nextReminderTV;
+   @BindView(R.id.edit_icon) ImageView editIcon;
+
+   @BindView(R.id.fab) FloatingActionButton fab;
+   @BindView(R.id.toolbar) Toolbar toolbar;
+   @BindView(R.id.drawer_layout) DrawerLayout drawer;
+   @BindView(R.id.bottom_sheet) View bottomSheet;
+   @BindView(R.id.coordinator_layout) CoordinatorLayout coordinatorLayout;
+   @BindView(R.id.recyclerView) RecyclerView recyclerView;
+   @BindView(R.id.empty_data_layout) LinearLayout emptyDataLayout;
+   @BindView(R.id.notification_layout_detail) LinearLayout notificationDetailLayout;
+   @BindView(R.id.noInternetLayout) LinearLayout noInternetLayout;
+   @BindView(R.id.progressBar) ProgressBar progressBar;
+   @BindView(R.id.swipeRefresh) SwipeRefreshLayout swipeRefresh;
+   @BindView(R.id.detail_repeat) TextView detailRepeat;
+
    NavigationView navigationView;
-   FloatingActionButton fab;
    ProgressDialog progressDialog;
-   ProgressBar progressBar;
    TaskListPresenter mPresenter;
    GoogleAccountCredential mCredential;
    String accountName;
-   RecyclerView recyclerView;
    TaskListAdapter adapter;
    ActionBarDrawerToggle toggle;
-   CoordinatorLayout coordinatorLayout;
-   SwipeRefreshLayout swipeRefresh;
-   private LinearLayout emptyDataLayout, noInternetLayout, notificationDetailLayout;
-   private View bottomSheet;
-   private ImageView profilePicContainer, editIcon;
-   private TextView userEmail, userName, detailTitle, detailDate, nextReminderTV,
-         detailNotification, detailNotes, detailRepeat;
+
+   private ImageView profilePicContainer/*, editIcon*/;
+   private TextView userEmail, userName /*detailTitle,*/ /*detailDate, nextReminderTV*/;
    private BottomSheetBehavior mBottomSheetBehavior;
    private Intent newOrEditTaskIntent;
    private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback;
@@ -113,8 +127,11 @@ public class MainActivity extends AppCompatActivity
    private boolean settingsItemSelected, newListItemSelected;
    private static final String TAG = "MainActivity";
 
+
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
+
       super.onCreate(savedInstanceState);
       if (getBooleanShP(Co.IS_FIRST_INIT, true)) {
          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -126,6 +143,7 @@ public class MainActivity extends AppCompatActivity
          return;
       }
       setContentView(R.layout.main_activity);
+      ButterKnife.bind(this);
       mPresenter = new TaskListPresenter(this);
       findViews();
       setUpViews();
@@ -137,6 +155,9 @@ public class MainActivity extends AppCompatActivity
          saveIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
          saveIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
          saveIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
+         Glide.with(this)
+               .load(getStringShP(Co.USER_PIC_URL, null)).
+               into(profilePicContainer);
          return;
       }
       setListsData();
@@ -172,31 +193,31 @@ public class MainActivity extends AppCompatActivity
 
    @Override
    public void findViews() {
-      detailTitle = (TextView) findViewById(R.id.detail_title);
-      detailNotes = (TextView) findViewById(R.id.detail_notes);
-      detailDate = (TextView) findViewById(R.id.detail_date);
-      detailNotification = (TextView) findViewById(R.id.detail_notification_tv);
-      editIcon = (ImageView) findViewById(R.id.edit_icon);
-      nextReminderTV = (TextView) findViewById(R.id.next_reminder_label_bs);
-      bottomSheet = findViewById(R.id.bottom_sheet);
-      toolbar = (Toolbar) findViewById(R.id.toolbar);
-      fab = (FloatingActionButton) findViewById(R.id.fab);
-      drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-      drawer.addDrawerListener(this);
-      coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
       navigationView = (NavigationView) findViewById(R.id.nav_view);
       View headerView = navigationView.getHeaderView(0);
-      profilePicContainer = (ImageView) headerView.findViewById(R.id.profilePic);
       userName = (TextView) headerView.findViewById(R.id.userName);
       userEmail = (TextView) headerView.findViewById(R.id.userEmail);
-      recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-      emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
-      notificationDetailLayout = (LinearLayout) findViewById(R.id.notification_layout_detail);
-
-      detailRepeat = (TextView) findViewById(R.id.detail_repeat);
-      progressBar = (ProgressBar) findViewById(R.id.progressBar);
-      swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
-      noInternetLayout = (LinearLayout) findViewById(R.id.noInternetLayout);
+      profilePicContainer = (ImageView) headerView.findViewById(R.id.profilePic);
+      drawer.addDrawerListener(this);
+//      detailTitle = (TextView) findViewById(R.id.detail_title);
+//      detailNotes = (TextView) findViewById(R.id.detail_notes);
+//      detailDate = (TextView) findViewById(R.id.detail_date);
+//      detailNotification = (TextView) findViewById(R.id.detail_notification_tv);
+//      editIcon = (ImageView) findViewById(R.id.edit_icon);
+//      nextReminderTV = (TextView) findViewById(R.id.next_reminder_label_bs);
+//      bottomSheet = findViewById(R.id.bottom_sheet);
+//      toolbar = (Toolbar) findViewById(R.id.toolbar);
+//      fab = (FloatingActionButton) findViewById(R.id.fab);
+//      drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//      coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+//      View headerView = navigationView.getHeaderView(0);
+//      recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+//      emptyDataLayout = (LinearLayout) findViewById(R.id.empty_data_layout);
+//      notificationDetailLayout = (LinearLayout) findViewById(R.id.notification_layout_detail);
+//      progressBar = (ProgressBar) findViewById(R.id.progressBar);
+//      swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
+//      noInternetLayout = (LinearLayout) findViewById(R.id.noInternetLayout);
+//      detailRepeat = (TextView) findViewById(R.id.detail_repeat);
    }
 
    @Override
@@ -208,12 +229,9 @@ public class MainActivity extends AppCompatActivity
             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
       toggle.setToolbarNavigationClickListener(this);
       toggle.syncState();
-
       Glide.with(this)
             .load(getStringShP(Co.USER_PIC_URL, null))
-//            .placeholder(R.drawable.default_user_pic_24dp)
-//            .diskCacheStrategy(DiskCacheStrategy.ALL)
-//            .skipMemoryCache(false)
+            .placeholder(R.drawable.default_user_pic_24dp)
             .into(profilePicContainer);
       userName.setText(getStringShP(Co.USER_NAME, null));
       userEmail.setText(getStringShP(Co.USER_EMAIL, null));
@@ -1008,7 +1026,7 @@ public class MainActivity extends AppCompatActivity
                      task.setListId(listId);
                   }
                   task.setLocalModify();
-                  task.setSyncStatus(task.getSyncStatus() != Co.NOT_SYNCED ? Co.EDITED_NOT_SYNCED : Co.NOT_SYNCED);
+//                  task.setSyncStatus(task.getSyncStatus() != Co.NOT_SYNCED ? Co.EDITED_NOT_SYNCED : Co.NOT_SYNCED);
                   mPresenter.updateExistingTaskFromLocalTask(task);
                   if (task.getDue() != 0 && getBooleanShP(Co.DEFAULT_REMINDER_PREF_KEY, false)) {
                      Calendar dueDate = Calendar.getInstance();

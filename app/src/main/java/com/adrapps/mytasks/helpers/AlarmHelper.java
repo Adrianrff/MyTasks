@@ -250,14 +250,14 @@ public class AlarmHelper {
             List<LocalTask> tasks = model.getLocalTasks();
             for (LocalTask task : tasks) {
                if (task == null) {
-                  Toast.makeText(mContext, "La lista no es nula ni está vacía, pero al menos una de sus tareas es nula", Toast.LENGTH_LONG).show();
+//                  Toast.makeText(mContext, "La lista no es nula ni está vacía, pero al menos una de sus tareas es nula", Toast.LENGTH_LONG).show();
                } else {
                   if (task.getStatus() == null) {
-                     Toast.makeText(mContext,
-                           "Task title " + task.getTitle() + "\n" +
-                                 "Task status " + task.getStatus() + "\n" +
-                                 "Task dueDate " + DateHelper.millisToFull(task.getDue()) + "\n"
-                           , Toast.LENGTH_LONG).show();
+//                     Toast.makeText(mContext,
+//                           "Task title " + task.getTitle() + "\n" +
+//                                 "Task status " + task.getStatus() + "\n" +
+//                                 "Task dueDate " + DateHelper.millisToFull(task.getDue()) + "\n"
+//                           , Toast.LENGTH_LONG).show();
                   } else {
                      if (!task.getStatus().equals(Co.TASK_COMPLETED)) {
                         if (task.getDue() != 0) {
@@ -287,12 +287,6 @@ public class AlarmHelper {
             }
          }
       });
-//      AsyncTask.execute(new Runnable() {
-//         @Override
-//         public void run() {
-//
-//         }
-//      });
    }
 
    public static void setOrUpdateDefaultRemindersForTask(Context context, final LocalTask task) {

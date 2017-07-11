@@ -39,15 +39,8 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
    private Tasks mService = null;
    private Exception mLastError = null;
    private TaskListPresenter mPresenter;
-   private JsonBatchCallback<Void> deleteCallback;
-   private JsonBatchCallback<Task> getServerTaskForUpdateCallback;
-   private ArrayList<LocalTask> tasksToDelete;
-   private HashMap<Task, LocalTask> tasksToUpdateFirstTime;
-   private HashMap<String, LocalTask> localTasksMap;
-   private HashMap<String, Task> serverTasksMap;
 
    Context context;
-   private JsonBatchCallback<Task> moveCallback;
 
    public SyncTasks(Context context, TaskListPresenter presenter, GoogleAccountCredential credential) {
       this.context = context.getApplicationContext();

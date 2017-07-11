@@ -11,7 +11,7 @@ import java.util.TimeZone;
 public class LocalTask extends ListItem implements Serializable, Comparable {
 
     private String id, title, parent, position, notes, status, listId;
-    private int moved, localDeleted, intId, previousTask, syncStatus, repeatMode,
+    private int moved, localDeleted, intId, previousTask, /*syncStatus,*/ repeatMode,
           adapterPos, repeatDay, listIntId;
     private long serverModify, due, completed, localModify, reminder, reminderId;
     private boolean deleted,hidden;
@@ -26,7 +26,7 @@ public class LocalTask extends ListItem implements Serializable, Comparable {
         this.reminder = 0;
         this.reminderId = 0;
         this.repeatMode = 0;
-        this.syncStatus = Co.NOT_SYNCED;
+//        this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
     }
@@ -38,7 +38,7 @@ public class LocalTask extends ListItem implements Serializable, Comparable {
         this.reminder = 0;
         this.reminderId = 0;
         this.repeatMode = 0;
-        this.syncStatus = Co.NOT_SYNCED;
+//        this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
 
@@ -51,7 +51,7 @@ public class LocalTask extends ListItem implements Serializable, Comparable {
         this.reminder = reminder;
         this.reminderId = System.currentTimeMillis();
         this.repeatMode = 0;
-        this.syncStatus = Co.NOT_SYNCED;
+//        this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
     }
@@ -73,7 +73,7 @@ public class LocalTask extends ListItem implements Serializable, Comparable {
         this.reminder = 0;
         this.reminderId = 0;
         this.repeatMode = 0;
-        this.syncStatus = Co.NOT_SYNCED;
+//        this.syncStatus = Co.NOT_SYNCED;
         this.localDeleted = 0;
         this.moved = 0;
     }
@@ -148,9 +148,9 @@ public class LocalTask extends ListItem implements Serializable, Comparable {
         this.localDeleted = localDeleted;
     }
 
-    public void setSyncStatus(int syncStatus) {
-        this.syncStatus = syncStatus;
-    }
+//    public void setSyncStatus(int syncStatus) {
+//        this.syncStatus = syncStatus;
+//    }
 
     public void setReminder(long reminder) {
         this.reminder = reminder;
@@ -259,9 +259,9 @@ public class LocalTask extends ListItem implements Serializable, Comparable {
         this.previousTask = localSibling;
     }
 
-    public int getSyncStatus() {
-        return syncStatus;
-    }
+//    public int getSyncStatus() {
+//        return syncStatus;
+//    }
 
     public long getReminderId() {
         return reminderId;

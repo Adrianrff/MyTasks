@@ -484,7 +484,7 @@ class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewH
             cTask.setStatus(Co.TASK_COMPLETED);
             cTask.setReminderNoID(0);
             cTask.setLocalModify(System.currentTimeMillis());
-            cTask.setSyncStatus(Co.EDITED_NOT_SYNCED);
+//            cTask.setSyncStatus(Co.EDITED_NOT_SYNCED);
             cTask.setCompleted(System.currentTimeMillis());
             mPresenter.updateExistingTaskFromLocalTask(cTask);
             AlarmHelper.cancelTaskReminder(cTask, context);

@@ -135,7 +135,7 @@ public class Contract {
 
       void updateTaskStatusInServer(LocalTask task, String newStatus);
 
-      void updateTaskStatusInDB(int intId, String newStatus);
+//      void updateTaskStatusInDB(int intId, String newStatus);
 
       void refreshFirstTime();
 
@@ -149,7 +149,7 @@ public class Contract {
 
       long updateReminder(int intId, long reminder, int repeatMode);
 
-      void updateSyncStatus(LocalTask task, int newStatus);
+//      void updateSyncStatus(LocalTask task, int newStatus);
 
       List<LocalTask> getLocalTasks();
 
