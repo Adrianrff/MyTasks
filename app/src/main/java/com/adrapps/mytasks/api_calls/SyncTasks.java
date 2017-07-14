@@ -23,6 +23,7 @@ import com.google.api.client.http.HttpHeaders;
 import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.Task;
 import com.google.api.services.tasks.model.TaskList;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -358,8 +359,6 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
                         }
                      }
                   }
-
-
                }
 
                //Update tasks from list
@@ -407,264 +406,14 @@ public class SyncTasks extends AsyncTask<Void, Void, Void> {
             }
 
          } else {
-            Log.d(TAG, "syncAll: LISTS ARE NOT SYNCED!!!");
+            try {
+               throw new Exception("Lists not synced");
+            } catch (Exception e) {
+               FirebaseCrash.report(e);
+               e.printStackTrace();
+            }
          }
 
-
-//         //GET LOCAL LISTS
-////         List<LocalList> localLists = mPresenter.getLocalLists();
-//         List<String> initialLocalListsIds = new ArrayList<>();
-//         for (int i = 0; i < localLists.size(); i++) {
-//            initialLocalListsIds.add(localLists.get(i).getId());
-//         }
-//
-//         HashMap<String, TaskList> serverListMap = ObjectHelper.getServerListIdMap(serverLists);
-//
-//         List<LocalList> deletedLists = new ArrayList<>();
-//         for (int i = 0; i < localLists.size(); i++) {
-//            LocalList currentLocalList = localLists.get(i);
-//            if (localLists.get(i).getLocalDeleted() == Co.LOCAL_DELETED) {
-//               if (currentLocalList.getId() != null) {
-//                  try {
-//                     if (serverListsIds.contains(currentLocalList.getId())) {
-//                        //This deletes the tasks in the list, too
-//                        mService.tasklists().delete(currentLocalList.getId()).execute();
-//                     }
-//                  } catch (Exception e) {
-//                     e.printStackTrace();
-//                  }
-//                  mPresenter.deleteTasksFromList(currentLocalList.getIntId());
-//                  mPresenter.deleteListFromDB(currentLocalList.getIntId());
-//               }
-//               deletedLists.add(currentLocalList);
-//               serverLists.remove(serverListMap.get(localLists.get(i).getId()));
-//            } else if (currentLocalList.getId() == null && currentLocalList.getSyncStatus() == Co.NOT_SYNCED) {
-//               final TaskList list = new TaskList();
-//               list.setTitle(currentLocalList.getTitle());
-//               try {
-//                  list.setId(mService.tasklists().insert(list).execute().getId());
-//                  List<LocalTask> newTasks = mPresenter.getTasksFromList(currentLocalList.getIntId());
-//                  if (!newTasks.isEmpty()) {
-//                     for (int j = 0; j < newTasks.size(); j++) {
-//                        if (list.getId() != null) {
-//                           final LocalTask currentLocalTask = newTasks.get(j);
-//                           currentLocalTask.setListId(list.getId());
-//                           Task task = LocalTask.localTaskToApiTask(newTasks.get(j));
-//                           task = mService.tasks().insert(list.getId(), task).execute();
-//                           mPresenter.updateNewlyCreatedTask(task, list.getId(), currentLocalTask.getIntId());
-//                        }
-//                     }
-//                  }
-//               } catch (Exception e) {
-//                  e.printStackTrace();
-//               }
-//
-//            }
-//         }
-//         if (!deletedLists.isEmpty()) {
-//            localLists.removeAll(deletedLists);
-//         }
-////         HashMap<String, LocalList> localListsMap = ObjectHelper.getLocalListIdMap(localLists);
-//
-//
-//         List<LocalList> localListsNotInServer = CompareLists.localListsNotInServer(localLists, serverListsIds);
-//         List<TaskList> serverListNotInDb = CompareLists.serverListsNotInDB(initialLocalListsIds, serverLists);
-//
-//         if (!localListsNotInServer.isEmpty()) {
-//            for (int i = 0; i < localListsNotInServer.size(); i++) {
-//               LocalList currentList = localListsNotInServer.get(i);
-//               if (currentList.getSyncStatus() == Co.SYNCED) {
-//                  mPresenter.deleteListFromDB(currentList.getIntId());
-//               } else {
-//                  TaskList list = new TaskList();
-//                  list.setTitle(currentList.getTitle());
-//                  try {
-//                     list = mService.tasklists().insert(list).execute();
-//                     mPresenter.updateListInDBFromServerList(list, currentList.getIntId());
-//                  } catch (IOException e) {
-//                     e.printStackTrace();
-//                  }
-//               }
-//               localLists.remove(currentList);
-//            }
-//         }
-//
-//         if (!serverListNotInDb.isEmpty()) {
-//            for (int i = 0; i < serverListNotInDb.size(); i++) {
-//               final TaskList currentServerList = serverListNotInDb.get(i);
-//               mPresenter.addNewListToDBFromServer(currentServerList);
-//               List<Task> addedTasks = mService.tasks().list(currentServerList.getId()).execute().getItems();
-//               for (int j = 0; j < addedTasks.size(); j++) {
-//                  mPresenter.addTaskFirstTimeFromServer(addedTasks.get(j), currentServerList.getId());
-//               }
-//               serverLists.remove(currentServerList);
-//            }
-//         }
-//
-//         for (int i = 0; i < localLists.size(); i++) {
-//            LocalList currentLocalList = localLists.get(i);
-//         }
-
-
-         //TASKS
-//         List<Task> serverTasks;
-//         List<LocalTask> localTasks;
-//         List<LocalTask> localTasksNotInServer;
-//         List<Task> serverTasksNotInDB;
-//         String currentListId;
-//
-//         // Loop through list of serverLists
-//         for (int i = 0; i < serverLists.size(); i++) {
-//            currentListId = serverLists.get(i).getId();
-//
-//            //Get server tasks and local tasks from list
-//            serverTasks = mService.tasks().list(currentListId).execute().getItems();
-//            localTasks = mPresenter.getTasksFromList(currentListId);
-//            localTasksMap = new HashMap<>();
-//            serverTasksMap = new HashMap<>();
-//
-//            if (serverTasks == null && localTasks.isEmpty()) {
-//               continue;
-//            }
-//            //LOCAL TASKS HASH MAP
-//            if (!localTasks.isEmpty()) {
-//               for (int k = 0; k < localTasks.size(); k++) {
-//                  LocalTask currentTask = localTasks.get(k);
-//                  if (currentTask.getId() == null || currentTask.getId().isEmpty()) {
-//                     continue;
-//                  }
-//                  localTasksMap.put(currentTask.getId(), currentTask);
-//               }
-//            }
-//
-//            //SERVER TASK HASH MAP
-//            if (serverTasks != null && !serverTasks.isEmpty()) {
-//               for (int k = 0; k < serverTasks.size(); k++) {
-//                  Task currentTask = serverTasks.get(k);
-//                  if (currentTask.getTitle().trim().equals("") &&
-//                        currentTask.getDue() == null &&
-//                        currentTask.getNotes() == null) {
-//                     mService.tasks().delete(currentListId, currentTask.getId()).queue(requests, serverListDeleteCallback);
-//                     serverTasks.remove(currentTask);
-//                  } else {
-//                     serverTasksMap.put(currentTask.getId(), currentTask);
-//                  }
-//
-//               }
-//            }
-//
-//            //ADD NEW AND UNSYNCED TASKS TO SERVER
-//            for (int j = 0; j < localTasks.size(); j++) {
-//               LocalTask localTask = localTasks.get(j);
-//               if (localTask.getSyncStatus() == 0 || localTask.getId() == null) {
-//                  Task task = LocalTask.localTaskToApiTask(localTask);
-//                  Task serverTask = mService.tasks().insert(currentListId, task).execute();
-//                  tasksToUpdateFirstTime.put(serverTask, localTask);
-//               }
-//
-//               //DELETE TASKS MARKED AS LOCALLY DELETED
-//               if (localTask.getLocalDeleted() == Co.LOCAL_DELETED) {
-//                  tasksToDelete.add(localTask);
-//                  String taskId = localTask.getId();
-//                  if (serverTasks != null) {
-//                     if (taskId != null) {
-//                        if (serverTasksMap.containsKey(taskId)) {
-//                           mService.tasks().delete(currentListId, taskId).queue(requests, serverListDeleteCallback);
-//                           //DELETE FROM LIST - TASK WILL BE DELETED WHEN EXECUTING REQUEST
-//                           serverTasks.remove(serverTasksMap.get(taskId));
-//                           serverTasksMap.remove(taskId);
-//                           mPresenter.deleteTaskFromDatabase(localTask.getIntId());
-//                        }
-//                        if (localTasksMap.containsKey(taskId)) {
-//                           localTasksMap.remove(taskId);
-//                        }
-//                     }
-//                  }
-//               }
-//            }
-//            //REMOVE DELETED TASKS FROM LIST (DONE HERE TO AVOID CONCURRENCY EXCEPTIONS
-//            //BECAUSE OF MODIFYING THE LISTS WHILE ITERATING THROUGH IT)
-//            if (!tasksToDelete.isEmpty()) {
-//               localTasks.removeAll(tasksToDelete);
-//            }
-//            //REMOVE NEW UNSYNCED TASKS FROM LIST AND ADD IN BULK TO DB (DONE HERE TO AVOID
-//            //CONCURRENCY EXCEPTIONS BECAUSE OF MODIFYING THE LISTS WHILE ITERATING THROUGH IT)
-//            if (!tasksToUpdateFirstTime.isEmpty()) {
-//               localTasks.removeAll(tasksToUpdateFirstTime.values());
-//               mPresenter.updateNewTasksInBulk(tasksToUpdateFirstTime);
-//            }
-//
-//            //AT THIS POINT ALL SERVER TASKS NOT IN DB SHOULD BE ADDED TO IT, BECAUSE THE DELETED TASKS
-//            //SHOULD HAVE ALREADY BEEN REMOVED FROM THE SERVER TASKS LIST
-//            serverTasksNotInDB = CompareLists.serverTasksNotInDB(localTasks, serverTasks);
-//            if (serverTasksNotInDB != null && !serverTasksNotInDB.isEmpty()) {
-//               for (int j = 0; j < serverTasksNotInDB.size(); j++) {
-//                  Task serverTask = serverTasksNotInDB.get(j);
-//                  mPresenter.addTaskFirstTimeFromServer(serverTask, currentListId);
-//                  if (serverTasks != null) {
-//                     serverTasks.remove(serverTask);
-//                     serverTasksMap.remove(serverTask.getId());
-//                  }
-//
-//               }
-//            }
-//
-//            //AT THIS POINT LOCAL TASKS NOT IN SERVER SHOULD BE DELETED BECAUSE NEW TASKS HAVE
-//            //ALREADY BEEN REMOVED FROM THE LOCAL TASKS LIST. THIS MEANS THAT THESE TASKS WHERE
-//            //DELETED FROM THE SERVER
-//            localTasksNotInServer = CompareLists.localTasksNotInServer(localTasks, serverTasks);
-//            if (localTasksNotInServer != null && !localTasksNotInServer.isEmpty()) {
-//               for (int j = 0; j < localTasksNotInServer.size(); j++) {
-//                  LocalTask task = localTasksNotInServer.get(j);
-//                  mPresenter.deleteTaskFromDatabase(task.getIntId());
-//                  localTasks.remove(task);
-//                  if (serverTasks != null && !serverTasks.isEmpty() && serverTasksMap.containsKey(task.getId())) {
-//                     serverTasks.remove(serverTasksMap.get(task.getId()));
-//                     serverTasksMap.remove(task.getId());
-//                  }
-//               }
-//            }
-//
-//            //LOOP THROUGH LOCAL TASKS
-//            for (int k = 0; k < localTasks.size(); k++) {
-//               LocalTask currentLocalTask = localTasks.get(k);
-//               Task sameServerTask = serverTasksMap.get(currentLocalTask.getId());
-//               String taskId = currentLocalTask.getId();
-//               boolean taskChanged = false;
-//               if (currentLocalTask.getLocalModify() > sameServerTask.getUpdated().getValue()) {
-//                  if (currentLocalTask.getSyncStatus() == Co.EDITED_NOT_SYNCED) {
-//                     mService.tasks().get(currentListId, taskId).queue(requests, getServerTaskForUpdateCallback);
-//                     taskChanged = true;
-//                  }
-//                  if (currentLocalTask.getMoved() == Co.MOVED) {
-//                     Tasks.TasksOperations.Move moveOperation = mService.tasks().
-//                           move(currentListId, taskId);
-//                     int localSiblingIntId = currentLocalTask.getPreviousTask();
-//                     if (localSiblingIntId != 0) {
-//                        String siblingServerId = mPresenter.getTaskIdByIntId(localSiblingIntId);
-//                        moveOperation.setPrevious(siblingServerId).queue(requests, moveCallback);
-//                     } else {
-//                        moveOperation.queue(requests, moveCallback);
-//                     }
-//                     taskChanged = true;
-//                  } else {
-//                     mPresenter.updatePosition(sameServerTask);
-//                  }
-//                  if (taskChanged) {
-//                     mPresenter.updateSyncStatus(currentLocalTask.getIntId(), Co.SYNCED);
-//                     localTasksMap.put(taskId, currentLocalTask);
-//                  }
-//               } else {
-//                  if (currentLocalTask.getLocalModify() < sameServerTask.getUpdated().getValue()) {
-//                     mPresenter.updateLocalTask(sameServerTask, currentListId);
-//                  }
-//               }
-//
-//            }
-//            if (requests.size() != 0) {
-//               requests.execute();
-//            }
-//         }
       } else {
          EasyPermissions.requestPermissions(
                context, context.getString(R.string.contacts_permissions_rationale),

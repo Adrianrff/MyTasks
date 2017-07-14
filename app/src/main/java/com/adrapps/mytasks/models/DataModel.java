@@ -350,13 +350,6 @@ public class DataModel implements Contract.Model {
 
    }
 
-//   @Override
-//   public void updateTaskStatusInDB(int intId, String newStatus) {
-//      tasksDb.updateTaskStatus(intId, newStatus);
-////      if (tasksDb.getTask(intId).getSyncStatus() != 0) {
-////         tasksDb.updateSyncStatus(Co.EDITED_NOT_SYNCED, intId);
-////      }
-//   }
 
    @Override
    public void refreshFirstTime() {

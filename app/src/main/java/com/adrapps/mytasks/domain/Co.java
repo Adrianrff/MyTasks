@@ -110,6 +110,8 @@ public class Co {
    public static final String NO_VALUE = "no value";
    public static final String STATE_DUE_DATE = "State due date in millis";
 
+   public static final String DEFAULT_PREFERENCES_NAME_FOR_BACKUP = "com.adrapps.mytasks_preferences";
+
    public static void setListIds(List<LocalList> lists) {
       Co.listIds.clear();
       for (int i = 0; i < lists.size(); i++) {

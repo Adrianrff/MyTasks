@@ -152,9 +152,9 @@ public class MainActivity extends AppCompatActivity
       if (getBooleanShP(Co.IS_FIRST_INIT, true)) {
          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
          refreshFirstTime();
-         saveIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
-         saveIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
-         saveIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
+//         saveIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
+//         saveIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
+//         saveIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
          Glide.with(this)
                .load(getStringShP(Co.USER_PIC_URL, null)).
                into(profilePicContainer);
@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity
       toggle.syncState();
       Glide.with(this)
             .load(getStringShP(Co.USER_PIC_URL, null))
-            .placeholder(R.drawable.default_user_pic_24dp)
+//            .placeholder(R.drawable.default_user_pic_24dp)
             .into(profilePicContainer);
       userName.setText(getStringShP(Co.USER_NAME, null));
       userEmail.setText(getStringShP(Co.USER_EMAIL, null));
@@ -777,7 +777,7 @@ public class MainActivity extends AppCompatActivity
 
    public void setCurrentListInfo(int listIntId) {
       saveIntShP(Co.CURRENT_LIST_INT_ID, listIntId);
-      saveStringShP(Co.CURRENT_LIST_ID, mPresenter.getlistIdByIntId(listIntId));
+      saveStringShP(Co.CURRENT_LIST_ID, mPresenter.getListIdByIntId(listIntId));
       saveStringShP(Co.CURRENT_LIST_TITLE, mPresenter.getListTitleByIntId(listIntId));
    }
 
@@ -864,7 +864,7 @@ public class MainActivity extends AppCompatActivity
                int listIntId = getIntShP(Co.CURRENT_LIST_INT_ID, -1);
                if (listIntId >= 0) {
                   mPresenter.changeListNameInDB(listIntId, newName);
-                  listId = mPresenter.getlistIdByIntId(listIntId);
+                  listId = mPresenter.getListIdByIntId(listIntId);
                }
                if (listId != null) {
                   mPresenter.changeListNameInServer(getStringShP(Co.CURRENT_LIST_ID, null), newName);

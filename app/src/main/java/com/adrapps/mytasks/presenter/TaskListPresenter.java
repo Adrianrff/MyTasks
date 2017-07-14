@@ -63,13 +63,12 @@ public class TaskListPresenter implements Serializable {
       } catch (NullPointerException e) {
          Log.d(TAG, "Presenter method: view was null");
       }
-     
+
    }
 
-   public boolean isViewFinishing(){
+   public boolean isViewFinishing() {
       try {
-         boolean isViewFinishing = getView().isFinishing();
-         return isViewFinishing;
+         return getView().isFinishing();
       } catch (NullPointerException e) {
          return true;
       }
@@ -161,13 +160,58 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
+   public void saveStringSharedPreference(String key, String value) {
+      try {
+         getView().saveStringShP(key, value);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public GoogleAccountCredential getCredential() {
+      try {
+         return getView().getCredential();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+         return null;
+      }
+   }
+
+   public boolean isDeviceOnline() {
+      try {
+         return getView().isDeviceOnline();
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+         return false;
+      }
+   }
+
+   public void navigateToEditTask(Intent i) {
+      try {
+         getView().navigateToEditTask(i);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
+
+   public void refreshFirstTime() {
+      mModel.refreshFirstTime();
+   }
+
+   public void showEmptyRecyclerView(boolean b) {
+      try {
+         getView().showEmptyRecyclerView(b);
+      } catch (NullPointerException e) {
+         Log.d(TAG, "Presenter method: view was null");
+      }
+   }
 
    //-----------------DATABASE OPERATIONS------------///
+
 
    public void closeDatabases() {
       mModel.closeDatabases();
    }
-
 
    public List<LocalTask> getTasksFromList(String listId) {
       return mModel.getTasksFromList(listId);
@@ -186,17 +230,9 @@ public class TaskListPresenter implements Serializable {
       return mModel.getTaskFromListForAdapter(listIntId);
    }
 
+
    public void updateTasksFirstTime(List<LocalTask> tasks) {
       mModel.updateTasksFirstTime(tasks);
-   }
-
-
-   public void saveStringSharedPreference(String key, String value) {
-      try {
-         getView().saveStringShP(key, value);
-      } catch (NullPointerException e) {
-         Log.d(TAG, "Presenter method: view was null");
-      }
    }
 
    public String getStringShP(String key, @Nullable String defaultValue) {
@@ -224,57 +260,21 @@ public class TaskListPresenter implements Serializable {
       return getView().getContext().getString(stringId);
    }
 
+
    public void deleteTaskFromDatabase(int intId) {
       mModel.deleteTaskFromDatabase(intId);
-   }
-
-   public GoogleAccountCredential getCredential() {
-      try {
-         return getView().getCredential();
-      } catch (NullPointerException e) {
-         Log.d(TAG, "Presenter method: view was null");
-         return null;
-      }
    }
 
    public void updateTaskStatusInServer(LocalTask task, String newStatus) {
       mModel.updateTaskStatusInServer(task, newStatus);
    }
 
-   public boolean isDeviceOnline() {
-      try {
-         return getView().isDeviceOnline();
-      } catch (NullPointerException e) {
-         Log.d(TAG, "Presenter method: view was null");
-         return false;
-      }
-   }
-
-   public void navigateToEditTask(Intent i) {
-      try {
-         getView().navigateToEditTask(i);
-      } catch (NullPointerException e) {
-         Log.d(TAG, "Presenter method: view was null");
-      }
-   }
-
-   public void refreshFirstTime() {
-      mModel.refreshFirstTime();
-   }
-
    public void addTask(LocalTask task) {
       mModel.addTask(task);
    }
 
-   public void showEmptyRecyclerView(boolean b) {
-      try {
-         getView().showEmptyRecyclerView(b);
-      } catch (NullPointerException e) {
-         Log.d(TAG, "Presenter method: view was null");
-      }
-   }
 
-   public void moveTasks(LinkedHashMap<LocalTask, String> moveMap){
+   public void moveTasks(LinkedHashMap<LocalTask, String> moveMap) {
       mModel.moveTasks(moveMap);
    }
 
@@ -306,17 +306,17 @@ public class TaskListPresenter implements Serializable {
       mModel.addTaskFirstTimeFromServer(task, listId, listIntId);
    }
 
-   public void addTaskToAdapter(LocalTask localTask) {
-      try {
-         getView().addTaskToAdapter(localTask);
-      } catch (NullPointerException e) {
-         Log.d(TAG, "Presenter method: view was null");
-      }
-   }
-
-   public int updateLocalTask(LocalTask modifiedTask, boolean updateReminder) {
-      return mModel.updateLocalTask(modifiedTask, updateReminder);
-   }
+//   public void addTaskToAdapter(LocalTask localTask) {
+//      try {
+//         getView().addTaskToAdapter(localTask);
+//      } catch (NullPointerException e) {
+//         Log.d(TAG, "Presenter method: view was null");
+//      }
+//   }
+//
+//   public int updateLocalTask(LocalTask modifiedTask, boolean updateReminder) {
+//      return mModel.updateLocalTask(modifiedTask, updateReminder);
+//   }
 
    public void updateLocalTask(Task task, String listId) {
       mModel.updateLocalTask(task, listId);
@@ -326,13 +326,13 @@ public class TaskListPresenter implements Serializable {
       return mModel.updateNewlyCreatedTask(aTask, listId, taskIntId);
    }
 
-   public void updatePosition(Task task) {
-      mModel.updatePosition(task);
-   }
-
-   public String getTaskIdByIntId(int id) {
-      return mModel.getTaskIdByIntId(id);
-   }
+//   public void updatePosition(Task task) {
+//      mModel.updatePosition(task);
+//   }
+//
+//   public String getTaskIdByIntId(int id) {
+//      return mModel.getTaskIdByIntId(id);
+//   }
 
    public int getIntIdByTaskId(String taskId) {
       return mModel.getIntIdByTaskId(taskId);
@@ -346,13 +346,13 @@ public class TaskListPresenter implements Serializable {
       }
    }
 
-   public List<String> getListsTitles() {
-      return mModel.getListsTitles();
-   }
-
-   public List<String> getLocalListsIds() {
-      return mModel.getListsIds();
-   }
+//   public List<String> getListsTitles() {
+//      return mModel.getListsTitles();
+//   }
+//
+//   public List<String> getLocalListsIds() {
+//      return mModel.getListsIds();
+//   }
 
    private void setListsInfo(List<TaskList> lists) {
       Co.listIds.clear();
@@ -391,11 +391,11 @@ public class TaskListPresenter implements Serializable {
       mModel.deleteListFromServer(listId);
    }
 
-   public int getListsCount(){
-      return mModel.getListsCount();
-   }
+//   public int getListsCount(){
+//      return mModel.getListsCount();
+//   }
 
-   public void deleteListFromDB(int listIntId){
+   public void deleteListFromDB(int listIntId) {
       mModel.deleteListFromDb(listIntId);
    }
 
@@ -445,7 +445,7 @@ public class TaskListPresenter implements Serializable {
       return mModel.getListIntIdById(listId);
    }
 
-   public String getlistIdByIntId(int listIntId) {
+   public String getListIdByIntId(int listIntId) {
       return mModel.getListIdByIntId(listIntId);
    }
 
@@ -453,13 +453,13 @@ public class TaskListPresenter implements Serializable {
       mModel.addNewListToDBFromServer(serverList);
    }
 
-   public List<Integer> getListsIntIds() {
-      return mModel.getListsIntIds();
-   }
-
-   public boolean listExistsInDB(int listIntId) {
-      return mModel.listExistsInDB(listIntId);
-   }
+//   public List<Integer> getListsIntIds() {
+//      return mModel.getListsIntIds();
+//   }
+//
+//   public boolean listExistsInDB(int listIntId) {
+//      return mModel.listExistsInDB(listIntId);
+//   }
 
    public void markListDeleted(int listIntId) {
       mModel.markListDeleted(listIntId);
