@@ -23,7 +23,9 @@ import java.util.List;
 import static android.content.Context.ALARM_SERVICE;
 
 
-public class AlarmHelper {
+public class AlarmHelper implements com.adrapps.mytasks.interfaces.ReminderManager {
+
+   private final String TAG = "AlarmHelper: ";
 
    public static void setOrUpdateAlarm(LocalTask task, Context context) {
       if (task != null) {
@@ -236,8 +238,8 @@ public class AlarmHelper {
          }
       }
    }
-
-   public static void setDefaultRemindersForAllTasks(Context context) {
+   @Override
+   public void setDefaultRemindersForAllTasks(Context context) {
       final Context mContext = context.getApplicationContext();
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
       final int defaultReminderHour = pref.getInt(Co.DEFAULT_REMINDER_TIME_PREF_KEY, 8);
@@ -250,7 +252,11 @@ public class AlarmHelper {
             List<LocalTask> tasks = model.getLocalTasks();
             for (LocalTask task : tasks) {
                if (task == null) {
-//                  Toast.makeText(mContext, "La lista no es nula ni está vacía, pero al menos una de sus tareas es nula", Toast.LENGTH_LONG).show();
+                  try {
+                     throw new Exception(TAG + "Task returns null from mModel.getLocalTasks()");
+                  } catch (Exception e) {
+                     e.printStackTrace();
+                  }
                } else {
                   if (task.getStatus() == null) {
 //                     Toast.makeText(mContext,

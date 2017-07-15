@@ -74,7 +74,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
          COL_REMINDER_REPEAT_MODE,
          COL_REMINDER_REPEAT_DAY,
          COL_REMINDER_ID,
-//         COL_SYNC_STATUS,
          COL_LOCAL_SIBLING,
          COL_MOVED,
          COL_LOCAL_MODIFY,
@@ -96,7 +95,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
                COL_REMINDER_REPEAT_MODE + " int default 0," +
                COL_REMINDER_REPEAT_DAY + " int default -1," +
                COL_REMINDER_ID + " bigint," +
-//               COL_SYNC_STATUS + " int," +
                COL_LOCAL_SIBLING + " int default 0," +
                COL_MOVED + " int default 0," +
                COL_DELETED + " int," +
@@ -119,15 +117,15 @@ public class TasksDatabase extends SQLiteOpenHelper {
          COL_POSITION + " text default 000," +
          COL_LOCAL_MODIFY + " bigint default 0," +
          COL_PARENT + " text," +
-         COL_STATUS + " text," +
+         COL_STATUS + " text needsAction," +
          COL_COMPLETED + " text," +
          COL_REMINDER_REPEAT_MODE + " int default 0," +
          COL_REMINDER_REPEAT_DAY + " int default -1," +
-         COL_REMINDER_ID + " bigint," +
+         COL_REMINDER_ID + " bigint default 0," +
          COL_LOCAL_SIBLING + " int default 0," +
          COL_MOVED + " int default 0," +
-         COL_DELETED + " int," +
-         COL_HIDDEN + " int," +
+         COL_DELETED + " int default 0," +
+         COL_HIDDEN + " int default 0," +
          COL_LIST_ID + " text," +
          COL_LIST_INT_ID + " int," +
          COL_ID + " text," +
