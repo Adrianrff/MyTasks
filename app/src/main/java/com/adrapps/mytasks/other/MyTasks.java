@@ -15,16 +15,17 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 
-public class MyApplication extends Application {
+public class MyTasks extends Application {
 
 
 
    public static RefWatcher getRefWatcher(Context context) {
-      MyApplication application = (MyApplication) context.getApplicationContext();
+      MyTasks application = (MyTasks) context.getApplicationContext();
       return application.refWatcher;
    }
 
    private RefWatcher refWatcher;
+
 
     @Override
     public void onCreate() {
@@ -48,9 +49,9 @@ public class MyApplication extends Application {
                 mailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"adrianrff@gmail.com"});
                 mailIntent.putExtra(Intent.EXTRA_SUBJECT, "Exception stacktrace");
                 mailIntent.putExtra(Intent.EXTRA_TEXT, getFullErrorMessage(arg0));
-                PendingIntent pendingIntent = PendingIntent.getActivity(MyApplication.this,
+                PendingIntent pendingIntent = PendingIntent.getActivity(MyTasks.this,
                         0, mailIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(MyApplication.this)
+                NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(MyTasks.this)
                         .setSmallIcon(R.drawable.ic_bug_report)
                         .setContentTitle(getString(R.string.bug_report_notification_title))
                         .setContentText(arg0.getMessage())

@@ -63,7 +63,7 @@ import com.adrapps.mytasks.helpers.ObjectHelper;
 import com.adrapps.mytasks.helpers.SimpleItemTouchHelperCallback;
 import com.adrapps.mytasks.interfaces.Contract;
 import com.adrapps.mytasks.interfaces.OnStartDragListener;
-import com.adrapps.mytasks.other.MyApplication;
+import com.adrapps.mytasks.other.MyTasks;
 import com.adrapps.mytasks.preferences.SettingsActivity;
 import com.adrapps.mytasks.presenter.TaskListPresenter;
 import com.bumptech.glide.Glide;
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity
    @Override
    protected void onDestroy() {
       super.onDestroy();
-      RefWatcher refWatcher = MyApplication.getRefWatcher(this);
+      RefWatcher refWatcher = MyTasks.getRefWatcher(this);
       refWatcher.watch(this);
    }
 

@@ -48,6 +48,8 @@ public class DataModel implements Contract.Model {
       listsDb = ListsDatabase.getInstance(context.getApplicationContext());
    }
 
+
+
    //-----------------DATABASE OPERATIONS-----------------//
 
    @Override
@@ -56,15 +58,6 @@ public class DataModel implements Contract.Model {
       listsDb.close();
    }
 
-   @Override
-   public List<LocalList> createListsDatabase(List<TaskList> lists) {
-      return listsDb.createListDatabase(lists);
-   }
-
-   @Override
-   public void updateTasksFirstTime(List<LocalTask> tasks) {
-      tasksDb.updateTasksFirstTime(tasks);
-   }
 
    @Override
    public List<LocalTask> getTasksFromList(String listId) {
@@ -75,6 +68,18 @@ public class DataModel implements Contract.Model {
    public List<LocalTask> getTasksFromList(int listIntId) {
       return tasksDb.getTasksFromList(listIntId);
    }
+
+   @Override
+   public void updateTasksFirstTime(List<LocalTask> tasks) {
+      tasksDb.updateTasksFirstTime(tasks);
+   }
+
+
+   @Override
+   public List<LocalList> createListsDatabase(List<TaskList> lists) {
+      return listsDb.createListDatabase(lists);
+   }
+
 
    @Override
    public void markTasksDeleted(List<LocalTask> tasksFromList) {

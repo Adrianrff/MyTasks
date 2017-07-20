@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
-        android:name=".other.MyApplication"
+        android:name=".other.MyTasks"
         android:allowBackup="true"
         android:backupAgent=".other.Backup"
         android:fullBackupContent="true"

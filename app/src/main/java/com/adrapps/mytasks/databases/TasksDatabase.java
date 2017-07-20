@@ -1,5 +1,6 @@
 package com.adrapps.mytasks.databases;
 
+import android.app.Application;
 import android.app.backup.BackupManager;
 import android.content.ContentValues;
 import android.content.Context;

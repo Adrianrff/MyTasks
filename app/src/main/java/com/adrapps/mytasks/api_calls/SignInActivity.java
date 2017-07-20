@@ -174,6 +174,7 @@ public class SignInActivity extends AppCompatActivity
             requestCode, permissions, grantResults, this);
    }
 
+
    @Override
    public void onPermissionsGranted(int requestCode, List<String> list) {
       FirstAPICall firstCall = new FirstAPICall(this, mCredential);

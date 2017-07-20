@@ -43,7 +43,10 @@ public class AlarmHelper  {
             switch (task.getRepeatMode()) {
 
                case Co.REMINDER_ONE_TIME:
-                  //NO RESET IN RECEIVER
+               case Co.REMINDER_WEEKLY:
+               case Co.REMINDER_MONTHLY:
+                  //Set as one time. If the reminder repeats,
+                  // it'll be set to the next occurrence when it fires
                   alarmManager.set(AlarmManager.RTC_WAKEUP,
                         reminder, pendingIntent);
                   break;
@@ -63,17 +66,6 @@ public class AlarmHelper  {
                   mModel.updateReminder(task.getIntId(), reminder, task.getRepeatMode());
                   break;
 
-               case Co.REMINDER_WEEKLY:
-                  //RESET IN RECEIVER
-                  alarmManager.set(AlarmManager.RTC_WAKEUP,
-                        reminder, pendingIntent);
-                  break;
-
-               case Co.REMINDER_MONTHLY:
-                  //RESET IN RECEIVER
-                  alarmManager.set(AlarmManager.RTC_WAKEUP,
-                        reminder, pendingIntent);
-                  break;
             }
          }
       }
