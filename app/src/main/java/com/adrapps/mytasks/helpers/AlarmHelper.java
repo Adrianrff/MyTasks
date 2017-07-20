@@ -23,9 +23,9 @@ import java.util.List;
 import static android.content.Context.ALARM_SERVICE;
 
 
-public class AlarmHelper implements com.adrapps.mytasks.interfaces.ReminderManager {
+public class AlarmHelper  {
 
-   private final String TAG = "AlarmHelper: ";
+   private static final String TAG = "AlarmHelper: ";
 
    public static void setOrUpdateAlarm(LocalTask task, Context context) {
       if (task != null) {
@@ -238,8 +238,8 @@ public class AlarmHelper implements com.adrapps.mytasks.interfaces.ReminderManag
          }
       }
    }
-   @Override
-   public void setDefaultRemindersForAllTasks(Context context) {
+
+   public static void setDefaultRemindersForAllTasks(Context context) {
       final Context mContext = context.getApplicationContext();
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
       final int defaultReminderHour = pref.getInt(Co.DEFAULT_REMINDER_TIME_PREF_KEY, 8);

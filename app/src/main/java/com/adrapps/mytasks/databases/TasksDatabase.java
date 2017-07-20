@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.adrapps.mytasks.domain.Co;
 import com.adrapps.mytasks.domain.LocalTask;
@@ -174,6 +175,7 @@ public class TasksDatabase extends SQLiteOpenHelper {
    private SQLiteDatabase getWritableDB() {
       if (db == null || !db.isOpen()) {
          db = getWritableDatabase();
+         Log.d(TAG, "getWritableDB: Database reopened");
       }
       return db;
 
@@ -182,8 +184,13 @@ public class TasksDatabase extends SQLiteOpenHelper {
    private SQLiteDatabase getReadableDB() {
       if (db == null || !db.isOpen()) {
          db = getReadableDatabase();
+         Log.d(TAG, "getReadableDB: Database reopened");
       }
       return db;
+   }
+
+   public void beginTransacion(){
+      db.beginTransaction();
    }
 
    //-----------------------------HELPER METHODS------------------------------------//
@@ -398,7 +405,6 @@ public class TasksDatabase extends SQLiteOpenHelper {
             cv.put(COL_COMPLETED, currentTask.getCompleted());
             cv.put(COL_DELETED, (currentTask.isDeleted()) ? 1 : 0);
             cv.put(COL_HIDDEN, (currentTask.isHidden()) ? 1 : 0);
-//            cv.put(COL_SYNC_STATUS, currentTask.getSyncStatus());
             cv.put(COL_LOCAL_MODIFY, currentTask.getLocalModify());
             cv.put(COL_LOCAL_SIBLING, currentTask.getPreviousTask());
             cv.put(COL_LOCAL_DELETED, currentTask.getLocalDeleted());
