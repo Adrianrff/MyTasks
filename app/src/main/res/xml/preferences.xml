@@ -62,21 +62,18 @@
 
         <com.adrapps.mytasks.preferences.NumberPickerPreference
             android:key="morning_reminder_pref"
-            android:summary="Account connected"
-            android:defaultValue="0"
+            android:defaultValue="8"
             android:title="@string/morning_reminder_pref_title"/>
 
 
         <com.adrapps.mytasks.preferences.NumberPickerPreference
             android:key="afternoon_reminder_pref"
-            android:summary="Account connected"
-            android:defaultValue="0"
+            android:defaultValue="14"
             android:title="@string/afternoon_reminder_pref_title"/>
 
         <com.adrapps.mytasks.preferences.NumberPickerPreference
             android:key="evening_reminder_pref"
-            android:summary="Account connected"
-            android:defaultValue="0"
+            android:defaultValue="19"
             android:title="@string/evening_reminder_pref_title"/>
 
     </PreferenceCategory>

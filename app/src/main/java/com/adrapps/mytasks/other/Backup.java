@@ -19,7 +19,6 @@ public class Backup extends BackupAgentHelper {
    private static final String DB_BACKUP_KEY = "databases";
    private static final String PREFS_BACKUP_KEY = "prefsKey";
    private static final String DEFAULT_PREFERENCES_NAME_FOR_BACKUP = "com.adrapps.mytasks_preferences";
-   MyTasks.
    public Backup() {
    }
 

@@ -150,13 +150,11 @@ public class MainActivity extends AppCompatActivity
       setCredentials();
       this.newOrEditTaskIntent = new Intent(MainActivity.this, NewTaskOrEditActivity.class);
       if (getBooleanShP(Co.IS_FIRST_INIT, true)) {
+         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
          refreshFirstTime();
-//         saveIntShP(Co.MORNING_REMINDER_PREF_KEY, Co.MORNING_DEFAULT_REMINDER_TIME);
-//         saveIntShP(Co.AFTERNOON_REMINDER_PREF_KEY, Co.AFTERNOON_DEFAULT_REMINDER_TIME);
-//         saveIntShP(Co.EVENING_REMINDER_PREF_KEY, Co.EVENING_DEFAULT_REMINDER_TIME);
-         Glide.with(this)
-               .load(getStringShP(Co.USER_PIC_URL, null)).
+         Glide.with(this).
+               load(getStringShP(Co.USER_PIC_URL, null)).
                into(profilePicContainer);
          return;
       }
